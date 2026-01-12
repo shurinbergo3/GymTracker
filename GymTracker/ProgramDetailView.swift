@@ -131,7 +131,7 @@ struct WorkoutDayRow: View {
             if isExpanded {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     ForEach(Array(sortedExercises.enumerated()), id: \.element) { index, exercise in
-                        HStack {
+                        HStack(spacing: DesignSystem.Spacing.sm) {
                             Text("\(index + 1).")
                                 .font(DesignSystem.Typography.callout())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
@@ -140,6 +140,8 @@ struct WorkoutDayRow: View {
                             Text(exercise.name)
                                 .font(DesignSystem.Typography.body())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
+                            
+                            ExerciseInfoButton(exerciseName: exercise.name)
                             
                             Spacer()
                             

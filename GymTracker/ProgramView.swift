@@ -21,6 +21,13 @@ struct ProgramView: View {
         programs.filter { !$0.isActive }
     }
     
+    // Group programs by workout type
+    private var groupedPrograms: [WorkoutType: [Program]] {
+        Dictionary(grouping: inactivePrograms) { program in
+            program.days.first?.workoutType ?? .strength
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -86,14 +93,54 @@ struct ProgramView: View {
                             // All Programs Section
                             if !inactivePrograms.isEmpty {
                                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                    Text("ВСЕ ПРОГРАММЫ")
-                                        .font(DesignSystem.Typography.caption())
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        .tracking(1.2)
-                                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                                    HStack {
+                                        Text("ВСЕ ПРОГРАММЫ (\(inactivePrograms.count))")
+                                            .font(DesignSystem.Typography.caption())
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                            .tracking(1.2)
+                                        
+                                        Spacer()
+                                        
+                                        if inactivePrograms.count < 15 {
+                                            Button(action: loadDefaultPrograms) {
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "arrow.down.circle")
+                                                    Text("Загрузить")
+                                                }
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.accent)
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal, DesignSystem.Spacing.lg)
                                     
-                                    ForEach(inactivePrograms, id: \.self) { program in
-                                        ProgramCard(program: program)
+                                    // Группировка по типу тренировок
+                                    ForEach(WorkoutType.allCases, id: \.self) { workoutType in
+                                        if let programsForType = groupedPrograms[workoutType], !programsForType.isEmpty {
+                                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                                                HStack {
+                                                    Image(systemName: workoutType.icon)
+                                                        .font(.callout)
+                                                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                                                    
+                                                    Text(workoutType.rawValue)
+                                                        .font(DesignSystem.Typography.body())
+                                                        .foregroundColor(DesignSystem.Colors.primaryText)
+                                                    
+                                                    Spacer()
+                                                    
+                                                    Text("\(programsForType.count)")
+                                                        .font(DesignSystem.Typography.caption())
+                                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                                }
+                                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                                                .padding(.top, DesignSystem.Spacing.md)
+                                                
+                                                ForEach(programsForType, id: \.self) { program in
+                                                    ProgramCard(program: program)
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -322,6 +369,12 @@ struct ProgramCard: View {
         program.startDate = Date()
         
         try? modelContext.save()
+        
+        // Уведомляем систему об изменении активной программы
+        NotificationCenter.default.post(
+            name: Notification.Name("ActiveProgramChanged"),
+            object: nil
+        )
     }
     
     private func colorForWorkoutType(_ type: WorkoutType) -> Color {

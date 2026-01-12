@@ -56,43 +56,79 @@ struct ProgramSeeder {
         
         do {
             let existingPrograms = try context.fetch(descriptor)
+            let existingNames = Set(existingPrograms.map { $0.name })
             
-            // Если уже есть программы, не создаем новые
-            guard existingPrograms.isEmpty else {
-                print("Programs already exist, skipping seed")
+            // Список ожидаемых программ
+            let expectedPrograms = [
+                "Фулбади: Фундаментальная",
+                "Высокочастотная Гипертрофия",
+                "Продвинутый DUP",
+                "Эстетика и Баланс",
+                "Объемный Сплит",
+                "Pre-Exhaustion",
+                "Комплекс Медведь (The Bear)",
+                "EDT Плотность",
+                "PHA (Сердце)",
+                "5/3/1 Новичок",
+                "GZCLP Линейная",
+                "Верх/Низ Силовой",
+                "HIIT Пирамида",
+                "Stairmaster Glutes",
+                "LISS Эллипс"
+            ]
+            
+            // Если все программы уже есть, не создаем новые
+            let missingPrograms = expectedPrograms.filter { !existingNames.contains($0) }
+            
+            if missingPrograms.isEmpty {
+                print("All programs already exist (\(existingPrograms.count) programs)")
                 return
             }
             
-            print("Seeding default programs...")
-            let programs = generateDefaultPrograms(context: context)
+            print("Seeding \(missingPrograms.count) missing programs...")
+            let allPrograms = generateDefaultPrograms(context: context)
+            
+            // Вставляем только недостающие программы
+            for program in allPrograms {
+                if missingPrograms.contains(program.name) {
+                    context.insert(program)
+                }
+            }
+            
             try context.save()
-            print("Successfully seeded \\(programs.count) programs")
+            print("Successfully seeded programs. Total: \(try context.fetch(descriptor).count)")
         } catch {
-            print("Failed to seed programs: \\(error)")
+            print("Failed to seed programs: \(error)")
         }
     }
     
-    // MARK: - Category I: Full Body
+    // MARK: - Category I: Full Body (Силовая)
     
     private static func createFundamental2Day() -> Program {
         let program = Program(
-            name: "Фундаментальная (2 дня)",
-            desc: "Базовая программа full body для начинающих. Две тренировки в неделю с акцентом на основные движения."
+            name: "Фулбади: Фундаментальная",
+            desc: "Базовая программа full body для начинающих. 2 тренировки в неделю с акцентом на основные движения."
         )
         
         // День A
         let dayA = WorkoutDay(name: "День A", orderIndex: 0, workoutType: .strength)
         addExercise(to: dayA, name: "Приседания со штангой", sets: 3, order: 0)
         addExercise(to: dayA, name: "Жим штанги лежа", sets: 3, order: 1)
-        addExercise(to: dayA, name: "Тяга верхнего блока", sets: 3, order: 2)
+        addExercise(to: dayA, name: "Тяга горизонтального блока", sets: 3, order: 2)
+        addExercise(to: dayA, name: "Жим гантелей стоя", sets: 3, order: 3)
+        addExercise(to: dayA, name: "Сгибание ног лежа", sets: 3, order: 4)
+        addExercise(to: dayA, name: "Лицевая тяга", sets: 3, order: 5)
         dayA.program = program
         program.days.append(dayA)
         
         // День B
         let dayB = WorkoutDay(name: "День B", orderIndex: 1, workoutType: .strength)
         addExercise(to: dayB, name: "Румынская тяга", sets: 3, order: 0)
-        addExercise(to: dayB, name: "Жим на наклонной скамье", sets: 3, order: 1)
-        addExercise(to: dayB, name: "Тяга штанги в наклоне", sets: 3, order: 2)
+        addExercise(to: dayB, name: "Жим гантелей на наклонной", sets: 3, order: 1)
+        addExercise(to: dayB, name: "Тяга верхнего блока", sets: 3, order: 2)
+        addExercise(to: dayB, name: "Жим ногами", sets: 3, order: 3)
+        addExercise(to: dayB, name: "Махи гантелями в стороны", sets: 3, order: 4)
+        addExercise(to: dayB, name: "Ягодичный мост", sets: 3, order: 5)
         dayB.program = program
         program.days.append(dayB)
         
@@ -101,108 +137,107 @@ struct ProgramSeeder {
     
     private static func createHighFrequency3Day() -> Program {
         let program = Program(
-            name: "Высокочастотная (3 дня)",
-            desc: "Тренировка всего тела 3 раза в неделю с волновой периодизацией."
+            name: "Высокочастотная Гипертрофия",
+            desc: "Тренировка всего тела 3 раза в неделю. Высокая частота для максимальной гипертрофии."
         )
         
-        // День 1: Тяжелый
-        let day1 = WorkoutDay(name: "День 1 - Тяжелый", orderIndex: 0, workoutType: .strength)
-        addExercise(to: day1, name: "Приседания со штангой", sets: 4, order: 0)
-        addExercise(to: day1, name: "Жим штанги лежа", sets: 4, order: 1)
-        addExercise(to: day1, name: "Тяга штанги в наклоне", sets: 4, order: 2)
-        day1.program = program
-        program.days.append(day1)
+        // День A
+        let dayA = WorkoutDay(name: "День A", orderIndex: 0, workoutType: .strength)
+        addExercise(to: dayA, name: "Фронтальные приседания", sets: 4, order: 0)
+        addExercise(to: dayA, name: "Жим лежа (Силовой)", sets: 4, order: 1)
+        addExercise(to: dayA, name: "Тяга штанги в наклоне", sets: 4, order: 2)
+        addExercise(to: dayA, name: "Болгарские выпады", sets: 3, order: 3)
+        addExercise(to: dayA, name: "Разгибание на трицепс", sets: 3, order: 4)
+        dayA.program = program
+        program.days.append(dayA)
         
-        // День 2: Средний
-        let day2 = WorkoutDay(name: "День 2 - Средний", orderIndex: 1, workoutType: .strength)
-        addExercise(to: day2, name: "Жим ногами", sets: 3, order: 0)
-        addExercise(to: day2, name: "Жим гантелей лежа", sets: 3, order: 1)
-        addExercise(to: day2, name: "Подтягивания", sets: 3, order: 2)
-        day2.program = program
-        program.days.append(day2)
-        
-        // День 3: Легкий
-        let day3 = WorkoutDay(name: "День 3 - Легкий", orderIndex: 2, workoutType: .strength)
-        addExercise(to: day3, name: "Кубковые приседания", sets: 3, order: 0)
-        addExercise(to: day3, name: "Отжимания на брусьях", sets: 3, order: 1)
-        addExercise(to: day3, name: "Тяга верхнего блока", sets: 3, order: 2)
-        day3.program = program
-        program.days.append(day3)
+        // День B
+        let dayB = WorkoutDay(name: "День B", orderIndex: 1, workoutType: .strength)
+        addExercise(to: dayB, name: "Становая тяга", sets: 4, order: 0)
+        addExercise(to: dayB, name: "Армейский жим", sets: 4, order: 1)
+        addExercise(to: dayB, name: "Подтягивания", sets: 4, order: 2)
+        addExercise(to: dayB, name: "Сгибание ног сидя", sets: 3, order: 3)
+        addExercise(to: dayB, name: "Bayesian Curl", sets: 3, order: 4)
+        dayB.program = program
+        program.days.append(dayB)
         
         return program
     }
     
     private static func createAdvancedDUP4Day() -> Program {
         let program = Program(
-            name: "Продвинутый DUP (4 дня)",
-            desc: "Волновая периодизация с чередованием силовых и объемных дней."
+            name: "Продвинутый DUP",
+            desc: "4 дня в неделю. Волновая периодизация: чередование силовых и объемных дней."
         )
         
-        let day1 = WorkoutDay(name: "Сила - Низ", orderIndex: 0, workoutType: .strength)
-        addExercise(to: day1, name: "Приседания со штангой", sets: 5, order: 0)
-        addExercise(to: day1, name: "Румынская тяга", sets: 4, order: 1)
+        // День 1: Сила
+        let day1 = WorkoutDay(name: "День 1 (Сила)", orderIndex: 0, workoutType: .strength)
+        addExercise(to: day1, name: "Приседания Low bar", sets: 5, order: 0)
+        addExercise(to: day1, name: "Жим лежа", sets: 5, order: 1)
+        addExercise(to: day1, name: "Тяга Пендли", sets: 4, order: 2)
+        addExercise(to: day1, name: "Прогулка фермера", sets: 3, order: 3)
         day1.program = program
         program.days.append(day1)
         
-        let day2 = WorkoutDay(name: "Сила - Верх", orderIndex: 1, workoutType: .strength)
-        addExercise(to: day2, name: "Жим штанги лежа", sets: 5, order: 0)
-        addExercise(to: day2, name: "Тяга штанги в наклоне", sets: 4, order: 1)
+        // День 2: Гипертрофия
+        let day2 = WorkoutDay(name: "День 2 (Гипертрофия)", orderIndex: 1, workoutType: .strength)
+        addExercise(to: day2, name: "Жим ногами", sets: 4, order: 0)
+        addExercise(to: day2, name: "Жим Арнольда", sets: 4, order: 1)
+        addExercise(to: day2, name: "Тяга верхнего блока", sets: 4, order: 2)
+        addExercise(to: day2, name: "Подъем на носки", sets: 3, order: 3)
+        addExercise(to: day2, name: "Бицепс + Трицепс", sets: 3, order: 4)
         day2.program = program
         program.days.append(day2)
         
-        let day3 = WorkoutDay(name: "Объем - Низ", orderIndex: 2, workoutType: .strength)
-        addExercise(to: day3, name: "Жим ногами", sets: 4, order: 0)
-        addExercise(to: day3, name: "Болгарские выпады", sets: 3, order: 1)
-        addExercise(to: day3, name: "Ягодичный мост со штангой", sets: 3, order: 2)
+        // День 3: Сила Тяга
+        let day3 = WorkoutDay(name: "День 3 (Сила Тяга)", orderIndex: 2, workoutType: .strength)
+        addExercise(to: day3, name: "Становая тяга", sets: 5, order: 0)
+        addExercise(to: day3, name: "Отжимания на брусьях", sets: 4, order: 1)
+        addExercise(to: day3, name: "Подтягивания с весом", sets: 4, order: 2)
         day3.program = program
         program.days.append(day3)
         
-        let day4 = WorkoutDay(name: "Объем - Верх", orderIndex: 3, workoutType: .strength)
-        addExercise(to: day4, name: "Жим на наклонной скамье", sets: 4, order: 0)
-        addExercise(to: day4, name: "Подтягивания", sets: 4, order: 1)
-        addExercise(to: day4, name: "Жим гантелей сидя", sets: 3, order: 2)
+        // День 4: Гипертрофия
+        let day4 = WorkoutDay(name: "День 4 (Гипертрофия)", orderIndex: 3, workoutType: .strength)
+        addExercise(to: day4, name: "Гоблет-приседания", sets: 4, order: 0)
+        addExercise(to: day4, name: "Жим гантелей наклонный", sets: 4, order: 1)
+        addExercise(to: day4, name: "Тяга Т-грифа", sets: 4, order: 2)
+        addExercise(to: day4, name: "Махи на блоке", sets: 3, order: 3)
         day4.program = program
         program.days.append(day4)
         
         return program
     }
     
-    // MARK: - Category II: Split
+    // MARK: - Category II: Split (Силовая)
     
     private static func createAestheticsBalance() -> Program {
         let program = Program(
             name: "Эстетика и Баланс",
-            desc: "Сплит верх/низ с акцентом на пропорции и эстетику."
+            desc: "2-дневный сплит. Фокус на гармоничное развитие всех мышечных групп."
         )
         
-        let day1 = WorkoutDay(name: "Верх A", orderIndex: 0, workoutType: .strength)
-        addExercise(to: day1, name: "Жим штанги лежа", sets: 4, order: 0)
-        addExercise(to: day1, name: "Тяга штанги в наклоне", sets: 4, order: 1)
-        addExercise(to: day1, name: "Жим гантелей сидя", sets: 3, order: 2)
-        addExercise(to: day1, name: "Лицевая тяга", sets: 3, order: 3)
-        day1.program = program
-        program.days.append(day1)
+        // День A: Ноги + Плечи
+        let dayA = WorkoutDay(name: "День A (Ноги+Плечи)", orderIndex: 0, workoutType: .strength)
+        addExercise(to: dayA, name: "Приседания", sets: 4, order: 0)
+        addExercise(to: dayA, name: "Жим штанги стоя", sets: 4, order: 1)
+        addExercise(to: dayA, name: "Румынская тяга гантели", sets: 3, order: 2)
+        addExercise(to: dayA, name: "Махи сидя", sets: 3, order: 3)
+        addExercise(to: dayA, name: "Разгибание ног", sets: 3, order: 4)
+        addExercise(to: dayA, name: "Подъем ног в висе", sets: 3, order: 5)
+        dayA.program = program
+        program.days.append(dayA)
         
-        let day2 = WorkoutDay(name: "Низ A", orderIndex: 1, workoutType: .strength)
-        addExercise(to: day2, name: "Приседания со штангой", sets: 4, order: 0)
-        addExercise(to: day2, name: "Румынская тяга", sets: 3, order: 1)
-        addExercise(to: day2, name: "Ягодичный мост со штангой", sets: 3, order: 2)
-        day2.program = program
-        program.days.append(day2)
-        
-        let day3 = WorkoutDay(name: "Верх B", orderIndex: 2, workoutType: .strength)
-        addExercise(to: day3, name: "Жим на наклонной скамье", sets: 4, order: 0)
-        addExercise(to: day3, name: "Подтягивания", sets: 4, order: 1)
-        addExercise(to: day3, name: "Махи гантелями в стороны", sets: 3, order: 2)
-        day3.program = program
-        program.days.append(day3)
-        
-        let day4 = WorkoutDay(name: "Низ B", orderIndex: 3, workoutType: .strength)
-        addExercise(to: day4, name: "Жим ногами", sets: 4, order: 0)
-        addExercise(to: day4, name: "Болгарские выпады", sets: 3, order: 1)
-        addExercise(to: day4, name: "Сгибания ног лежа", sets: 3, order: 2)
-        day4.program = program
-        program.days.append(day4)
+        // День B: Спина + Грудь
+        let dayB = WorkoutDay(name: "День B (Спина+Грудь)", orderIndex: 1, workoutType: .strength)
+        addExercise(to: dayB, name: "Жим гантелей наклонный", sets: 4, order: 0)
+        addExercise(to: dayB, name: "Тяга штанги в наклоне", sets: 4, order: 1)
+        addExercise(to: dayB, name: "Жим лежа", sets: 4, order: 2)
+        addExercise(to: dayB, name: "Подтягивания", sets: 3, order: 3)
+        addExercise(to: dayB, name: "Пуловер", sets: 3, order: 4)
+        addExercise(to: dayB, name: "Молотки на бицепс", sets: 3, order: 5)
+        dayB.program = program
+        program.days.append(dayB)
         
         return program
     }
@@ -210,43 +245,29 @@ struct ProgramSeeder {
     private static func createVolumeSplit() -> Program {
         let program = Program(
             name: "Объемный Сплит",
-            desc: "Высокообъемная программа с акцентом на плечи и руки."
+            desc: "Фокус на плечи и руки. Высокий объем работы."
         )
         
-        let day1 = WorkoutDay(name: "Грудь + Трицепс", orderIndex: 0, workoutType: .strength)
-        addExercise(to: day1, name: "Жим штанги лежа", sets: 4, order: 0)
-        addExercise(to: day1, name: "Жим на наклонной скамье", sets: 3, order: 1)
-        addExercise(to: day1, name: "Разводка гантелей", sets: 3, order: 2)
-        addExercise(to: day1, name: "Французский жим", sets: 3, order: 3)
-        addExercise(to: day1, name: "Разгибания на блоке", sets: 3, order: 4)
-        day1.program = program
-        program.days.append(day1)
+        // День A
+        let dayA = WorkoutDay(name: "День A", orderIndex: 0, workoutType: .strength)
+        addExercise(to: dayA, name: "Жим ногами", sets: 4, order: 0)
+        addExercise(to: dayA, name: "Выпады", sets: 4, order: 1)
+        addExercise(to: dayA, name: "Жим Арнольда", sets: 4, order: 2)
+        addExercise(to: dayA, name: "Тяга к подбородку", sets: 3, order: 3)
+        addExercise(to: dayA, name: "Обратные разведения", sets: 3, order: 4)
+        dayA.program = program
+        program.days.append(dayA)
         
-        let day2 = WorkoutDay(name: "Спина + Бицепс", orderIndex: 1, workoutType: .strength)
-        addExercise(to: day2, name: "Подтягивания", sets: 4, order: 0)
-        addExercise(to: day2, name: "Тяга штанги в наклоне", sets: 4, order: 1)
-        addExercise(to: day2, name: "Тяга верхнего блока", sets: 3, order: 2)
-        addExercise(to: day2, name: "Подъем штанги на бицепс", sets: 3, order: 3)
-        addExercise(to: day2, name: "Молотковые сгибания", sets: 3, order: 4)
-        day2.program = program
-        program.days.append(day2)
-        
-        let day3 = WorkoutDay(name: "Ноги", orderIndex: 2, workoutType: .strength)
-        addExercise(to: day3, name: "Приседания со штангой", sets: 4, order: 0)
-        addExercise(to: day3, name: "Румынская тяга", sets: 4, order: 1)
-        addExercise(to: day3, name: "Жим ногами", sets: 3, order: 2)
-        addExercise(to: day3, name: "Подъемы на носки стоя", sets: 4, order: 3)
-        day3.program = program
-        program.days.append(day3)
-        
-        let day4 = WorkoutDay(name: "Плечи + Руки", orderIndex: 3, workoutType: .strength)
-        addExercise(to: day4, name: "Жим штанги стоя", sets: 4, order: 0)
-        addExercise(to: day4, name: "Махи гантелями в стороны", sets: 4, order: 1)
-        addExercise(to: day4, name: "Махи в наклоне", sets: 3, order: 2)
-        addExercise(to: day4, name: "Сгибание на блоке спиной", sets: 3, order: 3)
-        addExercise(to: day4, name: "Разгибание на канате над головой", sets: 3, order: 4)
-        day4.program = program
-        program.days.append(day4)
+        // День B
+        let dayB = WorkoutDay(name: "День B", orderIndex: 1, workoutType: .strength)
+        addExercise(to: dayB, name: "Отжимания на брусьях", sets: 4, order: 0)
+        addExercise(to: dayB, name: "Тяга блока узким хватом", sets: 4, order: 1)
+        addExercise(to: dayB, name: "Тяга одной рукой", sets: 4, order: 2)
+        addExercise(to: dayB, name: "Сведения (Flyes)", sets: 3, order: 3)
+        addExercise(to: dayB, name: "Сгибание Паук", sets: 3, order: 4)
+        addExercise(to: dayB, name: "Жим узким хватом", sets: 3, order: 5)
+        dayB.program = program
+        program.days.append(dayB)
         
         return program
     }
@@ -254,52 +275,44 @@ struct ProgramSeeder {
     private static func createPreExhaustion() -> Program {
         let program = Program(
             name: "Pre-Exhaustion",
-            desc: "Изоляция перед базовыми упражнениями для усиленной активации целевых мышц."
+            desc: "Изоляция перед базой. Предварительное утомление целевых мышц."
         )
         
-        let day1 = WorkoutDay(name: "Грудь", orderIndex: 0, workoutType: .strength)
-        addExercise(to: day1, name: "Разводка гантелей", sets: 3, order: 0)
-        addExercise(to: day1, name: "Жим штанги лежа", sets: 4, order: 1)
-        addExercise(to: day1, name: "Жим на наклонной скамье", sets: 3, order: 2)
-        day1.program = program
-        program.days.append(day1)
+        // День A
+        let dayA = WorkoutDay(name: "День A", orderIndex: 0, workoutType: .strength)
+        addExercise(to: dayA, name: "Разгибание ног", sets: 3, order: 0)
+        addExercise(to: dayA, name: "Гоблет присед", sets: 4, order: 1)
+        addExercise(to: dayA, name: "Махи в стороны", sets: 3, order: 2)
+        addExercise(to: dayA, name: "Жим Смита", sets: 4, order: 3)
+        dayA.program = program
+        program.days.append(dayA)
         
-        let day2 = WorkoutDay(name: "Спина", orderIndex: 1, workoutType: .strength)
-        addExercise(to: day2, name: "Тяга верхнего блока", sets: 3, order: 0)
-        addExercise(to: day2, name: "Подтягивания", sets: 4, order: 1)
-        addExercise(to: day2, name: "Тяга штанги в наклоне", sets: 4, order: 2)
-        day2.program = program
-        program.days.append(day2)
-        
-        let day3 = WorkoutDay(name: "Ноги", orderIndex: 2, workoutType: .strength)
-        addExercise(to: day3, name: "Выпады с гантелями", sets: 3, order: 0)
-        addExercise(to: day3, name: "Приседания со штангой", sets: 4, order: 1)
-        addExercise(to: day3, name: "Румынская тяга", sets: 4, order: 2)
-        day3.program = program
-        program.days.append(day3)
-        
-        let day4 = WorkoutDay(name: "Плечи", orderIndex: 3, workoutType: .strength)
-        addExercise(to: day4, name: "Махи гантелями в стороны", sets: 3, order: 0)
-        addExercise(to: day4, name: "Жим штанги стоя", sets: 4, order: 1)
-        addExercise(to: day4, name: "Лицевая тяга", sets: 3, order: 2)
-        day4.program = program
-        program.days.append(day4)
+        // День B
+        let dayB = WorkoutDay(name: "День B", orderIndex: 1, workoutType: .strength)
+        addExercise(to: dayB, name: "Пуловер", sets: 3, order: 0)
+        addExercise(to: dayB, name: "Тяга верхнего блока", sets: 4, order: 1)
+        addExercise(to: dayB, name: "Сведение рук", sets: 3, order: 2)
+        addExercise(to: dayB, name: "Жим в Хаммере", sets: 4, order: 3)
+        dayB.program = program
+        program.days.append(dayB)
         
         return program
     }
     
-    // MARK: - Category III: Fat Loss / Circuit
+    // MARK: - Category III: Circuit / Fat Loss (Круговая)
     
     private static func createBearComplex() -> Program {
         let program = Program(
             name: "Комплекс Медведь (The Bear)",
-            desc: "Классический барбелл комплекс: взятие, присед, жим, присед, жим."
+            desc: "Выполнить 7 циклов без отдыха = 1 раунд. Всего 3-5 раундов."
         )
         
-        let day1 = WorkoutDay(name: "Раунд 1", orderIndex: 0, workoutType: .circuit)
-        addExercise(to: day1, name: "Взятие на грудь", sets: 5, order: 0)
-        addExercise(to: day1, name: "Приседания со штангой", sets: 5, order: 1)
-        addExercise(to: day1, name: "Швунг жимовой", sets: 5, order: 2)
+        let day1 = WorkoutDay(name: "День 1", orderIndex: 0, workoutType: .circuit)
+        addExercise(to: day1, name: "Взятие на грудь", sets: 1, order: 0)
+        addExercise(to: day1, name: "Фронтальный присед", sets: 1, order: 1)
+        addExercise(to: day1, name: "Жим швунг", sets: 1, order: 2)
+        addExercise(to: day1, name: "Присед на спине", sets: 1, order: 3)
+        addExercise(to: day1, name: "Жим из-за головы", sets: 1, order: 4)
         day1.program = program
         program.days.append(day1)
         
@@ -308,21 +321,17 @@ struct ProgramSeeder {
     
     private static func createEDT() -> Program {
         let program = Program(
-            name: "EDT (Плотность)",
-            desc: "Escalating Density Training - суперсеты антагонистов на время."
+            name: "EDT Плотность",
+            desc: "Escalating Density Training. Два 15-минутных блока."
         )
         
-        let day1 = WorkoutDay(name: "Блок 1", orderIndex: 0, workoutType: .circuit)
-        addExercise(to: day1, name: "Подтягивания", sets: 10, order: 0)
-        addExercise(to: day1, name: "Отжимания на брусьях", sets: 10, order: 1)
+        let day1 = WorkoutDay(name: "День 1", orderIndex: 0, workoutType: .circuit)
+        addExercise(to: day1, name: "Гоблет приседания", sets: 1, order: 0)
+        addExercise(to: day1, name: "Отжимания", sets: 1, order: 1)
+        addExercise(to: day1, name: "Махи гирей", sets: 1, order: 2)
+        addExercise(to: day1, name: "Тяга TRX/Блока", sets: 1, order: 3)
         day1.program = program
         program.days.append(day1)
-        
-        let day2 = WorkoutDay(name: "Блок 2", orderIndex: 1, workoutType: .circuit)
-        addExercise(to: day2, name: "Приседания со штангой", sets: 10, order: 0)
-        addExercise(to: day2, name: "Румынская тяга", sets: 10, order: 1)
-        day2.program = program
-        program.days.append(day2)
         
         return program
     }
@@ -330,43 +339,44 @@ struct ProgramSeeder {
     private static func createPHA() -> Program {
         let program = Program(
             name: "PHA (Сердце)",
-            desc: "Peripheral Heart Action - чередование верха и низа тела в круговом режиме."
+            desc: "Peripheral Heart Action. Круговая без остановки для максимальной кардио-нагрузки."
         )
         
-        let day1 = WorkoutDay(name: "Круг 1", orderIndex: 0, workoutType: .circuit)
-        addExercise(to: day1, name: "Приседания со штангой", sets: 3, order: 0)
-        addExercise(to: day1, name: "Жим штанги лежа", sets: 3, order: 1)
-        addExercise(to: day1, name: "Румынская тяга", sets: 3, order: 2)
-        addExercise(to: day1, name: "Тяга штанги в наклоне", sets: 3, order: 3)
-        addExercise(to: day1, name: "Выпады с гантелями", sets: 3, order: 4)
-        addExercise(to: day1, name: "Жим гантелей сидя", sets: 3, order: 5)
+        let day1 = WorkoutDay(name: "Круговая", orderIndex: 0, workoutType: .circuit)
+        addExercise(to: day1, name: "Выпады назад", sets: 1, order: 0)
+        addExercise(to: day1, name: "Жим гантелей стоя", sets: 1, order: 1)
+        addExercise(to: day1, name: "Становая сумо", sets: 1, order: 2)
+        addExercise(to: day1, name: "Отжимания", sets: 1, order: 3)
+        addExercise(to: day1, name: "Планка", sets: 1, order: 4)
         day1.program = program
         program.days.append(day1)
         
         return program
     }
     
-    // MARK: - Category IV: Strength
+    // MARK: - Category IV: Strength (Силовая)
     
     private static func create531Beginner() -> Program {
         let program = Program(
-            name: "5/3/1 для новичков",
-            desc: "Классическая программа Wendler для развития силы в базовых движениях."
+            name: "5/3/1 Новичок",
+            desc: "Классическая программа Джима Вендлера для новичков. 2 дня в неделю."
         )
         
-        let day1 = WorkoutDay(name: "Присед + Жим", orderIndex: 0, workoutType: .strength)
-        addExercise(to: day1, name: "Приседания со штангой", sets: 3, order: 0)
-        addExercise(to: day1, name: "Жим штанги лежа", sets: 3, order: 1)
-        addExercise(to: day1, name: "Тяга штанги в наклоне", sets: 3, order: 2)
-        day1.program = program
-        program.days.append(day1)
+        // День A
+        let dayA = WorkoutDay(name: "День A", orderIndex: 0, workoutType: .strength)
+        addExercise(to: dayA, name: "Приседания (5/3/1)", sets: 3, order: 0)
+        addExercise(to: dayA, name: "Жим лежа (5/3/1)", sets: 3, order: 1)
+        addExercise(to: dayA, name: "Подсобка (50 reps)", sets: 5, order: 2)
+        dayA.program = program
+        program.days.append(dayA)
         
-        let day2 = WorkoutDay(name: "Тяга + Жим стоя", orderIndex: 1, workoutType: .strength)
-        addExercise(to: day2, name: "Румынская тяга", sets: 3, order: 0)
-        addExercise(to: day2, name: "Жим штанги стоя", sets: 3, order: 1)
-        addExercise(to: day2, name: "Подтягивания", sets: 3, order: 2)
-        day2.program = program
-        program.days.append(day2)
+        // День B
+        let dayB = WorkoutDay(name: "День B", orderIndex: 1, workoutType: .strength)
+        addExercise(to: dayB, name: "Становая тяга (5/3/1)", sets: 3, order: 0)
+        addExercise(to: dayB, name: "Армейский жим (5/3/1)", sets: 3, order: 1)
+        addExercise(to: dayB, name: "Подсобка", sets: 5, order: 2)
+        dayB.program = program
+        program.days.append(dayB)
         
         return program
     }
@@ -374,36 +384,24 @@ struct ProgramSeeder {
     private static func createGZCLP() -> Program {
         let program = Program(
             name: "GZCLP Линейная",
-            desc: "Система Tier 1-2-3: тяжелые базовые, средние вспомогательные, легкие изоляции."
+            desc: "GZCL Linear Progression. Три уровня интенсивности: T1, T2, T3."
         )
         
+        // День 1
         let day1 = WorkoutDay(name: "День 1", orderIndex: 0, workoutType: .strength)
-        addExercise(to: day1, name: "Приседания со штангой", sets: 5, order: 0) // T1
-        addExercise(to: day1, name: "Жим штанги лежа", sets: 3, order: 1) // T2
-        addExercise(to: day1, name: "Тяга верхнего блока", sets: 3, order: 2) // T3
+        addExercise(to: day1, name: "Присед (Т1 5×3)", sets: 5, order: 0)
+        addExercise(to: day1, name: "Жим лежа (Т2 3×10)", sets: 3, order: 1)
+        addExercise(to: day1, name: "Тяга блока (Т3 3×15)", sets: 3, order: 2)
         day1.program = program
         program.days.append(day1)
         
+        // День 2
         let day2 = WorkoutDay(name: "День 2", orderIndex: 1, workoutType: .strength)
-        addExercise(to: day2, name: "Жим штанги стоя", sets: 5, order: 0) // T1
-        addExercise(to: day2, name: "Румынская тяга", sets: 3, order: 1) // T2
-        addExercise(to: day2, name: "Разводка гантелей", sets: 3, order: 2) // T3
+        addExercise(to: day2, name: "Армейский жим (Т1)", sets: 5, order: 0)
+        addExercise(to: day2, name: "Становая (Т2)", sets: 3, order: 1)
+        addExercise(to: day2, name: "Разведения (Т3)", sets: 3, order: 2)
         day2.program = program
         program.days.append(day2)
-        
-        let day3 = WorkoutDay(name: "День 3", orderIndex: 2, workoutType: .strength)
-        addExercise(to: day3, name: "Жим штанги лежа", sets: 5, order: 0) // T1
-        addExercise(to: day3, name: "Приседания со штангой", sets: 3, order: 1) // T2
-        addExercise(to: day3, name: "Махи гантелями в стороны", sets: 3, order: 2) // T3
-        day3.program = program
-        program.days.append(day3)
-        
-        let day4 = WorkoutDay(name: "День 4", orderIndex: 3, workoutType: .strength)
-        addExercise(to: day4, name: "Румынская тяга", sets: 5, order: 0) // T1
-        addExercise(to: day4, name: "Жим штанги стоя", sets: 3, order: 1) // T2
-        addExercise(to: day4, name: "Подъем штанги на бицепс", sets: 3, order: 2) // T3
-        day4.program = program
-        program.days.append(day4)
         
         return program
     }
@@ -411,50 +409,39 @@ struct ProgramSeeder {
     private static func createUpperLowerStrength() -> Program {
         let program = Program(
             name: "Верх/Низ Силовой",
-            desc: "Традиционный верх/низ с упором на тяжелые базовые упражнения."
+            desc: "Сплит верх/низ для максимальной силы. Тяжелые базовые движения."
         )
         
-        let day1 = WorkoutDay(name: "Верх 1", orderIndex: 0, workoutType: .strength)
-        addExercise(to: day1, name: "Жим штанги лежа", sets: 5, order: 0)
-        addExercise(to: day1, name: "Тяга штанги в наклоне", sets: 5, order: 1)
-        addExercise(to: day1, name: "Жим гантелей сидя", sets: 3, order: 2)
-        day1.program = program
-        program.days.append(day1)
+        // День Верх
+        let dayUpper = WorkoutDay(name: "Day Upper", orderIndex: 0, workoutType: .strength)
+        addExercise(to: dayUpper, name: "Жим лежа", sets: 5, order: 0)
+        addExercise(to: dayUpper, name: "Тяга в наклоне", sets: 5, order: 1)
+        addExercise(to: dayUpper, name: "Жим стоя", sets: 4, order: 2)
+        addExercise(to: dayUpper, name: "Подтягивания (Heavy)", sets: 4, order: 3)
+        dayUpper.program = program
+        program.days.append(dayUpper)
         
-        let day2 = WorkoutDay(name: "Низ 1", orderIndex: 1, workoutType: .strength)
-        addExercise(to: day2, name: "Приседания со штангой", sets: 5, order: 0)
-        addExercise(to: day2, name: "Румынская тяга", sets: 4, order: 1)
-        addExercise(to: day2, name: "Подъемы на носки стоя", sets: 4, order: 2)
-        day2.program = program
-        program.days.append(day2)
-        
-        let day3 = WorkoutDay(name: "Верх 2", orderIndex: 2, workoutType: .strength)
-        addExercise(to: day3, name: "Жим штанги стоя", sets: 5, order: 0)
-        addExercise(to: day3, name: "Подтягивания", sets: 5, order: 1)
-        addExercise(to: day3, name: "Отжимания на брусьях", sets: 3, order: 2)
-        day3.program = program
-        program.days.append(day3)
-        
-        let day4 = WorkoutDay(name: "Низ 2", orderIndex: 3, workoutType: .strength)
-        addExercise(to: day4, name: "Жим ногами", sets: 4, order: 0)
-        addExercise(to: day4, name: "Болгарские выпады", sets: 3, order: 1)
-        addExercise(to: day4, name: "Сгибания ног лежа", sets: 3, order: 2)
-        day4.program = program
-        program.days.append(day4)
+        // День Низ
+        let dayLower = WorkoutDay(name: "Day Lower", orderIndex: 1, workoutType: .strength)
+        addExercise(to: dayLower, name: "Приседания", sets: 5, order: 0)
+        addExercise(to: dayLower, name: "Становая тяга", sets: 5, order: 1)
+        addExercise(to: dayLower, name: "Ягодичный мост (Hip Thrust)", sets: 4, order: 2)
+        dayLower.program = program
+        program.days.append(dayLower)
         
         return program
     }
     
-    // MARK: - Category V: Cardio
+    // MARK: - Category V: Cardio (Кардио)
     
     private static func createHIITPyramid() -> Program {
         let program = Program(
             name: "HIIT Пирамида",
-            desc: "Высокоинтенсивные интервалы на беговой дорожке с пирамидальной схемой."
+            desc: "Высокоинтенсивные интервалы на беговой дорожке. 30/30, 45/45, 60/60."
         )
         
-        let day1 = WorkoutDay(name: "Пирамида", orderIndex: 0, workoutType: .cardio)
-        addExercise(to: day1, name: "Бег", sets: 1, order: 0)
+        let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .cardio)
+        addExercise(to: day1, name: "Бег (Интервалы: 30/30, 45/45, 60/60)", sets: 1, order: 0)
         day1.program = program
         program.days.append(day1)
         
@@ -464,11 +451,11 @@ struct ProgramSeeder {
     private static func createStairmasterGlutes() -> Program {
         let program = Program(
             name: "Stairmaster Glutes",
-            desc: "Степпер с акцентом на развитие ягодиц. Умеренная интенсивность, долгая длительность."
+            desc: "Степпер для ягодиц. Шаг через ступеньку, перекрестный шаг. Не держаться за поручни!"
         )
         
-        let day1 = WorkoutDay(name: "Ступени", orderIndex: 0, workoutType: .cardio)
-        addExercise(to: day1, name: "Степпер", sets: 1, order: 0)
+        let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .cardio)
+        addExercise(to: day1, name: "Степпер (Шаг через ступеньку, Перекрестный шаг)", sets: 1, order: 0)
         day1.program = program
         program.days.append(day1)
         
@@ -478,11 +465,11 @@ struct ProgramSeeder {
     private static func createLISSElliptical() -> Program {
         let program = Program(
             name: "LISS Эллипс",
-            desc: "Низкоинтенсивное равномерное кардио для восстановления и жиросжигания."
+            desc: "40-60 минут в зоне 2 пульса. Активно работать руками (push-pull)."
         )
         
-        let day1 = WorkoutDay(name: "Эллипс", orderIndex: 0, workoutType: .cardio)
-        addExercise(to: day1, name: "Эллипс", sets: 1, order: 0)
+        let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .cardio)
+        addExercise(to: day1, name: "Эллипс (40-60 мин, зона 2)", sets: 1, order: 0)
         day1.program = program
         program.days.append(day1)
         

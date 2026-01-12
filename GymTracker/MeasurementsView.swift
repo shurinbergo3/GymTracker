@@ -93,12 +93,9 @@ struct BasicParametersSection: View {
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .tracking(1.2)
                                 
-                                Text(String(format: "%.0f", profile.height))
+                                Text("\(String(format: "%.0f", profile.height)) см")
                                     .font(.system(size: 48, weight: .heavy, design: .rounded))
                                     .foregroundColor(DesignSystem.Colors.primaryText)
-                                + Text(" см")
-                                    .font(DesignSystem.Typography.title3())
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                             
                             Spacer()
@@ -107,49 +104,50 @@ struct BasicParametersSection: View {
                         Divider()
                             .background(DesignSystem.Colors.secondaryText.opacity(0.3))
                         
-                        // Вес с историей (стопка)
-                        HStack(alignment: .top) {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                                Text("ВЕС")
-                                    .font(DesignSystem.Typography.caption())
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    .tracking(1.2)
-                                
-                                // Текущий вес (самый свежий)
-                                if let current = currentWeight {
-                                    Text(String(format: "%.1f", current.weight))
-                                        .font(.system(size: 48, weight: .heavy, design: .rounded))
-                                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                                    + Text(" кг")
-                                        .font(DesignSystem.Typography.title3())
+                        // Вес с графиком
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                            HStack(alignment: .center) {
+                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                                    Text("ВЕС")
+                                        .font(DesignSystem.Typography.caption())
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        .tracking(1.2)
                                     
-                                    // Старые веса (стопка)
-                                    if !olderWeights.isEmpty {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            ForEach(Array(olderWeights.enumerated()), id: \.element.date) { index, record in
-                                                Text(String(format: "%.1f кг", record.weight))
-                                                    .font(DesignSystem.Typography.body())
-                                                    .strikethrough()
-                                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                                                    .opacity(1.0 - (Double(index + 1) * 0.25))
-                                            }
-                                        }
-                                        .padding(.top, DesignSystem.Spacing.sm)
+                                    // Текущий вес
+                                    if let current = currentWeight {
+                                        Text("\(String(format: "%.1f", current.weight)) кг")
+                                            .font(.system(size: 36, weight: .heavy, design: .rounded))
+                                            .foregroundColor(DesignSystem.Colors.neonGreen)
+                                    } else {
+                                        Text("—")
+                                            .font(.system(size: 36, weight: .heavy, design: .rounded))
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
                                     }
-                                } else {
-                                    Text("—")
-                                        .font(.system(size: 48, weight: .heavy, design: .rounded))
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
+                                
+                                Spacer()
+                                
+                                Button(action: { showingAddWeight = true }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .font(.system(size: 32))
+                                        .foregroundColor(DesignSystem.Colors.neonGreen)
                                 }
                             }
                             
-                            Spacer()
+                            // Weight Chart
+                            WeightChartView(weightHistory: weightHistory)
                             
-                            Button(action: { showingAddWeight = true }) {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.system(size: 32))
-                                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                            // Previous weights (compact list)
+                            if !olderWeights.isEmpty {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    ForEach(Array(olderWeights.enumerated()), id: \.element.date) { index, record in
+                                        Text(String(format: "%.1f кг", record.weight))
+                                            .font(DesignSystem.Typography.caption())
+                                            .strikethrough()
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                            .opacity(1.0 - (Double(index + 1) * 0.25))
+                                    }
+                                }
                             }
                         }
                     }
@@ -224,12 +222,9 @@ struct MeasurementCard: View {
                     .tracking(1.0)
                 
                 if let value = latestValue {
-                    Text(String(format: "%.1f", value))
+                    Text("\(String(format: "%.1f", value)) см")
                         .font(.system(size: 32, weight: .heavy, design: .rounded))
                         .foregroundColor(DesignSystem.Colors.neonGreen)
-                    + Text(" см")
-                        .font(DesignSystem.Typography.body())
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
                 } else {
                     Text("—")
                         .font(.system(size: 32, weight: .heavy, design: .rounded))

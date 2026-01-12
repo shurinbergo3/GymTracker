@@ -23,6 +23,10 @@ struct ExerciseCard: View {
     @State private var showingInput: Bool = false
     @State private var elapsedTime: TimeInterval = 0 // Таймер
     @State private var timerRunning: Bool = false
+    @State private var showingReplacement = false // Для замены упражнения
+    @State private var showingComment = false // Для комментария
+    @State private var exerciseComment: String = "" // Комментарий к упражнению
+    @State private var showingWorkoutTypeChange = false // Для смены типа тренировки
     
     @Query private var allSessions: [WorkoutSession]
     
@@ -67,14 +71,39 @@ struct ExerciseCard: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                // Header
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                // Exercise Name with Info and Replace Buttons
+                HStack(spacing: DesignSystem.Spacing.sm) {
                     Text(exercise.name)
-                        .font(DesignSystem.Typography.title3())
+                        .font(DesignSystem.Typography.title2())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     
+                    ExerciseInfoButton(exerciseName: exercise.name)
+                    
+                    Spacer()
+                    
+                    // Replace Button
+                    Menu {
+                        Button(action: { showingReplacement = true }) {
+                            Label("Заменить упражнение", systemImage: "arrow.triangle.2.circlepath")
+                        }
+                        
+                        Button(action: { showingWorkoutTypeChange = true }) {
+                            Label("Изменить тип упражнения", systemImage: "slider.horizontal.3")
+                        }
+                        
+                        Button(action: { showingComment = true }) {
+                            Label("Комментарий", systemImage: "text.bubble")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                            .font(.title3)
+                            .foregroundColor(DesignSystem.Colors.accent)
+                    }
+                    .menuStyle(.button)
+                    .menuIndicator(.hidden)
+                    
                     Text("\(exercise.plannedSets) подходов")
-                        .font(DesignSystem.Typography.caption())
+                        .font(DesignSystem.Typography.callout())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
                 
@@ -147,6 +176,40 @@ struct ExerciseCard: View {
                         onSave: saveCurrentSet
                     )
                 } else if completedSets.count >= exercise.plannedSets {
+                    // Comment Section
+                    if !exerciseComment.isEmpty {
+                        HStack(spacing: DesignSystem.Spacing.sm) {
+                            Image(systemName: "text.bubble.fill")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.accent)
+                            
+                            Text(exerciseComment)
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                .italic()
+                            
+                            Spacer()
+                            
+                            Button("Изменить") {
+                                showingComment = true
+                            }
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundColor(DesignSystem.Colors.accent)
+                        }
+                        .padding(.vertical, DesignSystem.Spacing.xs)
+                    } else {
+                        Button(action: { showingComment = true }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "text.bubble")
+                                    .font(.caption2)
+                                Text("Добавить комментарий")
+                            }
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                        .padding(.vertical, DesignSystem.Spacing.xs)
+                    }
+                    
                     // Show "Add More" button after completing planned sets
                     Button(action: {
                         showingInput = true
@@ -181,6 +244,30 @@ struct ExerciseCard: View {
             } else {
                 showingInput = false
             }
+        }
+        .sheet(isPresented: $showingReplacement) {
+            ExerciseSelectionView(onExerciseSelected: { newExercise in
+                replaceExercise(with: newExercise)
+                showingReplacement = false
+            })
+        }
+        .sheet(isPresented: $showingComment) {
+            CommentEditorView(comment: $exerciseComment)
+        }
+        .sheet(isPresented: $showingWorkoutTypeChange) {
+            WorkoutTypeSelectorView(
+                selectedType: Binding(
+                    get: { workoutType },
+                    set: { newType in
+                        // Update exercise workout type
+                        // Note: This changes the whole day's type since it's at day level
+                    }
+                ),
+                onSelect: { newType in
+                    // Could update individual exercise type if model supports it
+                    showingWorkoutTypeChange = false
+                }
+            )
         }
     }
     
@@ -245,6 +332,18 @@ struct ExerciseCard: View {
         rounds = ""
         elapsedTime = 0
         timerRunning = false
+    }
+    
+    private func replaceExercise(with newExercise: LibraryExercise) {
+        // Update the exercise template name to the new exercise
+        exercise.name = newExercise.name
+        
+        // Update all existing sets for this exercise
+        for set in completedSets {
+            set.exerciseName = newExercise.name
+        }
+        
+        try? modelContext.save()
     }
     
     private func startEditing(_ set: WorkoutSet) {
@@ -323,7 +422,7 @@ struct CurrentSetInput: View {
                     Button(action: toggleTimer) {
                         Image(systemName: timerRunning ? "pause.fill" : "play.fill")
                             .font(.title2)
-                            .foregroundColor(.white)
+                            .foregroundColor(timerRunning ? .white : .black) // Black icon on neon green
                             .frame(width: 60, height: 44)
                             .background(timerRunning ? .orange : DesignSystem.Colors.neonGreen)
                             .cornerRadius(DesignSystem.CornerRadius.medium)

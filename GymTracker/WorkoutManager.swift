@@ -61,14 +61,25 @@ class WorkoutManager: ObservableObject {
     @Published var selectedDay: WorkoutDay?
     @Published var workoutState: WorkoutState = .idle
     @Published var currentSession: WorkoutSession?
+    @Published var activeProgram: Program?
     
     private let modelContext: ModelContext
-    private(set) var activeProgram: Program?
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
         loadActiveProgram()
         initializeSelectedDay()
+        
+        // Listen for active program changes
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name("ActiveProgramChanged"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.refreshActiveProgram()
+            }
+        }
     }
     
     // MARK: - Initialization
@@ -78,6 +89,11 @@ class WorkoutManager: ObservableObject {
             predicate: #Predicate { $0.isActive == true }
         )
         activeProgram = try? modelContext.fetch(descriptor).first
+    }
+    
+    func refreshActiveProgram() {
+        loadActiveProgram()
+        initializeSelectedDay()
     }
     
     func initializeSelectedDay() {

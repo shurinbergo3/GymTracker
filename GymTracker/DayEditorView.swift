@@ -137,9 +137,13 @@ struct ExerciseEditRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text(exercise.name)
-                    .font(DesignSystem.Typography.body())
-                    .foregroundColor(DesignSystem.Colors.primaryText)
+                HStack(spacing: DesignSystem.Spacing.sm) {
+                    Text(exercise.name)
+                        .font(DesignSystem.Typography.body())
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                    
+                    ExerciseInfoButton(exerciseName: exercise.name)
+                }
                 
                 Text("\(exercise.plannedSets) подходов")
                     .font(DesignSystem.Typography.caption())

@@ -159,16 +159,13 @@ struct ActiveWorkoutView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.lg) {
-                    // Calendar first
-                    ExpandableCalendarView()
-                        .id("top")
-                    
-                    // Progress banner after calendar (with full program chart)
+                    // Progress banner
                     if let activeProgram = workoutManager.activeProgram {
                         WorkoutProgressBanner(
                             programName: activeProgram.name,
                             program: activeProgram
                         )
+                        .id("top") // Anchor for scrolling
                     }
                     
                     // Current workout card
@@ -182,11 +179,11 @@ struct ActiveWorkoutView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
+            .scrollBounceBehavior(.basedOnSize)
             .onAppear {
-                // Scroll to top when view appears
-                withAnimation {
-                    proxy.scrollTo("top", anchor: .top)
-                }
+                // Scroll to top when workout starts
+                proxy.scrollTo("top", anchor: .top)
             }
         }
     }
@@ -348,6 +345,7 @@ struct ActiveWorkoutContent: View {
                     session: workoutManager.currentSession,
                     workoutType: workoutDay.workoutType
                 )
+                .id(exercise.id)
             }
             
             // Add exercise button

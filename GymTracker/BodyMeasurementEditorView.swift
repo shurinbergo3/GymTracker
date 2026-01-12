@@ -140,12 +140,9 @@ struct MeasurementEditCard: View {
                     
                     if let latest = latest {
                         // Текущее значение
-                        Text(String(format: "%.1f", latest.value))
+                        Text("\(String(format: "%.1f", latest.value)) см")
                             .font(.system(size: 32, weight: .heavy, design: .rounded))
                             .foregroundColor(DesignSystem.Colors.neonGreen)
-                        + Text(" см")
-                            .font(DesignSystem.Typography.body())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
                         
                         // Старые значения (стопка)
                         if !older.isEmpty {
