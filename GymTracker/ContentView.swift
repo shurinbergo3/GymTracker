@@ -1,8 +1,8 @@
 //
 //  ContentView.swift
-//  GymTracker
+//  Workout Tracker
 //
-//  Created by Aleksandr Shuvalov on 1/8/26.
+//  Created by Antigravity
 //
 
 import SwiftUI
@@ -10,52 +10,40 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        TabView {
+            // Tab 1: Тренировка
+            WorkoutView(modelContext: modelContext)
+                .tabItem {
+                    Label("Тренировка", systemImage: "figure.strengthtraining.traditional")
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+            
+            // Tab 2: Программа
+            ProgramView()
+                .tabItem {
+                    Label("Программа", systemImage: "list.bullet.clipboard.fill")
                 }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+            
+            // Tab 3: Параметры
+            MeasurementsView()
+                .tabItem {
+                    Label("Параметры", systemImage: "chart.line.uptrend.xyaxis")
                 }
-            }
-        } detail: {
-            Text("Select an item")
         }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
+        .tint(DesignSystem.Colors.accent)
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: [
+            UserProfile.self,
+            BodyMeasurement.self,
+            Program.self,
+            WorkoutDay.self,
+            ExerciseTemplate.self,
+            WorkoutSession.self,
+            WorkoutSet.self
+        ], inMemory: true)
 }
