@@ -42,7 +42,6 @@ struct ExpandableCalendarView: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.horizontal, DesignSystem.Spacing.lg)
     }
     
     private func previousMonth() {

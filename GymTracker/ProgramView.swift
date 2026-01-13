@@ -12,6 +12,7 @@ struct ProgramView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var programs: [Program]
     @State private var showingCreateProgram = false
+    @State private var scrollToTopTrigger = false
     
     private var activeProgram: Program? {
         programs.first(where: { $0.isActive })
@@ -59,93 +60,98 @@ struct ProgramView: View {
                         .padding(.horizontal, DesignSystem.Spacing.lg)
                     }
                 } else {
-                    ScrollView {
-                        VStack(spacing: DesignSystem.Spacing.lg) {
-                            // Active Program Section
-                            if let activeProgram = activeProgram {
-                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                    Text("АКТИВНАЯ ПРОГРАММА")
-                                        .font(DesignSystem.Typography.caption())
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        .tracking(1.2)
-                                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                                    
-                                    ActiveProgramCard(program: activeProgram)
-                                }
-                            }
-                            
-                            // Create Button
-                            Button(action: { showingCreateProgram = true }) {
-                                HStack {
-                                    Image(systemName: "plus.circle.fill")
-                                        .font(.title2)
-                                    Text("Создать свою программу")
-                                        .font(DesignSystem.Typography.headline())
-                                }
-                                .foregroundColor(DesignSystem.Colors.accent)
-                                .frame(maxWidth: .infinity)
-                                .padding(DesignSystem.Spacing.xl)
-                                .background(DesignSystem.Colors.cardBackground)
-                                .cornerRadius(DesignSystem.CornerRadius.large)
-                            }
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                            
-                            // All Programs Section
-                            if !inactivePrograms.isEmpty {
-                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                    HStack {
-                                        Text("ВСЕ ПРОГРАММЫ (\(inactivePrograms.count))")
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            VStack(spacing: DesignSystem.Spacing.lg) {
+                                // Active Program Section
+                                if let activeProgram = activeProgram {
+                                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                                        Text("АКТИВНАЯ ПРОГРАММА")
                                             .font(DesignSystem.Typography.caption())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                             .tracking(1.2)
+                                            .padding(.horizontal, DesignSystem.Spacing.lg)
                                         
-                                        Spacer()
-                                        
-                                        if inactivePrograms.count < 15 {
-                                            Button(action: loadDefaultPrograms) {
-                                                HStack(spacing: 4) {
-                                                    Image(systemName: "arrow.down.circle")
-                                                    Text("Загрузить")
-                                                }
+                                        ActiveProgramCard(program: activeProgram, isHighlighted: scrollToTopTrigger)
+                                    }
+                                    .id("activeProgram")
+                                }
+                                
+                                // Create Button
+                                Button(action: { showingCreateProgram = true }) {
+                                    HStack {
+                                        Image(systemName: "plus.circle.fill")
+                                            .font(.title2)
+                                        Text("Создать свою программу")
+                                            .font(DesignSystem.Typography.headline())
+                                    }
+                                    .foregroundColor(DesignSystem.Colors.accent)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(DesignSystem.Spacing.xl)
+                                    .background(DesignSystem.Colors.cardBackground)
+                                    .cornerRadius(DesignSystem.CornerRadius.large)
+                                }
+                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                                
+                                // All Programs Section
+                                if !inactivePrograms.isEmpty {
+                                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                                        HStack {
+                                            Text("ВСЕ ПРОГРАММЫ (\(inactivePrograms.count))")
                                                 .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.accent)
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                                .tracking(1.2)
+                                            
+                                            Spacer()
+                                            
+                                            if inactivePrograms.count < 15 {
+                                                Button(action: loadDefaultPrograms) {
+                                                    HStack(spacing: 4) {
+                                                        Image(systemName: "arrow.down.circle")
+                                                        Text("Загрузить")
+                                                    }
+                                                    .font(DesignSystem.Typography.caption())
+                                                    .foregroundColor(DesignSystem.Colors.accent)
+                                                }
                                             }
                                         }
-                                    }
-                                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                                    
-                                    // Группировка по типу тренировок
-                                    ForEach(WorkoutType.allCases, id: \.self) { workoutType in
-                                        if let programsForType = groupedPrograms[workoutType], !programsForType.isEmpty {
-                                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                                                HStack {
-                                                    Image(systemName: workoutType.icon)
-                                                        .font(.callout)
-                                                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                                        
+                                        // Группировка по типу тренировок
+                                        ForEach(WorkoutType.allCases, id: \.self) { workoutType in
+                                            if let programsForType = groupedPrograms[workoutType], !programsForType.isEmpty {
+                                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                                                    HStack {
+                                                        Image(systemName: workoutType.icon)
+                                                            .font(.callout)
+                                                            .foregroundColor(DesignSystem.Colors.neonGreen)
+                                                        
+                                                        Text(workoutType.rawValue)
+                                                            .font(DesignSystem.Typography.body())
+                                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                                        
+                                                        Spacer()
+                                                        
+                                                        Text("\(programsForType.count)")
+                                                            .font(DesignSystem.Typography.caption())
+                                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                                    }
+                                                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                                                    .padding(.top, DesignSystem.Spacing.md)
                                                     
-                                                    Text(workoutType.rawValue)
-                                                        .font(DesignSystem.Typography.body())
-                                                        .foregroundColor(DesignSystem.Colors.primaryText)
-                                                    
-                                                    Spacer()
-                                                    
-                                                    Text("\(programsForType.count)")
-                                                        .font(DesignSystem.Typography.caption())
-                                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                                }
-                                                .padding(.horizontal, DesignSystem.Spacing.lg)
-                                                .padding(.top, DesignSystem.Spacing.md)
-                                                
-                                                ForEach(programsForType, id: \.self) { program in
-                                                    ProgramCard(program: program)
+                                                    ForEach(programsForType, id: \.self) { program in
+                                                        ProgramCard(program: program, onActivate: {
+                                                            scrollToTop(proxy: proxy)
+                                                        })
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
+                            .padding(.vertical, DesignSystem.Spacing.lg)
                         }
-                        .padding(.vertical, DesignSystem.Spacing.lg)
                     }
                 }
             }
@@ -160,12 +166,30 @@ struct ProgramView: View {
     private func loadDefaultPrograms() {
         ProgramSeeder.seedProgramsIfNeeded(context: modelContext)
     }
+    
+    private func scrollToTop(proxy: ScrollViewProxy) {
+        // Highlight animation
+        scrollToTopTrigger = true
+        
+        // Scroll to active program with animation
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+            proxy.scrollTo("activeProgram", anchor: .top)
+        }
+        
+        // Remove highlight after delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation {
+                scrollToTopTrigger = false
+            }
+        }
+    }
 }
 
 // MARK: - Active Program Card
 
 struct ActiveProgramCard: View {
     let program: Program
+    var isHighlighted: Bool = false
     @State private var showingEditor = false
     
     private var typeSummary: [(type: WorkoutType, count: Int)] {
@@ -244,6 +268,11 @@ struct ActiveProgramCard: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                .stroke(isHighlighted ? DesignSystem.Colors.neonGreen : Color.clear, lineWidth: 3)
+                .shadow(color: isHighlighted ? DesignSystem.Colors.neonGreen.opacity(0.5) : Color.clear, radius: 10)
+        )
         .sheet(isPresented: $showingEditor) {
             ProgramEditorView(existingProgram: program)
         }
@@ -265,6 +294,7 @@ struct ActiveProgramCard: View {
 
 struct ProgramCard: View {
     let program: Program
+    var onActivate: (() -> Void)? = nil
     @Environment(\.modelContext) private var modelContext
     
     // Pre-compute summary to avoid recalculating on every render
@@ -375,6 +405,9 @@ struct ProgramCard: View {
             name: Notification.Name("ActiveProgramChanged"),
             object: nil
         )
+        
+        // Скролл к активной программе
+        onActivate?()
     }
     
     private func colorForWorkoutType(_ type: WorkoutType) -> Color {

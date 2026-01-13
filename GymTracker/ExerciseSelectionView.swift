@@ -169,58 +169,73 @@ struct TechniqueInfoSheet: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                        // Exercise name and muscle group
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                            Text(exercise.name)
-                                .font(DesignSystem.Typography.title())
-                                .foregroundColor(DesignSystem.Colors.primaryText)
-                            
-                            HStack {
-                                Image(systemName: exercise.category.icon)
-                                Text(exercise.muscleGroup.rawValue)
-                            }
-                            .font(DesignSystem.Typography.body())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
+                        // Exercise name
+                        Text(exercise.name)
+                            .font(DesignSystem.Typography.largeTitle())
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                        
+                        // Category and muscle group
+                        HStack(spacing: DesignSystem.Spacing.sm) {
+                            Image(systemName: exercise.category.icon)
+                            Text(exercise.muscleGroup.rawValue)
                         }
+                        .font(DesignSystem.Typography.body())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
                         
                         Divider()
                             .background(DesignSystem.Colors.secondaryText.opacity(0.3))
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
                         
-                        // Technique description or YouTube link
+                        // Technique description in CardView
                         if let technique = exercise.technique {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                Text("Техника выполнения")
-                                    .font(DesignSystem.Typography.headline())
-                                    .foregroundColor(DesignSystem.Colors.primaryText)
-                                
-                                Text(technique)
-                                    .font(DesignSystem.Typography.body())
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    .lineSpacing(4)
-                            }
-                        } else {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                Text("Видео-инструкция")
-                                    .font(DesignSystem.Typography.headline())
-                                    .foregroundColor(DesignSystem.Colors.primaryText)
-                                
-                                Button(action: openYouTubeSearch) {
+                            CardView {
+                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
                                     HStack {
-                                        Image(systemName: "play.rectangle.fill")
-                                        Text("Найти на YouTube")
+                                        Image(systemName: "lightbulb.fill")
+                                            .foregroundColor(DesignSystem.Colors.neonGreen)
+                                            .font(.title2)
+                                        Text("Техника выполнения")
+                                            .font(DesignSystem.Typography.title3())
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
                                     }
-                                    .font(DesignSystem.Typography.headline())
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.red)
-                                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                                    
+                                    Text(technique)
+                                        .font(DesignSystem.Typography.body())
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        .lineSpacing(4)
                                 }
+                                .padding(DesignSystem.Spacing.xl)
                             }
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
                         }
+                        
+                        // YouTube button - always show
+                        Button(action: openYouTubeSearch) {
+                            HStack(spacing: DesignSystem.Spacing.md) {
+                                Image(systemName: "play.rectangle.fill")
+                                    .foregroundColor(.red)
+                                    .font(.title2)
+                                
+                                Text("Посмотреть технику на YouTube")
+                                    .font(DesignSystem.Typography.headline())
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "arrow.up.right")
+                                    .font(.caption)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
+                            .padding(DesignSystem.Spacing.lg)
+                            .background(DesignSystem.Colors.cardBackground)
+                            .cornerRadius(DesignSystem.CornerRadius.large)
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
                     }
-                    .padding(DesignSystem.Spacing.xl)
+                    .padding(.vertical, DesignSystem.Spacing.lg)
                 }
             }
             .navigationTitle("Информация")
@@ -236,10 +251,9 @@ struct TechniqueInfoSheet: View {
     }
     
     private func openYouTubeSearch() {
-        let searchQuery = exercise.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let youtubeURL = URL(string: "https://www.youtube.com/results?search_query=\(searchQuery)+техника+выполнения")!
-        
-        if UIApplication.shared.canOpenURL(youtubeURL) {
+        let searchQuery = "\(exercise.name) техника выполнения"
+        let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        if let youtubeURL = URL(string: "https://www.youtube.com/results?search_query=\(encodedQuery)") {
             UIApplication.shared.open(youtubeURL)
         }
     }

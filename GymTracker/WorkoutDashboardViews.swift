@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Combine
 
 // MARK: - Dashboard View (Idle State)
 
@@ -154,18 +155,63 @@ struct PreviousProgressCard: View {
 
 struct ActiveWorkoutView: View {
     @EnvironmentObject var workoutManager: WorkoutManager
+    @State private var elapsedTime: TimeInterval = 0
+    @State private var showingCancelConfirmation = false
+    
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
+    private var formattedTime: String {
+        let hours = Int(elapsedTime) / 3600
+        let minutes = (Int(elapsedTime) % 3600) / 60
+        let seconds = Int(elapsedTime) % 60
+        
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
+    }
     
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.lg) {
+                    // Timer header
+                    HStack {
+                        HStack(spacing: DesignSystem.Spacing.sm) {
+                            Image(systemName: "timer")
+                                .foregroundColor(DesignSystem.Colors.neonGreen)
+                            Text(formattedTime)
+                                .font(DesignSystem.Typography.title2())
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                                .monospacedDigit()
+                        }
+                        
+                        Spacer()
+                        
+                        // Cancel button
+                        Button(action: { showingCancelConfirmation = true }) {
+                            HStack(spacing: DesignSystem.Spacing.xs) {
+                                Image(systemName: "xmark.circle.fill")
+                                Text("Отменить")
+                            }
+                            .font(DesignSystem.Typography.callout())
+                            .foregroundColor(.red)
+                            .padding(.horizontal, DesignSystem.Spacing.md)
+                            .padding(.vertical, DesignSystem.Spacing.sm)
+                            .background(Color.red.opacity(0.15))
+                            .cornerRadius(DesignSystem.CornerRadius.medium)
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .id("top")
+                    
                     // Progress banner
                     if let activeProgram = workoutManager.activeProgram {
                         WorkoutProgressBanner(
                             programName: activeProgram.name,
                             program: activeProgram
                         )
-                        .id("top") // Anchor for scrolling
                     }
                     
                     // Current workout card
@@ -184,6 +230,23 @@ struct ActiveWorkoutView: View {
             .onAppear {
                 // Scroll to top when workout starts
                 proxy.scrollTo("top", anchor: .top)
+                // Reset timer
+                elapsedTime = 0
+            }
+            .onReceive(timer) { _ in
+                elapsedTime += 1
+            }
+            .confirmationDialog(
+                "Отменить тренировку?",
+                isPresented: $showingCancelConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Отменить тренировку", role: .destructive) {
+                    workoutManager.cancelWorkout()
+                }
+                Button("Продолжить", role: .cancel) { }
+            } message: {
+                Text("Данные текущей тренировки не будут сохранены.")
             }
         }
     }

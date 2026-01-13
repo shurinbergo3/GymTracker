@@ -14,48 +14,42 @@ struct CommentEditorView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                DesignSystem.Colors.background
-                    .ignoresSafeArea()
-                
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                    Text("Добавьте заметки о выполнении упражнения, ощущениях или корректировках")
-                        .font(DesignSystem.Typography.body())
+            VStack(spacing: DesignSystem.Spacing.md) {
+                // Compact text field
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                    Text("Комментарий к упражнению")
+                        .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
                     
-                    CardView {
-                        TextEditor(text: $comment)
-                            .font(DesignSystem.Typography.body())
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                            .frame(minHeight: 150)
-                            .scrollContentBackground(.hidden)
-                            .focused($isFieldFocused)
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                    
-                    Spacer()
+                    TextField("Ваши заметки...", text: $comment, axis: .vertical)
+                        .font(DesignSystem.Typography.body())
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .textFieldStyle(.plain)
+                        .padding(DesignSystem.Spacing.md)
+                        .background(DesignSystem.Colors.cardBackground)
+                        .cornerRadius(DesignSystem.CornerRadius.medium)
+                        .lineLimit(3...6)
+                        .focused($isFieldFocused)
                 }
-                .padding(.vertical, DesignSystem.Spacing.lg)
-            }
-            .navigationTitle("Комментарий")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Отмена") {
-                        dismiss()
-                    }
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                }
+                .padding(.horizontal, DesignSystem.Spacing.lg)
                 
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Готово") {
-                        dismiss()
-                    }
-                    .foregroundColor(DesignSystem.Colors.accent)
-                    .fontWeight(.semibold)
+                // Save button
+                Button(action: { dismiss() }) {
+                    Text("Сохранить")
+                        .font(DesignSystem.Typography.headline())
+                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, DesignSystem.Spacing.md)
+                        .background(DesignSystem.Colors.neonGreen.opacity(0.15))
+                        .cornerRadius(DesignSystem.CornerRadius.medium)
                 }
+                .padding(.horizontal, DesignSystem.Spacing.lg)
             }
+            .padding(.vertical, DesignSystem.Spacing.lg)
+            .background(DesignSystem.Colors.background)
+            .presentationDetents([.height(200)])
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(DesignSystem.CornerRadius.extraLarge)
             .onAppear {
                 isFieldFocused = true
             }

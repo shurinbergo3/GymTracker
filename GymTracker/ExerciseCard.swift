@@ -1,4 +1,4 @@
-//
+ //
 //  ExerciseCard.swift
 //  Workout Tracker
 //
@@ -14,7 +14,7 @@ struct ExerciseCard: View {
     let exercise: ExerciseTemplate
     let programName: String
     let session: WorkoutSession?
-    let workoutType: WorkoutType // NEW: Тип тренировки
+    let workoutType: WorkoutType // Тип тренировки по умолчанию (от дня)
     
     @State private var weight: String = ""
     @State private var reps: String = ""
@@ -27,6 +27,13 @@ struct ExerciseCard: View {
     @State private var showingComment = false // Для комментария
     @State private var exerciseComment: String = "" // Комментарий к упражнению
     @State private var showingWorkoutTypeChange = false // Для смены типа тренировки
+    @State private var showingMenu = false // Для показа меню действий
+    @State private var currentWorkoutType: WorkoutType? = nil // Тип для этого конкретного упражнения
+    
+    // Используем локальный тип если установлен, иначе тип дня
+    private var effectiveWorkoutType: WorkoutType {
+        currentWorkoutType ?? workoutType
+    }
     
     @Query private var allSessions: [WorkoutSession]
     
@@ -58,7 +65,7 @@ struct ExerciseCard: View {
     }
     
     private var canSave: Bool {
-        switch workoutType {
+        switch effectiveWorkoutType {
         case .strength:
             return !weight.isEmpty && !reps.isEmpty
         case .circuit:
@@ -73,34 +80,31 @@ struct ExerciseCard: View {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                 // Exercise Name with Info and Replace Buttons
                 HStack(spacing: DesignSystem.Spacing.sm) {
-                    Text(exercise.name)
-                        .font(DesignSystem.Typography.title2())
-                        .foregroundColor(DesignSystem.Colors.primaryText)
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                        Text(exercise.name)
+                            .font(DesignSystem.Typography.title2())
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        
+                        // Комментарий к упражнению (если есть)
+                        if !exerciseComment.isEmpty {
+                            Text(exerciseComment)
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                .italic()
+                                .lineLimit(2)
+                        }
+                    }
                     
                     ExerciseInfoButton(exerciseName: exercise.name)
                     
                     Spacer()
                     
-                    // Replace Button
-                    Menu {
-                        Button(action: { showingReplacement = true }) {
-                            Label("Заменить упражнение", systemImage: "arrow.triangle.2.circlepath")
-                        }
-                        
-                        Button(action: { showingWorkoutTypeChange = true }) {
-                            Label("Изменить тип упражнения", systemImage: "slider.horizontal.3")
-                        }
-                        
-                        Button(action: { showingComment = true }) {
-                            Label("Комментарий", systemImage: "text.bubble")
-                        }
-                    } label: {
+                    // Menu Button - использует confirmationDialog вместо Menu для избежания скролла
+                    Button(action: { showingMenu = true }) {
                         Image(systemName: "ellipsis.circle")
                             .font(.title3)
                             .foregroundColor(DesignSystem.Colors.accent)
                     }
-                    .menuStyle(.button)
-                    .menuIndicator(.hidden)
                     
                     Text("\(exercise.plannedSets) подходов")
                         .font(DesignSystem.Typography.callout())
@@ -168,7 +172,7 @@ struct ExerciseCard: View {
                         reps: $reps,
                         duration: $duration,
                         rounds: $rounds,
-                        workoutType: workoutType,
+                        workoutType: effectiveWorkoutType,
                         isExtra: isExtra,
                         canSave: canSave,
                         elapsedTime: $elapsedTime,
@@ -236,6 +240,10 @@ struct ExerciseCard: View {
             if completedSets.count < exercise.plannedSets {
                 showingInput = true
             }
+            // Загружаем комментарий из первого сета
+            if let firstSet = completedSets.first, let comment = firstSet.comment {
+                exerciseComment = comment
+            }
         }
         .onChange(of: completedSets.count) { _, _ in
             // Auto-show next input after completing a set (if not all done)
@@ -243,6 +251,13 @@ struct ExerciseCard: View {
                 showingInput = true
             } else {
                 showingInput = false
+            }
+        }
+        .onChange(of: exerciseComment) { _, newComment in
+            // Сохраняем комментарий в первый сет
+            if let firstSet = completedSets.first {
+                firstSet.comment = newComment.isEmpty ? nil : newComment
+                try? modelContext.save()
             }
         }
         .sheet(isPresented: $showingReplacement) {
@@ -257,17 +272,28 @@ struct ExerciseCard: View {
         .sheet(isPresented: $showingWorkoutTypeChange) {
             WorkoutTypeSelectorView(
                 selectedType: Binding(
-                    get: { workoutType },
+                    get: { effectiveWorkoutType },
                     set: { newType in
-                        // Update exercise workout type
-                        // Note: This changes the whole day's type since it's at day level
+                        currentWorkoutType = newType
                     }
                 ),
                 onSelect: { newType in
-                    // Could update individual exercise type if model supports it
+                    currentWorkoutType = newType
                     showingWorkoutTypeChange = false
                 }
             )
+        }
+        .confirmationDialog("Действия", isPresented: $showingMenu, titleVisibility: .hidden) {
+            Button("Заменить упражнение") {
+                showingReplacement = true
+            }
+            Button("Изменить тип упражнения") {
+                showingWorkoutTypeChange = true
+            }
+            Button("Комментарий") {
+                showingComment = true
+            }
+            Button("Отмена", role: .cancel) { }
         }
     }
     
@@ -276,7 +302,7 @@ struct ExerciseCard: View {
         
         let set: WorkoutSet
         
-        switch workoutType {
+        switch effectiveWorkoutType {
         case .strength:
             guard let weightValue = Double(weight),
                   let repsValue = Int(reps),

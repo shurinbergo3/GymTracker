@@ -24,40 +24,50 @@ struct WorkoutHistoryView: View {
                 DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
-                VStack(spacing: DesignSystem.Spacing.lg) {
-                    // Календарь вверху
-                    ExpandableCalendarView()
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                    
-                    // График прогресса
-                    WorkoutProgressChart(sessions: completedSessions)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                    
-                    // Список тренировок
-                    if completedSessions.isEmpty {
-                        Spacer()
-                        EmptyStateView(
-                            icon: "figure.strengthtraining.traditional",
-                            title: "Нет завершенных тренировок",
-                            message: "История ваших тренировок появится здесь",
-                            buttonTitle: "Начать тренировку"
-                        ) {
-                            dismiss()
-                        }
-                        Spacer()
-                    } else {
-                        ScrollView {
-                            LazyVStack(spacing: DesignSystem.Spacing.md) {
-                                ForEach(completedSessions, id: \.self) { session in
-                                    NavigationLink(destination: WorkoutHistoryDetailView(session: session)) {
-                                        WorkoutHistoryCard(session: session)
+                if completedSessions.isEmpty {
+                    EmptyStateView(
+                        icon: "figure.strengthtraining.traditional",
+                        title: "Нет завершенных тренировок",
+                        message: "История ваших тренировок появится здесь",
+                        buttonTitle: "Начать тренировку"
+                    ) {
+                        dismiss()
+                    }
+                } else {
+                    ScrollView {
+                        VStack(spacing: DesignSystem.Spacing.lg) {
+                            // Календарь
+                            ExpandableCalendarView()
+                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                            
+                            // График прогресса
+                            WorkoutProgressChart(sessions: completedSessions)
+                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                            
+                            // Диаграмма типов тренировок
+                            WorkoutTypeDistributionChart(sessions: completedSessions)
+                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                            
+                            // Список тренировок
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                                Text("ИСТОРИЯ ТРЕНИРОВОК")
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .tracking(1.2)
+                                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                                
+                                LazyVStack(spacing: DesignSystem.Spacing.md) {
+                                    ForEach(completedSessions, id: \.self) { session in
+                                        NavigationLink(destination: WorkoutHistoryDetailView(session: session)) {
+                                            WorkoutHistoryCard(session: session)
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
                                     }
-                                    .buttonStyle(PlainButtonStyle())
                                 }
+                                .padding(.horizontal, DesignSystem.Spacing.lg)
                             }
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                            .padding(.bottom, DesignSystem.Spacing.xl)
                         }
+                        .padding(.vertical, DesignSystem.Spacing.lg)
                     }
                 }
             }
@@ -73,6 +83,14 @@ struct WorkoutHistoryView: View {
                 }
             }
         }
+    }
+}
+
+// Preference Key для отслеживания скролла
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 
@@ -258,6 +276,11 @@ struct ExerciseHistoryCard: View {
         sets.reduce(0) { $0 + ($1.weight * Double($1.reps)) }
     }
     
+    // Получаем комментарий из первого сета
+    private var exerciseComment: String? {
+        sets.first?.comment
+    }
+    
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
@@ -272,6 +295,20 @@ struct ExerciseHistoryCard: View {
                     Text(String(format: "%.0f кг", totalVolume))
                         .font(DesignSystem.Typography.title3())
                         .foregroundColor(DesignSystem.Colors.neonGreen)
+                }
+                
+                // Комментарий к упражнению (если есть)
+                if let comment = exerciseComment, !comment.isEmpty {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
+                        Image(systemName: "text.bubble.fill")
+                            .font(.caption)
+                            .foregroundColor(DesignSystem.Colors.accent)
+                        
+                        Text(comment)
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .italic()
+                    }
                 }
                 
                 Divider()
@@ -297,6 +334,128 @@ struct ExerciseHistoryCard: View {
             }
             .padding(DesignSystem.Spacing.xl)
         }
+    }
+}
+
+// MARK: - Workout Type Distribution Chart
+
+struct WorkoutTypeDistributionChart: View {
+    let sessions: [WorkoutSession]
+    
+    private var workoutTypeCounts: [(type: String, count: Int, color: Color)] {
+        // Подсчитываем типы на основе первого упражнения дня
+        var strengthCount = 0
+        var cardioCount = 0
+        var circuitCount = 0
+        
+        for session in sessions {
+            // Определяем тип тренировки по названию
+            let dayName = session.workoutDayName.lowercased()
+            if dayName.contains("кардио") {
+                cardioCount += 1
+            } else if dayName.contains("круговая") || dayName.contains("hiit") {
+                circuitCount += 1
+            } else {
+                strengthCount += 1
+            }
+        }
+        
+        return [
+            (type: "Силовые", count: strengthCount, color: .blue),
+            (type: "Кардио", count: cardioCount, color: .red),
+            (type: "Круговые", count: circuitCount, color: .orange)
+        ].filter { $0.count > 0 }
+    }
+    
+    private var total: Int {
+        sessions.count
+    }
+    
+    var body: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
+                Text("ТИПЫ ТРЕНИРОВОК")
+                    .font(DesignSystem.Typography.caption())
+                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                    .tracking(1.2)
+                
+                if total > 0 {
+                    HStack(spacing: DesignSystem.Spacing.xl) {
+                        // Pie chart
+                        ZStack {
+                            ForEach(Array(workoutTypeCounts.enumerated()), id: \.element.type) { index, item in
+                                PieSlice(
+                                    startAngle: angle(for: index, in: workoutTypeCounts),
+                                    endAngle: angle(for: index + 1, in: workoutTypeCounts)
+                                )
+                                .fill(item.color)
+                            }
+                            
+                            Circle()
+                                .fill(DesignSystem.Colors.cardBackground)
+                                .frame(width: 50, height: 50)
+                            
+                            Text("\(total)")
+                                .font(DesignSystem.Typography.title3())
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                        }
+                        .frame(width: 100, height: 100)
+                        
+                        // Legend
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                            ForEach(workoutTypeCounts, id: \.type) { item in
+                                HStack(spacing: DesignSystem.Spacing.sm) {
+                                    Circle()
+                                        .fill(item.color)
+                                        .frame(width: 12, height: 12)
+                                    
+                                    Text(item.type)
+                                        .font(DesignSystem.Typography.body())
+                                        .foregroundColor(DesignSystem.Colors.primaryText)
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(item.count)")
+                                        .font(DesignSystem.Typography.headline())
+                                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Text("Нет данных")
+                        .font(DesignSystem.Typography.body())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                }
+            }
+            .padding(DesignSystem.Spacing.xl)
+        }
+    }
+    
+    private func angle(for index: Int, in data: [(type: String, count: Int, color: Color)]) -> Angle {
+        let total = Double(data.reduce(0) { $0 + $1.count })
+        guard total > 0 else { return .degrees(0) }
+        
+        let sum = Double(data.prefix(index).reduce(0) { $0 + $1.count })
+        return .degrees(360 * sum / total - 90)
+    }
+}
+
+// Pie Slice Shape
+struct PieSlice: Shape {
+    var startAngle: Angle
+    var endAngle: Angle
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height) / 2
+        
+        path.move(to: center)
+        path.addArc(center: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: false)
+        path.closeSubpath()
+        
+        return path
     }
 }
 
