@@ -14,7 +14,7 @@ struct ExerciseInfoButton: View {
     @State private var showingTechnique = false
     
     private var technique: String? {
-        ExerciseLibrary.allExercises.first { $0.name == exerciseName }?.technique
+        ExerciseLibrary.getTechnique(for: exerciseName)
     }
     
     var body: some View {
@@ -72,59 +72,57 @@ struct ExerciseTechniqueDetailView: View {
                                 .padding(DesignSystem.Spacing.xl)
                             }
                             .padding(.horizontal, DesignSystem.Spacing.lg)
-                            
-                            // YouTube Button
-                            if let youtubeUrl = youtubeSearchURL(for: exerciseName) {
-                                Link(destination: youtubeUrl) {
-                                    HStack(spacing: DesignSystem.Spacing.md) {
-                                        Image(systemName: "play.fill")
-                                            .font(.title3)
-                                            .foregroundColor(.white)
-                                            .padding(8)
-                                            .background(Color.white.opacity(0.2))
-                                            .clipShape(Circle())
-                                        
-                                        Text("Смотреть на YouTube")
-                                            .font(DesignSystem.Typography.title3())
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
-                                        
-                                        Spacer()
-                                        
-                                        Image(systemName: "arrow.up.right")
-                                            .font(.subheadline)
-                                            .foregroundColor(.white.opacity(0.8))
-                                    }
-                                    .padding()
-                                    .background(
-                                        LinearGradient(
-                                            colors: [Color(red: 0.8, green: 0.0, blue: 0.0), Color(red: 0.6, green: 0.0, blue: 0.0)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .cornerRadius(DesignSystem.CornerRadius.large)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                                    )
-                                    .shadow(color: Color.red.opacity(0.4), radius: 12, x: 0, y: 6)
-                                }
-                                .padding(.horizontal, DesignSystem.Spacing.lg)
-                            }
                         } else {
+                            // Fallback if technique is missing
                             CardView {
-                                VStack(spacing: DesignSystem.Spacing.md) {
-                                    Image(systemName: "exclamationmark.triangle")
-                                        .font(.system(size: 48))
+                                HStack {
+                                    Image(systemName: "info.circle")
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    
                                     Text("Описание техники пока недоступно")
                                         .font(DesignSystem.Typography.body())
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                 }
-                                .frame(maxWidth: .infinity)
                                 .padding(DesignSystem.Spacing.xl)
+                            }
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                        }
+                        
+                        // YouTube Button (Always Visible)
+                        if let youtubeUrl = youtubeSearchURL(for: exerciseName) {
+                            Link(destination: youtubeUrl) {
+                                HStack(spacing: DesignSystem.Spacing.md) {
+                                    Image(systemName: "play.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.white)
+                                        .padding(8)
+                                        .background(Color.white.opacity(0.2))
+                                        .clipShape(Circle())
+                                    
+                                    Text("Смотреть на YouTube")
+                                        .font(DesignSystem.Typography.title3())
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.8))
+                                }
+                                .padding()
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color(red: 0.8, green: 0.0, blue: 0.0), Color(red: 0.6, green: 0.0, blue: 0.0)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .cornerRadius(DesignSystem.CornerRadius.large)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                )
+                                .shadow(color: Color.red.opacity(0.4), radius: 12, x: 0, y: 6)
                             }
                             .padding(.horizontal, DesignSystem.Spacing.lg)
                         }

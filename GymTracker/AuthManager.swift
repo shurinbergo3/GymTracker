@@ -8,6 +8,10 @@
 import Foundation
 import SwiftUI
 import Combine
+import FirebaseAuth
+import GoogleSignIn
+import FirebaseCore
+import SwiftData
 
 @MainActor
 class AuthManager: ObservableObject {
@@ -25,7 +29,7 @@ class AuthManager: ObservableObject {
         let email: String
         let avatarInitials: String
     }
-    
+
     init() {
         // Load state
         self.isLoggedIn = userDefaults.bool(forKey: loggedInKey)
@@ -61,21 +65,42 @@ class AuthManager: ObservableObject {
     }
     
     func signInWithGoogle() async throws {
-        // Mock Google Sign In
-        try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+        guard FirebaseApp.app()?.options.clientID != nil else { return }
         
-        let username = "GoogleUser"
-        let email = "google@example.com"
+        // Get the root view controller
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first,
+              let rootViewController = window.rootViewController else {
+            print("No root view controller found")
+            return
+        }
         
+        // Start Google Sign In flow
+        let gidSignInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
+        let user = gidSignInResult.user
+        guard let idToken = user.idToken?.tokenString else {
+            throw URLError(.badServerResponse)
+        }
+        
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                       accessToken: user.accessToken.tokenString)
+        
+        // Sign in to Firebase
+        let authResult = try await Auth.auth().signIn(with: credential)
+        let firebaseUser = authResult.user
+        
+        // Update local state
         self.currentUser = User(
-            username: username,
-            email: email,
-            avatarInitials: "GU"
+            username: firebaseUser.displayName ?? "User",
+            email: firebaseUser.email ?? "",
+            avatarInitials: String((firebaseUser.displayName ?? "U").prefix(2)).uppercased()
         )
         self.isLoggedIn = true
         
         userDefaults.set(true, forKey: loggedInKey)
-        userDefaults.set(username, forKey: usernameKey)
+        if let name = firebaseUser.displayName {
+            userDefaults.set(name, forKey: usernameKey)
+        }
     }
     
     func logout() {
@@ -83,5 +108,21 @@ class AuthManager: ObservableObject {
         self.currentUser = nil
         userDefaults.set(false, forKey: loggedInKey)
         userDefaults.removeObject(forKey: usernameKey)
+    }
+    
+    func deleteAccount(modelContext: ModelContext) async throws {
+        // 1. Delete user from Firebase
+        if let user = Auth.auth().currentUser {
+            try await user.delete()
+        }
+        
+        // 2. Clear SwiftData
+        // Delete all persistent models
+        try? modelContext.delete(model: WorkoutSession.self)
+        try? modelContext.delete(model: UserProfile.self)
+        try? modelContext.delete(model: BodyMeasurement.self)
+        
+        // 3. Clear Local State
+        self.logout()
     }
 }

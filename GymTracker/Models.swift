@@ -186,6 +186,7 @@ final class WorkoutSession {
     var isCompleted: Bool
     var endTime: Date?
     var calories: Int?
+    var averageHeartRate: Int?
     
     @Relationship(deleteRule: .cascade, inverse: \WorkoutSet.session)
     var sets: [WorkoutSet]

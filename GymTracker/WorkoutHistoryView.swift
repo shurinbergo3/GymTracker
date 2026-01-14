@@ -13,6 +13,29 @@ struct WorkoutHistoryView: View {
     @Query(sort: \WorkoutSession.date, order: .reverse) private var allSessions: [WorkoutSession]
     @State private var selectedMonth = Date()
     
+    // Calculates progress for a specific past session compared to the one before it
+    private func calculateProgress(for session: WorkoutSession) -> ProgressState? {
+        // Find sessions of the same "day name" (e.g. "Chest Day") that are OLDER than this session
+        let sameTypeSessions = allSessions
+            .filter { $0.workoutDayName == session.workoutDayName && $0.isCompleted && $0.date < session.date }
+            .sorted { $0.date < $1.date }
+        
+        guard let previousSession = sameTypeSessions.last else { return nil } // No previous history for this type
+        
+        // Calculate Total Volumes
+        let currentVolume = session.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+        let previousVolume = previousSession.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+        
+        // Logic (Same as Manager)
+        if currentVolume > previousVolume {
+             return .improved
+        }
+        if currentVolume >= (previousVolume * 0.9) {
+            return .same
+        }
+        return .declined
+    }
+    
     // Только завершенные тренировки
     private var completedSessions: [WorkoutSession] {
         allSessions.filter { $0.isCompleted }
@@ -58,8 +81,9 @@ struct WorkoutHistoryView: View {
                                 
                                 LazyVStack(spacing: DesignSystem.Spacing.md) {
                                     ForEach(completedSessions, id: \.self) { session in
+                                        let progress = calculateProgress(for: session)
                                         NavigationLink(destination: WorkoutHistoryDetailView(session: session)) {
-                                            WorkoutHistoryCard(session: session)
+                                            WorkoutHistoryCard(session: session, progressState: progress)
                                         }
                                         .buttonStyle(PlainButtonStyle())
                                     }
@@ -98,6 +122,7 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
 
 struct WorkoutHistoryCard: View {
     let session: WorkoutSession
+    var progressState: ProgressState? = nil
     
     private var formattedDate: String {
         let formatter = DateFormatter()
@@ -136,9 +161,22 @@ struct WorkoutHistoryCard: View {
                     
                     Spacer()
                     
-                    Image(systemName: "checkmark.seal.fill")
-                        .font(.system(size: 28))
-                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                    // Session Progress Arrow
+                    if let state = progressState {
+                        HStack(spacing: 4) {
+                            Text(state == .improved ? "Рост" : (state == .declined ? "Спад" : "Стабильно"))
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(state.color)
+                            
+                            Image(systemName: state.icon)
+                                .font(.headline)
+                                .foregroundColor(state.color)
+                        }
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(state.color.opacity(0.15))
+                        .cornerRadius(8)
+                    }
                 }
                 
                 Divider()
@@ -157,17 +195,18 @@ struct WorkoutHistoryCard: View {
                             .foregroundColor(DesignSystem.Colors.neonGreen)
                     }
                     
-                    // Объем
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("ОБЪЕМ")
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                            .tracking(1.2)
-                        
-                        Text(String(format: "%.0f кг", totalVolume))
-                            .font(DesignSystem.Typography.title2())
-                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                    }
+                        // Progress Text
+                        if let state = progressState {
+                             Text(state.description)
+                                 .font(DesignSystem.Typography.caption())
+                                 .foregroundColor(state.color)
+                                 .multilineTextAlignment(.leading)
+                                 .fixedSize(horizontal: false, vertical: true)
+                        } else {
+                            Text("Нет данных для сравнения")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
                     
                     Spacer()
                     
@@ -232,6 +271,42 @@ struct WorkoutHistoryDetailView: View {
                     }
                     .padding(.horizontal, DesignSystem.Spacing.xl)
                     
+                    // MARK: - Stats Grid
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DesignSystem.Spacing.md) {
+                        // Time
+                        StatCard(
+                            title: "Время",
+                            value: formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0),
+                            icon: "clock.fill",
+                            color: .blue
+                        )
+                        
+                        // Calories
+                        StatCard(
+                            title: "Калории",
+                            value: session.calories != nil ? "\(session.calories!)" : "--",
+                            icon: "flame.fill",
+                            color: .orange
+                        )
+                        
+                        // Heart Rate
+                        StatCard(
+                            title: "Средний пульс",
+                            value: session.averageHeartRate != nil ? "\(session.averageHeartRate!) bpm" : "--",
+                            icon: "heart.fill",
+                            color: .red
+                        )
+                        
+                        // Sets Count (As a filler for 4th slot if needed, or remove)
+                         StatCard(
+                            title: "Подходов",
+                            value: "\(session.sets.count)",
+                            icon: "dumbbell.fill",
+                            color: DesignSystem.Colors.neonGreen
+                        )
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    
                     // Комментарий (если есть)
                     if let notes = session.notes, !notes.isEmpty {
                         CardView {
@@ -264,6 +339,17 @@ struct WorkoutHistoryDetailView: View {
         .navigationTitle("Детали тренировки")
         .navigationBarTitleDisplayMode(.inline)
     }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = .abbreviated
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "ru_RU")
+        formatter.calendar = calendar
+        
+        return formatter.string(from: duration) ?? "0 мин"
+    }
 }
 
 // MARK: - Exercise History Card (for detail view)
@@ -292,9 +378,11 @@ struct ExerciseHistoryCard: View {
                     
                     Spacer()
                     
-                    Text(String(format: "%.0f кг", totalVolume))
-                        .font(DesignSystem.Typography.title3())
-                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                    // Show arrow if we can calculate progress (need logic or pass it in)
+                    // For now, removing volume as requested. Can add simple text if needed.
+                    Text(sets.count > 0 ? "\(sets.count) подх." : "")
+                        .font(DesignSystem.Typography.callout())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
                 
                 // Комментарий к упражнению (если есть)

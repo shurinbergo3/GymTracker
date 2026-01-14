@@ -86,7 +86,7 @@ struct ExerciseListRow: View {
         }
         .padding(.vertical, DesignSystem.Spacing.xs)
         .sheet(isPresented: $showingTechnique) {
-            TechniqueInfoSheet(exercise: exercise)
+            ExerciseTechniqueDetailView(exerciseName: exercise.name, technique: exercise.technique)
         }
     }
 }

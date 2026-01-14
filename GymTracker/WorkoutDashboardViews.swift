@@ -15,29 +15,222 @@ struct DashboardView: View {
     @EnvironmentObject var workoutManager: WorkoutManager
     @State private var showingDaySelection = false
     
+    // Fetch last completed session for "Last Workout" stats
+    @Query(filter: #Predicate<WorkoutSession> { $0.isCompleted == true }, sort: \WorkoutSession.date, order: .reverse)
+    private var history: [WorkoutSession]
+    
+    private var lastSession: WorkoutSession? { history.first }
+    
+    private var daysSinceLastWorkout: Int {
+        guard let lastDate = lastSession?.date else { return 0 }
+        return Calendar.current.dateComponents([.day], from: lastDate, to: Date()).day ?? 0
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: DesignSystem.Spacing.xl) {
                 // Calendar
                 ExpandableCalendarView()
                 
-                // Program progress banner
-                if let activeProgram = workoutManager.activeProgram {
-                    WorkoutProgressBanner(
-                        programName: activeProgram.name,
-                        program: activeProgram
-                    )
+                // MARK: - Last Workout Bento Grid
+                if let session = lastSession {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                        HStack {
+                            Text("Ваша прошлая тренировка")
+                                .font(DesignSystem.Typography.sectionHeader())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            Spacer()
+                        }
+                        
+                        // Main Card: Workout Name & Date
+                        CardView {
+                            HStack {
+                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                                    Text(session.workoutDayName)
+                                        .font(DesignSystem.Typography.title3())
+                                        .foregroundColor(DesignSystem.Colors.primaryText)
+                                    
+                                    Text(formatDate(session.date))
+                                        .font(DesignSystem.Typography.caption())
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "checkmark.seal.fill")
+                                    .font(.title)
+                                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                            }
+                            .padding()
+                        }
+                        
+                        // Stats Row
+                        HStack(spacing: DesignSystem.Spacing.md) {
+                            // Duration
+                            StatBentoCard(
+                                title: "Время",
+                                value: formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0),
+                                icon: "clock.fill",
+                                color: .blue
+                            )
+                            
+                            // Calories 
+                            StatBentoCard(
+                                title: "Ккал",
+                                value: session.calories != nil ? "\(session.calories!)" : "--",
+                                icon: "flame.fill",
+                                color: .orange
+                            )
+                            
+                            // Heart Rate
+                            StatBentoCard(
+                                title: "Пульс",
+                                value: session.averageHeartRate != nil ? "\(session.averageHeartRate!)" : "--",
+                                subValue: "уд/мин",
+                                icon: "heart.fill",
+                                color: .red
+                            )
+                        }
+                        .frame(height: 100)
+                        
+                        // Days Inactive Label
+                        if daysSinceLastWorkout > 0 {
+                            HStack {
+                                Spacer()
+                                Text("Вы не тренировались \(daysSinceLastWorkout) \(daysString(daysSinceLastWorkout))")
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .italic()
+                                Spacer()
+                            }
+                            .padding(.top, DesignSystem.Spacing.xs)
+                        }
+                    }
+                } else {
+                    // Empty State if no history
+                    CardView {
+                        VStack(spacing: DesignSystem.Spacing.md) {
+                            Image(systemName: "figure.run")
+                                .font(.largeTitle)
+                                .foregroundColor(DesignSystem.Colors.neonGreen)
+                            Text("Добро пожаловать!")
+                                .font(DesignSystem.Typography.headline())
+                            Text("Ваша статистика появится здесь после первой тренировки")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(DesignSystem.Spacing.xl)
+                        .frame(maxWidth: .infinity)
+                    }
                 }
                 
-                // Card 1: Plan for Today (Interactive)
-                TodaysPlanCard(showingDaySelection: $showingDaySelection)
-                    .environmentObject(workoutManager)
-                
-                // Card 2: Previous Progress
-                PreviousProgressCard()
-                    .environmentObject(workoutManager)
+                // MARK: - Plan for Today & Start Button
+                VStack(spacing: DesignSystem.Spacing.lg) {
+                    // Day Selection Header
+                    HStack {
+                        if let selectedDay = workoutManager.selectedDay {
+                            VStack(alignment: .leading) {
+                                Text("ПЛАН НА СЕГОДНЯ")
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .tracking(1.2)
+                                
+                                Text(selectedDay.name)
+                                    .font(DesignSystem.Typography.title2())
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                            }
+                        } else {
+                            Text("Выберите программу")
+                                .font(DesignSystem.Typography.title3())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            Spacer()
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: { showingDaySelection = true }) {
+                            Image(systemName: "chevron.down.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(DesignSystem.Colors.neonGreen)
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.sm)
+                    
+                    // Large Start Button
+                    Button(action: { workoutManager.startWorkout() }) {
+                        HStack {
+                            Image(systemName: "play.fill")
+                                .font(.title3)
+                            Text("Начать тренировку")
+                                .font(DesignSystem.Typography.headline())
+                        }
+                        .foregroundColor(DesignSystem.Colors.background) // Black text on Green
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 20) // Taller button
+                        .background(
+                            LinearGradient(
+                                colors: [DesignSystem.Colors.neonGreen, DesignSystem.Colors.accent],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(DesignSystem.CornerRadius.large)
+                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 10, x: 0, y: 5)
+                    }
+                    .disabled(workoutManager.selectedDay == nil)
+                    .opacity(workoutManager.selectedDay == nil ? 0.5 : 1)
+                }
+                .padding(DesignSystem.Spacing.lg)
+                .background(DesignSystem.Colors.cardBackground) // Background for the "Control Center"
+                .cornerRadius(DesignSystem.CornerRadius.large)
             }
             .padding(DesignSystem.Spacing.lg)
+        }
+        .sheet(isPresented: $showingDaySelection) {
+            if let program = workoutManager.activeProgram {
+                DaySelectionSheet(
+                    program: program,
+                    selectedDay: $workoutManager.selectedDay
+                )
+                .environmentObject(workoutManager)
+            }
+        }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = .abbreviated
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "ru_RU")
+        formatter.calendar = calendar
+        
+        return formatter.string(from: duration) ?? "0 мин"
+    }
+    
+    private func daysString(_ days: Int) -> String {
+        // Simple pluralization for "days"
+        // 1 день, 2-4 дня, 5+ дней
+        let lastDigit = days % 10
+        let lastTwoDigits = days % 100
+        
+        if lastTwoDigits >= 11 && lastTwoDigits <= 19 {
+            return "дней"
+        }
+        
+        switch lastDigit {
+        case 1: return "день"
+        case 2, 3, 4: return "дня"
+        default: return "дней"
         }
     }
 }
@@ -176,34 +369,12 @@ struct ActiveWorkoutView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.lg) {
-                    // Timer header
-                    HStack {
-                        HStack(spacing: DesignSystem.Spacing.sm) {
-                            Image(systemName: "timer")
-                                .foregroundColor(DesignSystem.Colors.neonGreen)
-                            Text(formattedTime)
-                                .font(DesignSystem.Typography.title2())
-                                .foregroundColor(DesignSystem.Colors.primaryText)
-                                .monospacedDigit()
-                        }
-                        
-                        Spacer()
-                        
-                        // Cancel button
-                        Button(action: { showingCancelConfirmation = true }) {
-                            HStack(spacing: DesignSystem.Spacing.xs) {
-                                Image(systemName: "xmark.circle.fill")
-                                Text("Отменить")
-                            }
-                            .font(DesignSystem.Typography.callout())
-                            .foregroundColor(.red)
-                            .padding(.horizontal, DesignSystem.Spacing.md)
-                            .padding(.vertical, DesignSystem.Spacing.sm)
-                            .background(Color.red.opacity(0.15))
-                            .cornerRadius(DesignSystem.CornerRadius.medium)
-                        }
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    // Active Workout Bento Header
+                    ActiveWorkoutHeader(
+                        elapsedTime: elapsedTime,
+                        showingCancelConfirmation: $showingCancelConfirmation
+                    )
+                    .environmentObject(workoutManager)
                     .id("top")
                     
                     // Progress banner
@@ -228,8 +399,13 @@ struct ActiveWorkoutView: View {
             .scrollDismissesKeyboard(.interactively)
             .scrollBounceBehavior(.basedOnSize)
             .onAppear {
-                // Scroll to top when workout starts
-                proxy.scrollTo("top", anchor: .top)
+                // Scroll to top when workout starts (with slight delay for layout)
+                Task {
+                    try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+                    withAnimation {
+                        proxy.scrollTo("top", anchor: .top)
+                    }
+                }
                 // Reset timer
                 elapsedTime = 0
             }
@@ -257,6 +433,10 @@ struct ActiveWorkoutView: View {
 struct SummaryOverlay: View {
     @EnvironmentObject var workoutManager: WorkoutManager
     @State private var notes = ""
+    @State private var calories: Int = 0
+    @State private var heartRate: Int = 0
+    @State private var isEditingCalories = false
+    @State private var progressData: [ExerciseProgress] = []
     
     var body: some View {
         ZStack {
@@ -264,36 +444,133 @@ struct SummaryOverlay: View {
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: DesignSystem.Spacing.xxl) {
+                VStack(spacing: DesignSystem.Spacing.xl) {
                     Spacer().frame(height: DesignSystem.Spacing.xl)
                     
                     // Success icon
                     Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 120))
+                    .font(.system(size: 80)) // Reduced size to match CompletionView
                     .foregroundColor(DesignSystem.Colors.neonGreen)
-                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 30, x: 0, y: 0)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 20, x: 0, y: 0)
                     
                     // Title
                     Text("Тренировка завершена!")
-                        .font(DesignSystem.Typography.largeTitle())
+                        .font(DesignSystem.Typography.title())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .multilineTextAlignment(.center)
                     
-                    // Progress summary
-                    if let currentSession = workoutManager.currentSession,
-                       let selectedDay = workoutManager.selectedDay {
-                        let previousSession = workoutManager.getPreviousSession(for: selectedDay)
+                    if let currentSession = workoutManager.currentSession {
                         
-                       if previousSession != nil {
-                            ProgressSummaryCard(
-                                currentSession: currentSession,
-                                previousSession: previousSession
-                            )
-                            .environmentObject(workoutManager)
+                        // MARK: - Bento Grid Stats
+                        VStack(spacing: DesignSystem.Spacing.md) {
+                            HStack(spacing: DesignSystem.Spacing.md) {
+                                // Time (Blue)
+                                StatBentoCard(
+                                    title: "Время",
+                                    value: formatDuration(currentSession.endTime?.timeIntervalSince(currentSession.date) ?? 0),
+                                    icon: "clock.fill",
+                                    color: .blue
+                                )
+                                
+                                // Calories (Orange, Interactive)
+                                CardView {
+                                    VStack(alignment: .leading) {
+                                        HStack {
+                                            Image(systemName: "flame.fill")
+                                                .foregroundColor(.orange)
+                                            Text("Ккал")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        if isEditingCalories {
+                                            TextField("0", value: $calories, format: .number)
+                                                .keyboardType(.numberPad)
+                                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                .foregroundColor(DesignSystem.Colors.primaryText)
+                                        } else {
+                                            Text("\(calories > 0 ? "\(calories)" : "--")")
+                                                .font(DesignSystem.Typography.title2())
+                                                .foregroundColor(DesignSystem.Colors.primaryText)
+                                                .onTapGesture {
+                                                    if calories == 0 { isEditingCalories = true }
+                                                }
+                                        }
+                                    }
+                                    .padding()
+                                }
+                            }
+                            .frame(height: 120)
+                            
+                            HStack(spacing: DesignSystem.Spacing.md) {
+                                // Heart Rate (Red)
+                                StatBentoCard(
+                                    title: "Пульс",
+                                    value: heartRate > 0 ? "\(heartRate)" : "--",
+                                    subValue: "уд/мин",
+                                    icon: "heart.fill",
+                                    color: .red
+                                )
+                                
+                                // Records / Best (Green)
+                                StatBentoCard(
+                                    title: "Рекорды",
+                                    value: "\(countImprovements())",
+                                    subValue: "новых",
+                                    icon: "trophy.fill",
+                                    color: DesignSystem.Colors.neonGreen
+                                )
+                            }
+                            .frame(height: 120)
+                            
+                            // Progress Chart (Full Width)
+                            WorkoutProgressChart(sessions: [currentSession])
+                                .padding(.top, DesignSystem.Spacing.sm)
                         }
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
                         
-                        // Progress graph
-                        WorkoutProgressGraph(workoutDayName: selectedDay.name)
+                        // MARK: - Exercise Breakdown
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                            Text("ДЕТАЛИЗАЦИЯ")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                .tracking(1.2)
+                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                                
+                            ForEach(progressData, id: \.exerciseName) { item in
+                                CardView {
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(item.exerciseName)
+                                                .font(DesignSystem.Typography.body())
+                                                .foregroundColor(DesignSystem.Colors.primaryText)
+                                            
+                                            Text(item.currentStats)
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        if item.progressState != .same && item.progressState != .new {
+                                            HStack(spacing: 6) {
+                                                Image(systemName: item.progressState.icon)
+                                                    .font(.headline)
+                                                    .foregroundColor(item.progressState.color)
+                                            }
+                                            .padding(.vertical, 4)
+                                            .padding(.horizontal, 8)
+                                            .background(item.progressState.color.opacity(0.15))
+                                            .cornerRadius(8)
+                                        }
+                                    }
+                                    .padding()
+                                }
+                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                            }
+                        }
                     }
                     
                     // Notes field
@@ -322,6 +599,8 @@ struct SummaryOverlay: View {
                         if !notes.isEmpty {
                             workoutManager.currentSession?.notes = notes
                         }
+                        workoutManager.currentSession?.calories = calories
+                        workoutManager.currentSession?.averageHeartRate = heartRate
                         workoutManager.closeWorkout()
                     }
                     .padding(.horizontal, DesignSystem.Spacing.xl)
@@ -331,8 +610,33 @@ struct SummaryOverlay: View {
             }
         }
         .onAppear {
-            notes = workoutManager.currentSession?.notes ?? ""
+            if let session = workoutManager.currentSession {
+                notes = session.notes ?? ""
+                calories = session.calories ?? 0
+                heartRate = session.averageHeartRate ?? 0
+                
+                // Compare with previous session logic
+                if let day = workoutManager.selectedDay {
+                     let previousSession = workoutManager.getPreviousSession(for: day)
+                     progressData = workoutManager.getProgressData(for: session, comparedTo: previousSession)
+                }
+            }
         }
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = .abbreviated
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "ru_RU")
+        formatter.calendar = calendar
+        
+        return formatter.string(from: duration) ?? "0 мин"
+    }
+    
+    private func countImprovements() -> Int {
+        progressData.filter { $0.progressState == .improved }.count
     }
 }
 

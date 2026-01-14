@@ -42,6 +42,10 @@ struct ProgramSeeder {
         allPrograms.append(createStairmasterGlutes())
         allPrograms.append(createLISSElliptical())
         
+        // Category VI: Calisthenics
+        allPrograms.append(createStreetWorkoutBeginner())
+        allPrograms.append(createStreetWorkoutIntermediate())
+        
         // Insert all programs into context
         for program in allPrograms {
             context.insert(program)
@@ -74,7 +78,9 @@ struct ProgramSeeder {
                 "Верх/Низ Силовой",
                 "HIIT Пирамида",
                 "Stairmaster Glutes",
-                "LISS Эллипс"
+                "LISS Эллипс",
+                "Воркаут: Старт",
+                "Воркаут: Прогресс"
             ]
             
             // Если все программы уже есть, не создаем новые
@@ -476,6 +482,56 @@ struct ProgramSeeder {
         return program
     }
     
+    // MARK: - Category VI: Calisthenics (Стрит Воркаут)
+    
+    private static func createStreetWorkoutBeginner() -> Program {
+        let program = Program(
+            name: "Воркаут: Старт",
+            desc: "Программа для начинающих на турниках и брусьях. Базовые движения."
+        )
+        
+        let day1 = WorkoutDay(name: "Фулбади Воркаут", orderIndex: 0, workoutType: .strength)
+        addExercise(to: day1, name: "Подтягивания", sets: 3, order: 0)
+        addExercise(to: day1, name: "Отжимания на брусьях", sets: 3, order: 1)
+        addExercise(to: day1, name: "Австралийские подтягивания", sets: 3, order: 2)
+        addExercise(to: day1, name: "Отжимания", sets: 3, order: 3)
+        addExercise(to: day1, name: "Приседания", sets: 4, order: 4)
+        addExercise(to: day1, name: "Подъем ног в висе", sets: 3, order: 5)
+        day1.program = program
+        program.days.append(day1)
+        
+        return program
+    }
+    
+    private static func createStreetWorkoutIntermediate() -> Program {
+        let program = Program(
+            name: "Воркаут: Прогресс",
+            desc: "Продвинутая программа для уличной площадки. Изучение элементов."
+        )
+        
+        // День А: Тяни (Pull)
+        let dayA = WorkoutDay(name: "День A (Тяни)", orderIndex: 0, workoutType: .strength)
+        addExercise(to: dayA, name: "Выход силой на две руки", sets: 3, order: 0)
+        addExercise(to: dayA, name: "Подтягивания с весом", sets: 4, order: 1)
+        addExercise(to: dayA, name: "Подтягивания обратным хватом", sets: 3, order: 2)
+        addExercise(to: dayA, name: "Австралийские подтягивания", sets: 3, order: 3)
+        addExercise(to: dayA, name: "Подъем ног к перекладине (Toes to Bar)", sets: 3, order: 4)
+        dayA.program = program
+        program.days.append(dayA)
+        
+        // День B: Толкай + Ноги (Push + Legs)
+        let dayB = WorkoutDay(name: "День B (Толкай+Ноги)", orderIndex: 1, workoutType: .strength)
+        addExercise(to: dayB, name: "Отжимания на брусьях (с весом)", sets: 4, order: 0)
+        addExercise(to: dayB, name: "Отжимания от перекладины", sets: 3, order: 1)
+        addExercise(to: dayB, name: "Приседания Пистолетик", sets: 3, order: 2)
+        addExercise(to: dayB, name: "Выпады", sets: 3, order: 3)
+        addExercise(to: dayB, name: "Уголок (L-sit) на брусьях", sets: 3, order: 4)
+        dayB.program = program
+        program.days.append(dayB)
+        
+        return program
+    }
+
     // MARK: - Helper
     
     private static func addExercise(to day: WorkoutDay, name: String, sets: Int, order: Int) {

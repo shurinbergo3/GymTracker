@@ -105,4 +105,34 @@ class HealthManager: ObservableObject {
         }
         }.value
     }
+    func fetchAverageHeartRate(start: Date, end: Date) async -> Double {
+        let store = self.healthStore
+        return await Task.detached(priority: .userInitiated) {
+            guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+                return 0.0
+            }
+            
+            let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+            
+            return await withCheckedContinuation { continuation in
+                let statisticsQuery = HKStatisticsQuery(quantityType: heartRateType, quantitySamplePredicate: predicate, options: .discreteAverage) { _, result, error in
+                    if let error = error {
+                        print("Error fetching Avg HR: \(error.localizedDescription)")
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    
+                    guard let result = result, let averageQuantity = result.averageQuantity() else {
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    
+                    let averageHeartRate = averageQuantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
+                    continuation.resume(returning: averageHeartRate)
+                }
+                
+                store.execute(statisticsQuery)
+            }
+        }.value
+    }
 }

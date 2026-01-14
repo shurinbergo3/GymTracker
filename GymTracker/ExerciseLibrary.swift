@@ -456,6 +456,56 @@ struct ExerciseLibrary {
             category: .cardio,
             muscleGroup: .fullBody,
             technique: "Встаньте перед тумбой. Сделайте замах руками и прыгните на ящик, приземляясь на обе стопы (полная стопа на поверхности!). Выпрямитесь наверху. Сшагивайте вниз по одной ноге (прыгать вниз не рекомендуется для коленей)."
+        ), // KEEP PREVIOUS COMMA
+        LibraryExercise(
+            name: "Бег",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            technique: "Держите спину прямо, взгляд направлен вперед. Руки согнуты в локтях под углом 90 градусов и двигаются вдоль корпуса. Старайтесь приземляться на среднюю часть стопы, а не на пятку. Следите за ритмом дыхания (например, вдох на 2 шага, выдох на 2 шага). Плечи расслаблены."
+        ),
+        
+        // CALISTHENICS / STREET WORKOUT
+        LibraryExercise(
+            name: "Австралийские подтягивания",
+            category: .back,
+            muscleGroup: .lats,
+            technique: "Найдите низкую перекладину (на уровне пояса или груди). Повисните под ней на вытянутых руках, тело прямое, пятки упираются в землю. Подтягивайте грудь к перекладине, сводя лопатки. Тело должно оставаться ровным, в одной линии. Опускайтесь плавно."
+        ),
+        LibraryExercise(
+            name: "Подтягивания обратным хватом",
+            category: .back,
+            muscleGroup: .biceps,
+            technique: "Возьмитесь за перекладину хватом снизу (ладони к себе) на ширине плеч. На выдохе подтянитесь вверх, стараясь коснуться перекладины подбородком или грудью. Это упражнение сильнее нагружает бицепсы по сравнению с классическими подтягиваниями."
+        ),
+        LibraryExercise(
+            name: "Выход силой на две руки",
+            category: .complex,
+            muscleGroup: .fullBody,
+            technique: "Требует взрывной силы. Сделайте мощное подтягивание (до пояса), затем резким движением проверните кисти и выжмите тело над перекладиной до прямых рук. Начните с освоения высокого подтягивания и отжиманий от перекладины."
+        ),
+        LibraryExercise(
+            name: "Отжимания от перекладины",
+            category: .chest,
+            muscleGroup: .middleChest,
+            technique: "Упор на прямых руках над перекладиной (как в верхней точке выхода силой). Опускайтесь грудью к перекладине, локти могут уходить назад или в стороны. Выжмите себя вверх. Держите тело ровным, ноги не раскачивайте."
+        ),
+        LibraryExercise(
+            name: "Приседания Пистолетик",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            technique: "Приседание на одной ноге. Вытяните одну ногу вперед. Приседайте на опорной ноге, стараясь не отрывать пятку. Руки можно вытянуть вперед для баланса. Спина по возможности прямая. Требует хорошей гибкости и силы."
+        ),
+        LibraryExercise(
+            name: "Уголок (L-sit) на брусьях",
+            category: .core,
+            muscleGroup: .core,
+            technique: "Упор на брусьях на прямых руках. Поднимите прямые ноги перед собой до параллели с полом (образуя угол 90 градусов с корпусом). Держите это положение на время. Плечи опущены, не проваливайтесь в них."
+        ),
+        LibraryExercise(
+            name: "Подъем ног к перекладине (Toes to Bar)",
+            category: .core,
+            muscleGroup: .core,
+            technique: "Повисните на турнике. Мощным движением поднимите прямые ноги вверх, касаясь ими перекладины. Старайтесь не использовать сильную раскачку. Опускайте ноги под контролем."
         )
     ]
     
@@ -468,5 +518,24 @@ struct ExerciseLibrary {
     static func search(_ query: String) -> [LibraryExercise] {
         guard !query.isEmpty else { return allExercises }
         return allExercises.filter { $0.name.localizedCaseInsensitiveContains(query) }
+    }
+    
+    /// Получение техники выполнения по названию (с нечетким поиском)
+    static func getTechnique(for name: String) -> String? {
+        // 1. Точное совпадение
+        if let exactMatch = allExercises.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
+            return exactMatch.technique
+        }
+        
+        // 2. Очистка имени (удаление текста в скобках)
+        // Пример: "Бег (Интервалы)" -> "Бег"
+        let cleanName = name.components(separatedBy: "(").first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? name
+        if let cleanMatch = allExercises.first(where: { $0.name.caseInsensitiveCompare(cleanName) == .orderedSame }) {
+            return cleanMatch.technique
+        }
+        
+        // 3. Fallback: Содержит подстроку
+        // "Бег (Интервалы)" содержит "Бег"
+        return allExercises.first(where: { name.localizedCaseInsensitiveContains($0.name) })?.technique
     }
 }

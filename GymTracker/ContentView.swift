@@ -32,9 +32,23 @@ struct ContentView: View {
             // Tab 3: Параметры
             MeasurementsView()
                 .tabItem {
-                    Label("Параметры", systemImage: "chart.line.uptrend.xyaxis")
+                    Label("Статистика", systemImage: "chart.line.uptrend.xyaxis")
                 }
                 .tag(2)
+            
+            // Tab 4: Справочник
+            ReferenceView()
+                .tabItem {
+                    Label("Справочник", systemImage: "book.fill")
+                }
+                .tag(3)
+            
+            // Tab 5: AI Тренер
+            AITrainerView()
+                .tabItem {
+                    Label("AI Тренер", systemImage: "brain.head.profile")
+                }
+                .tag(4)
         }
         .tint(DesignSystem.Colors.accent)
     }

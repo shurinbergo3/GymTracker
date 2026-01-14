@@ -249,7 +249,7 @@ struct WorkoutProgressChart: View {
                                     endPoint: .trailing
                                 )
                             )
-                            .lineStyle(StrokeStyle(lineWidth: 3))
+                            .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
                             .interpolationMethod(.catmullRom)
                             
                             AreaMark(
@@ -260,7 +260,7 @@ struct WorkoutProgressChart: View {
                                 LinearGradient(
                                     colors: [
                                         DesignSystem.Colors.neonGreen.opacity(0.3),
-                                        DesignSystem.Colors.accent.opacity(0.05)
+                                        DesignSystem.Colors.accent.opacity(0.0)
                                     ],
                                     startPoint: .top,
                                     endPoint: .bottom
@@ -272,13 +272,20 @@ struct WorkoutProgressChart: View {
                                 x: .value("Дата", data.date, unit: .day),
                                 y: .value("Объем", data.volume)
                             )
-                            .foregroundStyle(DesignSystem.Colors.neonGreen)
-                            .symbolSize(50)
+                            .foregroundStyle(DesignSystem.Colors.background)
+                            .symbolSize(60)
+                            .annotation(position: .overlay) {
+                                Circle()
+                                    .stroke(DesignSystem.Colors.neonGreen, lineWidth: 3)
+                                    .frame(width: 12, height: 12)
+                            }
                         }
                     }
-                    .frame(height: 180)
+                    .frame(height: 200)
                     .chartXAxis {
                         AxisMarks(values: .automatic) { value in
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4, 4]))
+                                .foregroundStyle(Color.white.opacity(0.1))
                             AxisValueLabel()
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundStyle(DesignSystem.Colors.secondaryText)
@@ -286,9 +293,8 @@ struct WorkoutProgressChart: View {
                     }
                     .chartYAxis {
                         AxisMarks(values: .automatic) { value in
-                            AxisValueLabel()
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundStyle(DesignSystem.Colors.secondaryText)
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4, 4]))
+                                .foregroundStyle(Color.white.opacity(0.1))
                         }
                     }
                 }

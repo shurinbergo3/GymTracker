@@ -28,9 +28,9 @@ enum ProgressState {
     
     var icon: String {
         switch self {
-        case .improved: return "arrow.up.right"
-        case .declined: return "arrow.down.right"
-        case .same: return "minus"
+        case .improved: return "arrow.up" // Green Up
+        case .declined: return "arrow.down" // Red Down
+        case .same: return "arrow.forward" // White Straight
         case .new: return "star.fill"
         }
     }
@@ -38,9 +38,18 @@ enum ProgressState {
     var color: Color {
         switch self {
         case .improved: return DesignSystem.Colors.neonGreen
-        case .declined: return .orange
-        case .same: return DesignSystem.Colors.secondaryText
+        case .declined: return .red // Explicit Red
+        case .same: return .white // Explicit White
         case .new: return DesignSystem.Colors.accent
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .improved: return "Ты растёшь! Только вперёд!"
+        case .declined: return "Ты недостаточно усердно тренируешься"
+        case .same: return "Ты в режиме поддержания формы"
+        case .new: return "Первая тренировка"
         }
     }
 }
@@ -62,6 +71,11 @@ class WorkoutManager: ObservableObject {
     @Published var workoutState: WorkoutState = .idle
     @Published var currentSession: WorkoutSession?
     @Published var activeProgram: Program?
+    
+    // Live Stats
+    @Published var currentHeartRate: Int = 0
+    @Published var currentActiveCalories: Int = 0
+    
     private var liveActivityTimer: Timer?
     
     private let modelContext: ModelContext
@@ -132,14 +146,20 @@ class WorkoutManager: ObservableObject {
     }
     
     func cancelWorkout() {
-        // Delete current session without saving
-        if let session = currentSession {
-            modelContext.delete(session)
-            try? modelContext.save()
+        Task { @MainActor in
+            // Stop Live Activity
+            stopActivityUpdates()
+            LiveActivityManager.shared.end()
+            
+            // Delete current session without saving
+            if let session = currentSession {
+                modelContext.delete(session)
+                try? modelContext.save()
+            }
+            
+            currentSession = nil
+            workoutState = .idle
         }
-        
-        currentSession = nil
-        workoutState = .idle
     }
     
     func finishWorkout() {
@@ -154,10 +174,14 @@ class WorkoutManager: ObservableObject {
             let endDate = Date()
             session.endTime = endDate
             
-            // Fetch calories if authorized
+            // Fetch calories and HR if authorized
             if HealthManager.shared.isAuthorized {
-                let calories = await HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)
-                session.calories = Int(calories)
+                async let calories = HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)
+                async let avgHeartRate = HealthManager.shared.fetchAverageHeartRate(start: session.date, end: endDate)
+                
+                let (calValue, hrValue) = await (calories, avgHeartRate)
+                session.calories = Int(calValue)
+                session.averageHeartRate = Int(hrValue)
             }
             
             session.isCompleted = true
@@ -211,27 +235,27 @@ class WorkoutManager: ObservableObject {
         guard !currentSets.isEmpty else { return .new }
         guard !previousSets.isEmpty else { return .new }
         
-        // Compare by max weight (1RM proxy)
-        let currentMaxWeight = currentSets.map { $0.weight }.max() ?? 0
-        let previousMaxWeight = previousSets.map { $0.weight }.max() ?? 0
-        
-        if currentMaxWeight > previousMaxWeight {
-            return .improved
-        } else if currentMaxWeight < previousMaxWeight {
-            return .declined
-        }
-        
-        // If weights are equal, compare total volume
+        // Calculate Total Volume for accurate "Growth" vs "Reference" comparison
         let currentVolume = currentSets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
         let previousVolume = previousSets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
         
+        // Logic:
+        // Green (Improved): Increased Volume OR Max Weight
+        // White (Same): Roughly the same volume (within small margin/maintenance) or slightly less but acceptable
+        // Red (Declined): Significantly less volume/weight (e.g. < 90% of previous)
+        
         if currentVolume > previousVolume {
-            return .improved
-        } else if currentVolume < previousVolume {
-            return .declined
+             return .improved // Active growth
         }
         
-        return .same
+        // Check for slight decrease or equal (Maintenance) -> White Arrow
+        // If current volume is at least 90% of previous, consider it maintenance/neutral
+        if currentVolume >= (previousVolume * 0.9) {
+            return .same
+        }
+        
+        // Otherwise it's a significant drop -> Red Arrow
+        return .declined
     }
     
     // MARK: - Get Progress Data
@@ -323,5 +347,9 @@ class WorkoutManager: ObservableObject {
         let (calValue, hrValue) = await (calories, heartRate)
         
         LiveActivityManager.shared.update(heartRate: Int(hrValue), calories: Int(calValue))
+        
+        // Update local state for UI
+        self.currentHeartRate = Int(hrValue)
+        self.currentActiveCalories = Int(calValue)
     }
 }

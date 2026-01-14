@@ -10,11 +10,13 @@ import SwiftUI
 struct AuthView: View {
     @EnvironmentObject var authManager: AuthManager
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var modelContext // Add modelContext environment
     
     @State private var email = ""
     @State private var password = ""
     @State private var isLoading = false
     @State private var isRegistration = false
+    @State private var showDeleteConfirmation = false // State for alert
     
     var body: some View {
         NavigationStack {
@@ -65,6 +67,24 @@ struct AuthView: View {
                                 .cornerRadius(DesignSystem.CornerRadius.medium)
                         }
                         .padding(.horizontal, DesignSystem.Spacing.xl)
+                        
+                        // Delete Account Button
+                        Button(action: {
+                            showDeleteConfirmation = true
+                        }) {
+                            Text("Удалить аккаунт из системы")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(.red)
+                        }
+                        .padding(.top, DesignSystem.Spacing.sm)
+                        
+                        // Contact Developer Link
+                        Link(destination: URL(string: "https://t.me/sumotry")!) {
+                            Text("Связаться с разработчиком")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                        .padding(.top, 4)
                         
                         Spacer()
                     }
@@ -162,6 +182,26 @@ struct AuthView: View {
                     }
                 }
             }
+        }
+        .alert("Удаление аккаунта", isPresented: $showDeleteConfirmation) {
+            Button("Отмена", role: .cancel) { }
+            Button("Удалить", role: .destructive) {
+                performDeleteAccount()
+            }
+        } message: {
+            Text("Вы точно хотите удалить аккаунт из приложения и всю историю тренировок?")
+        }
+    }
+    
+    private func performDeleteAccount() {
+        isLoading = true
+        Task {
+            do {
+                try await authManager.deleteAccount(modelContext: modelContext)
+            } catch {
+                print("Delete Account Error: \(error.localizedDescription)")
+            }
+            isLoading = false
         }
     }
     

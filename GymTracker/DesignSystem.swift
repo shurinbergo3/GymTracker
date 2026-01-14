@@ -94,6 +94,10 @@ struct DesignSystem {
         static func subheadline() -> Font {
             .system(.subheadline, design: .rounded, weight: .regular)
         }
+        
+        static func sectionHeader() -> Font {
+            .system(.caption, design: .rounded, weight: .bold)
+        }
     }
 }
 
@@ -260,5 +264,48 @@ struct EmptyStateView: View {
                 .padding(.horizontal, DesignSystem.Spacing.xxl)
         }
         .padding(DesignSystem.Spacing.xxl)
+    }
+}
+
+/// Stat Card with formatted value and icon
+struct StatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                HStack(alignment: .top) {
+                    Image(systemName: icon)
+                        .font(.title2)
+                        .foregroundColor(color)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+                }
+                
+                Spacer(minLength: 0)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(value)
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(1)
+                    
+                    Text(title)
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                }
+            }
+            .frame(height: 120) // Fixed height to make them squares/uniform
+            .padding(DesignSystem.Spacing.md)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }

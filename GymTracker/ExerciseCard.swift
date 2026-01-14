@@ -87,13 +87,7 @@ struct ExerciseCard: View {
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
                         // Комментарий к упражнению (если есть)
-                        if !exerciseComment.isEmpty {
-                            Text(exerciseComment)
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                .italic()
-                                .lineLimit(2)
-                        }
+                        /* Comment usage moved to bottom */
                     }
                     
                     Spacer()
@@ -269,7 +263,7 @@ struct ExerciseCard: View {
             CommentEditorView(comment: $exerciseComment)
         }
         .sheet(isPresented: $showingTechnique) {
-            ExerciseTechniqueDetailView(exerciseName: exercise.name, technique: ExerciseLibrary.allExercises.first { $0.name == exercise.name }?.technique)
+            ExerciseTechniqueDetailView(exerciseName: exercise.name, technique: ExerciseLibrary.getTechnique(for: exercise.name))
         }
         .sheet(isPresented: $showingWorkoutTypeChange) {
             WorkoutTypeSelectorView(
@@ -346,6 +340,11 @@ struct ExerciseCard: View {
                 setNumber: currentSetNumber
             )
             set.duration = elapsedTime > 0 ? elapsedTime : durationValue
+        }
+        
+        // Если это первый сет, сохраняем комментарий
+        if completedSets.isEmpty && !exerciseComment.isEmpty {
+            set.comment = exerciseComment
         }
         
         set.isCompleted = true
