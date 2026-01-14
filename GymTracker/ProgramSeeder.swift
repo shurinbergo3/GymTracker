@@ -480,7 +480,6 @@ struct ProgramSeeder {
     
     private static func addExercise(to day: WorkoutDay, name: String, sets: Int, order: Int) {
         let exercise = ExerciseTemplate(name: name, plannedSets: sets, orderIndex: order)
-        exercise.workoutDay = day
         day.exercises.append(exercise)
     }
 }

@@ -25,6 +25,7 @@ struct ExerciseCard: View {
     @State private var timerRunning: Bool = false
     @State private var showingReplacement = false // Для замены упражнения
     @State private var showingComment = false // Для комментария
+    @State private var showingTechnique = false // Для техники
     @State private var exerciseComment: String = "" // Комментарий к упражнению
     @State private var showingWorkoutTypeChange = false // Для смены типа тренировки
     @State private var showingMenu = false // Для показа меню действий
@@ -95,8 +96,6 @@ struct ExerciseCard: View {
                         }
                     }
                     
-                    ExerciseInfoButton(exerciseName: exercise.name)
-                    
                     Spacer()
                     
                     // Menu Button - использует confirmationDialog вместо Menu для избежания скролла
@@ -114,7 +113,7 @@ struct ExerciseCard: View {
                 // Previous Results
                 if !previousSets.isEmpty {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        Text("ПРОШЛЫЙ РЕЗУЛЬТАТ")
+                        Text("Прошлый результат")
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)
@@ -141,7 +140,7 @@ struct ExerciseCard: View {
                 // Completed sets (editable)
                 if !completedSets.isEmpty {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        Text("ВЫПОЛНЕНО")
+                        Text("Выполнено")
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)
@@ -269,6 +268,9 @@ struct ExerciseCard: View {
         .sheet(isPresented: $showingComment) {
             CommentEditorView(comment: $exerciseComment)
         }
+        .sheet(isPresented: $showingTechnique) {
+            ExerciseTechniqueDetailView(exerciseName: exercise.name, technique: ExerciseLibrary.allExercises.first { $0.name == exercise.name }?.technique)
+        }
         .sheet(isPresented: $showingWorkoutTypeChange) {
             WorkoutTypeSelectorView(
                 selectedType: Binding(
@@ -284,6 +286,9 @@ struct ExerciseCard: View {
             )
         }
         .confirmationDialog("Действия", isPresented: $showingMenu, titleVisibility: .hidden) {
+            Button("Техника упражнения") {
+                showingTechnique = true
+            }
             Button("Заменить упражнение") {
                 showingReplacement = true
             }
@@ -416,13 +421,13 @@ struct CurrentSetInput: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
             HStack {
-                Text("ПОДХОД \(setNumber)")
+                Text("Подход \(setNumber)")
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .tracking(1.2)
                 
                 if isExtra {
-                    Text("ДОПОЛНИТЕЛЬНЫЙ")
+                    Text("Дополнительный")
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.neonGreen)
                         .padding(.horizontal, DesignSystem.Spacing.sm)
@@ -511,7 +516,7 @@ struct CurrentSetInput: View {
     private var strengthInputs: some View {
         Group {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text("ВЕС (КГ)")
+                Text("Вес (кг)")
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                 
@@ -531,7 +536,7 @@ struct CurrentSetInput: View {
             }
             
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text("ПОВТОРЫ")
+                Text("Повторы")
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                 
@@ -557,7 +562,7 @@ struct CurrentSetInput: View {
     private var circuitInputs: some View {
         Group {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text("КРУГОВ")
+                Text("Кругов")
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                 
@@ -577,7 +582,7 @@ struct CurrentSetInput: View {
             }
             
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text("ВРЕМЯ (МИН)")
+                Text("Время (мин)")
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                 
@@ -659,11 +664,6 @@ struct CompletedSetRow: View {
     
     var body: some View {
         HStack {
-            Button(action: onDelete) {
-                Image(systemName: "minus.circle.fill")
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-            }
-            
             Text("Подход \(set.setNumber)")
                 .font(DesignSystem.Typography.callout())
                 .foregroundColor(DesignSystem.Colors.secondaryText)
@@ -686,5 +686,13 @@ struct CompletedSetRow: View {
                 .foregroundColor(DesignSystem.Colors.neonGreen)
         }
         .padding(.vertical, DesignSystem.Spacing.xs)
+        .contextMenu {
+            Button(role: .destructive, action: onDelete) {
+                Label("Удалить", systemImage: "trash")
+            }
+            Button(action: onEdit) {
+                Label("Редактировать", systemImage: "pencil")
+            }
+        }
     }
 }

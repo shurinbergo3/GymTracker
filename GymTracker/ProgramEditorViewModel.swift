@@ -175,11 +175,9 @@ class ProgramEditorViewModel: ObservableObject {
                     plannedSets: exerciseDraft.plannedSets,
                     orderIndex: exerciseDraft.orderIndex
                 )
-                exerciseTemplate.workoutDay = workoutDay
                 workoutDay.exercises.append(exerciseTemplate)
             }
             
-            workoutDay.program = program
             program.days.append(workoutDay)
         }
         

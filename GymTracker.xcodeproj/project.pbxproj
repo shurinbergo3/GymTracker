@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		01D712962F17BF2800BF9D6C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 01D712952F17BF2800BF9D6C /* FirebaseAuth */; };
+		01D712982F17BF2800BF9D6C /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 01D712972F17BF2800BF9D6C /* FirebaseFirestore */; };
+		01D7129B2F17BFC200BF9D6C /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 01D7129A2F17BFC200BF9D6C /* GoogleSignIn */; };
+		01D7129D2F17BFC200BF9D6C /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 01D7129C2F17BFC200BF9D6C /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		01B86D462F0FAEBE00695F47 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +36,22 @@
 		01B86D4F2F0FAEBE00695F47 /* GymTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GymTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		01D712A32F17C5B500BF9D6C /* Exceptions for "GymTracker" folder in "GymTracker" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 01B86D352F0FAEBD00695F47 /* GymTracker */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		01B86D382F0FAEBD00695F47 /* GymTracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				01D712A32F17C5B500BF9D6C /* Exceptions for "GymTracker" folder in "GymTracker" target */,
+			);
 			path = GymTracker;
 			sourceTree = "<group>";
 		};
@@ -52,6 +72,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01D712962F17BF2800BF9D6C /* FirebaseAuth in Frameworks */,
+				01D712982F17BF2800BF9D6C /* FirebaseFirestore in Frameworks */,
+				01D7129B2F17BFC200BF9D6C /* GoogleSignIn in Frameworks */,
+				01D7129D2F17BFC200BF9D6C /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +136,10 @@
 			);
 			name = GymTracker;
 			packageProductDependencies = (
+				01D712952F17BF2800BF9D6C /* FirebaseAuth */,
+				01D712972F17BF2800BF9D6C /* FirebaseFirestore */,
+				01D7129A2F17BFC200BF9D6C /* GoogleSignIn */,
+				01D7129C2F17BFC200BF9D6C /* GoogleSignInSwift */,
 			);
 			productName = GymTracker;
 			productReference = 01B86D362F0FAEBD00695F47 /* GymTracker.app */;
@@ -195,6 +223,10 @@
 			);
 			mainGroup = 01B86D2D2F0FAEBD00695F47;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				01D712942F17BF2800BF9D6C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				01D712992F17BFC200BF9D6C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 01B86D372F0FAEBD00695F47 /* Products */;
 			projectDirPath = "";
@@ -398,6 +430,7 @@
 				DEVELOPMENT_TEAM = 86W628YHPH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GymTracker/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -431,6 +464,7 @@
 				DEVELOPMENT_TEAM = 86W628YHPH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GymTracker/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -574,6 +608,48 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		01D712942F17BF2800BF9D6C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.8.0;
+			};
+		};
+		01D712992F17BFC200BF9D6C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		01D712952F17BF2800BF9D6C /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 01D712942F17BF2800BF9D6C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		01D712972F17BF2800BF9D6C /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 01D712942F17BF2800BF9D6C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		01D7129A2F17BFC200BF9D6C /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 01D712992F17BFC200BF9D6C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		01D7129C2F17BFC200BF9D6C /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 01D712992F17BFC200BF9D6C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 01B86D2E2F0FAEBD00695F47 /* Project object */;
 }

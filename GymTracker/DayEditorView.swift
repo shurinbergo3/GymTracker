@@ -92,17 +92,7 @@ struct DayEditorView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(day.name)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                EditButton()
-            }
-            
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Готово") {
-                    dismiss()
-                }
-            }
-        }
+        
         .sheet(isPresented: $showingExerciseSelection) {
             ExerciseSelectionView { exercise in
                 withAnimation {
@@ -142,7 +132,7 @@ struct ExerciseEditRow: View {
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     
-                    ExerciseInfoButton(exerciseName: exercise.name)
+                
                 }
                 
                 Text("\(exercise.plannedSets) подходов")

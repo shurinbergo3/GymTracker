@@ -7,9 +7,17 @@
 
 import SwiftUI
 import SwiftData
+import FirebaseCore
+import FirebaseAuth
 
 @main
 struct WorkoutTrackerApp: App {
+    
+    @StateObject private var authManager = AuthManager.shared
+    
+    init() {
+        FirebaseApp.configure()
+    }
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -34,8 +42,14 @@ struct WorkoutTrackerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentViewWrapper()
-                .preferredColorScheme(.dark)
+            Group {
+                if authManager.userSession != nil {
+                    ContentViewWrapper()
+                } else {
+                    LoginView()
+                }
+            }
+            .preferredColorScheme(.dark)
         }
         .modelContainer(sharedModelContainer)
     }

@@ -14,8 +14,11 @@ struct WorkoutView: View {
     @Query(filter: #Predicate<Program> { $0.isActive == true })
     private var activePrograms: [Program]
     
-    init(modelContext: ModelContext) {
+    @Binding var selectedTab: Int
+    
+    init(modelContext: ModelContext, selectedTab: Binding<Int>) {
         _workoutManager = StateObject(wrappedValue: WorkoutManager(modelContext: modelContext))
+        _selectedTab = selectedTab
     }
     
     private var activeProgram: Program? {
@@ -34,9 +37,9 @@ struct WorkoutView: View {
                         icon: "figure.strengthtraining.traditional",
                         title: "Нет активной программы",
                         message: "Создайте программу тренировок, чтобы начать отслеживать свой прогресс",
-                        buttonTitle: "Создать программу"
+                        buttonTitle: "Задать программу тренировок"
                     ) {
-                        // TODO: Открыть экран создания программы
+                        selectedTab = 1 // Switch to Program tab
                     }
                 } else {
                     // State-based content
@@ -69,6 +72,6 @@ struct WorkoutView: View {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Program.self, WorkoutDay.self, WorkoutSession.self, configurations: config)
     
-    return WorkoutView(modelContext: container.mainContext)
+    return WorkoutView(modelContext: container.mainContext, selectedTab: .constant(0))
         .modelContainer(container)
 }

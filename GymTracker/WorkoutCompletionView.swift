@@ -89,6 +89,11 @@ struct WorkoutCompletionView: View {
     private func completeWorkout() {
         session.notes = workoutNotes.isEmpty ? nil : workoutNotes
         session.isCompleted = true
+        
+        // Save to Firestore
+        let workoutDTO = Workout(from: session)
+        WorkoutDataManager.shared.saveWorkout(workout: workoutDTO)
+        
         try? modelContext.save()
         dismiss()
     }

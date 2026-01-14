@@ -52,7 +52,7 @@ struct TodaysPlanCard: View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
                 // Header
-                Text("ПЛАН НА СЕГОДНЯ")
+                Text("План на сегодня")
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .tracking(1.2)
@@ -85,7 +85,7 @@ struct TodaysPlanCard: View {
                 }
                 
                 // Start button
-                GradientButton(title: "НАЧАТЬ ТРЕНИРОВКУ", icon: "play.fill") {
+                GradientButton(title: "Начать тренировку", icon: "play.fill") {
                     workoutManager.startWorkout()
                 }
             }
@@ -111,7 +111,7 @@ struct PreviousProgressCard: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                Text("ПРОШЛЫЕ УСПЕХИ")
+                Text("Прошлые успехи")
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .tracking(1.2)
@@ -269,9 +269,9 @@ struct SummaryOverlay: View {
                     
                     // Success icon
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 120))
-                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 30, x: 0, y: 0)
+                    .font(.system(size: 120))
+                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 30, x: 0, y: 0)
                     
                     // Title
                     Text("Тренировка завершена!")
@@ -298,7 +298,7 @@ struct SummaryOverlay: View {
                     
                     // Notes field
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        Text("ОТЗЫВ О ТРЕНИРОВКЕ (необязательно)")
+                        Text("Отзыв о тренировке (необязательно)")
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)
@@ -346,7 +346,7 @@ struct ProgressSummaryCard: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                Text("ВАШ ПРОГРЕСС")
+                Text("Ваш прогресс")
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .tracking(1.2)
@@ -450,7 +450,6 @@ struct ActiveWorkoutContent: View {
             orderIndex: workoutDay.exercises.count
         )
         
-        newExercise.workoutDay = workoutDay
         workoutDay.exercises.append(newExercise)
         modelContext.insert(newExercise)
         

@@ -95,9 +95,8 @@ struct ProgramEditorView: View {
                     .disabled(!viewModel.isValid)
                 }
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
+                
+                
             }
             .alert("Ошибка сохранения", isPresented: $showingSaveError) {
                 Button("OK", role: .cancel) { }
