@@ -497,9 +497,11 @@ struct CurrentSetInput: View {
         .onAppear {
             switch workoutType {
             case .strength:
-                focusedField = .weight
+                // focusedField = .weight // Disable auto-focus to prevent auto-scroll
+                break
             case .circuit:
-                focusedField = .rounds
+                // focusedField = .rounds
+                break
             case .cardio:
                 timerRunning = true
                 startTimer()

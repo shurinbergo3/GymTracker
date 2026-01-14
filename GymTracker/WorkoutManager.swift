@@ -165,27 +165,31 @@ class WorkoutManager: ObservableObject {
     func finishWorkout() {
         guard let session = currentSession else { return }
         
-        Task { @MainActor in
-            // Stop Live Activity
-            stopActivityUpdates()
-            LiveActivityManager.shared.end()
-            
-            // Set end time
-            let endDate = Date()
-            session.endTime = endDate
-            
+        // 1. Immediate UI updates
+        stopActivityUpdates()
+        LiveActivityManager.shared.end()
+        
+        // Set end time and completion status
+        let endDate = Date()
+        session.endTime = endDate
+        session.isCompleted = true
+        
+        // 2. Transition immediately to summary (optimistic UI)
+        workoutState = .summary
+        
+        // 3. Background data fetch
+        Task {
             // Fetch calories and HR if authorized
             if HealthManager.shared.isAuthorized {
-                async let calories = HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)
-                async let avgHeartRate = HealthManager.shared.fetchAverageHeartRate(start: session.date, end: endDate)
+                let calories = await HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)
+                let avgHeartRate = await HealthManager.shared.fetchAverageHeartRate(start: session.date, end: endDate)
                 
-                let (calValue, hrValue) = await (calories, avgHeartRate)
-                session.calories = Int(calValue)
-                session.averageHeartRate = Int(hrValue)
+                // Update session on MainActor
+                await MainActor.run {
+                    session.calories = Int(calories)
+                    session.averageHeartRate = Int(avgHeartRate)
+                }
             }
-            
-            session.isCompleted = true
-            workoutState = .summary
         }
     }
     
@@ -338,7 +342,8 @@ class WorkoutManager: ObservableObject {
     }
     
     private func updateLiveActivity(startDate: Date) async {
-        guard HealthManager.shared.isAuthorized else { return }
+        // We attempt to fetch data regardless of cached 'isAuthorized' state.
+        // HealthManager handles errors gracefully and returns 0 if access is denied/unavailable.
         
         let now = Date()
         async let calories = HealthManager.shared.fetchCaloriesForWorkout(start: startDate, end: now)

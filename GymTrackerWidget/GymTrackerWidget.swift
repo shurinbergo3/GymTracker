@@ -71,8 +71,8 @@ struct GymTrackerWidget: Widget {
                     .background()
             }
         }
-        .configurationDisplayName("My Widget")
-        .description("This is an example widget.")
+        .configurationDisplayName("Body Forge")
+        .description("Отслеживайте свои тренировки и прогресс с Body Forge.")
     }
 }
 

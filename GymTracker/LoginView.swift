@@ -31,7 +31,7 @@ struct LoginView: View {
                         .foregroundColor(DesignSystem.Colors.neonGreen)
                         .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 20)
                     
-                    Text("GYM TRACKER")
+                    Text("BODY FORGE")
                         .font(DesignSystem.Typography.title())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .tracking(2)
