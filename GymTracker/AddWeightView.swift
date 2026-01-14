@@ -67,12 +67,27 @@ struct AddWeightView: View {
     }
 }
 
-#Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: UserProfile.self, WeightRecord.self, configurations: config)
-    let profile = UserProfile(height: 180, initialWeight: 70)
-    container.mainContext.insert(profile)
+struct AddWeightView_PreviewWrapper: View {
+    let container: ModelContainer
+    let profile: UserProfile
     
-    return AddWeightView(userProfile: profile)
-        .modelContainer(container)
+    init() {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        do {
+            container = try ModelContainer(for: UserProfile.self, WeightRecord.self, configurations: config)
+        } catch {
+            fatalError("Failed to create preview container")
+        }
+        profile = UserProfile(height: 180, initialWeight: 70)
+        container.mainContext.insert(profile)
+    }
+    
+    var body: some View {
+        AddWeightView(userProfile: profile)
+            .modelContainer(container)
+    }
+}
+
+#Preview {
+    AddWeightView_PreviewWrapper()
 }

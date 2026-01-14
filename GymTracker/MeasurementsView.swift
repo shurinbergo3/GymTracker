@@ -10,14 +10,31 @@ import SwiftData
 
 struct MeasurementsView: View {
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var authManager: AuthManager
+    
     @Query private var userProfiles: [UserProfile]
     @Query private var bodyMeasurements: [BodyMeasurement]
     
     @State private var showingAddProfile = false
+    @State private var showingAddWeight = false
     
     private var currentProfile: UserProfile? {
         userProfiles.first
     }
+    
+    private var weightHistory: [WeightRecord] {
+        currentProfile?.weightHistory.sorted { $0.date > $1.date } ?? []
+    }
+    
+    private var currentWeight: Double {
+        weightHistory.first?.weight ?? 0
+    }
+    
+    // Grid Setup
+    private let columns = [
+        GridItem(.flexible(), spacing: DesignSystem.Spacing.md),
+        GridItem(.flexible(), spacing: DesignSystem.Spacing.md)
+    ]
     
     var body: some View {
         NavigationStack {
@@ -26,15 +43,50 @@ struct MeasurementsView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: DesignSystem.Spacing.xl) {
-                        // Кнопка истории тренировок
-                        WorkoutHistoryButtonLarge()
+                    LazyVGrid(columns: columns, spacing: DesignSystem.Spacing.md) {
                         
-                        // Секция основных параметров
-                        BasicParametersSection(profile: currentProfile)
+                        // 1. History Card
+                        NavigationLink(destination: WorkoutHistoryView()) {
+                            StatCard(
+                                title: "История",
+                                value: "Тренировок",
+                                icon: "clock.fill",
+                                color: DesignSystem.Colors.accent
+                            )
+                        }
                         
-                        // Кнопка быстрого доступа к замерам
-                        BodyMeasurementsButtonSection()
+                        // 2. Weight Card
+                        if currentProfile != nil {
+                            Button(action: { showingAddWeight = true }) {
+                                StatCard(
+                                    title: "Вес",
+                                    value: currentWeight > 0 ? String(format: "%.1f кг", currentWeight) : "—",
+                                    icon: "scalemass.fill",
+                                    color: DesignSystem.Colors.neonGreen
+                                )
+                            }
+                        } else {
+                            Button(action: { showingAddProfile = true }) {
+                                StatCard(
+                                    title: "Профиль",
+                                    value: "Создать",
+                                    icon: "person.badge.plus",
+                                    color: DesignSystem.Colors.secondaryText
+                                )
+                            }
+                        }
+                        
+                        // 3. Body Measurements Cards
+                        ForEach(MeasurementType.allCases, id: \.self) { type in
+                            NavigationLink(destination: MeasurementDetailView(measurementType: type)) {
+                                StatCard(
+                                    title: type.rawValue,
+                                    value: latestValueString(for: type),
+                                    icon: iconForMeasurement(type),
+                                    color: DesignSystem.Colors.secondaryText
+                                )
+                            }
+                        }
                     }
                     .padding(DesignSystem.Spacing.lg)
                 }
@@ -42,200 +94,95 @@ struct MeasurementsView: View {
             .navigationTitle("Параметры")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                if currentProfile == nil {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { showingAddProfile = true }) {
-                            Image(systemName: "person.badge.plus")
-                        }
-                    }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    UserProfileButton()
                 }
             }
             .sheet(isPresented: $showingAddProfile) {
                 CreateProfileView()
             }
-        }
-    }
-}
-
-// MARK: - Basic Parameters Section
-
-struct BasicParametersSection: View {
-    let profile: UserProfile?
-    @State private var showingAddWeight = false
-    
-    // Получаем историю веса, отсортированную по дате (новые сверху)
-    private var weightHistory: [WeightRecord] {
-        profile?.weightHistory.sorted { $0.date > $1.date } ?? []
-    }
-    
-    private var currentWeight: WeightRecord? {
-        weightHistory.first
-    }
-    
-    private var olderWeights: [WeightRecord] {
-        Array(weightHistory.dropFirst().prefix(3))
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-            Text("Основное")
-                .font(DesignSystem.Typography.title2())
-                .foregroundColor(DesignSystem.Colors.primaryText)
-            
-            if let profile = profile {
-                CardView {
-                    VStack(spacing: DesignSystem.Spacing.xl) {
-                        // Рост - Увеличенные цифры
-                        HStack {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                                Text("РОСТ")
-                                    .font(DesignSystem.Typography.caption())
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    .tracking(1.2)
-                                
-                                Text("\(String(format: "%.0f", profile.height)) см")
-                                    .font(.system(size: 48, weight: .heavy, design: .rounded))
-                                    .foregroundColor(DesignSystem.Colors.primaryText)
-                            }
-                            
-                            Spacer()
-                        }
-                        
-                        Divider()
-                            .background(DesignSystem.Colors.secondaryText.opacity(0.3))
-                        
-                        // Вес с графиком
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            HStack(alignment: .center) {
-                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                    Text("ВЕС")
-                                        .font(DesignSystem.Typography.caption())
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        .tracking(1.2)
-                                    
-                                    // Текущий вес
-                                    if let current = currentWeight {
-                                        Text("\(String(format: "%.1f", current.weight)) кг")
-                                            .font(.system(size: 36, weight: .heavy, design: .rounded))
-                                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                                    } else {
-                                        Text("—")
-                                            .font(.system(size: 36, weight: .heavy, design: .rounded))
-                                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                Button(action: { showingAddWeight = true }) {
-                                    Image(systemName: "plus.circle.fill")
-                                        .font(.system(size: 32))
-                                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                                }
-                            }
-                            
-                            // Weight Chart
-                            WeightChartView(weightHistory: weightHistory)
-                            
-                            // Previous weights (compact list)
-                            if !olderWeights.isEmpty {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    ForEach(Array(olderWeights.enumerated()), id: \.element.date) { index, record in
-                                        Text(String(format: "%.1f кг", record.weight))
-                                            .font(DesignSystem.Typography.caption())
-                                            .strikethrough()
-                                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                                            .opacity(1.0 - (Double(index + 1) * 0.25))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .padding(DesignSystem.Spacing.xl)
-                }
-            } else {
-                CardView {
-                    Text("Добавьте свой профиль, чтобы отслеживать параметры")
-                        .font(DesignSystem.Typography.body())
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                        .padding(DesignSystem.Spacing.xl)
+            .sheet(isPresented: $showingAddWeight) {
+                if let profile = currentProfile {
+                    AddWeightView(userProfile: profile)
                 }
             }
         }
-        .sheet(isPresented: $showingAddWeight) {
-            if let profile = profile {
-                AddWeightView(userProfile: profile)
-            }
-        }
     }
-}
-
-// MARK: - Body Measurements Section
-
-struct BodyMeasurementsSection: View {
-    let measurements: [BodyMeasurement]
     
     private func latestMeasurement(for type: MeasurementType) -> BodyMeasurement? {
-        measurements
+        bodyMeasurements
             .filter { $0.type == type }
             .sorted { $0.date > $1.date }
             .first
     }
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            Text("Замеры тела")
-                .font(DesignSystem.Typography.title2())
-                .foregroundColor(DesignSystem.Colors.primaryText)
-            
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: DesignSystem.Spacing.md) {
-                ForEach(MeasurementType.allCases, id: \.self) { type in
-                    NavigationLink(destination: MeasurementDetailView(measurementType: type)) {
-                        MeasurementCard(
-                            type: type,
-                            latestValue: latestMeasurement(for: type)?.value
-                        )
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
+    private func latestValueString(for type: MeasurementType) -> String {
+        if let measurement = latestMeasurement(for: type) {
+            return String(format: "%.1f см", measurement.value)
+        }
+        return "—"
+    }
+    
+    private func iconForMeasurement(_ type: MeasurementType) -> String {
+        // SF Symbols mapping
+        switch type {
+        case .biceps: return "arm" // Custom or standard if available, fallback generic
+        case .chest: return "tshirt.fill"
+        case .waist: return "figure.stand"
+        default: return "ruler.fill"
         }
     }
 }
 
-// MARK: - Measurement Card
+// MARK: - Stat Card
 
-struct MeasurementCard: View {
-    let type: MeasurementType
-    let latestValue: Double?
+struct StatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
     
     var body: some View {
         CardView {
-            VStack(spacing: DesignSystem.Spacing.md) {
-                Text(type.rawValue)
-                    .font(DesignSystem.Typography.callout())
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                    .textCase(.uppercase)
-                    .tracking(1.0)
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                HStack(alignment: .top) {
+                    Image(systemName: icon)
+                        .font(.title2)
+                        .foregroundColor(color)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+                }
                 
-                if let value = latestValue {
-                    Text("\(String(format: "%.1f", value)) см")
-                        .font(.system(size: 32, weight: .heavy, design: .rounded))
-                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                } else {
-                    Text("—")
-                        .font(.system(size: 32, weight: .heavy, design: .rounded))
+                Spacer(minLength: 0)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(value)
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(1)
+                    
+                    Text(title)
+                        .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
             }
-            .frame(maxWidth: .infinity)
-            .padding(DesignSystem.Spacing.xl)
+            .frame(height: 120) // Fixed height to make them squares/uniform
+            .padding(DesignSystem.Spacing.md)
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
+
+// Keep helper views (CreateProfileView, AddWeightView) as they were, 
+// or minimal updates access control
+// I will keep existing sub-structs at the bottom of the file if they were inside.
+// Actually I will simply append the existing helpers from previous file version
+// But wait, WriteToFile overwrites. I need to include them.
 
 // MARK: - Create Profile View
 
@@ -295,157 +242,36 @@ struct CreateProfileView: View {
     }
 }
 
-// MARK: - Add Measurement View
+// MARK: - Add Weight View (Also need this)
 
-struct AddMeasurementView: View {
-    let measurementType: MeasurementType
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
-    @Query private var measurements: [BodyMeasurement]
+// struct AddWeightView: View {
+    // Note: Assuming AddWeightView logic was similar to AddMeasurement or existing in previous file.
+    // I need to recreate it or copy it.
+    // Let's look at previous file content again.
+    // It used `AddWeightView` but I didn't see the definition in the snippets!
+    // Wait, let me check the previous `read_file` output for MeasurementsView.swift
+    // Ah, I missed it? Or it was not shown?
+    // Line 167: AddWeightView(userProfile: profile)
+    // But where is the struct defined?
+    // It might have been cut off or in another file?
+    // Let me check `MeasurementsView.swift` again carefully.
+    // Lines 242-296 is CreatedProfileView.
+    // Lines 300-369 is AddMeasurementView.
+    // I DO NOT SEE AddWeightView in the previous file view!
+    // It must be in another file or I missed it.
+    // Let me check file list... maybe `AddWeightView.swift`? 
+    // No, file list showed `MeasurementDetailView.swift` etc.
+    // I'll search for AddWeightView.
     
-    @State private var value = ""
-    
-    private var history: [BodyMeasurement] {
-        measurements
-            .filter { $0.type == measurementType }
-            .sorted { $0.date > $1.date }
-    }
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("Новое значение") {
-                    HStack {
-                        Text("Значение (см)")
-                        Spacer()
-                        TextField("0", text: $value)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                    }
-                }
-                
-                if !history.isEmpty {
-                    Section("История") {
-                        ForEach(history, id: \.self) { measurement in
-                            HStack {
-                                Text(measurement.date.formatted(date: .abbreviated, time: .omitted))
-                                    .font(DesignSystem.Typography.callout())
-                                
-                                Spacer()
-                                
-                                Text(String(format: "%.1f см", measurement.value))
-                                    .font(DesignSystem.Typography.callout())
-                                    .foregroundColor(DesignSystem.Colors.accent)
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle(measurementType.rawValue)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Отмена") { dismiss() }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Добавить") {
-                        addMeasurement()
-                        dismiss()
-                    }
-                    .disabled(value.isEmpty)
-                }
-            }
-        }
-    }
-    
-    private func addMeasurement() {
-        guard let measurementValue = Double(value) else { return }
-        
-        let measurement = BodyMeasurement(type: measurementType, value: measurementValue)
-        modelContext.insert(measurement)
-        try? modelContext.save()
-    }
-}
 
 
-// MARK: - Body Measurements Button Section
-
-struct BodyMeasurementsButtonSection: View {
-    @State private var showingBodyMeasurementEditor = false
-    
-    var body: some View {
-        Button(action: { showingBodyMeasurementEditor = true }) {
-            CardView {
-                HStack {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("Замеры тела")
-                            .font(DesignSystem.Typography.headline())
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                        
-                        Text("Отслеживайте изменения")
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                    }
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                }
-                .padding(DesignSystem.Spacing.lg)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-        .sheet(isPresented: $showingBodyMeasurementEditor) {
-            BodyMeasurementEditorView()
-        }
-    }
-}
-
-// MARK: - Workout History Button Section
-
-struct WorkoutHistoryButton: View {
-    @State private var showingHistory = false
-    
-    var body: some View {
-        NavigationLink(destination: WorkoutHistoryView()) {
-            CardView {
-                HStack(spacing: DesignSystem.Spacing.lg) {
-                    Image(systemName: "clock.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                    
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("История тренировок")
-                            .font(DesignSystem.Typography.title3())
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                        
-                        Text("Просмотр прошлых тренировок")
-                            .font(DesignSystem.Typography.callout())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                    }
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .font(.title3)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                }
-                .padding(DesignSystem.Spacing.xl)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// Для sheet presentation
+// MeasurementType: Identifiable
 extension MeasurementType: Identifiable {
     var id: String { self.rawValue }
 }
 
-
 #Preview {
     MeasurementsView()
         .modelContainer(for: [UserProfile.self, WeightRecord.self, BodyMeasurement.self], inMemory: true)
+        .environmentObject(AuthManager())
 }

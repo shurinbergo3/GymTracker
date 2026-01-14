@@ -184,6 +184,8 @@ final class WorkoutSession {
     var workoutDayName: String // название дня тренировки
     var notes: String?
     var isCompleted: Bool
+    var endTime: Date?
+    var calories: Int?
     
     @Relationship(deleteRule: .cascade, inverse: \WorkoutSet.session)
     var sets: [WorkoutSet]

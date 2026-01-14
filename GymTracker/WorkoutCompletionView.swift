@@ -13,7 +13,9 @@ struct WorkoutCompletionView: View {
     @Environment(\.modelContext) private var modelContext
     let session: WorkoutSession
     
-    @State private var workoutNotes = ""
+    @State private var calories: Int = 0
+    @State private var workoutNotes: String = ""
+    @State private var isEditingCalories = false
     
     var body: some View {
         NavigationStack {
@@ -38,6 +40,38 @@ struct WorkoutCompletionView: View {
                         .multilineTextAlignment(.center)
                 }
                 
+                // Calories Row
+                HStack {
+                    Image(systemName: "flame.fill")
+                        .foregroundColor(.orange)
+                    Text("Калории:")
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                    if isEditingCalories {
+                        TextField("kcal", value: $calories, format: .number)
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 80)
+                        Button("OK") { isEditingCalories = false }
+                    } else {
+                        Text("\(calories) kcal")
+                            .fontWeight(.bold)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                            .onTapGesture {
+                                if calories == 0 { isEditingCalories = true }
+                            }
+                        if calories == 0 {
+                            Button(action: { isEditingCalories = true }) {
+                                Image(systemName: "pencil")
+                                    .foregroundColor(DesignSystem.Colors.accent)
+                            }
+                        }
+                    }
+                }
+                .font(DesignSystem.Typography.body())
+                .padding()
+                .background(DesignSystem.Colors.cardBackground)
+                .cornerRadius(DesignSystem.CornerRadius.medium)
+
                 // Поле для заметок (необязательное)
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                     Text("ОТЗЫВ О ТРЕНИРОВКЕ (необязательно)")
@@ -83,16 +117,19 @@ struct WorkoutCompletionView: View {
         }
         .onAppear {
             workoutNotes = session.notes ?? ""
+            calories = session.calories ?? 0
         }
     }
+    
     
     private func completeWorkout() {
         session.notes = workoutNotes.isEmpty ? nil : workoutNotes
         session.isCompleted = true
+        session.calories = calories // Update session with final calories (fetched or edited)
         
         // Save to Firestore
         let workoutDTO = Workout(from: session)
-        WorkoutDataManager.shared.saveWorkout(workout: workoutDTO)
+        FirestoreManager.shared.save(workout: workoutDTO)
         
         try? modelContext.save()
         dismiss()

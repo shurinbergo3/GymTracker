@@ -13,6 +13,7 @@ struct ProgramView: View {
     @Query private var programs: [Program]
     @State private var showingCreateProgram = false
     @State private var scrollToTopTrigger = false
+    @State private var showingExercises = false
     
     private var activeProgram: Program? {
         programs.first(where: { $0.isActive })
@@ -104,15 +105,20 @@ struct ProgramView: View {
                                             
                                             Spacer()
                                             
-                                            if inactivePrograms.count < 15 {
-                                                Button(action: loadDefaultPrograms) {
-                                                    HStack(spacing: 4) {
-                                                        Image(systemName: "arrow.down.circle")
-                                                        Text("Загрузить")
-                                                    }
-                                                    .font(DesignSystem.Typography.caption())
-                                                    .foregroundColor(DesignSystem.Colors.accent)
+                                            Button(action: { showingExercises = true }) {
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "dumbbell.fill")
+                                                    Text("Упражнения")
                                                 }
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.accent)
+                                                .padding(.vertical, 4)
+                                                .padding(.horizontal, 8)
+                                                .background(DesignSystem.Colors.accent.opacity(0.1))
+                                                .cornerRadius(8)
+                                            }
+                                            .sheet(isPresented: $showingExercises) {
+                                                ExerciseListView()
                                             }
                                         }
                                         .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -157,6 +163,11 @@ struct ProgramView: View {
             }
             .navigationTitle("Программы")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    UserProfileButton()
+                }
+            }
             .sheet(isPresented: $showingCreateProgram) {
                 ProgramEditorView()
             }

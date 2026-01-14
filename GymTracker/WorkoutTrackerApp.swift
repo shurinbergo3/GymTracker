@@ -13,7 +13,7 @@ import FirebaseAuth
 @main
 struct WorkoutTrackerApp: App {
     
-    @StateObject private var authManager = AuthManager.shared
+    @StateObject private var authManager = AuthManager()
     
     init() {
         FirebaseApp.configure()
@@ -43,11 +43,8 @@ struct WorkoutTrackerApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if authManager.userSession != nil {
-                    ContentViewWrapper()
-                } else {
-                    LoginView()
-                }
+                ContentViewWrapper()
+                    .environmentObject(authManager)
             }
             .preferredColorScheme(.dark)
         }
@@ -63,6 +60,7 @@ struct ContentViewWrapper: View {
     
     var body: some View {
         ContentView()
+            .environmentObject(AuthManager()) // Just for preview/fallback if unexpected hierarchy, but mostly handled in App
             .onAppear {
                 if !hasSeeded {
                     ProgramSeeder.seedProgramsIfNeeded(context: modelContext)

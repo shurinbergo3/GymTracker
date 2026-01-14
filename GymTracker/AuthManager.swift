@@ -1,76 +1,87 @@
 //
 //  AuthManager.swift
-//  GymTracker
+//  Workout Tracker
 //
-//  Created by Antigravity on 14.01.2026.
+//  Created by Antigravity
 //
 
 import Foundation
 import SwiftUI
 import Combine
-import FirebaseAuth
-import GoogleSignIn
-import FirebaseCore
 
 @MainActor
 class AuthManager: ObservableObject {
-    
     static let shared = AuthManager()
     
-    @Published var userSession: FirebaseAuth.User?
+    @Published var isLoggedIn: Bool = false
+    @Published var currentUser: User?
     
-    private init() {
-        self.userSession = Auth.auth().currentUser
+    private let userDefaults = UserDefaults.standard
+    private let loggedInKey = "isLoggedIn"
+    private let usernameKey = "username"
+    
+    struct User {
+        let username: String
+        let email: String
+        let avatarInitials: String
     }
     
-    // MARK: - Email/Password
+    init() {
+        // Load state
+        self.isLoggedIn = userDefaults.bool(forKey: loggedInKey)
+        if let savedName = userDefaults.string(forKey: usernameKey), isLoggedIn {
+            self.currentUser = User(
+                username: savedName,
+                email: "\(savedName.lowercased())@example.com",
+                avatarInitials: String(savedName.prefix(2)).uppercased()
+            )
+        }
+    }
     
     func signInWithEmail(email: String, password: String) async throws {
-        let result = try await Auth.auth().signIn(withEmail: email, password: password)
-        self.userSession = result.user
+        // Imitate network delay
+        try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+        
+        let username = email.components(separatedBy: "@").first ?? "User"
+        
+        self.currentUser = User(
+            username: username,
+            email: email,
+            avatarInitials: String(username.prefix(2)).uppercased()
+        )
+        self.isLoggedIn = true
+        
+        userDefaults.set(true, forKey: loggedInKey)
+        userDefaults.set(username, forKey: usernameKey)
     }
     
     func signUpWithEmail(email: String, password: String) async throws {
-        let result = try await Auth.auth().createUser(withEmail: email, password: password)
-        self.userSession = result.user
+         // Same logic for now, just a mock
+        try await signInWithEmail(email: email, password: password)
     }
-    
-    // MARK: - Google Sign-In
     
     func signInWithGoogle() async throws {
-        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        // Mock Google Sign In
+        try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
         
-        // Create Google Sign In configuration object.
-        let config = GIDConfiguration(clientID: clientID)
-        GIDSignIn.sharedInstance.configuration = config
+        let username = "GoogleUser"
+        let email = "google@example.com"
         
-        // Get the root view controller
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootViewController = windowScene.windows.first?.rootViewController else {
-            return
-        }
+        self.currentUser = User(
+            username: username,
+            email: email,
+            avatarInitials: "GU"
+        )
+        self.isLoggedIn = true
         
-        // Start the sign in flow!
-        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
-        
-        guard let idToken = result.user.idToken?.tokenString else { return }
-        let accessToken = result.user.accessToken.tokenString
-        
-        let credential = GoogleAuthProvider.credential(withIDToken: idToken,
-                                                       accessToken: accessToken)
-        
-        let authResult = try await Auth.auth().signIn(with: credential)
-        self.userSession = authResult.user
+        userDefaults.set(true, forKey: loggedInKey)
+        userDefaults.set(username, forKey: usernameKey)
     }
     
-    // MARK: - Sign Out
-    
-    func signOut() {
-        do {
-            try Auth.auth().signOut()
-            self.userSession = nil
-        } catch {
-            print("Error signing out: \(error.localizedDescription)")
-        }
+    func logout() {
+        self.isLoggedIn = false
+        self.currentUser = nil
+        userDefaults.set(false, forKey: loggedInKey)
+        userDefaults.removeObject(forKey: usernameKey)
     }
 }

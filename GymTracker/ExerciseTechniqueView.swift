@@ -77,23 +77,38 @@ struct ExerciseTechniqueDetailView: View {
                             if let youtubeUrl = youtubeSearchURL(for: exerciseName) {
                                 Link(destination: youtubeUrl) {
                                     HStack(spacing: DesignSystem.Spacing.md) {
-                                        Image(systemName: "play.rectangle.fill")
-                                            .foregroundColor(.red)
-                                            .font(.title2)
+                                        Image(systemName: "play.fill")
+                                            .font(.title3)
+                                            .foregroundColor(.white)
+                                            .padding(8)
+                                            .background(Color.white.opacity(0.2))
+                                            .clipShape(Circle())
                                         
-                                        Text("Посмотреть технику на YouTube")
-                                            .font(DesignSystem.Typography.headline())
-                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                        Text("Смотреть на YouTube")
+                                            .font(DesignSystem.Typography.title3())
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
                                         
                                         Spacer()
                                         
                                         Image(systemName: "arrow.up.right")
-                                            .font(.caption)
-                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                            .font(.subheadline)
+                                            .foregroundColor(.white.opacity(0.8))
                                     }
-                                    .padding(DesignSystem.Spacing.lg)
-                                    .background(DesignSystem.Colors.cardBackground)
+                                    .padding()
+                                    .background(
+                                        LinearGradient(
+                                            colors: [Color(red: 0.8, green: 0.0, blue: 0.0), Color(red: 0.6, green: 0.0, blue: 0.0)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
                                     .cornerRadius(DesignSystem.CornerRadius.large)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                    )
+                                    .shadow(color: Color.red.opacity(0.4), radius: 12, x: 0, y: 6)
                                 }
                                 .padding(.horizontal, DesignSystem.Spacing.lg)
                             }

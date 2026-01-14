@@ -58,6 +58,11 @@ struct WorkoutView: View {
             }
             .navigationTitle("Тренировка")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    UserProfileButton()
+                }
+            }
         }
         .onAppear {
             if workoutManager.activeProgram == nil {

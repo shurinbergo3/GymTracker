@@ -62,6 +62,7 @@ class WorkoutManager: ObservableObject {
     @Published var workoutState: WorkoutState = .idle
     @Published var currentSession: WorkoutSession?
     @Published var activeProgram: Program?
+    private var liveActivityTimer: Timer?
     
     private let modelContext: ModelContext
     
@@ -81,6 +82,8 @@ class WorkoutManager: ObservableObject {
                 self.refreshActiveProgram()
             }
         }
+        
+        requestHealthAccess()
     }
     
     // MARK: - Initialization
@@ -119,7 +122,13 @@ class WorkoutManager: ObservableObject {
         )
         modelContext.insert(session)
         currentSession = session
+        currentSession = session
         workoutState = .active
+        
+        // Start Live Activity
+        let startDate = Date()
+        LiveActivityManager.shared.start(workoutType: session.workoutDayName, startDate: startDate)
+        startActivityUpdates(startDate: startDate)
     }
     
     func cancelWorkout() {
@@ -135,8 +144,31 @@ class WorkoutManager: ObservableObject {
     
     func finishWorkout() {
         guard let session = currentSession else { return }
-        session.isCompleted = true
-        workoutState = .summary
+        
+        Task { @MainActor in
+            // Stop Live Activity
+            stopActivityUpdates()
+            LiveActivityManager.shared.end()
+            
+            // Set end time
+            let endDate = Date()
+            session.endTime = endDate
+            
+            // Fetch calories if authorized
+            if HealthManager.shared.isAuthorized {
+                let calories = await HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)
+                session.calories = Int(calories)
+            }
+            
+            session.isCompleted = true
+            workoutState = .summary
+        }
+    }
+    
+    func requestHealthAccess() {
+        Task {
+            _ = await HealthManager.shared.requestAuthorization()
+        }
     }
     
     func closeWorkout() {
@@ -263,5 +295,33 @@ class WorkoutManager: ObservableObject {
                 previousStats: nil
             )
         }
+    }
+    
+    // MARK: - Live Activity Updates
+    
+    private func startActivityUpdates(startDate: Date) {
+        liveActivityTimer?.invalidate()
+        liveActivityTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                await self?.updateLiveActivity(startDate: startDate)
+            }
+        }
+    }
+    
+    private func stopActivityUpdates() {
+        liveActivityTimer?.invalidate()
+        liveActivityTimer = nil
+    }
+    
+    private func updateLiveActivity(startDate: Date) async {
+        guard HealthManager.shared.isAuthorized else { return }
+        
+        let now = Date()
+        async let calories = HealthManager.shared.fetchCaloriesForWorkout(start: startDate, end: now)
+        async let heartRate = HealthManager.shared.fetchLatestHeartRate(since: startDate)
+        
+        let (calValue, hrValue) = await (calories, heartRate)
+        
+        LiveActivityManager.shared.update(heartRate: Int(hrValue), calories: Int(calValue))
     }
 }

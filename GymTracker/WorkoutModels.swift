@@ -15,6 +15,7 @@ struct Workout: Codable, Identifiable {
     var date: Date
     var workoutType: String
     var duration: TimeInterval
+    var calories: Int?
     var notes: String?
     var exercises: [Exercise]
     
@@ -23,6 +24,7 @@ struct Workout: Codable, Identifiable {
         case date
         case workoutType
         case duration
+        case calories
         case notes
         case exercises
     }
@@ -49,8 +51,13 @@ extension Workout {
         self.date = session.date
         self.workoutType = session.workoutDayName
         self.notes = session.notes
-        // Assuming duration logic is handled elsewhere or default 0 if not tracked per session
-        self.duration = 0 
+        // Duration logic: if endTime is present, calculate diff, else 0
+        if let endTime = session.endTime {
+            self.duration = endTime.timeIntervalSince(session.date)
+        } else {
+            self.duration = 0
+        }
+        self.calories = session.calories 
         
         let groupedSets = Dictionary(grouping: session.sets) { $0.exerciseName }
         self.exercises = groupedSets.map { (name, sets) in

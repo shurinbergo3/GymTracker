@@ -90,6 +90,10 @@ struct DesignSystem {
         static func caption() -> Font {
             .system(.caption, design: .rounded)
         }
+        
+        static func subheadline() -> Font {
+            .system(.subheadline, design: .rounded, weight: .regular)
+        }
     }
 }
 
