@@ -19,8 +19,8 @@ struct ExerciseCard: View {
     
     @State private var weight: String = ""
     @State private var reps: String = ""
-    @State private var duration: String = "" // Для круговой и кардио
-    @State private var rounds: String = "" // Для круговой
+    @State private var duration: String = "" // Для Duration
+    @State private var distance: String = "" // Для Duration (опционально)
     @State private var showingInput: Bool = false
     @State private var elapsedTime: TimeInterval = 0 // Таймер
     @State private var timerRunning: Bool = false
@@ -31,6 +31,7 @@ struct ExerciseCard: View {
     @State private var showingWorkoutTypeChange = false // Для смены типа тренировки
     @State private var showingMenu = false // Для показа меню действий
     @State private var currentWorkoutType: WorkoutType? = nil // Тип для этого конкретного упражнения
+    @State private var isHistoryExpanded: Bool = false // Для аккордеона истории
     
     // Используем локальный тип если установлен, иначе тип дня
     private var effectiveWorkoutType: WorkoutType {
@@ -70,10 +71,10 @@ struct ExerciseCard: View {
         switch effectiveWorkoutType {
         case .strength:
             return !weight.isEmpty && !reps.isEmpty
-        case .circuit:
-            return !rounds.isEmpty && !duration.isEmpty
-        case .cardio:
-            return !duration.isEmpty
+        case .repsOnly:
+            return !reps.isEmpty
+        case .duration:
+            return !duration.isEmpty || elapsedTime > 0
         }
     }
     
@@ -86,14 +87,11 @@ struct ExerciseCard: View {
                         Text(exercise.name)
                             .font(DesignSystem.Typography.title2())
                             .foregroundColor(DesignSystem.Colors.primaryText)
-                        
-                        // Комментарий к упражнению (если есть)
-                        /* Comment usage moved to bottom */
                     }
                     
                     Spacer()
                     
-                    // Menu Button - использует confirmationDialog вместо Menu для избежания скролла
+                    // Menu Button
                     Button(action: { showingMenu = true }) {
                         Image(systemName: "ellipsis.circle")
                             .font(.title3)
@@ -105,30 +103,19 @@ struct ExerciseCard: View {
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
                 
-                // Previous Results
+                // Accordion History
                 if !previousSets.isEmpty {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        Text("Прошлый результат")
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                            .tracking(1.2)
-                        
-                        ForEach(previousSets, id: \.self) { set in
-                            HStack {
-                                Text("Подход \(set.setNumber)")
-                                    .font(DesignSystem.Typography.caption())
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                                
-                                Spacer()
-                                
-                                Text(String(format: "%.0f кг × %d", set.weight, set.reps))
-                                    .font(DesignSystem.Typography.callout())
-                                    .foregroundColor(DesignSystem.Colors.primaryText)
-                            }
-                        }
+                ExerciseInlineHistoryView(
+                    previousSets: previousSets,
+                    isExpanded: $isHistoryExpanded,
+                    onAutoFill: { set in
+                        weight = String(format: "%.0f", set.weight)
+                        reps = "\(set.reps)"
+                        if let dur = set.duration { duration = "\(Int(dur))" }
                     }
-                    
-                    Divider()
+                )
+                
+                Divider()
                         .background(DesignSystem.Colors.secondaryText.opacity(0.3))
                 }
                 
@@ -141,7 +128,7 @@ struct ExerciseCard: View {
                             .shadow(color: .purple.opacity(0.8), radius: 5)
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("AI RECOMMENDATION")
+                            Text("AI PEKOMEНДАЦИЯ")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(.purple)
                                 .tracking(1)
@@ -177,6 +164,7 @@ struct ExerciseCard: View {
                             CompletedSetRow(
                                 set: set,
                                 isExtra: set.setNumber > exercise.plannedSets,
+                                workoutType: effectiveWorkoutType,
                                 onEdit: {
                                     startEditing(set)
                                 },
@@ -198,7 +186,7 @@ struct ExerciseCard: View {
                         weight: $weight,
                         reps: $reps,
                         duration: $duration,
-                        rounds: $rounds,
+                        distance: $distance,
                         workoutType: effectiveWorkoutType,
                         isExtra: isExtra,
                         canSave: canSave,
@@ -338,6 +326,13 @@ struct ExerciseCard: View {
         }
     }
     
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMM"
+        return formatter.string(from: date)
+    }
+    
     private func saveCurrentSet() {
         guard let session = session else { return }
         
@@ -357,23 +352,26 @@ struct ExerciseCard: View {
                 setNumber: currentSetNumber
             )
             
-        case .circuit:
-            guard let roundsValue = Int(rounds),
-                  let durationValue = Double(duration),
-                  roundsValue > 0,
-                  durationValue > 0 else { return }
+        case .repsOnly:
+            guard let repsValue = Int(reps),
+                  repsValue > 0 else { return }
             
             set = WorkoutSet(
                 exerciseName: exercise.name,
                 weight: 0,
-                reps: roundsValue, // Используем reps для кругов
+                reps: repsValue,
                 setNumber: currentSetNumber
             )
-            set.duration = durationValue
             
-        case .cardio:
-            guard let durationValue = Double(duration),
-                  durationValue > 0 else { return }
+        case .duration:
+            let durationValue = Double(duration) ?? 0
+            // Distance is optional
+            let distanceValue = Double(distance)
+            
+            // Should have either duration entered OR timer running logic
+            let finalDuration = elapsedTime > 0 ? elapsedTime : durationValue
+            
+            guard finalDuration > 0 else { return }
             
             set = WorkoutSet(
                 exerciseName: exercise.name,
@@ -381,7 +379,8 @@ struct ExerciseCard: View {
                 reps: 0,
                 setNumber: currentSetNumber
             )
-            set.duration = elapsedTime > 0 ? elapsedTime : durationValue
+            set.duration = finalDuration
+            set.distance = distanceValue
         }
         
         // Если это первый сет, сохраняем комментарий
@@ -401,7 +400,7 @@ struct ExerciseCard: View {
         weight = ""
         reps = ""
         duration = ""
-        rounds = ""
+        distance = ""
         elapsedTime = 0
         timerRunning = false
     }
@@ -439,12 +438,14 @@ struct ExerciseCard: View {
 
 // MARK: - Current Set Input
 
+// MARK: - Current Set Input
+
 struct CurrentSetInput: View {
     let setNumber: Int
     @Binding var weight: String
     @Binding var reps: String
     @Binding var duration: String
-    @Binding var rounds: String
+    @Binding var distance: String
     let workoutType: WorkoutType
     let isExtra: Bool
     let canSave: Bool
@@ -456,7 +457,7 @@ struct CurrentSetInput: View {
     @State private var timer: Timer?
     
     enum Field {
-        case weight, reps, duration, rounds
+        case weight, reps, duration, distance
     }
     
     var body: some View {
@@ -478,8 +479,8 @@ struct CurrentSetInput: View {
                 }
             }
             
-            // Timer display (for circuit and cardio only)
-            if workoutType == .circuit || workoutType == .cardio {
+            // Timer display (for duration only)
+            if workoutType == .duration {
                 HStack {
                     Spacer()
                     Text(formatTime(elapsedTime))
@@ -517,11 +518,11 @@ struct CurrentSetInput: View {
                 case .strength:
                     strengthInputs
                     
-                case .circuit:
-                    circuitInputs
+                case .repsOnly:
+                    repsOnlyInputs
                     
-                case .cardio:
-                    cardioInputs
+                case .duration:
+                    durationInputs
                 }
                 
                 // Confirm button
@@ -543,14 +544,9 @@ struct CurrentSetInput: View {
         }
         .onAppear {
             switch workoutType {
-            case .strength:
-                // Removing auto-focus to prevent scroll jumping issues
-                // focusedField = .weight 
+            case .strength, .repsOnly:
                 break
-            case .circuit:
-                // focusedField = .rounds
-                break
-            case .cardio:
+            case .duration:
                 timerRunning = true
                 startTimer()
             }
@@ -606,37 +602,43 @@ struct CurrentSetInput: View {
         }
     }
     
-    // MARK: - Circuit Inputs
+    // MARK: - Reps Only Inputs
     
-    private var circuitInputs: some View {
+    private var repsOnlyInputs: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+            Text("Повторы")
+                .font(DesignSystem.Typography.caption())
+                .foregroundColor(DesignSystem.Colors.secondaryText)
+                .frame(maxWidth: .infinity, alignment: .center)
+            
+            TextField("", text: $reps)
+                .keyboardType(.numberPad)
+                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .foregroundColor(DesignSystem.Colors.primaryText)
+                .multilineTextAlignment(.center)
+                .frame(height: 44)
+                .padding(.horizontal, DesignSystem.Spacing.md)
+                .background(Color(uiColor: .systemGray6).opacity(0.2)) // Updated BG
+                .cornerRadius(DesignSystem.CornerRadius.medium)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                        .stroke(focusedField == .reps ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3), lineWidth: 1)
+                )
+                .focused($focusedField, equals: .reps)
+        }
+    }
+    
+    // MARK: - Duration Inputs
+    
+    private var durationInputs: some View {
         Group {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text("Кругов")
-                    .font(DesignSystem.Typography.caption())
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                
-                TextField("", text: $rounds)
-                    .keyboardType(.numberPad)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundColor(DesignSystem.Colors.primaryText)
-                    .frame(height: 44)
-                    .padding(.horizontal, DesignSystem.Spacing.md)
-                    .background(Color(uiColor: .systemGray6).opacity(0.2)) // Updated BG
-                    .cornerRadius(DesignSystem.CornerRadius.medium)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                            .stroke(focusedField == .rounds ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3), lineWidth: 1)
-                    )
-                    .focused($focusedField, equals: .rounds)
-            }
-            
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text("Время (мин)")
+                Text("Время (сек)")
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                 
                 TextField("", text: $duration)
-                    .keyboardType(.decimalPad)
+                    .keyboardType(.numberPad)
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundColor(DesignSystem.Colors.primaryText)
                     .frame(height: 44)
@@ -649,18 +651,26 @@ struct CurrentSetInput: View {
                     )
                     .focused($focusedField, equals: .duration)
             }
-        }
-    }
-    
-    // MARK: - Cardio Inputs
-    
-    private var cardioInputs: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-            Text("Используйте таймер выше")
-                .font(DesignSystem.Typography.callout())
-                .foregroundColor(DesignSystem.Colors.secondaryText)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.vertical, DesignSystem.Spacing.md)
+            
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                Text("Дист. (км, опц.)")
+                    .font(DesignSystem.Typography.caption())
+                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                
+                TextField("", text: $distance)
+                    .keyboardType(.decimalPad)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundColor(DesignSystem.Colors.primaryText)
+                    .frame(height: 44)
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    .background(Color(uiColor: .systemGray6).opacity(0.2)) // Updated BG
+                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                            .stroke(focusedField == .distance ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3), lineWidth: 1)
+                    )
+                    .focused($focusedField, equals: .distance)
+            }
         }
     }
     
@@ -705,9 +715,12 @@ struct CurrentSetInput: View {
 
 // MARK: - Completed Set Row
 
+// MARK: - Completed Set Row
+
 struct CompletedSetRow: View {
     let set: WorkoutSet
     let isExtra: Bool
+    let workoutType: WorkoutType
     let onEdit: () -> Void
     let onDelete: () -> Void
     
@@ -726,9 +739,11 @@ struct CompletedSetRow: View {
             Spacer()
             
             Button(action: onEdit) {
-                Text(String(format: "%.0f кг × %d", set.weight, set.reps))
-                    .font(DesignSystem.Typography.callout())
-                    .foregroundColor(DesignSystem.Colors.primaryText)
+                HStack(spacing: 4) {
+                    formattedSetText
+                }
+                .font(DesignSystem.Typography.callout())
+                .foregroundColor(DesignSystem.Colors.primaryText)
             }
             
             Image(systemName: "checkmark")
@@ -743,5 +758,138 @@ struct CompletedSetRow: View {
                 Label("Редактировать", systemImage: "pencil")
             }
         }
+    }
+    
+    @ViewBuilder
+    private var formattedSetText: some View {
+        switch workoutType {
+        case .strength:
+            Text(String(format: "%.0f кг", set.weight))
+            Text("×")
+                .foregroundColor(DesignSystem.Colors.secondaryText)
+            Text("\(set.reps)")
+            
+        case .repsOnly:
+            Text("\(set.reps) повт.")
+            
+        case .duration:
+            if let dur = set.duration {
+                Text(formatTime(dur))
+            }
+            if let dist = set.distance, dist > 0 {
+                Text("(\(String(format: "%.1f", dist)) км)")
+                    .foregroundColor(DesignSystem.Colors.secondaryText)
+            }
+        }
+    }
+    
+    private func formatTime(_ timeInterval: TimeInterval) -> String {
+        let minutes = Int(timeInterval) / 60
+        let seconds = Int(timeInterval) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+}
+
+// MARK: - Exercise Inline History View
+
+struct ExerciseInlineHistoryView: View {
+    let previousSets: [WorkoutSet]
+    @Binding var isExpanded: Bool
+    let onAutoFill: (WorkoutSet) -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            Button(action: { withAnimation { isExpanded.toggle() } }) {
+                HStack {
+                    Text(isExpanded ? "История" : "Прошлый раз")
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .tracking(1.2)
+                    
+                    Spacer()
+                    
+                    if !isExpanded, let lastSet = previousSets.last {
+                        // Collapsed view: show brief summary of last set
+                        HStack(spacing: 4) {
+                            if lastSet.weight > 0 {
+                                Text(String(format: "%.0fкг", lastSet.weight))
+                            }
+                            if lastSet.reps > 0 {
+                                Text("× \(lastSet.reps)")
+                            }
+                            if let lastDate = lastSet.session?.date {
+                                Text("(\(formatDate(lastDate)))")
+                                    .font(.caption2)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.7))
+                            }
+                        }
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                    }
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                }
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            if isExpanded {
+                VStack(spacing: 8) {
+                    ForEach(previousSets.prefix(5), id: \.self) { set in
+                        Button(action: { onAutoFill(set) }) {
+                            HStack {
+                                Text(formatDate(set.date))
+                                    .font(.caption)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .frame(width: 60, alignment: .leading)
+                                
+                                Spacer()
+                                
+                                HStack(spacing: 4) {
+                                    if set.weight > 0 {
+                                        Text(String(format: "%.0f кг", set.weight))
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                    }
+                                    if set.reps > 0 && set.weight > 0 {
+                                        Text("×")
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    }
+                                    if set.reps > 0 {
+                                        Text("\(set.reps) повт.")
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                    }
+                                    if let dur = set.duration, dur > 0 {
+                                        Text(formatTime(dur))
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                    }
+                                }
+                                .font(DesignSystem.Typography.callout())
+                            }
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
+                            .background(DesignSystem.Colors.secondaryText.opacity(0.1))
+                            .cornerRadius(8)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMM"
+        return formatter.string(from: date)
+    }
+    
+    private func formatTime(_ timeInterval: TimeInterval) -> String {
+        let minutes = Int(timeInterval) / 60
+        let seconds = Int(timeInterval) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 }

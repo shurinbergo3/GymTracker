@@ -82,14 +82,35 @@ final class BodyMeasurement {
 
 enum WorkoutType: String, Codable, CaseIterable {
     case strength = "Силовая"
-    case circuit = "Круговая"
-    case cardio = "Кардио"
+    case repsOnly = "Свой вес"
+    case duration = "На время / Кардио"
     
     var icon: String {
         switch self {
         case .strength: return "dumbbell.fill"
-        case .circuit: return "flame.fill"
-        case .cardio: return "heart.fill"
+        case .repsOnly: return "figure.walk"
+        case .duration: return "stopwatch.fill"
+        }
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        
+        // Migration logic for legacy types
+        switch rawValue {
+        case "Силовая":
+            self = .strength
+        case "Свой вес":
+            self = .repsOnly
+        case "На время / Кардио":
+            self = .duration
+        case "Круговая", "Кардио": // Legacy mappings
+            self = .duration
+        default:
+            // Fallback to duration or strength depending on preference, or throw
+            // Keeping safe fallback to strength if unknown
+            self = .strength
         }
     }
 }

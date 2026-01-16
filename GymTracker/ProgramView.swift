@@ -284,10 +284,10 @@ struct ActiveProgramCard: View {
         switch type {
         case .strength:
             return .blue
-        case .circuit:
+        case .repsOnly:
+            return .purple
+        case .duration:
             return .orange
-        case .cardio:
-            return .red
         }
     }
 }
@@ -416,10 +416,10 @@ struct ProgramCard: View {
         switch type {
         case .strength:
             return .blue
-        case .circuit:
+        case .repsOnly:
+            return .purple
+        case .duration:
             return .orange
-        case .cardio:
-            return .red
         }
     }
 }

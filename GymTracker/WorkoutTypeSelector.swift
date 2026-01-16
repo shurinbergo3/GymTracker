@@ -19,7 +19,7 @@ struct WorkoutTypeSelectorView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: DesignSystem.Spacing.lg) {
-                    ForEach([WorkoutType.strength, WorkoutType.circuit, WorkoutType.cardio], id: \.self) { type in
+                    ForEach([WorkoutType.strength, WorkoutType.repsOnly, WorkoutType.duration], id: \.self) { type in
                         Button(action: {
                             selectedType = type
                             onSelect(type)
@@ -78,10 +78,10 @@ extension WorkoutType {
         switch self {
         case .strength:
             return "Вес × Повторы"
-        case .circuit:
-            return "Круги × Время"
-        case .cardio:
-            return "Время и дистанция"
+        case .repsOnly:
+            return "figure.walk"
+        case .duration:
+            return "stopwatch.fill Время и дистанция"
         }
     }
 }

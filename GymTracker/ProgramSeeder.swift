@@ -313,7 +313,7 @@ struct ProgramSeeder {
             desc: "Выполнить 7 циклов без отдыха = 1 раунд. Всего 3-5 раундов."
         )
         
-        let day1 = WorkoutDay(name: "День 1", orderIndex: 0, workoutType: .circuit)
+        let day1 = WorkoutDay(name: "День 1", orderIndex: 0, workoutType: .duration)
         addExercise(to: day1, name: "Взятие на грудь", sets: 1, order: 0)
         addExercise(to: day1, name: "Фронтальный присед", sets: 1, order: 1)
         addExercise(to: day1, name: "Жим швунг", sets: 1, order: 2)
@@ -331,7 +331,7 @@ struct ProgramSeeder {
             desc: "Escalating Density Training. Два 15-минутных блока."
         )
         
-        let day1 = WorkoutDay(name: "День 1", orderIndex: 0, workoutType: .circuit)
+        let day1 = WorkoutDay(name: "День 1", orderIndex: 0, workoutType: .duration)
         addExercise(to: day1, name: "Гоблет приседания", sets: 1, order: 0)
         addExercise(to: day1, name: "Отжимания", sets: 1, order: 1)
         addExercise(to: day1, name: "Махи гирей", sets: 1, order: 2)
@@ -348,7 +348,7 @@ struct ProgramSeeder {
             desc: "Peripheral Heart Action. Круговая без остановки для максимальной кардио-нагрузки."
         )
         
-        let day1 = WorkoutDay(name: "Круговая", orderIndex: 0, workoutType: .circuit)
+        let day1 = WorkoutDay(name: "Круговая", orderIndex: 0, workoutType: .duration)
         addExercise(to: day1, name: "Выпады назад", sets: 1, order: 0)
         addExercise(to: day1, name: "Жим гантелей стоя", sets: 1, order: 1)
         addExercise(to: day1, name: "Становая сумо", sets: 1, order: 2)
@@ -446,7 +446,7 @@ struct ProgramSeeder {
             desc: "Высокоинтенсивные интервалы на беговой дорожке. 30/30, 45/45, 60/60."
         )
         
-        let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .cardio)
+        let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .duration)
         addExercise(to: day1, name: "Бег (Интервалы: 30/30, 45/45, 60/60)", sets: 1, order: 0)
         day1.program = program
         program.days.append(day1)
@@ -460,7 +460,7 @@ struct ProgramSeeder {
             desc: "Степпер для ягодиц. Шаг через ступеньку, перекрестный шаг. Не держаться за поручни!"
         )
         
-        let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .cardio)
+        let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .duration)
         addExercise(to: day1, name: "Степпер (Шаг через ступеньку, Перекрестный шаг)", sets: 1, order: 0)
         day1.program = program
         program.days.append(day1)
@@ -474,7 +474,7 @@ struct ProgramSeeder {
             desc: "40-60 минут в зоне 2 пульса. Активно работать руками (push-pull)."
         )
         
-        let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .cardio)
+        let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .duration)
         addExercise(to: day1, name: "Эллипс (40-60 мин, зона 2)", sets: 1, order: 0)
         day1.program = program
         program.days.append(day1)
