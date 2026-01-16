@@ -1,6 +1,7 @@
 import Foundation
 import HealthKit
 import Combine
+import SwiftUI
 
 class HealthManager: NSObject, ObservableObject {
     static let shared = HealthManager()
@@ -13,6 +14,10 @@ class HealthManager: NSObject, ObservableObject {
     // Using Any? to store sessions/builders safely across SDK versions
     var _session: Any?
     var _builder: Any?
+    
+    // Real-time callbacks
+    var onHeartRateUpdate: ((Int) -> Void)?
+    var onCalorieUpdate: ((Int) -> Void)?
     
     private override init() {}
     
@@ -29,7 +34,13 @@ class HealthManager: NSObject, ObservableObject {
         let workoutType = HKObjectType.workoutType()
         let activitySummaryType = HKObjectType.activitySummaryType()
         
-        let readTypes: Set<HKObjectType> = [energyType, hrType, workoutType, activitySummaryType]
+        let readTypes: Set<HKObjectType> = [
+            energyType, 
+            hrType, 
+            workoutType, 
+            activitySummaryType,
+            HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
+        ]
         let writeTypes: Set<HKSampleType> = [energyType, workoutType]
         
         do {
@@ -261,9 +272,139 @@ extension HealthManager: HKWorkoutSessionDelegate {
 @available(iOS 26.0, *)
 extension HealthManager: HKLiveWorkoutBuilderDelegate {
     func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
-        // Collect data
+        for type in collectedTypes {
+            guard let quantityType = type as? HKQuantityType else { continue }
+            
+            let statistics = workoutBuilder.statistics(for: quantityType)
+            
+            // Real-time Heart Rate
+            if quantityType == HKQuantityType.quantityType(forIdentifier: .heartRate) {
+                if let heartRateUnit = statistics?.mostRecentQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())) {
+                    let hr = Int(heartRateUnit)
+                    // Notify listeners (UI/Widget) via MainActor
+                    Task { @MainActor in
+                        self.onHeartRateUpdate?(hr)
+                    }
+                }
+            }
+            
+            // Real-time Calories
+            if quantityType == HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
+                if let sum = statistics?.sumQuantity()?.doubleValue(for: HKUnit.kilocalorie()) {
+                    let cals = Int(sum)
+                    // Notify listeners
+                    Task { @MainActor in
+                        self.onCalorieUpdate?(cals)
+                    }
+                }
+            }
+        }
     }
     
     func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {
+    }
+}
+
+// MARK: - Sleep Analysis
+
+struct SleepData: Identifiable {
+    let id = UUID()
+    let startDate: Date
+    let endDate: Date
+    let type: HKCategoryValueSleepAnalysis
+    
+    var duration: TimeInterval {
+        endDate.timeIntervalSince(startDate)
+    }
+    
+    var color: Color {
+        switch type {
+        case .asleepCore: return Color.blue
+        case .asleepDeep: return Color.purple
+        case .asleepREM: return Color.cyan
+        case .asleepUnspecified: return Color.blue.opacity(0.5)
+        case .awake: return Color.orange
+        case .inBed: return Color.gray.opacity(0.3)
+        @unknown default: return Color.gray
+        }
+    }
+    
+    var label: String {
+        switch type {
+        case .asleepCore: return "Базовый"
+        case .asleepDeep: return "Глубокий"
+        case .asleepREM: return "Быстрый (REM)"
+        case .asleepUnspecified: return "Сон"
+        case .awake: return "Бодрствование"
+        case .inBed: return "В кровати"
+        @unknown default: return "Неизвестно"
+        }
+    }
+}
+
+extension HealthManager {
+    func fetchActivitySummary() async -> HKActivitySummary? {
+        let store = self.healthStore
+        // Create a predicate for today
+        let calendar = Calendar.current
+        var dateComponents = calendar.dateComponents([.day, .month, .year, .era], from: Date())
+        dateComponents.calendar = calendar
+        
+        let predicate = HKQuery.predicateForActivitySummary(with: dateComponents)
+        
+        return await withCheckedContinuation { continuation in
+            let query = HKActivitySummaryQuery(predicate: predicate) { _, summaries, error in
+                if let error = error {
+                    print("Error fetching activity summary: \(error.localizedDescription)")
+                    continuation.resume(returning: nil)
+                    return
+                }
+                
+                guard let summaries = summaries, let summary = summaries.first else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                
+                continuation.resume(returning: summary)
+            }
+            
+            store.execute(query)
+        }
+    }
+
+    func fetchSleepData(for date: Date = Date()) async -> [SleepData] {
+        let store = self.healthStore
+        guard let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { return [] }
+        
+        // Define day range (yesterday 18:00 to today 18:00 to catch full night)
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        // Predicate
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay.addingTimeInterval(-6 * 3600), end: endOfDay, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: sleepType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { _, samples, error in
+                guard let samples = samples as? [HKCategorySample], error == nil else {
+                    continuation.resume(returning: [])
+                    return
+                }
+                
+                // Filter out "InBed" overlap if we have detailed phases, or keep them if that's all we have.
+                // Generally we want to visualize phases.
+                let sleepData = samples.map { sample -> SleepData in
+                    SleepData(
+                        startDate: sample.startDate,
+                        endDate: sample.endDate,
+                        type: HKCategoryValueSleepAnalysis(rawValue: sample.value) ?? .asleepUnspecified
+                    )
+                }
+                
+                continuation.resume(returning: sleepData)
+            }
+            store.execute(query)
+        }
     }
 }

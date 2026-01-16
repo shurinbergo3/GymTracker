@@ -8,6 +8,243 @@
 import SwiftUI
 import SwiftData
 import Combine
+import Charts
+import HealthKit
+
+// MARK: - Sleep Analysis UI
+
+struct SleepCard: View {
+    @State private var sleepData: [SleepData] = []
+    @State private var totalSleep: TimeInterval = 0
+    @State private var showingDetail = false
+    
+    var body: some View {
+        Button(action: { showingDetail = true }) {
+            BentoCard {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "bed.double.fill")
+                            .foregroundStyle(Color.purple)
+                        Text("Сон")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                    }
+                    
+                    if sleepData.isEmpty {
+                        Text("Нет данных")
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                    } else {
+                        HStack(alignment: .lastTextBaseline, spacing: 4) {
+                            Text(formatDuration(totalSleep))
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundStyle(.white)
+                            Text("всего")
+                                .font(.caption)
+                                .foregroundStyle(.gray)
+                                .padding(.bottom, 4)
+                        }
+                        
+                        // Mini Sleep Graph Bar
+                        GeometryReader { geo in
+                            HStack(spacing: 0) {
+                                ForEach(sleepData.sorted(by: { $0.startDate < $1.startDate })) { segment in
+                                    if segment.type != .inBed { // Hide "In Bed" for cleaner graph
+                                        Rectangle()
+                                            .fill(segment.color)
+                                            .frame(width: max(1, geo.size.width * (segment.duration / max(1, totalSleep))))
+                                    }
+                                }
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                        }
+                        .frame(height: 8)
+                    }
+                }
+            }
+        }
+        .frame(height: 120) // Adjust height as needed
+        .sheet(isPresented: $showingDetail) {
+            SleepDetailView(sleepData: sleepData)
+        }
+        .task {
+            // Fetch logic
+            if HealthManager.shared.isAuthorized {
+                let data = await HealthManager.shared.fetchSleepData()
+                await MainActor.run {
+                    self.sleepData = data
+                    // Calculate total sleep (excluding InBed usually, or filtering overlaps)
+                    // Simplified: Sum of all non-inBed segments
+                    self.totalSleep = data.filter { $0.type != .inBed }.reduce(0) { $0 + $1.duration }
+                }
+            }
+        }
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let hours = Int(duration) / 3600
+        let minutes = (Int(duration) % 3600) / 60
+        return "\(hours)ч \(minutes)м"
+    }
+}
+
+struct SleepDetailView: View {
+    let sleepData: [SleepData]
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    
+                    // Header Stats
+                    HStack(spacing: 20) {
+                        SleepStatBox(title: "Всего сна", value: formatDuration(totalSleep), color: .white)
+                        SleepStatBox(title: "В кровати", value: formatDuration(totalInBed), color: .gray)
+                    }
+                    .padding(.top)
+                    
+                    // Main Graph
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Фазы сна")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        
+                        Chart {
+                            ForEach(sleepData) { datum in
+                                BarMark(
+                                    x: .value("Time", datum.startDate ..< datum.endDate),
+                                    y: .value("Stage", datum.label)
+                                )
+                                .foregroundStyle(datum.color)
+                            }
+                        }
+                        .chartYAxis {
+                            AxisMarks(preset: .extended, position: .leading) { value in
+                                AxisValueLabel()
+                                    .foregroundStyle(.gray)
+                            }
+                        }
+                        .chartXAxis {
+                            AxisMarks(values: .automatic(desiredCount: 5)) { value in
+                                AxisGridLine()
+                                AxisValueLabel(format: .dateTime.hour().minute())
+                                    .foregroundStyle(.gray)
+                            }
+                        }
+                        .frame(height: 300)
+                    }
+                    .padding()
+                    .background(DesignSystem.Colors.cardBackground)
+                    .cornerRadius(16)
+                    
+                    // Legend / Breakdown
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Детализация")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .padding(.bottom, 4)
+                        
+                        SleepLegendRow(color: .purple, label: "Глубокий сон", duration: duration(for: .asleepDeep))
+                        Divider().background(Color.gray.opacity(0.3))
+                        SleepLegendRow(color: .blue, label: "Базовый сон", duration: duration(for: .asleepCore))
+                        Divider().background(Color.gray.opacity(0.3))
+                        SleepLegendRow(color: .cyan, label: "Быстрый сон (REM)", duration: duration(for: .asleepREM))
+                        Divider().background(Color.gray.opacity(0.3))
+                        SleepLegendRow(color: .orange, label: "Бодрствование", duration: duration(for: .awake))
+                    }
+                    .padding()
+                    .background(DesignSystem.Colors.cardBackground)
+                    .cornerRadius(16)
+                }
+                .padding()
+            }
+            .background(DesignSystem.Colors.background.ignoresSafeArea())
+            .navigationTitle("Сон")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Готово") { dismiss() }
+                        .foregroundStyle(DesignSystem.Colors.neonGreen)
+                }
+            }
+        }
+    }
+    
+    // Helpers
+    private var totalSleep: TimeInterval {
+        sleepData.filter { $0.type == .asleepCore || $0.type == .asleepDeep || $0.type == .asleepREM || $0.type == .asleepUnspecified }.reduce(0) { $0 + $1.duration }
+    }
+    
+    private var totalInBed: TimeInterval {
+        sleepData.filter { $0.type == .inBed }.reduce(0) { $0 + $1.duration }
+    }
+    
+    private func duration(for type: HKCategoryValueSleepAnalysis) -> TimeInterval {
+        sleepData.filter { $0.type == type }.reduce(0) { $0 + $1.duration }
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let hours = Int(duration) / 3600
+        let minutes = (Int(duration) % 3600) / 60
+        return "\(hours)ч \(minutes)м"
+    }
+}
+
+struct SleepStatBox: View {
+    let title: String
+    let value: String
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.gray)
+            Text(value)
+                .font(.title3)
+                .fontWeight(.bold)
+                .foregroundStyle(color)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(DesignSystem.Colors.cardBackground)
+        .cornerRadius(12)
+    }
+}
+
+struct SleepLegendRow: View {
+    let color: Color
+    let label: String
+    let duration: TimeInterval
+    
+    var body: some View {
+        HStack {
+            Circle()
+                .fill(color)
+                .frame(width: 10, height: 10)
+            Text(label)
+                .foregroundStyle(.white)
+                .font(.callout)
+            Spacer()
+            Text(formatDuration(duration))
+                .foregroundStyle(.gray)
+                .font(.callout)
+        }
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let hours = Int(duration) / 3600
+        let minutes = (Int(duration) % 3600) / 60
+        return "\(hours)ч \(minutes)м"
+    }
+}
 
 // MARK: - Dashboard View (Idle State)
 
@@ -37,102 +274,65 @@ struct DashboardView: View {
                 ExpandableCalendarView()
                 
                 // MARK: - Top Stats Row (Neon Style)
-                HStack(spacing: DesignSystem.Spacing.lg) {
+                VStack(spacing: DesignSystem.Spacing.lg) {
                     
-                    // Row 1 Left: Activity (Neon Ring)
+                    // Row 1: Activity Rings (Standardized)
+                    ActivityRingsCard()
+                    
+                    // Row 2: Growth Indicator (Replaces Progress)
                     PremiumBentoCard {
-                         VStack(alignment: .leading) {
+                        let growthTrend = workoutManager.calculateGrowthTrend(history: history)
+                        
+                        VStack(alignment: .leading, spacing: 12) {
                              HStack {
-                                 Image(systemName: "flame.fill")
-                                     .foregroundStyle(DesignSystem.Colors.neonGreen)
-                                 Text("Активность")
+                                 Image(systemName: "chart.line.uptrend.xyaxis")
+                                     .foregroundStyle(growthTrend.direction.color)
+                                 Text("Показатель роста")
                                      .font(.headline)
                                      .foregroundStyle(.white)
-                             }
-                             
-                             Spacer()
-                             
-                             // Neon Ring + Steps
-                             HStack {
+                                 
                                  Spacer()
-                                 ZStack {
-                                     // Background Ring
-                                     Circle()
-                                         .stroke(Color.white.opacity(0.1), lineWidth: 8)
-                                         .frame(width: 80, height: 80)
-                                     
-                                     // Progress Ring (Neon)
-                                     Circle()
-                                         .trim(from: 0, to: 0.75) // 75% progress placeholder
-                                         .stroke(
-                                             DesignSystem.Colors.neonGreen,
-                                             style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                                         )
-                                         .rotationEffect(.degrees(-90))
-                                         .frame(width: 80, height: 80)
-                                         .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 10)
-                                     
-                                     // Inner Icon/Text
-                                     VStack(spacing: 2) {
-                                         Image(systemName: "figure.walk")
-                                             .font(.caption2)
-                                             .foregroundStyle(DesignSystem.Colors.neonGreen)
-                                         Text("8,542") // Placeholder
-                                             .font(.system(size: 14, weight: .bold))
-                                             .foregroundStyle(.white)
-                                     }
-                                 }
-                                 Spacer()
-                             }
-                             
-                             Spacer()
-                             
-                             Text("8,542 шагов")
-                                 .font(.caption)
-                                 .foregroundStyle(.gray)
-                                 .frame(maxWidth: .infinity, alignment: .center)
-                         }
-                    }
-                    .frame(height: 170)
-                    .frame(maxWidth: .infinity)
-                    
-                    // Row 1 Right: Progress (Sparkline)
-                    PremiumBentoCard {
-                         VStack(alignment: .leading, spacing: 12) {
-                             HStack {
-                                 Image(systemName: "chart.xyaxis.line")
-                                     .foregroundStyle(DesignSystem.Colors.neonGreen)
-                                 Text("Прогресс")
-                                     .font(.headline)
-                                     .foregroundStyle(.white)
-                             }
-                             
-                             Spacer()
-                             
-                             // Sparkline
-                             SparklineGraph(data: [10, 12, 8, 14, 15, 12, 18, 20]) // Mock trend
-                                 .stroke(
-                                     LinearGradient(colors: [DesignSystem.Colors.neonGreen, DesignSystem.Colors.neonGreen.opacity(0.5)], startPoint: .leading, endPoint: .trailing),
-                                     style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round)
-                                 )
-                                 .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.3), radius: 4)
-                                 .frame(height: 50)
-                             
-                             Spacer()
-                             
-                             HStack {
-                                 Text("\(history.count)")
+                                 
+                                 // Arrow Indicator
+                                 Image(systemName: growthTrend.direction.icon)
                                      .font(.title2)
-                                     .fontWeight(.bold)
-                                     .foregroundStyle(.white)
-                                 Text("Тренировок")
-                                    .font(.caption)
-                                    .foregroundStyle(.gray)
+                                     .bold()
+                                     .foregroundStyle(growthTrend.direction.color)
                              }
+                             
+                             Spacer()
+                             
+                             HStack(alignment: .center, spacing: 16) {
+                                 // Side Graph
+                                 SparklineGraph(data: growthTrend.dataPoints.isEmpty ? [0,0,0] : growthTrend.dataPoints)
+                                     .stroke(
+                                         LinearGradient(colors: [growthTrend.direction.color, growthTrend.direction.color.opacity(0.3)], startPoint: .leading, endPoint: .trailing),
+                                         style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round)
+                                     )
+                                     .shadow(color: growthTrend.direction.color.opacity(0.3), radius: 4)
+                                     .frame(height: 50)
+                                 
+                                 // Description
+                                 VStack(alignment: .trailing) {
+                                     Text(growthTrend.direction.description)
+                                         .font(.caption)
+                                         .fontWeight(.bold)
+                                         .foregroundStyle(growthTrend.direction.color)
+                                         .multilineTextAlignment(.trailing)
+                                     
+                                     Text("\(history.count) тренировок")
+                                         .font(.caption2)
+                                         .foregroundStyle(.gray)
+                                 }
+                                 .frame(width: 100, alignment: .trailing)
+                             }
+                             
+                             Spacer()
                          }
                     }
-                    .frame(height: 170)
-                    .frame(maxWidth: .infinity)
+                    .frame(height: 150)
+                    
+
                 }
                 .padding(.horizontal, DesignSystem.Spacing.lg)
                 
@@ -199,7 +399,7 @@ struct DashboardView: View {
                 
                 // History Section (Cards List)
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                    Text("НЕДАВНИЕ ТРЕНИРОВКИ")
+                    Text("ПРОШЛАЯ ТРЕНИРОВКА")
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .tracking(1.2)
@@ -292,26 +492,46 @@ struct HistoryCardView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
+                // Day Name (Big)
                 Text(session.workoutDayName)
                     .font(.headline)
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(.white)
-                Text(formatDate(session.date))
-                    .font(.caption)
+                
+                // Program Name (Small)
+                if let programName = session.programName {
+                    Text(programName)
+                        .font(.caption)
+                        .foregroundStyle(DesignSystem.Colors.primaryText.opacity(0.7))
+                }
+                
+                // Date & Day (Small Gray)
+                Text(formatDateFull(session.date))
+                    .font(.caption2)
                     .foregroundStyle(.gray)
             }
             
             Spacer()
             
-            if let calories = session.calories {
-                Text("\(calories) ккал")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
+            // Stats + Arrow
+            VStack(alignment: .trailing, spacing: 4) {
+                if let calories = session.calories {
+                    Text("\(calories) ккал")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(DesignSystem.Colors.neonGreen)
+                }
+                
+                // Growth Arrow (Visual only for now, or simplified logic)
+                Image(systemName: "arrow.up") // Placeholder for growth, logic needs expensive fetch
+                    .font(.headline)
                     .foregroundStyle(DesignSystem.Colors.neonGreen)
             }
             
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(.gray)
+                .padding(.leading, 8)
         }
         .padding()
         .background(DesignSystem.Colors.cardBackground)
@@ -322,11 +542,11 @@ struct HistoryCardView: View {
         )
     }
     
-    private func formatDate(_ date: Date) -> String {
+    private func formatDateFull(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ru_RU")
-        formatter.dateFormat = "d MMM"
-        return formatter.string(from: date)
+        formatter.dateFormat = "d MMM, EEEEE" // 16 янв, П
+        return formatter.string(from: date).capitalized
     }
 }
 
@@ -628,7 +848,12 @@ struct SummaryOverlay: View {
                     if let currentSession = workoutManager.currentSession {
                         
                         // MARK: - Bento Grid Stats
-                        VStack(spacing: DesignSystem.Spacing.md) {
+                        VStack(spacing: DesignSystem.Spacing.lg) {
+                            
+                            // 1. Activity Rings (Top) - Standardized
+                            ActivityRingsCard()
+                            
+                            // 2. Stats Grid (Equal Height)
                             HStack(spacing: DesignSystem.Spacing.md) {
                                 // Time (Blue)
                                 StatBentoCard(
@@ -637,6 +862,8 @@ struct SummaryOverlay: View {
                                     icon: "clock.fill",
                                     color: .blue
                                 )
+                                .frame(height: 120)
+                                .frame(maxWidth: .infinity)
                                 
                                 // Calories (Orange, Interactive)
                                 CardView {
@@ -667,8 +894,9 @@ struct SummaryOverlay: View {
                                     }
                                     .padding()
                                 }
+                                .frame(height: 120)
+                                .frame(maxWidth: .infinity)
                             }
-                            .frame(height: 120)
                             
                             HStack(spacing: DesignSystem.Spacing.md) {
                                 // Heart Rate (Red)
@@ -679,6 +907,8 @@ struct SummaryOverlay: View {
                                     icon: "heart.fill",
                                     color: .red
                                 )
+                                .frame(height: 120)
+                                .frame(maxWidth: .infinity)
                                 
                                 // Records / Best (Green)
                                 StatBentoCard(
@@ -688,8 +918,9 @@ struct SummaryOverlay: View {
                                     icon: "trophy.fill",
                                     color: DesignSystem.Colors.neonGreen
                                 )
+                                .frame(height: 120)
+                                .frame(maxWidth: .infinity)
                             }
-                            .frame(height: 120)
                             
                             // Progress Chart (Full Width)
                             WorkoutProgressChart(sessions: [currentSession])

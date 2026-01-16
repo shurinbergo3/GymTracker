@@ -227,14 +227,49 @@ struct WorkoutProgressChart: View {
             }
     }
     
+    // Logic for trend direction based on total volume of last 2 sessions
+    private var progressState: ProgressState {
+        let completed = sessions.filter { $0.isCompleted }.sorted { $0.date < $1.date }
+        let lastTwo = completed.suffix(2)
+        guard lastTwo.count >= 2 else { return .new }
+        
+        let latest = lastTwo.last!
+        let previous = Array(lastTwo)[0]
+        
+        let latestVolume = latest.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+        let previousVolume = previous.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+        
+        if latestVolume > previousVolume {
+            return .improved
+        } else if latestVolume < previousVolume {
+            return .declined
+        } else {
+            return .same
+        }
+    }
+
     var body: some View {
         if !chartData.isEmpty {
             CardView {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                    Text("ПРОГРЕСС")
-                        .font(DesignSystem.Typography.caption())
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                        .tracking(1.2)
+                    HStack {
+                        Text("ПРОГРЕСС")
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .tracking(1.2)
+                        
+                        Spacer()
+                        
+                        // Trend Arrow
+                        if progressState != .new && progressState != .same {
+                            Image(systemName: progressState == .improved ? "arrow.up.right" : "arrow.down.right")
+                                .font(.system(size: 14, weight: .bold)) // Adjust size as needed
+                                .foregroundColor(progressState.color)
+                                .padding(6)
+                                .background(progressState.color.opacity(0.1))
+                                .clipShape(Circle())
+                        }
+                    }
                     
                     Chart {
                         ForEach(Array(chartData.enumerated()), id: \.offset) { index, data in

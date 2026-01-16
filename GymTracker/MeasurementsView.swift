@@ -7,6 +7,8 @@
 
 import SwiftUI
 import SwiftData
+import Charts
+import HealthKit
 
 struct MeasurementsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -25,6 +27,8 @@ struct MeasurementsView: View {
     
 
     
+    @State private var showingSettings = false
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -33,27 +37,12 @@ struct MeasurementsView: View {
                 
                 ScrollView {
                     VStack(spacing: DesignSystem.Spacing.xl) {
-                        
-                        // SECTION 1: STATISTICS OVERVIEW
-                        VStack(spacing: DesignSystem.Spacing.lg) {
-                            
+                        VStack(spacing: DesignSystem.Spacing.md) {
                             // Активность (Activity Rings)
-                            CardView {
-                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                    Text("АКТИВНОСТЬ")
-                                        .font(DesignSystem.Typography.caption())
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        .tracking(1.2)
-                                    
-                                    HStack {
-                                        Spacer()
-                                        ActivityRingsView()
-                                            .frame(width: 150, height: 150)
-                                        Spacer()
-                                    }
-                                }
-                                .padding(DesignSystem.Spacing.lg)
-                            }
+                            ActivityRingsCard()
+                            
+                            // Сон (Sleep Card)
+                            SleepCard()
                             
                             // История Тренировок (Кнопка)
                             NavigationLink(destination: WorkoutHistoryView()) {
@@ -134,8 +123,8 @@ struct MeasurementsView: View {
                             }
                             .padding(.horizontal, DesignSystem.Spacing.lg)
                         }
+                        .padding(.vertical, DesignSystem.Spacing.lg)
                     }
-                    .padding(.vertical, DesignSystem.Spacing.lg)
                 }
             }
             .navigationTitle("Статистика")
@@ -143,16 +132,18 @@ struct MeasurementsView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     UserProfileButton {
-                         // Settings handled by parent in WorkoutView, but here we might need to handle it differently
-                         // Actually UserProfileButton takes an action.
-                         // But MeasurementsView is a configured tab.
-                         // We probably don't need settings here or should route to settings.
+                         showingSettings = true
                     }
                 }
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
+                    .environmentObject(authManager)
             }
         }
     }
     
+    // Helper helper
     // Helper helper
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
@@ -160,7 +151,6 @@ struct MeasurementsView: View {
         formatter.dateFormat = "d MMM"
         return formatter.string(from: date)
     }
-
 }
 
 extension MeasurementType: Identifiable {

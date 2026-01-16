@@ -7,13 +7,17 @@
 
 import SwiftUI
 import FirebaseAuth
+import SwiftData
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("isHealthSyncEnabled") private var isHealthSyncEnabled = true
     
     // Use EnvironmentObject provided by WorkoutTrackerApp
     @EnvironmentObject var authManager: AuthManager
+    
+    @State private var showingDeleteConfirmation = false
     
     // User info
     private var userEmail: String? {
@@ -31,7 +35,7 @@ struct SettingsView: View {
                             .foregroundStyle(DesignSystem.Colors.primaryText)
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(userEmail ?? "Guest User")
+                            Text(userEmail ?? "Гость")
                                 .font(DesignSystem.Typography.headline())
                                 .foregroundStyle(DesignSystem.Colors.primaryText)
                             
@@ -48,49 +52,71 @@ struct SettingsView: View {
                         authManager.signOut()
                         dismiss()
                     }) {
-                        Text("Log Out")
+                        Text("Выйти")
                             .foregroundStyle(.red)
                     }
                 } header: {
-                    Text("Account")
+                    Text("Аккаунт")
                 }
                 
                 // Section 2: Integrations
                 Section {
                     Toggle(isOn: $isHealthSyncEnabled) {
                         VStack(alignment: .leading) {
-                            Text("Sync with Apple Health")
+                            Text("Синхронизация с Apple Health")
                                 .font(DesignSystem.Typography.body())
                                 .foregroundStyle(DesignSystem.Colors.primaryText)
                         }
                     }
                     .tint(DesignSystem.Colors.accent)
                 } header: {
-                    Text("Integrations")
+                    Text("Интеграции")
                 } footer: {
-                    Text("Enabling this will identify your workouts to Apple Health, counting calories and closing your Activity Rings. Note: Rings may not update *during* the session if the app is active.")
+                    Text("Включение этой опции позволит синхронизировать ваши тренировки с Apple Health, считать калории и закрывать кольца активности.")
                 }
                 
                 // Section 3: App Info
                 Section {
                     HStack {
-                        Text("Version")
+                        Text("Версия")
                         Spacer()
                         Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
                             .foregroundStyle(DesignSystem.Colors.secondaryText)
                     }
                 } header: {
-                    Text("About")
+                    Text("О приложении")
+                }
+                
+                // Section 4: Danger Zone
+                Section {
+                    Button(action: {
+                        showingDeleteConfirmation = true
+                    }) {
+                        Text("Удалить аккаунт")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("Настройки")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button("Готово") {
                         dismiss()
                     }
                 }
+            }
+            .alert("Удалить аккаунт?", isPresented: $showingDeleteConfirmation) {
+                Button("Отмена", role: .cancel) { }
+                Button("Удалить", role: .destructive) {
+                    Task {
+                        try? await authManager.deleteAccount(modelContext: modelContext)
+                        dismiss()
+                    }
+                }
+            } message: {
+                Text("Это действие необратимо. Все ваши данные будут удалены.")
             }
         }
     }
@@ -99,4 +125,5 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environmentObject(AuthManager.shared)
+        .modelContainer(for: [UserProfile.self, WorkoutSession.self, BodyMeasurement.self], inMemory: true)
 }

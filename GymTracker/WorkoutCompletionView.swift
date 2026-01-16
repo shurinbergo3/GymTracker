@@ -14,11 +14,24 @@ struct WorkoutCompletionView: View {
     @EnvironmentObject var workoutManager: WorkoutManager
     let session: WorkoutSession
     
+    @Query(sort: \WorkoutSession.date, order: .forward) private var allHistorySessions: [WorkoutSession]
+    
+    // Missing State Variables
     @State private var calories: Int = 0
+    @State private var isEditingCalories = false
     @State private var heartRate: Int = 0
     @State private var workoutNotes: String = ""
-    @State private var isEditingCalories = false
     @State private var progressData: [ExerciseProgress] = []
+    
+    // Combine history with current session for the chart
+    private var chartSessions: [WorkoutSession] {
+        var sessions = allHistorySessions.filter { $0.isCompleted }
+        // Add current session if not already in the list (it might not be saved/completed yet in DB terms)
+        if !sessions.contains(where: { $0.id == session.id }) {
+            sessions.append(session)
+        }
+        return sessions
+    }
     
     var body: some View {
         NavigationStack {
@@ -52,106 +65,110 @@ struct WorkoutCompletionView: View {
                         .padding(.top, DesignSystem.Spacing.xl)
                         
                         // MARK: - Bento Grid Stats
-                        VStack(spacing: 12) {
-                            HStack(spacing: 12) {
-                                // Time (Blue)
-                                CompletionBentoCard {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack {
-                                            Image(systemName: "clock.fill")
-                                                .foregroundColor(.blue)
-                                            Text("Время")
-                                                .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        }
-                                        Spacer()
-                                        Text(formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0))
+                        LazyVGrid(columns: [
+                            GridItem(.flexible(), spacing: 12),
+                            GridItem(.flexible(), spacing: 12)
+                        ], spacing: 12) {
+                            
+                            // 1. Time (Blue)
+                            CompletionBentoCard {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Image(systemName: "clock.fill")
+                                            .foregroundColor(.blue)
+                                        Text("Время")
+                                            .font(DesignSystem.Typography.caption())
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    }
+                                    Spacer()
+                                    Text(formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0))
+                                        .font(DesignSystem.Typography.title2())
+                                        .foregroundColor(DesignSystem.Colors.primaryText)
+                                }
+                            }
+                            .frame(height: 110)
+                            
+                            // 2. Calories (Orange, Interactive)
+                            CompletionBentoCard {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Image(systemName: "flame.fill")
+                                            .foregroundColor(.orange)
+                                        Text("Ккал")
+                                            .font(DesignSystem.Typography.caption())
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    }
+                                    Spacer()
+                                    if isEditingCalories {
+                                        TextField("0", value: $calories, format: .number)
+                                            .font(DesignSystem.Typography.title2())
+                                            .keyboardType(.numberPad)
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                            .multilineTextAlignment(.leading)
+                                    } else {
+                                        Text("\(calories > 0 ? "\(calories)" : "--")")
                                             .font(DesignSystem.Typography.title2())
                                             .foregroundColor(DesignSystem.Colors.primaryText)
-                                    }
-                                }
-                                
-                                // Calories (Orange, Interactive)
-                                CompletionBentoCard {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack {
-                                            Image(systemName: "flame.fill")
-                                                .foregroundColor(.orange)
-                                            Text("Ккал")
-                                                .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        }
-                                        Spacer()
-                                        if isEditingCalories {
-                                            TextField("0", value: $calories, format: .number)
-                                                .keyboardType(.numberPad)
-                                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                .foregroundColor(DesignSystem.Colors.primaryText)
-                                        } else {
-                                            Text("\(calories > 0 ? "\(calories)" : "--")")
-                                                .font(DesignSystem.Typography.title2())
-                                                .foregroundColor(DesignSystem.Colors.primaryText)
-                                                .onTapGesture {
-                                                    if calories == 0 { isEditingCalories = true }
-                                                }
-                                        }
+                                            .onTapGesture {
+                                                if calories == 0 { isEditingCalories = true }
+                                            }
                                     }
                                 }
                             }
                             .frame(height: 110)
                             
-                            HStack(spacing: 12) {
-                                // Heart Rate (Red)
-                                CompletionBentoCard {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack {
-                                            Image(systemName: "heart.fill")
-                                                .foregroundColor(.red)
-                                            Text("Пульс")
-                                                .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        }
-                                        Spacer()
-                                        HStack(alignment: .lastTextBaseline, spacing: 2) {
-                                            Text(heartRate > 0 ? "\(heartRate)" : "--")
-                                                .font(DesignSystem.Typography.title2())
-                                                .foregroundColor(DesignSystem.Colors.primaryText)
-                                            Text("уд/мин")
-                                                .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        }
+                            // 3. Heart Rate (Red)
+                            CompletionBentoCard {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Image(systemName: "heart.fill")
+                                            .foregroundColor(.red)
+                                        Text("Пульс")
+                                            .font(DesignSystem.Typography.caption())
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
                                     }
-                                }
-                                
-                                // Records / Best (Green)
-                                CompletionBentoCard {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack {
-                                            Image(systemName: "trophy.fill")
-                                                .foregroundColor(DesignSystem.Colors.neonGreen)
-                                            Text("Рекорды")
-                                                .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        }
-                                        Spacer()
-                                        HStack(alignment: .lastTextBaseline, spacing: 2) {
-                                            Text("\(countImprovements())")
-                                                .font(DesignSystem.Typography.title2())
-                                                .foregroundColor(DesignSystem.Colors.primaryText)
-                                            Text("новых")
-                                                .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        }
+                                    Spacer()
+                                    HStack(alignment: .lastTextBaseline, spacing: 2) {
+                                        Text(heartRate > 0 ? "\(heartRate)" : "--")
+                                            .font(DesignSystem.Typography.title2())
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                        Text("уд/мин")
+                                            .font(DesignSystem.Typography.caption())
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
                                     }
                                 }
                             }
                             .frame(height: 110)
                             
-                            // Progress Chart (Full Width)
-                            WorkoutProgressChart(sessions: [session])
-                                .padding(.top, DesignSystem.Spacing.sm)
+                            // 4. Records (Green)
+                            CompletionBentoCard {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Image(systemName: "trophy.fill")
+                                            .foregroundColor(DesignSystem.Colors.neonGreen)
+                                        Text("Рекорды")
+                                            .font(DesignSystem.Typography.caption())
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    }
+                                    Spacer()
+                                    HStack(alignment: .lastTextBaseline, spacing: 2) {
+                                        Text("\(countImprovements())")
+                                            .font(DesignSystem.Typography.title2())
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                        Text("новых")
+                                            .font(DesignSystem.Typography.caption())
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    }
+                                }
+                            }
+                            .frame(height: 110)
                         }
                         .padding(.horizontal, DesignSystem.Spacing.lg)
+                            
+                        // Progress Chart (Full Width)
+                        WorkoutProgressChart(sessions: chartSessions)
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                            .padding(.top, DesignSystem.Spacing.sm)
                         
                         // MARK: - Exercise Breakdown
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {

@@ -190,10 +190,19 @@ final class ExerciseTemplate {
     
     var workoutDay: WorkoutDay?
     
-    init(name: String, plannedSets: Int = 3, orderIndex: Int = 0) {
+    // New: Allow exercise-specific type override (e.g. Bodyweight in a Strength day)
+    var _type: WorkoutType?
+    
+    var type: WorkoutType {
+        get { _type ?? workoutDay?.workoutType ?? .strength }
+        set { _type = newValue }
+    }
+    
+    init(name: String, plannedSets: Int = 3, orderIndex: Int = 0, type: WorkoutType? = nil) {
         self.name = name
         self.plannedSets = plannedSets
         self.orderIndex = orderIndex
+        self._type = type
     }
 }
 
@@ -239,7 +248,10 @@ final class WorkoutSet {
     
     var session: WorkoutSession?
     
-    init(exerciseName: String, weight: Double = 0, reps: Int = 0, setNumber: Int = 1, date: Date = Date()) {
+    // New: Indicates if bodyweight exercise has added weight
+    var isWeighted: Bool
+    
+    init(exerciseName: String, weight: Double = 0, reps: Int = 0, setNumber: Int = 1, date: Date = Date(), isWeighted: Bool = false) {
         self.exerciseName = exerciseName
         self.weight = weight
         self.reps = reps
@@ -247,5 +259,6 @@ final class WorkoutSet {
         self.date = date
         self.isCompleted = false
         self.comment = nil
+        self.isWeighted = isWeighted
     }
 }

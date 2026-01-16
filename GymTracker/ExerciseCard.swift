@@ -32,6 +32,7 @@ struct ExerciseCard: View {
     @State private var showingMenu = false // Для показа меню действий
     @State private var currentWorkoutType: WorkoutType? = nil // Тип для этого конкретного упражнения
     @State private var isHistoryExpanded: Bool = false // Для аккордеона истории
+    @State private var isWeighted: Bool = false // Для упражнений с собственным весом (доп. вес)
     
     // Используем локальный тип если установлен, иначе тип дня
     private var effectiveWorkoutType: WorkoutType {
@@ -192,6 +193,7 @@ struct ExerciseCard: View {
                         canSave: canSave,
                         elapsedTime: $elapsedTime,
                         timerRunning: $timerRunning,
+                        isWeighted: $isWeighted, // New binding
                         onSave: saveCurrentSet
                     )
                 } else if completedSets.count >= exercise.plannedSets {
@@ -356,11 +358,14 @@ struct ExerciseCard: View {
             guard let repsValue = Int(reps),
                   repsValue > 0 else { return }
             
+            let weightValue = isWeighted ? (Double(weight) ?? 0) : 0
+            
             set = WorkoutSet(
                 exerciseName: exercise.name,
-                weight: 0,
+                weight: weightValue,
                 reps: repsValue,
-                setNumber: currentSetNumber
+                setNumber: currentSetNumber,
+                isWeighted: isWeighted
             )
             
         case .duration:
@@ -420,6 +425,7 @@ struct ExerciseCard: View {
     private func startEditing(_ set: WorkoutSet) {
         weight = String(format: "%.0f", set.weight)
         reps = "\(set.reps)"
+        isWeighted = set.isWeighted
         deleteSet(set)
         showingInput = true
     }
@@ -451,6 +457,7 @@ struct CurrentSetInput: View {
     let canSave: Bool
     @Binding var elapsedTime: TimeInterval
     @Binding var timerRunning: Bool
+    @Binding var isWeighted: Bool // New
     let onSave: () -> Void
     
     @FocusState private var focusedField: Field?
@@ -481,6 +488,7 @@ struct CurrentSetInput: View {
             
             // Timer display (for duration only)
             if workoutType == .duration {
+                // ... (existing timer code omitted for brevity logic below, ensuring context match)
                 HStack {
                     Spacer()
                     Text(formatTime(elapsedTime))
@@ -605,26 +613,64 @@ struct CurrentSetInput: View {
     // MARK: - Reps Only Inputs
     
     private var repsOnlyInputs: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-            Text("Повторы")
-                .font(DesignSystem.Typography.caption())
-                .foregroundColor(DesignSystem.Colors.secondaryText)
-                .frame(maxWidth: .infinity, alignment: .center)
-            
-            TextField("", text: $reps)
-                .keyboardType(.numberPad)
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundColor(DesignSystem.Colors.primaryText)
-                .multilineTextAlignment(.center)
-                .frame(height: 44)
-                .padding(.horizontal, DesignSystem.Spacing.md)
-                .background(Color(uiColor: .systemGray6).opacity(0.2)) // Updated BG
-                .cornerRadius(DesignSystem.CornerRadius.medium)
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                        .stroke(focusedField == .reps ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3), lineWidth: 1)
-                )
-                .focused($focusedField, equals: .reps)
+        Group {
+            if isWeighted {
+                // If weighted, show Weight field + Reps field (Same as strength)
+                strengthInputs
+                    .overlay(
+                         // Small minus button to remove weight
+                         Button(action: {
+                             isWeighted = false
+                             weight = "" // Clear weight
+                         }) {
+                             Image(systemName: "minus.circle.fill")
+                                 .foregroundColor(.red)
+                                 .font(.caption)
+                                 .background(Color.black.clipShape(Circle()))
+                         }
+                         .offset(x: -5, y: -5), // Position relative to top-left of the group? No, hard to position
+                         alignment: .topLeading
+                    )
+            } else {
+                // Determine if we need to show the toggle button
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    HStack {
+                        Text("Повторы")
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                        
+                        Spacer()
+                        
+                        // Add Weight Button
+                        Button(action: {
+                            isWeighted = true
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.caption)
+                                Text("Вес")
+                                    .font(.caption2)
+                            }
+                            .foregroundColor(DesignSystem.Colors.neonGreen)
+                        }
+                    }
+                    
+                    TextField("", text: $reps)
+                        .keyboardType(.numberPad)
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .multilineTextAlignment(.center)
+                        .frame(height: 44)
+                        .padding(.horizontal, DesignSystem.Spacing.md)
+                        .background(Color(uiColor: .systemGray6).opacity(0.2)) // Updated BG
+                        .cornerRadius(DesignSystem.CornerRadius.medium)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                                .stroke(focusedField == .reps ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3), lineWidth: 1)
+                        )
+                        .focused($focusedField, equals: .reps)
+                }
+            }
         }
     }
     
@@ -770,7 +816,17 @@ struct CompletedSetRow: View {
             Text("\(set.reps)")
             
         case .repsOnly:
-            Text("\(set.reps) повт.")
+            if set.isWeighted {
+                HStack(spacing: 4) {
+                    Text("\(set.reps) повт.")
+                    Text("+")
+                        .foregroundColor(DesignSystem.Colors.accent)
+                    Text(String(format: "%.0fкг", set.weight)) // Removed unnecessary space
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                }
+            } else {
+                Text("\(set.reps) повт.")
+            }
             
         case .duration:
             if let dur = set.duration {

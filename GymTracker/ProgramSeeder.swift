@@ -161,7 +161,7 @@ struct ProgramSeeder {
         let dayB = WorkoutDay(name: "День B", orderIndex: 1, workoutType: .strength)
         addExercise(to: dayB, name: "Становая тяга", sets: 4, order: 0)
         addExercise(to: dayB, name: "Армейский жим", sets: 4, order: 1)
-        addExercise(to: dayB, name: "Подтягивания", sets: 4, order: 2)
+        addExercise(to: dayB, name: "Подтягивания", sets: 4, order: 2, type: .repsOnly)
         addExercise(to: dayB, name: "Сгибание ног сидя", sets: 3, order: 3)
         addExercise(to: dayB, name: "Bayesian Curl", sets: 3, order: 4)
         dayB.program = program
@@ -198,8 +198,8 @@ struct ProgramSeeder {
         // День 3: Сила Тяга
         let day3 = WorkoutDay(name: "День 3 (Сила Тяга)", orderIndex: 2, workoutType: .strength)
         addExercise(to: day3, name: "Становая тяга", sets: 5, order: 0)
-        addExercise(to: day3, name: "Отжимания на брусьях", sets: 4, order: 1)
-        addExercise(to: day3, name: "Подтягивания с весом", sets: 4, order: 2)
+        addExercise(to: day3, name: "Отжимания на брусьях", sets: 4, order: 1, type: .repsOnly)
+        addExercise(to: day3, name: "Подтягивания с весом", sets: 4, order: 2, type: .repsOnly)
         day3.program = program
         program.days.append(day3)
         
@@ -239,7 +239,7 @@ struct ProgramSeeder {
         addExercise(to: dayB, name: "Жим гантелей наклонный", sets: 4, order: 0)
         addExercise(to: dayB, name: "Тяга штанги в наклоне", sets: 4, order: 1)
         addExercise(to: dayB, name: "Жим лежа", sets: 4, order: 2)
-        addExercise(to: dayB, name: "Подтягивания", sets: 3, order: 3)
+        addExercise(to: dayB, name: "Подтягивания", sets: 3, order: 3, type: .repsOnly)
         addExercise(to: dayB, name: "Пуловер", sets: 3, order: 4)
         addExercise(to: dayB, name: "Молотки на бицепс", sets: 3, order: 5)
         dayB.program = program
@@ -266,7 +266,7 @@ struct ProgramSeeder {
         
         // День B
         let dayB = WorkoutDay(name: "День B", orderIndex: 1, workoutType: .strength)
-        addExercise(to: dayB, name: "Отжимания на брусьях", sets: 4, order: 0)
+        addExercise(to: dayB, name: "Отжимания на брусьях", sets: 4, order: 0, type: .repsOnly)
         addExercise(to: dayB, name: "Тяга блока узким хватом", sets: 4, order: 1)
         addExercise(to: dayB, name: "Тяга одной рукой", sets: 4, order: 2)
         addExercise(to: dayB, name: "Сведения (Flyes)", sets: 3, order: 3)
@@ -333,9 +333,9 @@ struct ProgramSeeder {
         
         let day1 = WorkoutDay(name: "День 1", orderIndex: 0, workoutType: .duration)
         addExercise(to: day1, name: "Гоблет приседания", sets: 1, order: 0)
-        addExercise(to: day1, name: "Отжимания", sets: 1, order: 1)
+        addExercise(to: day1, name: "Отжимания", sets: 1, order: 1, type: .repsOnly)
         addExercise(to: day1, name: "Махи гирей", sets: 1, order: 2)
-        addExercise(to: day1, name: "Тяга TRX/Блока", sets: 1, order: 3)
+        addExercise(to: day1, name: "Тяга TRX/Блока", sets: 1, order: 3, type: .repsOnly)
         day1.program = program
         program.days.append(day1)
         
@@ -352,8 +352,8 @@ struct ProgramSeeder {
         addExercise(to: day1, name: "Выпады назад", sets: 1, order: 0)
         addExercise(to: day1, name: "Жим гантелей стоя", sets: 1, order: 1)
         addExercise(to: day1, name: "Становая сумо", sets: 1, order: 2)
-        addExercise(to: day1, name: "Отжимания", sets: 1, order: 3)
-        addExercise(to: day1, name: "Планка", sets: 1, order: 4)
+        addExercise(to: day1, name: "Отжимания", sets: 1, order: 3, type: .repsOnly)
+        addExercise(to: day1, name: "Планка", sets: 1, order: 4, type: .duration)
         day1.program = program
         program.days.append(day1)
         
@@ -423,7 +423,7 @@ struct ProgramSeeder {
         addExercise(to: dayUpper, name: "Жим лежа", sets: 5, order: 0)
         addExercise(to: dayUpper, name: "Тяга в наклоне", sets: 5, order: 1)
         addExercise(to: dayUpper, name: "Жим стоя", sets: 4, order: 2)
-        addExercise(to: dayUpper, name: "Подтягивания (Heavy)", sets: 4, order: 3)
+        addExercise(to: dayUpper, name: "Подтягивания (Heavy)", sets: 4, order: 3, type: .repsOnly)
         dayUpper.program = program
         program.days.append(dayUpper)
         
@@ -491,12 +491,12 @@ struct ProgramSeeder {
         )
         
         let day1 = WorkoutDay(name: "Фулбади Воркаут", orderIndex: 0, workoutType: .strength)
-        addExercise(to: day1, name: "Подтягивания", sets: 3, order: 0)
-        addExercise(to: day1, name: "Отжимания на брусьях", sets: 3, order: 1)
-        addExercise(to: day1, name: "Австралийские подтягивания", sets: 3, order: 2)
-        addExercise(to: day1, name: "Отжимания", sets: 3, order: 3)
-        addExercise(to: day1, name: "Приседания", sets: 4, order: 4)
-        addExercise(to: day1, name: "Подъем ног в висе", sets: 3, order: 5)
+        addExercise(to: day1, name: "Подтягивания", sets: 3, order: 0, type: .repsOnly)
+        addExercise(to: day1, name: "Отжимания на брусьях", sets: 3, order: 1, type: .repsOnly)
+        addExercise(to: day1, name: "Австралийские подтягивания", sets: 3, order: 2, type: .repsOnly)
+        addExercise(to: day1, name: "Отжимания", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: day1, name: "Приседания", sets: 4, order: 4, type: .repsOnly)
+        addExercise(to: day1, name: "Подъем ног в висе", sets: 3, order: 5, type: .repsOnly)
         day1.program = program
         program.days.append(day1)
         
@@ -511,21 +511,21 @@ struct ProgramSeeder {
         
         // День А: Тяни (Pull)
         let dayA = WorkoutDay(name: "День A (Тяни)", orderIndex: 0, workoutType: .strength)
-        addExercise(to: dayA, name: "Выход силой на две руки", sets: 3, order: 0)
-        addExercise(to: dayA, name: "Подтягивания с весом", sets: 4, order: 1)
-        addExercise(to: dayA, name: "Подтягивания обратным хватом", sets: 3, order: 2)
-        addExercise(to: dayA, name: "Австралийские подтягивания", sets: 3, order: 3)
-        addExercise(to: dayA, name: "Подъем ног к перекладине (Toes to Bar)", sets: 3, order: 4)
+        addExercise(to: dayA, name: "Выход силой на две руки", sets: 3, order: 0, type: .repsOnly)
+        addExercise(to: dayA, name: "Подтягивания с весом", sets: 4, order: 1, type: .repsOnly)
+        addExercise(to: dayA, name: "Подтягивания обратным хватом", sets: 3, order: 2, type: .repsOnly)
+        addExercise(to: dayA, name: "Австралийские подтягивания", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: dayA, name: "Подъем ног к перекладине (Toes to Bar)", sets: 3, order: 4, type: .repsOnly)
         dayA.program = program
         program.days.append(dayA)
         
         // День B: Толкай + Ноги (Push + Legs)
         let dayB = WorkoutDay(name: "День B (Толкай+Ноги)", orderIndex: 1, workoutType: .strength)
-        addExercise(to: dayB, name: "Отжимания на брусьях (с весом)", sets: 4, order: 0)
-        addExercise(to: dayB, name: "Отжимания от перекладины", sets: 3, order: 1)
-        addExercise(to: dayB, name: "Приседания Пистолетик", sets: 3, order: 2)
-        addExercise(to: dayB, name: "Выпады", sets: 3, order: 3)
-        addExercise(to: dayB, name: "Уголок (L-sit) на брусьях", sets: 3, order: 4)
+        addExercise(to: dayB, name: "Отжимания на брусьях (с весом)", sets: 4, order: 0, type: .repsOnly)
+        addExercise(to: dayB, name: "Отжимания от перекладины", sets: 3, order: 1, type: .repsOnly)
+        addExercise(to: dayB, name: "Приседания Пистолетик", sets: 3, order: 2, type: .repsOnly)
+        addExercise(to: dayB, name: "Выпады", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: dayB, name: "Уголок (L-sit) на брусьях", sets: 3, order: 4, type: .repsOnly)
         dayB.program = program
         program.days.append(dayB)
         
@@ -534,8 +534,8 @@ struct ProgramSeeder {
 
     // MARK: - Helper
     
-    private static func addExercise(to day: WorkoutDay, name: String, sets: Int, order: Int) {
-        let exercise = ExerciseTemplate(name: name, plannedSets: sets, orderIndex: order)
+    private static func addExercise(to day: WorkoutDay, name: String, sets: Int, order: Int, type: WorkoutType? = nil) {
+        let exercise = ExerciseTemplate(name: name, plannedSets: sets, orderIndex: order, type: type)
         day.exercises.append(exercise)
     }
 }

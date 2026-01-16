@@ -64,6 +64,43 @@ struct ExerciseProgress {
     let previousStats: String?
 }
 
+// MARK: - Growth Trend System
+
+struct GrowthTrend {
+    enum Direction {
+        case up     // Green: Increasing load/volume
+        case flat   // White: Maintenance
+        case down   // Red: Decreasing
+        
+        var color: Color {
+            switch self {
+            case .up: return DesignSystem.Colors.neonGreen
+            case .flat: return .white
+            case .down: return .red
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .up: return "arrow.up.forward"
+            case .flat: return "arrow.right"
+            case .down: return "arrow.down.forward"
+            }
+        }
+        
+        var description: String {
+            switch self {
+            case .up: return "Рост показателей"
+            case .flat: return "Стабильность"
+            case .down: return "Спад активности"
+            }
+        }
+    }
+    
+    let direction: Direction
+    let dataPoints: [Double]
+}
+
 // MARK: - Workout Manager
 
 @MainActor
@@ -187,6 +224,21 @@ class WorkoutManager: ObservableObject {
                 let type: HKWorkoutActivityType = (name.contains("run") || name.contains("beg") || name.contains("бег")) ? .running : .traditionalStrengthTraining
                 await HealthManager.shared.startWorkout(workoutType: type)
             }
+            
+            // Subscribe to real-time updates
+            HealthManager.shared.onHeartRateUpdate = { [weak self] hr in
+                self?.currentHeartRate = hr
+                Task {
+                    await self?.updateLiveActivity(startDate: startDate)
+                }
+            }
+            
+            HealthManager.shared.onCalorieUpdate = { [weak self] cals in
+                self?.currentActiveCalories = cals
+                Task {
+                    await self?.updateLiveActivity(startDate: startDate)
+                }
+            }
         }
     }
     
@@ -213,34 +265,48 @@ class WorkoutManager: ObservableObject {
     func finishWorkout() {
         guard let session = currentSession else { return }
         
-        // 1. Immediate UI updates
-        stopActivityUpdates()
+        // 1. Immediate UI Transition & Cleanup
+        // We set summary state FIRST so the UI feels responsive
+        stopActivityUpdates() // Stop timer immediately
+        HealthManager.shared.onHeartRateUpdate = nil
+        HealthManager.shared.onCalorieUpdate = nil
         LiveActivityManager.shared.end()
         
-        Task {
-             await HealthManager.shared.endWorkout()
-        }
-        
-        // Set end time and completion status
+        // Set end time and completion status locally
         let endDate = Date()
         session.endTime = endDate
         session.isCompleted = true
         
-        // 2. Transition immediately to summary (optimistic UI)
-        workoutState = .summary
+        // Optimistically set values if we have them
+        if currentActiveCalories > 0 { session.calories = currentActiveCalories }
+        if currentHeartRate > 0 { session.averageHeartRate = currentHeartRate }
         
-        // 3. Background data fetch
+        // Transition to summary
+        self.workoutState = .summary
+        
+        // 2. Background Operations (HealthKit & Save)
         Task {
-            // Fetch calories and HR if authorized
+            await HealthManager.shared.endWorkout()
+            
+            // Fetch accurate data
             if HealthManager.shared.isAuthorized {
                 let calories = await HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)
                 let avgHeartRate = await HealthManager.shared.fetchAverageHeartRate(start: session.date, end: endDate)
                 
-                // Update session on MainActor
                 await MainActor.run {
-                    session.calories = Int(calories)
-                    session.averageHeartRate = Int(avgHeartRate)
+                    // Update valid session only
+                    guard self.currentSession?.id == session.id else { return }
+                    
+                    if calories > 0 { session.calories = Int(calories) }
+                    if avgHeartRate > 0 { session.averageHeartRate = Int(avgHeartRate) }
+                    
+                    try? modelContext.save()
+                    print("Workout Completed & Secured. HR: \(session.averageHeartRate ?? 0)")
                 }
+            } else {
+                 await MainActor.run {
+                     try? modelContext.save()
+                 }
             }
         }
     }
@@ -252,6 +318,7 @@ class WorkoutManager: ObservableObject {
     }
     
     func closeWorkout() {
+        // Final save just in case
         try? modelContext.save()
         currentSession = nil
         workoutState = .idle
@@ -375,6 +442,54 @@ class WorkoutManager: ObservableObject {
                 previousStats: nil
             )
         }
+    }
+    
+    // MARK: - Growth Analysis
+    
+    func calculateGrowthTrend(history: [WorkoutSession]) -> GrowthTrend {
+        // We analyze the Volume (Weight * Reps) of the last 10 workouts
+        let recentSessions = history.sorted { $0.date < $1.date }.suffix(10)
+        
+        guard recentSessions.count >= 2 else {
+            return GrowthTrend(direction: .flat, dataPoints: [])
+        }
+        
+        let volumes = recentSessions.map { session -> Double in
+            let sessionVolume = session.sets.reduce(0.0) { result, set in
+                // Logic: Volume = Weight * Reps.
+                // For Bodyweight (weight=0) we assume 1 "unit" of weight per rep to track reps volume.
+                // For Duration, we use duration seconds / 10 as "volume" points.
+                if set.weight > 0 {
+                    return result + (set.weight * Double(set.reps))
+                } else if set.reps > 0 {
+                    return result + Double(set.reps * (set.isWeighted ? 2 : 1)) // Weighted BW counts double? Simplified.
+                } else if let dur = set.duration {
+                    return result + (dur / 10.0)
+                }
+                return result
+            }
+            return sessionVolume
+        }
+        
+        // Simple Trend Analysis: Recent Avg vs Previous Avg
+        let half = volumes.count / 2
+        let firstHalf = volumes.prefix(half)
+        let secondHalf = volumes.suffix(from: half)
+        
+        let firstAvg = firstHalf.reduce(0, +) / Double(firstHalf.count)
+        let secondAvg = secondHalf.reduce(0, +) / Double(secondHalf.count)
+        
+        let direction: GrowthTrend.Direction
+        
+        if secondAvg > firstAvg * 1.05 { // > 5% growth
+            direction = .up
+        } else if secondAvg < firstAvg * 0.95 { // < 5% decline
+            direction = .down
+        } else {
+            direction = .flat
+        }
+        
+        return GrowthTrend(direction: direction, dataPoints: volumes)
     }
     
     // MARK: - Live Activity Updates

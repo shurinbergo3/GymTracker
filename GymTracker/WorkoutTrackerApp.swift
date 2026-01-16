@@ -38,7 +38,35 @@ struct WorkoutTrackerApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            print("Failed to create ModelContainer: \(error)")
+            
+            // Attempt to delete the existing store and recreate (Nuclear option for dev)
+            let fileManager = FileManager.default
+            let storeURL = modelConfiguration.url
+            
+            print("Attempting to reset database at: \(storeURL.path)")
+            
+            do {
+                if fileManager.fileExists(atPath: storeURL.path) {
+                    try fileManager.removeItem(at: storeURL)
+                    
+                    // Also delete auxiliary files (wal, shm)
+                    let shmURL = storeURL.appendingPathExtension("shm")
+                    if fileManager.fileExists(atPath: shmURL.path) {
+                         try fileManager.removeItem(at: shmURL)
+                    }
+                    
+                    let walURL = storeURL.appendingPathExtension("wal")
+                    if fileManager.fileExists(atPath: walURL.path) {
+                         try fileManager.removeItem(at: walURL)
+                    }
+                }
+                
+                print("Database deleted. Retrying ModelContainer creation...")
+                return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            } catch {
+                fatalError("Could not create ModelContainer after reset: \(error)")
+            }
         }
     }()
     

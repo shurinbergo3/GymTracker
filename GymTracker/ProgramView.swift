@@ -170,18 +170,21 @@ struct ProgramView: View {
     }
     
     private func scrollToTop(proxy: ScrollViewProxy) {
-        // Highlight animation
-        scrollToTopTrigger = true
-        
-        // Scroll to active program with animation
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-            proxy.scrollTo("activeProgram", anchor: .top)
-        }
-        
-        // Remove highlight after delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            withAnimation {
-                scrollToTopTrigger = false
+        // Wait for the view to update with the new active program
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Highlight animation
+            scrollToTopTrigger = true
+            
+            // Scroll to active program with animation
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                proxy.scrollTo("activeProgram", anchor: .top)
+            }
+            
+            // Remove highlight after delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                withAnimation {
+                    scrollToTopTrigger = false
+                }
             }
         }
     }
