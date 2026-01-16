@@ -16,6 +16,8 @@ struct WorkoutView: View {
     
     @Binding var selectedTab: Int
     
+    @State private var showingSettings = false
+    
     init(modelContext: ModelContext, selectedTab: Binding<Int>) {
         _workoutManager = StateObject(wrappedValue: WorkoutManager(modelContext: modelContext))
         _selectedTab = selectedTab
@@ -45,7 +47,7 @@ struct WorkoutView: View {
                     // State-based content
                     switch workoutManager.workoutState {
                     case .idle:
-                        DashboardView()
+                        DashboardView() // settings handled by parent toolbar now
                             .environmentObject(workoutManager)
                     case .active:
                         ActiveWorkoutView()
@@ -56,12 +58,17 @@ struct WorkoutView: View {
                     }
                 }
             }
-            .navigationTitle("Тренировка")
+            .navigationTitle("Body Forge")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    UserProfileButton()
+                    UserProfileButton {
+                        showingSettings = true
+                    }
                 }
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
             }
         }
         .onAppear {

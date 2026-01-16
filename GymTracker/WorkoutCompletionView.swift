@@ -29,12 +29,21 @@ struct WorkoutCompletionView: View {
                 ScrollView {
                     VStack(spacing: DesignSystem.Spacing.xl) {
                         
-                        // Header
+                        // Header with Activity Rings
                         VStack(spacing: DesignSystem.Spacing.md) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 80))
-                                .foregroundColor(DesignSystem.Colors.neonGreen)
-                                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 20, x: 0, y: 0)
+                            ZStack {
+                                // Rings as the main visual
+                                ActivityRingsView()
+                                    .frame(width: 120, height: 120)
+                                
+                                // Checkmark overlay (Badge style)
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                                    .background(Color.black.clipShape(Circle())) // Border effect
+                                    .offset(x: 40, y: 40)
+                            }
+                            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.3), radius: 20, x: 0, y: 0)
                             
                             Text("Тренировка завершена!")
                                 .font(DesignSystem.Typography.title())
@@ -43,19 +52,28 @@ struct WorkoutCompletionView: View {
                         .padding(.top, DesignSystem.Spacing.xl)
                         
                         // MARK: - Bento Grid Stats
-                        VStack(spacing: DesignSystem.Spacing.md) {
-                            HStack(spacing: DesignSystem.Spacing.md) {
+                        VStack(spacing: 12) {
+                            HStack(spacing: 12) {
                                 // Time (Blue)
-                                StatBentoCard(
-                                    title: "Время",
-                                    value: formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0),
-                                    icon: "clock.fill",
-                                    color: .blue
-                                )
+                                CompletionBentoCard {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack {
+                                            Image(systemName: "clock.fill")
+                                                .foregroundColor(.blue)
+                                            Text("Время")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                        Spacer()
+                                        Text(formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0))
+                                            .font(DesignSystem.Typography.title2())
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                    }
+                                }
                                 
                                 // Calories (Orange, Interactive)
-                                CardView {
-                                    VStack(alignment: .leading) {
+                                CompletionBentoCard {
+                                    VStack(alignment: .leading, spacing: 4) {
                                         HStack {
                                             Image(systemName: "flame.fill")
                                                 .foregroundColor(.orange)
@@ -63,9 +81,7 @@ struct WorkoutCompletionView: View {
                                                 .font(DesignSystem.Typography.caption())
                                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                         }
-                                        
                                         Spacer()
-                                        
                                         if isEditingCalories {
                                             TextField("0", value: $calories, format: .number)
                                                 .keyboardType(.numberPad)
@@ -80,31 +96,56 @@ struct WorkoutCompletionView: View {
                                                 }
                                         }
                                     }
-                                    .padding()
                                 }
                             }
-                            .frame(height: 120)
+                            .frame(height: 110)
                             
-                            HStack(spacing: DesignSystem.Spacing.md) {
+                            HStack(spacing: 12) {
                                 // Heart Rate (Red)
-                                StatBentoCard(
-                                    title: "Пульс",
-                                    value: heartRate > 0 ? "\(heartRate)" : "--",
-                                    subValue: "уд/мин",
-                                    icon: "heart.fill",
-                                    color: .red
-                                )
+                                CompletionBentoCard {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack {
+                                            Image(systemName: "heart.fill")
+                                                .foregroundColor(.red)
+                                            Text("Пульс")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                        Spacer()
+                                        HStack(alignment: .lastTextBaseline, spacing: 2) {
+                                            Text(heartRate > 0 ? "\(heartRate)" : "--")
+                                                .font(DesignSystem.Typography.title2())
+                                                .foregroundColor(DesignSystem.Colors.primaryText)
+                                            Text("уд/мин")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                    }
+                                }
                                 
                                 // Records / Best (Green)
-                                StatBentoCard(
-                                    title: "Рекорды",
-                                    value: "\(countImprovements())",
-                                    subValue: "новых",
-                                    icon: "trophy.fill",
-                                    color: DesignSystem.Colors.neonGreen
-                                )
+                                CompletionBentoCard {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack {
+                                            Image(systemName: "trophy.fill")
+                                                .foregroundColor(DesignSystem.Colors.neonGreen)
+                                            Text("Рекорды")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                        Spacer()
+                                        HStack(alignment: .lastTextBaseline, spacing: 2) {
+                                            Text("\(countImprovements())")
+                                                .font(DesignSystem.Typography.title2())
+                                                .foregroundColor(DesignSystem.Colors.primaryText)
+                                            Text("новых")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                    }
+                                }
                             }
-                            .frame(height: 120)
+                            .frame(height: 110)
                             
                             // Progress Chart (Full Width)
                             WorkoutProgressChart(sessions: [session])
@@ -121,7 +162,7 @@ struct WorkoutCompletionView: View {
                                 .padding(.horizontal, DesignSystem.Spacing.lg)
                             
                             ForEach(progressData, id: \.exerciseName) { item in
-                                CardView {
+                                CompletionBentoCard {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text(item.exerciseName)
@@ -147,7 +188,6 @@ struct WorkoutCompletionView: View {
                                             .cornerRadius(8)
                                         }
                                     }
-                                    .padding()
                                 }
                                 .padding(.horizontal, DesignSystem.Spacing.lg)
                             }
@@ -209,40 +249,33 @@ struct WorkoutCompletionView: View {
     }
 }
 
-struct StatBentoCard: View {
-    let title: String
-    let value: String
-    var subValue: String? = nil
-    let icon: String
-    let color: Color
+// Unified Card Style
+fileprivate struct CompletionBentoCard<Content: View>: View {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
     
     var body: some View {
-        CardView {
-            VStack(alignment: .leading) {
-                HStack {
-                    Image(systemName: icon)
-                        .foregroundColor(color)
-                    Text(title)
-                        .font(DesignSystem.Typography.caption())
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                }
-                
-                Spacer()
-                
-                HStack(alignment: .lastTextBaseline, spacing: 2) {
-                    Text(value)
-                        .font(DesignSystem.Typography.title2())
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                    
-                    if let sub = subValue {
-                        Text(sub)
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                    }
-                }
-            }
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding()
-        }
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color(uiColor: .systemGray6).opacity(0.15),
+                        Color.black
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
+            )
     }
 }
 

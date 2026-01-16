@@ -35,9 +35,23 @@ struct AuthView: View {
                                 .fill(DesignSystem.Colors.accent)
                                 .frame(width: 100, height: 100)
                             
-                            Text(user.avatarInitials)
-                                .font(.system(size: 40, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
+                            if let photoURL = user.photoURL {
+                                AsyncImage(url: photoURL) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 100, height: 100)
+                                        .clipShape(Circle())
+                                } placeholder: {
+                                    Text(user.avatarInitials)
+                                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                }
+                            } else {
+                                Text(user.avatarInitials)
+                                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                            }
                         }
                         .shadow(color: DesignSystem.Colors.accent.opacity(0.5), radius: 10, x: 0, y: 0)
                         

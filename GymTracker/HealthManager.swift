@@ -1,16 +1,20 @@
 import Foundation
 import HealthKit
-
 import Combine
 
-class HealthManager: ObservableObject {
+class HealthManager: NSObject, ObservableObject {
     static let shared = HealthManager()
     
     let healthStore = HKHealthStore()
     
     @Published var isAuthorized = false
     
-    private init() {}
+    // Используем Any? для хранения, чтобы компилятор не ругался на типы "iOS 26.0"
+    // Using Any? to store sessions/builders safely across SDK versions
+    var _session: Any?
+    var _builder: Any?
+    
+    private override init() {}
     
     func requestAuthorization() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
@@ -18,19 +22,28 @@ class HealthManager: ObservableObject {
             return false
         }
         
-        let readTypes: Set<HKObjectType> = [
-            HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
-            HKObjectType.quantityType(forIdentifier: .heartRate)!,
-            HKObjectType.workoutType()
-        ]
+        guard let energyType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned),
+              let hrType = HKObjectType.quantityType(forIdentifier: .heartRate) else {
+            return false
+        }
+        let workoutType = HKObjectType.workoutType()
+        let activitySummaryType = HKObjectType.activitySummaryType()
         
-        let writeTypes: Set<HKSampleType> = [
-            HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
-            HKObjectType.workoutType()
-        ]
+        let readTypes: Set<HKObjectType> = [energyType, hrType, workoutType, activitySummaryType]
+        let writeTypes: Set<HKSampleType> = [energyType, workoutType]
         
         do {
-            try await healthStore.requestAuthorization(toShare: writeTypes, read: readTypes)
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                healthStore.requestAuthorization(toShare: writeTypes, read: readTypes) { success, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else if !success {
+                        continuation.resume(throwing: HKError(.errorAuthorizationDenied))
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            }
             await MainActor.run {
                 self.isAuthorized = true
             }
@@ -41,44 +54,138 @@ class HealthManager: ObservableObject {
         }
     }
     
+    // MARK: - Workout Session Management
+    
+    func startWorkout(workoutType: HKWorkoutActivityType) async {
+        guard isAuthorized else { return }
+        
+        // Xcode/SDK требует проверки на iOS 26.0 для этих API
+        // This odd check is required because the current SDK flags these as iOS 26.0+
+        if #available(iOS 26.0, *) {
+            let configuration = HKWorkoutConfiguration()
+            configuration.activityType = workoutType
+            configuration.locationType = .indoor
+            
+            do {
+                let session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
+                _session = session
+                
+                let builder = session.associatedWorkoutBuilder()
+                _builder = builder
+                
+                builder.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore, workoutConfiguration: configuration)
+                
+                session.delegate = self
+                builder.delegate = self
+                
+                session.startActivity(with: Date())
+                
+                // Fix for missing argument 'completion' in beginCollection
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                   builder.beginCollection(withStart: Date()) { success, error in
+                       if let error = error {
+                           continuation.resume(throwing: error)
+                       } else {
+                           continuation.resume()
+                       }
+                   }
+                }
+                
+                print("HealthKit Session Started (iOS 26+): \(workoutType.rawValue)")
+            } catch {
+                print("Failed to start Workout Session: \(error.localizedDescription)")
+            }
+        } else {
+            print("Skipping Live Workout Session: APIs require iOS 26.0 in this environment.")
+        }
+    }
+    
+    func endWorkout() async {
+        if #available(iOS 26.0, *) {
+            guard let session = _session as? HKWorkoutSession,
+                  let builder = _builder as? HKLiveWorkoutBuilder else { return }
+            
+            session.end()
+            
+            do {
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                    builder.endCollection(withEnd: Date()) { success, error in
+                        if let error = error {
+                            continuation.resume(throwing: error)
+                        } else {
+                            continuation.resume()
+                        }
+                    }
+                }
+                if let workout = try await builder.finishWorkout() {
+                    print("HealthKit Workout Finished: \(workout.duration)s")
+                } else {
+                    print("HealthKit Workout Finished (No workout object)")
+                }
+            } catch {
+                print("Failed to finish builder: \(error.localizedDescription)")
+            }
+            
+            _session = nil
+            _builder = nil
+        }
+    }
+    
+    func discardWorkout() async {
+        if #available(iOS 26.0, *) {
+            guard let session = _session as? HKWorkoutSession,
+                  let builder = _builder as? HKLiveWorkoutBuilder else { return }
+            
+            session.end()
+            builder.discardWorkout()
+            
+            _session = nil
+            _builder = nil
+            
+            print("HealthKit Workout Discarded")
+        }
+    }
+    
+    // MARK: - Data Fetching
+    
     func fetchCaloriesForWorkout(start: Date, end: Date) async -> Double {
         let store = self.healthStore
         return await Task.detached(priority: .userInitiated) {
             guard let calorieType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) else {
                 return 0.0
             }
-        
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
-        
-        return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(sampleType: calorieType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
-                if let error = error {
-                    print("Error fetching calories: \(error.localizedDescription)")
-                    continuation.resume(returning: 0.0)
-                    return
-                }
-                
-                guard let samples = samples as? [HKQuantitySample] else {
-                    continuation.resume(returning: 0.0)
-                    return
-                }
-                
-                let totalCalories = samples.reduce(0.0) { sum, sample in
-                    sum + sample.quantity.doubleValue(for: HKUnit.kilocalorie())
-                }
-                
-                continuation.resume(returning: totalCalories)
-            }
             
-            store.execute(query)
-        }
+            let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+            
+            return await withCheckedContinuation { continuation in
+                let query = HKSampleQuery(sampleType: calorieType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
+                    if let error = error {
+                        print("Error fetching calories: \(error.localizedDescription)")
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    
+                    guard let samples = samples as? [HKQuantitySample] else {
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    
+                    let totalCalories = samples.reduce(0.0) { sum, sample in
+                        sum + sample.quantity.doubleValue(for: HKUnit.kilocalorie())
+                    }
+                    
+                    continuation.resume(returning: totalCalories)
+                }
+                
+                store.execute(query)
+            }
         }.value
     }
     
     func fetchLatestHeartRate(since start: Date) async -> Double {
         let store = self.healthStore
         return await Task.detached(priority: .userInitiated) {
-            guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+             guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
                 return 0.0
             }
         
@@ -105,6 +212,7 @@ class HealthManager: ObservableObject {
         }
         }.value
     }
+    
     func fetchAverageHeartRate(start: Date, end: Date) async -> Double {
         let store = self.healthStore
         return await Task.detached(priority: .userInitiated) {
@@ -134,5 +242,28 @@ class HealthManager: ObservableObject {
                 store.execute(statisticsQuery)
             }
         }.value
+    }
+}
+
+// MARK: - Delegates
+// Using Any or conditional conformance is tricky, but extensions usually allow @available
+@available(iOS 26.0, *)
+extension HealthManager: HKWorkoutSessionDelegate {
+    func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
+        print("HKWorkoutSession State Changed: \(toState.rawValue)")
+    }
+    
+    func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
+        print("HKWorkoutSession Failed: \(error.localizedDescription)")
+    }
+}
+
+@available(iOS 26.0, *)
+extension HealthManager: HKLiveWorkoutBuilderDelegate {
+    func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
+        // Collect data
+    }
+    
+    func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {
     }
 }

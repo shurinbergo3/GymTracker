@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 import Combine
+import HealthKit
 
 // MARK: - Workout State
 
@@ -97,10 +98,44 @@ class WorkoutManager: ObservableObject {
             }
         }
         
+        
+        restoreActiveSession()
+        
         requestHealthAccess()
     }
     
     // MARK: - Initialization
+    
+    func restoreActiveSession() {
+        // Look for incomplete session
+        let descriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.isCompleted == false },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        
+        if let session = try? modelContext.fetch(descriptor).first {
+            // Check for stale session (older than 24 hours)
+            let timeSinceStart = Date().timeIntervalSince(session.date)
+            if timeSinceStart > 86400 { // 24 hours in seconds
+                print("Found stale session from \(session.date). Deleting.")
+                modelContext.delete(session)
+                try? modelContext.save()
+                return 
+            }
+            
+            // Restore state if valid
+            currentSession = session
+            workoutState = .active
+            
+            // Try to match selectedDay if possible (active program)
+            if let program = activeProgram {
+                 selectedDay = program.days.first(where: { $0.name == session.workoutDayName })
+            }
+            
+            // Resume live data fetch
+            startActivityUpdates(startDate: session.date)
+        }
+    }
     
     func loadActiveProgram() {
         let descriptor = FetchDescriptor<Program>(
@@ -132,10 +167,10 @@ class WorkoutManager: ObservableObject {
         // Create new session
         let session = WorkoutSession(
             date: Date(),
-            workoutDayName: day.name
+            workoutDayName: day.name,
+            programName: activeProgram?.name
         )
         modelContext.insert(session)
-        currentSession = session
         currentSession = session
         workoutState = .active
         
@@ -143,6 +178,16 @@ class WorkoutManager: ObservableObject {
         let startDate = Date()
         LiveActivityManager.shared.start(workoutType: session.workoutDayName, startDate: startDate)
         startActivityUpdates(startDate: startDate)
+        
+        // Start HealthKit Session
+        let shouldSync = UserDefaults.standard.object(forKey: "isHealthSyncEnabled") as? Bool ?? true
+        if shouldSync {
+            Task {
+                let name = session.workoutDayName.lowercased()
+                let type: HKWorkoutActivityType = (name.contains("run") || name.contains("beg") || name.contains("бег")) ? .running : .traditionalStrengthTraining
+                await HealthManager.shared.startWorkout(workoutType: type)
+            }
+        }
     }
     
     func cancelWorkout() {
@@ -150,6 +195,9 @@ class WorkoutManager: ObservableObject {
             // Stop Live Activity
             stopActivityUpdates()
             LiveActivityManager.shared.end()
+            
+            // Discard HealthKit Session
+            await HealthManager.shared.discardWorkout()
             
             // Delete current session without saving
             if let session = currentSession {
@@ -168,6 +216,10 @@ class WorkoutManager: ObservableObject {
         // 1. Immediate UI updates
         stopActivityUpdates()
         LiveActivityManager.shared.end()
+        
+        Task {
+             await HealthManager.shared.endWorkout()
+        }
         
         // Set end time and completion status
         let endDate = Date()

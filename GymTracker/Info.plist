@@ -4,16 +4,6 @@
 <dict>
 	<key>CFBundleGetInfoString</key>
 	<string></string>
-	<key>CFBundleName</key>
-	<string>Body Forge</string>
-	<key>CFBundleDisplayName</key>
-	<string>Body Forge</string>
-	<key>NSHealthShareUsageDescription</key>
-	<string>Приложению требуется доступ к данным HealthKit для отслеживания тренировок и калорий.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>Приложение сохраняет данные о выполненных тренировках в HealthKit.</string>
-	<key>GIDClientID</key>
-	<string>1023710839199-2qrb93tbdvrnkkbqkprpg8rpqqq229tt.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -25,5 +15,16 @@
 			</array>
 		</dict>
 	</array>
+	<key>GIDClientID</key>
+	<string>1023710839199-2qrb93tbdvrnkkbqkprpg8rpqqq229tt.apps.googleusercontent.com</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+		<string>location</string>
+	</array>
+	<key>NSHealthShareUsageDescription</key>
+    <string>Body Forge использует данные о тренировках для отслеживания калорий и пульса.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>Body Forge сохраняет выполненные тренировки в Apple Health для заполнения колец активности.</string>
 </dict>
 </plist>

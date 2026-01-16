@@ -132,7 +132,7 @@ struct ExerciseEditRow: View {
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     
-                
+                    ExerciseInfoButton(exerciseName: exercise.name)
                 }
                 
                 Text("\(exercise.plannedSets) подходов")

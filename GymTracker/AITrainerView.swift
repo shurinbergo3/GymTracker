@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct AITrainerView: View {
+    @State private var showingSettings = false
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -97,8 +99,18 @@ struct AITrainerView: View {
                     .frame(minHeight: UIScreen.main.bounds.height - 150) // Ensure it fills space but doesn't force scroll if not needed
                 }
             }
-            .navigationTitle("")
-            .navigationBarHidden(true)
+            .navigationTitle("AI Тренер")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                     UserProfileButton {
+                        showingSettings = true
+                    }
+                }
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
+            }
         }
     }
 }

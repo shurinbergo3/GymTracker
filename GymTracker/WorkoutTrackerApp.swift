@@ -13,7 +13,9 @@ import FirebaseAuth
 @main
 struct WorkoutTrackerApp: App {
     
-    @StateObject private var authManager = AuthManager()
+    // Use shared instance to ensure consistent state across the app
+    @StateObject private var authManager = AuthManager.shared
+    @State private var isCheckingAuth = true
     
     init() {
         FirebaseApp.configure()
@@ -42,13 +44,66 @@ struct WorkoutTrackerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            Group {
-                ContentViewWrapper()
-                    .environmentObject(authManager)
+            ZStack {
+                if isCheckingAuth {
+                    // Loading / Splash Screen
+                    VStack(spacing: 20) {
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(DesignSystem.Colors.neonGreen)
+                        
+                        Text("BODY FORGE")
+                            .font(DesignSystem.Typography.title())
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                            .tracking(2)
+                        
+                        ProgressView()
+                            .tint(DesignSystem.Colors.neonGreen)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(DesignSystem.Colors.background)
+                    .transition(.opacity)
+                } else {
+                    Group {
+                        if authManager.isLoggedIn {
+                            ContentViewWrapper()
+                                .environmentObject(authManager)
+                                .transition(.opacity)
+                        } else {
+                            LoginView()
+                                .environmentObject(authManager) // LoginView uses implicit shared but passing environment is good practice
+                                .transition(.opacity)
+                        }
+                    }
+                }
             }
             .preferredColorScheme(.dark)
+            .modelContainer(sharedModelContainer)
+            .onAppear {
+                checkAuthStatus()
+            }
         }
-        .modelContainer(sharedModelContainer)
+    }
+    
+    private func checkAuthStatus() {
+        // Quick verification:
+        // Use UserDefaults to know if we EXPECT to be logged in
+        let hasPreviousSession = UserDefaults.standard.bool(forKey: "isLoggedIn")
+        
+        if !hasPreviousSession {
+            // No previous session, go straight to Login
+            withAnimation {
+                isCheckingAuth = false
+            }
+        } else {
+            // We expect a session, wait a moment for Firebase/AuthManager to sync
+            // AuthManager listener fires async.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                withAnimation {
+                    isCheckingAuth = false
+                }
+            }
+        }
     }
 }
 
@@ -60,7 +115,6 @@ struct ContentViewWrapper: View {
     
     var body: some View {
         ContentView()
-            .environmentObject(AuthManager()) // Just for preview/fallback if unexpected hierarchy, but mostly handled in App
             .onAppear {
                 if !hasSeeded {
                     ProgramSeeder.seedProgramsIfNeeded(context: modelContext)

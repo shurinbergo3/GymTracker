@@ -281,7 +281,7 @@ struct WorkoutProgressChart: View {
                             }
                         }
                     }
-                    .frame(height: 200)
+                    .frame(height: 120)
                     .chartXAxis {
                         AxisMarks(values: .automatic) { value in
                             AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4, 4]))

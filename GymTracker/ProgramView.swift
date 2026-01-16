@@ -14,162 +14,153 @@ struct ProgramView: View {
     @State private var showingCreateProgram = false
     @State private var scrollToTopTrigger = false
     @State private var showingExercises = false
+    @State private var showingSettings = false
     
     private var activeProgram: Program? {
         programs.first(where: { $0.isActive })
     }
     
-    private var inactivePrograms: [Program] {
-        programs.filter { !$0.isActive }
-    }
-    
-    // Group programs by workout type
-    private var groupedPrograms: [WorkoutType: [Program]] {
-        Dictionary(grouping: inactivePrograms) { program in
-            program.days.first?.workoutType ?? .strength
-        }
-    }
-    
+    // ... (rest of vars)
+
     var body: some View {
         NavigationStack {
             ZStack {
+                // Background
                 DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
-                if programs.isEmpty {
-                    VStack(spacing: DesignSystem.Spacing.lg) {
-                        EmptyStateView(
-                            icon: "list.bullet.clipboard",
-                            title: "Нет программ",
-                            message: "Создайте свою первую программу тренировок",
-                            buttonTitle: "Создать программу"
-                        ) {
-                            showingCreateProgram = true
-                        }
-                        
-                        Button(action: loadDefaultPrograms) {
-                            HStack {
-                                Image(systemName: "square.stack.3d.down.right")
-                                Text("Загрузить стандартные программы")
-                            }
-                            .font(DesignSystem.Typography.headline())
-                            .foregroundColor(DesignSystem.Colors.accent)
-                            .padding()
-                            .background(DesignSystem.Colors.cardBackground)
-                            .cornerRadius(DesignSystem.CornerRadius.medium)
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                    }
-                } else {
-                    ScrollViewReader { proxy in
-                        ScrollView {
-                            VStack(spacing: DesignSystem.Spacing.lg) {
-                                // Active Program Section
-                                if let activeProgram = activeProgram {
-                                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                        Text("АКТИВНАЯ ПРОГРАММА")
-                                            .font(DesignSystem.Typography.caption())
-                                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                                            .tracking(1.2)
-                                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                                        
-                                        ActiveProgramCard(program: activeProgram, isHighlighted: scrollToTopTrigger)
-                                    }
-                                    .id("activeProgram")
-                                }
-                                
-                                // Create Button
-                                Button(action: { showingCreateProgram = true }) {
-                                    HStack {
-                                        Image(systemName: "plus.circle.fill")
-                                            .font(.title2)
-                                        Text("Создать свою программу")
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: DesignSystem.Spacing.xl) {
+                            
+                            if programs.isEmpty {
+                                // Empty State
+                                VStack(spacing: DesignSystem.Spacing.lg) {
+                                    Spacer()
+                                        .frame(height: 100)
+                                    
+                                    Image(systemName: "dumbbell.fill")
+                                        .font(.system(size: 60))
+                                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+                                    
+                                    Text("Нет программ")
+                                        .font(DesignSystem.Typography.title2())
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    
+                                    Text("Создайте свою первую программу тренировок")
+                                        .font(DesignSystem.Typography.body())
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal)
+                                    
+                                    Button(action: { loadDefaultPrograms() }) {
+                                        Text("Загрузить стандартные")
                                             .font(DesignSystem.Typography.headline())
+                                            .foregroundColor(DesignSystem.Colors.neonGreen)
+                                            .padding()
+                                            .background(DesignSystem.Colors.neonGreen.opacity(0.1))
+                                            .cornerRadius(DesignSystem.CornerRadius.medium)
                                     }
-                                    .foregroundColor(DesignSystem.Colors.accent)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(DesignSystem.Spacing.xl)
-                                    .background(DesignSystem.Colors.cardBackground)
-                                    .cornerRadius(DesignSystem.CornerRadius.large)
+                                    .padding(.top)
                                 }
-                                .padding(.horizontal, DesignSystem.Spacing.lg)
-                                
-                                // All Programs Section
-                                if !inactivePrograms.isEmpty {
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 50)
+                            } else {
+                                // Content
+                                VStack(spacing: DesignSystem.Spacing.xxl) {
+                                    
+                                    // Active Program Section
+                                    if let active = activeProgram {
+                                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                                            Label("АКТИВНАЯ ПРОГРАММА", systemImage: "bolt.fill")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.neonGreen)
+                                                .tracking(2)
+                                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                                            
+                                            ActiveProgramCard(program: active, isHighlighted: scrollToTopTrigger)
+                                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                                                .id("activeProgram")
+                                        }
+                                    }
+                                    
+                                    // All Programs Section
                                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
                                         HStack {
-                                            Text("ВСЕ ПРОГРАММЫ (\(inactivePrograms.count))")
+                                            Label("ВСЕ ПРОГРАММЫ", systemImage: "list.bullet.clipboard")
                                                 .font(DesignSystem.Typography.caption())
                                                 .foregroundColor(DesignSystem.Colors.secondaryText)
-                                                .tracking(1.2)
+                                                .tracking(2)
                                             
                                             Spacer()
                                             
-                                            Button(action: { showingExercises = true }) {
-                                                HStack(spacing: 4) {
-                                                    Image(systemName: "dumbbell.fill")
-                                                    Text("Упражнения")
-                                                }
+                                            Text("\(programs.count)")
                                                 .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.accent)
-                                                .padding(.vertical, 4)
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
                                                 .padding(.horizontal, 8)
-                                                .background(DesignSystem.Colors.accent.opacity(0.1))
-                                                .cornerRadius(8)
-                                            }
-                                            .sheet(isPresented: $showingExercises) {
-                                                ExerciseListView()
-                                            }
+                                                .padding(.vertical, 4)
+                                                .background(DesignSystem.Colors.secondaryText.opacity(0.1))
+                                                .clipShape(Capsule())
                                         }
                                         .padding(.horizontal, DesignSystem.Spacing.lg)
                                         
-                                        // Группировка по типу тренировок
-                                        ForEach(WorkoutType.allCases, id: \.self) { workoutType in
-                                            if let programsForType = groupedPrograms[workoutType], !programsForType.isEmpty {
-                                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                                                    HStack {
-                                                        Image(systemName: workoutType.icon)
-                                                            .font(.callout)
-                                                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                                                        
-                                                        Text(workoutType.rawValue)
-                                                            .font(DesignSystem.Typography.body())
-                                                            .foregroundColor(DesignSystem.Colors.primaryText)
-                                                        
-                                                        Spacer()
-                                                        
-                                                        Text("\(programsForType.count)")
-                                                            .font(DesignSystem.Typography.caption())
-                                                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                                                    }
-                                                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                                                    .padding(.top, DesignSystem.Spacing.md)
-                                                    
-                                                    ForEach(programsForType, id: \.self) { program in
-                                                        ProgramCard(program: program, onActivate: {
-                                                            scrollToTop(proxy: proxy)
-                                                        })
+                                        LazyVStack(spacing: DesignSystem.Spacing.lg) {
+                                            ForEach(programs) { program in
+                                                if program.id != activeProgram?.id {
+                                                    ProgramCard(program: program) {
+                                                        scrollToTop(proxy: proxy)
                                                     }
                                                 }
                                             }
                                         }
+                                        .padding(.horizontal, DesignSystem.Spacing.lg)
                                     }
                                 }
+                                .padding(.vertical, DesignSystem.Spacing.xl)
                             }
-                            .padding(.vertical, DesignSystem.Spacing.lg)
                         }
+                        .padding(.bottom, 100) // Space for FAB
+                    }
+                }
+                
+                // FAB to create new program
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: { showingCreateProgram = true }) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundColor(.black)
+                                .frame(width: 60, height: 60)
+                                .background(DesignSystem.Colors.neonGreen)
+                                .clipShape(Circle())
+                                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 10, x: 0, y: 4)
+                        }
+                        .padding(DesignSystem.Spacing.xl)
                     }
                 }
             }
+            .onAppear {
+                if programs.isEmpty {
+                    loadDefaultPrograms()
+                }
+            }
+
             .navigationTitle("Программы")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    UserProfileButton()
+                     UserProfileButton {
+                        showingSettings = true
+                    }
                 }
             }
             .sheet(isPresented: $showingCreateProgram) {
                 ProgramEditorView()
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
             }
         }
     }

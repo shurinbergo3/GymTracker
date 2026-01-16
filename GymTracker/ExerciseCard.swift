@@ -15,6 +15,7 @@ struct ExerciseCard: View {
     let programName: String
     let session: WorkoutSession?
     let workoutType: WorkoutType // Тип тренировки по умолчанию (от дня)
+    var aiRecommendation: String? = nil // Optional AI recommendation text
     
     @State private var weight: String = ""
     @State private var reps: String = ""
@@ -131,6 +132,39 @@ struct ExerciseCard: View {
                         .background(DesignSystem.Colors.secondaryText.opacity(0.3))
                 }
                 
+                // AI Recommendation Banner (Hidden if nil)
+                if let recommendation = aiRecommendation {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "sparkles")
+                            .foregroundColor(.purple)
+                            .font(.system(size: 16, weight: .bold))
+                            .shadow(color: .purple.opacity(0.8), radius: 5)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("AI RECOMMENDATION")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.purple)
+                                .tracking(1)
+                            
+                            Text(recommendation)
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(LinearGradient(colors: [Color.purple.opacity(0.2), Color.black.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.purple.opacity(0.5), lineWidth: 1)
+                    )
+                    .shadow(color: Color.purple.opacity(0.15), radius: 8, x: 0, y: 4)
+                }
+                
                 // Completed sets (editable)
                 if !completedSets.isEmpty {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
@@ -199,6 +233,7 @@ struct ExerciseCard: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "text.bubble")
                                     .font(.caption2)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
                                 Text("Добавить комментарий")
                             }
                             .font(DesignSystem.Typography.caption())
@@ -228,6 +263,13 @@ struct ExerciseCard: View {
             .padding(DesignSystem.Spacing.xl)
         }
         .padding(.horizontal, DesignSystem.Spacing.lg)
+        // Active State Glow
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                .stroke(showingInput ? DesignSystem.Colors.neonGreen.opacity(0.5) : Color.clear, lineWidth: 2)
+                .padding(.horizontal, DesignSystem.Spacing.lg) // Match padding
+        )
+        .shadow(color: showingInput ? DesignSystem.Colors.neonGreen.opacity(0.2) : Color.clear, radius: 15)
         .onAppear {
             // Show input initially if no sets completed yet
             if completedSets.count < exercise.plannedSets {
@@ -486,10 +528,15 @@ struct CurrentSetInput: View {
                 Button(action: onSave) {
                     Image(systemName: "checkmark")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(canSave ? .black : DesignSystem.Colors.secondaryText)
+                        .foregroundColor(canSave ? .black : DesignSystem.Colors.neonGreen) // Icon color
                         .frame(width: 44, height: 44)
-                        .background(canSave ? DesignSystem.Colors.neonGreen : DesignSystem.Colors.secondaryText.opacity(0.3))
+                        .background(canSave ? DesignSystem.Colors.neonGreen : Color.clear) // BG Color
                         .cornerRadius(DesignSystem.CornerRadius.medium)
+                        // Outline for unselected state
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                                .stroke(DesignSystem.Colors.neonGreen, lineWidth: canSave ? 0 : 2)
+                        )
                 }
                 .disabled(!canSave)
             }
@@ -497,7 +544,8 @@ struct CurrentSetInput: View {
         .onAppear {
             switch workoutType {
             case .strength:
-                // focusedField = .weight // Disable auto-focus to prevent auto-scroll
+                // Removing auto-focus to prevent scroll jumping issues
+                // focusedField = .weight 
                 break
             case .circuit:
                 // focusedField = .rounds
@@ -527,11 +575,11 @@ struct CurrentSetInput: View {
                     .foregroundColor(DesignSystem.Colors.primaryText)
                     .frame(height: 44)
                     .padding(.horizontal, DesignSystem.Spacing.md)
-                    .background(DesignSystem.Colors.background)
+                    .background(Color(uiColor: .systemGray6).opacity(0.2)) // Updated BG
                     .cornerRadius(DesignSystem.CornerRadius.medium)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                            .stroke(weight.isEmpty ? DesignSystem.Colors.secondaryText.opacity(0.3) : DesignSystem.Colors.neonGreen, lineWidth: 2)
+                            .stroke(focusedField == .weight ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3), lineWidth: 1) // Updated Border
                     )
                     .focused($focusedField, equals: .weight)
             }
@@ -547,11 +595,11 @@ struct CurrentSetInput: View {
                     .foregroundColor(DesignSystem.Colors.primaryText)
                     .frame(height: 44)
                     .padding(.horizontal, DesignSystem.Spacing.md)
-                    .background(DesignSystem.Colors.background)
+                    .background(Color(uiColor: .systemGray6).opacity(0.2)) // Updated BG
                     .cornerRadius(DesignSystem.CornerRadius.medium)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                            .stroke(reps.isEmpty ? DesignSystem.Colors.secondaryText.opacity(0.3) : DesignSystem.Colors.neonGreen, lineWidth: 2)
+                            .stroke(focusedField == .reps ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3), lineWidth: 1) // Updated Border
                     )
                     .focused($focusedField, equals: .reps)
             }
@@ -573,11 +621,11 @@ struct CurrentSetInput: View {
                     .foregroundColor(DesignSystem.Colors.primaryText)
                     .frame(height: 44)
                     .padding(.horizontal, DesignSystem.Spacing.md)
-                    .background(DesignSystem.Colors.background)
+                    .background(Color(uiColor: .systemGray6).opacity(0.2)) // Updated BG
                     .cornerRadius(DesignSystem.CornerRadius.medium)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                            .stroke(rounds.isEmpty ? DesignSystem.Colors.secondaryText.opacity(0.3) : DesignSystem.Colors.neonGreen, lineWidth: 2)
+                            .stroke(focusedField == .rounds ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3), lineWidth: 1)
                     )
                     .focused($focusedField, equals: .rounds)
             }
@@ -593,11 +641,11 @@ struct CurrentSetInput: View {
                     .foregroundColor(DesignSystem.Colors.primaryText)
                     .frame(height: 44)
                     .padding(.horizontal, DesignSystem.Spacing.md)
-                    .background(DesignSystem.Colors.background)
+                    .background(Color(uiColor: .systemGray6).opacity(0.2)) // Updated BG
                     .cornerRadius(DesignSystem.CornerRadius.medium)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                            .stroke(duration.isEmpty ? DesignSystem.Colors.secondaryText.opacity(0.3) : DesignSystem.Colors.neonGreen, lineWidth: 2)
+                            .stroke(focusedField == .duration ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3), lineWidth: 1)
                     )
                     .focused($focusedField, equals: .duration)
             }

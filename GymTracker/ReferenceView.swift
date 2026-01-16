@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ReferenceView: View {
+    @State private var showingSettings = false
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -18,9 +20,6 @@ struct ReferenceView: View {
                     VStack(spacing: DesignSystem.Spacing.xl) {
                         // Header
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                            Text("Справочник")
-                                .font(DesignSystem.Typography.largeTitle())
-                                .foregroundColor(DesignSystem.Colors.primaryText)
                             Text("База знаний для твоего прогресса")
                                 .font(DesignSystem.Typography.body())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
@@ -34,7 +33,7 @@ struct ReferenceView: View {
                             
                             // 1. Exercises (Large Card - Full Width)
                             NavigationLink(destination: ExerciseListView()) {
-                                BentoCard(
+                                ReferenceBentoCard(
                                     title: "Упражнения",
                                     subtitle: "Техника и описание",
                                     icon: "dumbbell.fill",
@@ -46,7 +45,7 @@ struct ReferenceView: View {
                             
                             // 2. Supplements (Medium Card)
                             NavigationLink(destination: SupplementsView()) {
-                                BentoCard(
+                                ReferenceBentoCard(
                                     title: "Бады",
                                     subtitle: "Топовые добавки",
                                     icon: "pills.fill",
@@ -56,7 +55,7 @@ struct ReferenceView: View {
                             }
                             
                             // 3. Nutrition (Medium Card - Placeholder)
-                            BentoCard(
+                            ReferenceBentoCard(
                                 title: "Питание",
                                 subtitle: "В разработке",
                                 icon: "fork.knife",
@@ -69,13 +68,23 @@ struct ReferenceView: View {
                     }
                 }
             }
-            .navigationTitle("")
-            .navigationBarHidden(true)
+            .navigationTitle("Справочник")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                     UserProfileButton {
+                        showingSettings = true
+                    }
+                }
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
+            }
         }
     }
 }
 
-struct BentoCard: View {
+struct ReferenceBentoCard: View {
     let title: String
     let subtitle: String
     let icon: String

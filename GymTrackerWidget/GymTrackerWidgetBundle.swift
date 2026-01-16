@@ -12,7 +12,9 @@ import SwiftUI
 struct GymTrackerWidgetBundle: WidgetBundle {
     var body: some Widget {
         GymTrackerWidget()
-        GymTrackerWidgetControl()
+        if #available(iOS 18.0, *) {
+            GymTrackerWidgetControl()
+        }
         GymTrackerWidgetLiveActivity()
     }
 }

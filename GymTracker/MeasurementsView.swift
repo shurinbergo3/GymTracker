@@ -34,7 +34,74 @@ struct MeasurementsView: View {
                 ScrollView {
                     VStack(spacing: DesignSystem.Spacing.xl) {
                         
-                        // SECTION 1: BODY MEASUREMENTS
+                        // SECTION 1: STATISTICS OVERVIEW
+                        VStack(spacing: DesignSystem.Spacing.lg) {
+                            
+                            // Активность (Activity Rings)
+                            CardView {
+                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                                    Text("АКТИВНОСТЬ")
+                                        .font(DesignSystem.Typography.caption())
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        .tracking(1.2)
+                                    
+                                    HStack {
+                                        Spacer()
+                                        ActivityRingsView()
+                                            .frame(width: 150, height: 150)
+                                        Spacer()
+                                    }
+                                }
+                                .padding(DesignSystem.Spacing.lg)
+                            }
+                            
+                            // История Тренировок (Кнопка)
+                            NavigationLink(destination: WorkoutHistoryView()) {
+                                HStack {
+                                    Image(systemName: "clock.arrow.circlepath")
+                                        .font(.title2)
+                                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                                        .frame(width: 40, height: 40)
+                                        .background(DesignSystem.Colors.neonGreen.opacity(0.1))
+                                        .clipShape(Circle())
+                                    
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("История тренировок")
+                                            .font(DesignSystem.Typography.headline())
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                        
+                                        if let last = completedSessions.first {
+                                            Text("Последняя: \(formattedDate(last.date))")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        } else {
+                                            Text("Нет записей")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
+                                .padding()
+                                .background(DesignSystem.Colors.cardBackground)
+                                .cornerRadius(DesignSystem.CornerRadius.large)
+                            }
+                            
+                            // График прогресса
+                            if !completedSessions.isEmpty {
+                                WorkoutProgressChart(sessions: completedSessions) // Now height 120
+                                
+                                // Диаграмма типов
+                                WorkoutTypeDistributionChart(sessions: completedSessions)
+                            }
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        
+                        // SECTION 2: BODY MEASUREMENTS
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
                             Text("ЗАМЕРЫ ТЕЛА")
                                 .font(DesignSystem.Typography.caption())
@@ -67,32 +134,6 @@ struct MeasurementsView: View {
                             }
                             .padding(.horizontal, DesignSystem.Spacing.lg)
                         }
-                        
-                        // SECTION 2: WORKOUT HISTORY
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            Text("ИСТОРИЯ ТРЕНИРОВОК")
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                .tracking(1.2)
-                                .padding(.horizontal, DesignSystem.Spacing.lg)
-                            
-                            if completedSessions.isEmpty {
-                                Text("История пуста")
-                                    .font(DesignSystem.Typography.body())
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                            } else {
-                                LazyVStack(spacing: DesignSystem.Spacing.md) {
-                                    ForEach(completedSessions, id: \.self) { session in
-                                        NavigationLink(destination: WorkoutHistoryDetailView(session: session)) {
-                                            WorkoutHistoryCard(session: session)
-                                        }
-                                        .buttonStyle(PlainButtonStyle())
-                                    }
-                                }
-                                .padding(.horizontal, DesignSystem.Spacing.lg)
-                            }
-                        }
                     }
                     .padding(.vertical, DesignSystem.Spacing.lg)
                 }
@@ -101,14 +142,26 @@ struct MeasurementsView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    UserProfileButton()
+                    UserProfileButton {
+                         // Settings handled by parent in WorkoutView, but here we might need to handle it differently
+                         // Actually UserProfileButton takes an action.
+                         // But MeasurementsView is a configured tab.
+                         // We probably don't need settings here or should route to settings.
+                    }
                 }
-            }
             }
         }
     }
+    
+    // Helper helper
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMM"
+        return formatter.string(from: date)
+    }
 
-
+}
 
 extension MeasurementType: Identifiable {
     var id: String { self.rawValue }

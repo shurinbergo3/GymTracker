@@ -182,6 +182,7 @@ final class ExerciseTemplate {
 final class WorkoutSession {
     var date: Date
     var workoutDayName: String // название дня тренировки
+    var programName: String? // название программы
     var notes: String?
     var isCompleted: Bool
     var endTime: Date?
@@ -191,9 +192,10 @@ final class WorkoutSession {
     @Relationship(deleteRule: .cascade, inverse: \WorkoutSet.session)
     var sets: [WorkoutSet]
     
-    init(date: Date = Date(), workoutDayName: String, notes: String? = nil) {
+    init(date: Date = Date(), workoutDayName: String, programName: String? = nil, notes: String? = nil) {
         self.date = date
         self.workoutDayName = workoutDayName
+        self.programName = programName
         self.notes = notes
         self.isCompleted = false
         self.sets = []

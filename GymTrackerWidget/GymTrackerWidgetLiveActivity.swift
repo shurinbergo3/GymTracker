@@ -14,7 +14,7 @@ struct GymTrackerWidgetLiveActivity: Widget {
                         .font(.headline)
                         .foregroundStyle(.white)
                     
-                    Text(timerInterval: context.state.startTime...Date().addingTimeInterval(3600*3), countsDown: false)
+Text(timerInterval: context.state.startTime...Date.distantFuture, countsDown: false)
                         .font(.system(.title2, design: .rounded).monospacedDigit())
                         .foregroundStyle(Color.green)
                 }
@@ -51,7 +51,7 @@ struct GymTrackerWidgetLiveActivity: Widget {
                         Label(context.state.workoutType, systemImage: "dumbbell.fill")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
-                        Text(timerInterval: context.state.startTime...Date().addingTimeInterval(3600*3), countsDown: false)
+    Text(timerInterval: context.state.startTime...Date.distantFuture, countsDown: false)
                             .font(.system(.title, design: .rounded).monospacedDigit())
                             .foregroundStyle(.green)
                     }
@@ -79,10 +79,10 @@ struct GymTrackerWidgetLiveActivity: Widget {
                 }
                 
             } compactLeading: {
-                Text(timerInterval: context.state.startTime...Date().addingTimeInterval(3600*3), countsDown: false)
+                Text(timerInterval: context.state.startTime...Date.distantFuture, countsDown: false)
                     .monospacedDigit()
-                    .foregroundStyle(.green)
-                    .frame(maxWidth: 40)
+                    .foregroundStyle(Color.green)
+                    .frame(maxWidth: 50)
             } compactTrailing: {
                 HStack(spacing: 2) {
                     Text("\(context.state.heartRate)")
