@@ -124,7 +124,7 @@ struct WorkoutCompletionView: View {
                                     HStack {
                                         Image(systemName: "heart.fill")
                                             .foregroundColor(.red)
-                                        Text("Пульс")
+                                        Text("Ср. Пульс")
                                             .font(DesignSystem.Typography.caption())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                     }

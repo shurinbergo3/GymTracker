@@ -209,7 +209,39 @@ class HealthManager: NSObject, ObservableObject {
             }
         }.value
     }
-}
+    
+    func fetchRestingHeartRate() async -> Double {
+        let store = self.healthStore
+        return await Task.detached(priority: .userInitiated) {
+             guard let type = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else {
+                return 0.0
+            }
+            
+            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+            let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
+                 guard let sample = samples?.first as? HKQuantitySample else { return }
+            }
+            
+            return await withCheckedContinuation { continuation in
+                let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
+                    if let error = error {
+                        print("Error fetching Resting HR: \(error.localizedDescription)")
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    
+                    guard let sample = samples?.first as? HKQuantitySample else {
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    
+                    let hr = sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
+                    continuation.resume(returning: hr)
+                }
+                store.execute(query)
+            }
+        }.value
+    }
 
 // MARK: - Delegates
 // Using Any or conditional conformance is tricky, but extensions usually allow @available

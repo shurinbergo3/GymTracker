@@ -40,10 +40,12 @@ struct MeasurementsView: View {
                         // Активность (Activity Rings)
                         ActivityRingsCard()
                         
-                        // Сон (Sleep Card)
                         NavigationLink(destination: SleepGuideView()) {
                             SleepCard()
                         }
+                        
+                        // Пульс (New Card)
+                        HeartRateStatsCard(lastWorkoutSession: completedSessions.first)
                         
                         // Замеры тела (Swapped position)
                         NavigationLink(destination: BodyMeasurementsView()) {
@@ -140,6 +142,90 @@ struct MeasurementsView: View {
         formatter.locale = Locale(identifier: "ru_RU")
         formatter.dateFormat = "d MMM"
         return formatter.string(from: date)
+    }
+}
+
+// MARK: - Heart Rate Stats Card
+struct HeartRateStatsCard: View {
+    let lastWorkoutSession: WorkoutSession?
+    @State private var restingHR: Int = 0
+    
+    var body: some View {
+        BentoCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "heart.fill")
+                        .foregroundStyle(.red)
+                    Text("Пульс")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    
+                    Spacer()
+                    
+                    if HealthManager.shared.isAuthorized {
+                        Image(systemName: "checkmark.shield.fill")
+                            .font(.caption)
+                            .foregroundStyle(DesignSystem.Colors.neonGreen)
+                    }
+                }
+                
+                HStack(spacing: 20) {
+                    // Resting HR
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("В покое")
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                        
+                        HStack(alignment: .lastTextBaseline, spacing: 4) {
+                            Text(restingHR > 0 ? "\(restingHR)" : "--")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundStyle(.white)
+                            Text("уд/мин")
+                                .font(.caption2)
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(Color.white.opacity(0.05))
+                    .cornerRadius(12)
+                    
+                    // Workout HR
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("На тренировке")
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                        
+                        HStack(alignment: .lastTextBaseline, spacing: 4) {
+                            if let session = lastWorkoutSession, let avg = session.averageHeartRate, avg > 0 {
+                                Text("\(avg)")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundStyle(.white)
+                            } else {
+                                Text("--")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
+                            Text("уд/мин")
+                                .font(.caption2)
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(Color.white.opacity(0.05))
+                    .cornerRadius(12)
+                }
+            }
+        }
+        .task {
+            if HealthManager.shared.isAuthorized {
+                let hr = await HealthManager.shared.fetchRestingHeartRate()
+                await MainActor.run {
+                    self.restingHR = Int(hr)
+                }
+            }
+        }
     }
 }
 
