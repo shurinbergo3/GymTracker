@@ -79,9 +79,37 @@ struct SleepCard: View {
                 let data = await HealthManager.shared.fetchSleepData()
                 await MainActor.run {
                     self.sleepData = data
-                    // Calculate total sleep (excluding InBed usually, or filtering overlaps)
-                    // Simplified: Sum of all non-inBed segments
-                    self.totalSleep = data.filter { $0.type != .inBed }.reduce(0) { $0 + $1.duration }
+                    
+                    // Smart calculation: Merge overlapping intervals
+                    let filteredSegments = data.filter { $0.type != .inBed }
+                    let sortedSegments = filteredSegments.sorted { $0.startDate < $1.startDate }
+                    
+                    var totalDuration: TimeInterval = 0
+                    var currentInterval: (start: Date, end: Date)?
+                    
+                    for segment in sortedSegments {
+                        if let current = currentInterval {
+                            if segment.startDate < current.end {
+                                // Overlap: Extend end if needed
+                                if segment.endDate > current.end {
+                                    currentInterval?.end = segment.endDate
+                                }
+                            } else {
+                                // No overlap: Commit current and start new
+                                totalDuration += current.end.timeIntervalSince(current.start)
+                                currentInterval = (segment.startDate, segment.endDate)
+                            }
+                        } else {
+                            currentInterval = (segment.startDate, segment.endDate)
+                        }
+                    }
+                    
+                    // Commit last interval
+                    if let current = currentInterval {
+                        totalDuration += current.end.timeIntervalSince(current.start)
+                    }
+                    
+                    self.totalSleep = totalDuration
                 }
             }
         }
