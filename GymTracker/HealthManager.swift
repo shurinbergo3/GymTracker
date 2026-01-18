@@ -218,9 +218,6 @@ class HealthManager: NSObject, ObservableObject {
             }
             
             let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
-            let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
-                 guard let sample = samples?.first as? HKQuantitySample else { return }
-            }
             
             return await withCheckedContinuation { continuation in
                 let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
