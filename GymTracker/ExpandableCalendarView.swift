@@ -46,6 +46,10 @@ struct ExpandableCalendarView: View {
                     }
                 }
                 .padding(DesignSystem.Spacing.md)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation { isExpanded.toggle() }
+                }
             }
         }
         .sheet(item: $selectedSession) { session in
@@ -101,21 +105,20 @@ struct MonthHeaderView: View {
                     .foregroundColor(DesignSystem.Colors.accent)
             }
             
-            Spacer()
-            
-            Button(action: onToggleExpand) {
-                HStack(spacing: 4) {
-                    Text(monthYearText)
-                        .font(DesignSystem.Typography.headline())
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                    
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.caption)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                }
+            // Tappable Middle Section
+            HStack(spacing: 4) {
+                Spacer()
+                Text(monthYearText)
+                    .font(DesignSystem.Typography.headline())
+                    .foregroundColor(DesignSystem.Colors.primaryText)
+
+                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                    .font(.caption)
+                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                Spacer()
             }
-            
-            Spacer()
+            .contentShape(Rectangle())
+            .onTapGesture { onToggleExpand() }
             
             Button(action: onNextMonth) {
                 Image(systemName: "chevron.right")

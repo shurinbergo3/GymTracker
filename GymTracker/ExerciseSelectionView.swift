@@ -204,7 +204,7 @@ struct TechniqueInfoSheet: View {
                                     
                                     Text(technique)
                                         .font(DesignSystem.Typography.body())
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        .foregroundColor(Color.white.opacity(0.85))
                                         .lineSpacing(4)
                                 }
                                 .padding(DesignSystem.Spacing.xl)

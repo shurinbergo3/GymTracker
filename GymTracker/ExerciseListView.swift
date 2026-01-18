@@ -9,52 +9,77 @@ import SwiftUI
 
 struct ExerciseListView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var searchText = ""
-    
-    private var filteredExercises: [LibraryExercise] {
-        if searchText.isEmpty {
-            return ExerciseLibrary.allExercises
-        }
-        return ExerciseLibrary.search(searchText)
-    }
-    
-    private var groupedExercises: [ExerciseCategory: [LibraryExercise]] {
-        Dictionary(grouping: filteredExercises, by: { $0.category })
-    }
+    @StateObject private var viewModel = ExerciseListViewModel()
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(ExerciseCategory.allCases, id: \.self) { category in
-                    if let exercises = groupedExercises[category], !exercises.isEmpty {
-                        Section {
-                            ForEach(exercises) { exercise in
-                                ExerciseListRow(exercise: exercise)
-                            }
-                        } header: {
-                            Label(category.rawValue, systemImage: category.icon)
-                                .font(DesignSystem.Typography.headline())
-                                .foregroundColor(DesignSystem.Colors.accent)
+            exerciseList
+                .background(DesignSystem.Colors.background)
+                .searchable(
+                    text: $viewModel.searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "Поиск упражнений"
+                )
+                .onChange(of: viewModel.searchText) { _, _ in
+                    viewModel.search()
+                }
+                .navigationTitle("Упражнения")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Закрыть") {
+                            dismiss()
                         }
                     }
                 }
-            }
-            .listStyle(.insetGrouped)
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Поиск упражнений"
-            )
-            .navigationTitle("Упражнения")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Закрыть") {
-                        dismiss()
-                    }
+        }
+    }
+    
+    @ViewBuilder
+    private var exerciseList: some View {
+        ScrollView {
+            LazyVStack(spacing: DesignSystem.Spacing.sm, pinnedViews: [.sectionHeaders]) {
+                ForEach(ExerciseCategory.allCases, id: \.self) { category in
+                    exerciseSection(for: category)
                 }
             }
+            .padding(DesignSystem.Spacing.md)
         }
+    }
+    
+    @ViewBuilder
+    private func exerciseSection(for category: ExerciseCategory) -> some View {
+        if let exercises = viewModel.groups[category], !exercises.isEmpty {
+            Section {
+                VStack(spacing: 0) {
+                    ForEach(exercises) { exercise in
+                        ExerciseListRow(exercise: exercise)
+                        
+                        if exercise.id != exercises.last?.id {
+                            Divider()
+                                .padding(.leading, DesignSystem.Spacing.md)
+                        }
+                    }
+                }
+                .background(DesignSystem.Colors.cardBackground)
+                .cornerRadius(DesignSystem.CornerRadius.medium)
+            } header: {
+                sectionHeader(for: category)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func sectionHeader(for category: ExerciseCategory) -> some View {
+        HStack {
+            Label(category.rawValue, systemImage: category.icon)
+                .font(DesignSystem.Typography.headline())
+                .foregroundColor(DesignSystem.Colors.accent)
+                .padding(.vertical, DesignSystem.Spacing.xs)
+            Spacer()
+        }
+        .padding(.horizontal, DesignSystem.Spacing.md)
+        .background(DesignSystem.Colors.background)
     }
 }
 
@@ -76,7 +101,6 @@ struct ExerciseListRow: View {
             
             Spacer()
             
-            // Info button for technique
             Button(action: { showingTechnique = true }) {
                 Image(systemName: "info.circle")
                     .foregroundColor(DesignSystem.Colors.accent)
@@ -85,8 +109,9 @@ struct ExerciseListRow: View {
             .buttonStyle(PlainButtonStyle())
         }
         .padding(.vertical, DesignSystem.Spacing.xs)
+        .padding(.horizontal, DesignSystem.Spacing.md)
         .sheet(isPresented: $showingTechnique) {
-            ExerciseTechniqueDetailView(exerciseName: exercise.name, technique: exercise.technique)
+            ExerciseTechniqueDetailView(exerciseName: exercise.name)
         }
     }
 }

@@ -15,6 +15,7 @@ struct ActivityRingsCard: View {
     @State private var exerciseGoal: Double = 30
     @State private var stand: Double = 0
     @State private var standGoal: Double = 12
+    @State private var showingDetail = false
     
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.lg) {
@@ -63,6 +64,12 @@ struct ActivityRingsCard: View {
         .padding(DesignSystem.Spacing.lg)
         .background(Color(white: 0.1)) // Dark card background
         .cornerRadius(20)
+        .onTapGesture {
+            showingDetail = true
+        }
+        .sheet(isPresented: $showingDetail) {
+            ActivityDetailView()
+        }
         .onAppear {
             fetchActivityData()
         }

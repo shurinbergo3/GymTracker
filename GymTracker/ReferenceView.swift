@@ -54,7 +54,29 @@ struct ReferenceView: View {
                                 )
                             }
                             
-                            // 3. Nutrition (Medium Card - Placeholder)
+                            // 3. Hormones (Medium Card)
+                            NavigationLink(destination: HormonesView()) {
+                                ReferenceBentoCard(
+                                    title: "Гормоны",
+                                    subtitle: "Влияние на жизнь",
+                                    icon: "bolt.heart.fill",
+                                    color: .purple,
+                                    height: 160
+                                )
+                            }
+
+                            // 4. Sleep (Medium Card)
+                            NavigationLink(destination: SleepGuideView()) {
+                                ReferenceBentoCard(
+                                    title: "Сон",
+                                    subtitle: "Восстановление",
+                                    icon: "moon.stars.fill",
+                                    color: .indigo,
+                                    height: 160
+                                )
+                            }
+
+                            // 4. Nutrition (Medium Card - Placeholder)
                             ReferenceBentoCard(
                                 title: "Питание",
                                 subtitle: "В разработке",

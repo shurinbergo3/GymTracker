@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Charts
 
 struct WorkoutHistoryView: View {
     @Environment(\.dismiss) private var dismiss
@@ -47,57 +48,46 @@ struct WorkoutHistoryView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                DesignSystem.Colors.background
-                    .ignoresSafeArea()
-                
-                if completedSessions.isEmpty {
-                    EmptyStateView(
-                        icon: "figure.strengthtraining.traditional",
-                        title: "Нет завершенных тренировок",
-                        message: "История ваших тренировок появится здесь",
-                        buttonTitle: "Начать тренировку"
-                    ) {
-                        dismiss()
-                    }
-                } else {
-                    VStack(spacing: 0) {
-                        // Mode Picker
-                        Picker("Режим", selection: $historyMode) {
-                            ForEach(HistoryMode.allCases, id: \.self) { mode in
-                                Text(mode.rawValue).tag(mode)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .padding()
-                        .background(DesignSystem.Colors.cardBackground)
-                        
-                        ScrollView {
-                            VStack(spacing: DesignSystem.Spacing.lg) {
-                                if historyMode == .sessions {
-                                    SessionHistoryView(completedSessions: completedSessions)
-                                } else {
-                                    ExerciseHistoryListView(sessions: completedSessions)
-                                }
-                            }
-                            .padding(.vertical, DesignSystem.Spacing.lg)
-                        }
-                    }
+        ZStack {
+            DesignSystem.Colors.background
+                .ignoresSafeArea()
+            
+            if completedSessions.isEmpty {
+                EmptyStateView(
+                    icon: "figure.strengthtraining.traditional",
+                    title: "Нет завершенных тренировок",
+                    message: "История ваших тренировок появится здесь",
+                    buttonTitle: "Начать тренировку"
+                ) {
+                    dismiss()
                 }
-            }
-            .navigationTitle("История")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .font(.headline)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
+            } else {
+                VStack(spacing: 0) {
+                    // Mode Picker
+                    Picker("Режим", selection: $historyMode) {
+                        ForEach(HistoryMode.allCases, id: \.self) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding()
+                    .background(DesignSystem.Colors.cardBackground)
+                    
+                    ScrollView {
+                        VStack(spacing: DesignSystem.Spacing.lg) {
+                            if historyMode == .sessions {
+                                SessionHistoryView(completedSessions: completedSessions)
+                            } else {
+                                ExerciseHistoryListView(sessions: completedSessions)
+                            }
+                        }
+                        .padding(.vertical, DesignSystem.Spacing.lg)
                     }
                 }
             }
         }
+        .navigationTitle("История")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -653,64 +643,107 @@ struct WorkoutTypeDistributionChart: View {
         sessions.count
     }
     
+    @State private var selectedType: String?
+    @State private var showingDetail = false
+    
     var body: some View {
-        CardView {
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                Text("ТИПЫ ТРЕНИРОВОК")
-                    .font(DesignSystem.Typography.caption())
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                    .tracking(1.2)
-                
-                if total > 0 {
-                    HStack(spacing: DesignSystem.Spacing.xl) {
-                        // Pie chart
-                        ZStack {
-                            ForEach(Array(workoutTypeCounts.enumerated()), id: \.element.type) { index, item in
-                                PieSlice(
-                                    startAngle: angle(for: index, in: workoutTypeCounts),
-                                    endAngle: angle(for: index + 1, in: workoutTypeCounts)
-                                )
-                                .fill(item.color)
-                            }
-                            
-                            Circle()
-                                .fill(DesignSystem.Colors.cardBackground)
-                                .frame(width: 50, height: 50)
-                            
-                            Text("\(total)")
-                                .font(DesignSystem.Typography.title3())
-                                .foregroundColor(DesignSystem.Colors.primaryText)
-                        }
-                        .frame(width: 100, height: 100)
+        Button(action: { showingDetail = true }) {
+            CardView {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
+                    HStack {
+                        Text("ТИПЫ ТРЕНИРОВОК")
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .tracking(1.2)
                         
-                        // Legend
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                            ForEach(workoutTypeCounts, id: \.type) { item in
-                                HStack(spacing: DesignSystem.Spacing.sm) {
-                                    Circle()
-                                        .fill(item.color)
-                                        .frame(width: 12, height: 12)
-                                    
-                                    Text(item.type)
-                                        .font(DesignSystem.Typography.body())
-                                        .foregroundColor(DesignSystem.Colors.primaryText)
-                                    
-                                    Spacer()
-                                    
-                                    Text("\(item.count)")
-                                        .font(DesignSystem.Typography.headline())
-                                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    
+                    if total > 0 {
+                        HStack(spacing: DesignSystem.Spacing.xl) {
+                            // Interactive Pie chart
+                            ZStack {
+                                Chart(workoutTypeCounts, id: \.type) { item in
+                                    SectorMark(
+                                        angle: .value("Count", item.count),
+                                        innerRadius: .ratio(0.5),
+                                        angularInset: selectedType == item.type ? 2 : 1
+                                    )
+                                    .foregroundStyle(item.color)
+                                    .opacity(selectedType == nil || selectedType == item.type ? 1 : 0.5)
+                                    .cornerRadius(4)
+                                }
+                                .chartAngleSelection(value: $selectedType)
+                                .animation(.bouncy, value: selectedType)
+                                .frame(width: 100, height: 100)
+                                
+                                // Center label
+                                VStack(spacing: 0) {
+                                    if let selected = selectedType,
+                                       let item = workoutTypeCounts.first(where: { $0.type == selected }) {
+                                        Text("\(item.count)")
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                    } else {
+                                        Text("\(total)")
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                            .frame(width: 100, height: 100)
+                            
+                            // Legend with interactive highlighting
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                                ForEach(workoutTypeCounts, id: \.type) { item in
+                                    Button(action: {
+                                        withAnimation(.bouncy) {
+                                            if selectedType == item.type {
+                                                selectedType = nil
+                                            } else {
+                                                selectedType = item.type
+                                            }
+                                        }
+                                    }) {
+                                        HStack(spacing: DesignSystem.Spacing.sm) {
+                                            Circle()
+                                                .fill(item.color)
+                                                .frame(width: 12, height: 12)
+                                            
+                                            Text(item.type)
+                                                .font(DesignSystem.Typography.body())
+                                                .foregroundColor(selectedType == nil || selectedType == item.type ? .white : .gray)
+                                            
+                                            Spacer()
+                                            
+                                            Text("\(item.count)")
+                                                .font(DesignSystem.Typography.headline())
+                                                .foregroundColor(selectedType == nil || selectedType == item.type ? DesignSystem.Colors.neonGreen : .gray)
+                                        }
+                                        .opacity(selectedType == nil || selectedType == item.type ? 1 : 0.5)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
                         }
+                    } else {
+                        Text("Нет данных")
+                            .font(DesignSystem.Typography.body())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
-                } else {
-                    Text("Нет данных")
-                        .font(DesignSystem.Typography.body())
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
+                .padding(DesignSystem.Spacing.xl)
             }
-            .padding(DesignSystem.Spacing.xl)
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showingDetail) {
+            WorkoutTypesDetailView(workoutTypeCounts: workoutTypeCounts, sessions: sessions)
         }
     }
     
@@ -720,6 +753,254 @@ struct WorkoutTypeDistributionChart: View {
         
         let sum = Double(data.prefix(index).reduce(0) { $0 + $1.count })
         return .degrees(360 * sum / total - 90)
+    }
+}
+
+// MARK: - Workout Types Detail View
+struct WorkoutTypesDetailView: View {
+    let workoutTypeCounts: [(type: String, count: Int, color: Color)]
+    let sessions: [WorkoutSession]
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedType: String?
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Large Interactive Chart
+                    largeChartSection
+                    
+                    // Bar Chart Distribution
+                    barChartSection
+                    
+                    // Exercise Types Breakdown
+                    exerciseTypesSection
+                    
+                    // Type Details List
+                    typeDetailsList
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 40)
+            }
+            .background(Color.black)
+            .navigationTitle("Типы тренировок")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "chevron.left")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                }
+            }
+        }
+    }
+    
+    private var largeChartSection: some View {
+        VStack(spacing: 16) {
+            ZStack {
+                Chart(workoutTypeCounts, id: \.type) { item in
+                    SectorMark(
+                        angle: .value("Count", item.count),
+                        innerRadius: .ratio(0.6),
+                        angularInset: selectedType == item.type ? 3 : 1.5
+                    )
+                    .foregroundStyle(item.color)
+                    .opacity(selectedType == nil || selectedType == item.type ? 1 : 0.4)
+                    .cornerRadius(6)
+                }
+                .chartAngleSelection(value: $selectedType)
+                .animation(.bouncy, value: selectedType)
+                .frame(height: 200)
+                
+                // Center info
+                VStack(spacing: 4) {
+                    if let selected = selectedType,
+                       let item = workoutTypeCounts.first(where: { $0.type == selected }) {
+                        Text("\(item.count)")
+                            .font(.system(size: 40, weight: .bold))
+                            .foregroundColor(.white)
+                        Text(item.type)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    } else {
+                        Text("\(sessions.count)")
+                            .font(.system(size: 40, weight: .bold))
+                            .foregroundColor(.white)
+                        Text("Всего")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            
+            // Legend
+            HStack(spacing: 16) {
+                ForEach(workoutTypeCounts, id: \.type) { item in
+                    Button(action: {
+                        withAnimation(.bouncy) {
+                            selectedType = selectedType == item.type ? nil : item.type
+                        }
+                    }) {
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(item.color)
+                                .frame(width: 8, height: 8)
+                            Text(item.type)
+                                .font(.caption)
+                                .foregroundColor(selectedType == nil || selectedType == item.type ? .white : .gray)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            selectedType == item.type ?
+                            item.color.opacity(0.2) :
+                            Color.white.opacity(0.05)
+                        )
+                        .cornerRadius(12)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding()
+        .background(Color(white: 0.1))
+        .cornerRadius(16)
+    }
+    
+    private var barChartSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Распределение")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            Chart(workoutTypeCounts, id: \.type) { item in
+                BarMark(
+                    x: .value("Type", item.type),
+                    y: .value("Count", item.count)
+                )
+                .foregroundStyle(item.color)
+                .cornerRadius(8)
+                .opacity(selectedType == nil || selectedType == item.type ? 1 : 0.4)
+            }
+            .chartXAxis {
+                AxisMarks { _ in
+                    AxisValueLabel()
+                        .foregroundStyle(.gray)
+                }
+            }
+            .chartYAxis {
+                AxisMarks { _ in
+                    AxisGridLine().foregroundStyle(Color.white.opacity(0.1))
+                    AxisValueLabel().foregroundStyle(.gray)
+                }
+            }
+            .animation(.bouncy, value: selectedType)
+            .frame(height: 150)
+        }
+        .padding()
+        .background(Color(white: 0.1))
+        .cornerRadius(16)
+    }
+    
+    private var exerciseTypesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Типы упражнений")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            let exerciseTypes = calculateExerciseTypeDistribution()
+            
+            ForEach(exerciseTypes, id: \.type) { item in
+                HStack {
+                    Text(item.type)
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    // Progress bar
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.white.opacity(0.1))
+                            
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(item.color)
+                                .frame(width: geo.size.width * item.percentage)
+                        }
+                    }
+                    .frame(width: 100, height: 8)
+                    
+                    Text("\(Int(item.percentage * 100))%")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .frame(width: 40, alignment: .trailing)
+                }
+            }
+        }
+        .padding()
+        .background(Color(white: 0.1))
+        .cornerRadius(16)
+    }
+    
+    private var typeDetailsList: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Подробности")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            ForEach(workoutTypeCounts, id: \.type) { item in
+                let percentage = Double(item.count) / Double(max(1, sessions.count)) * 100
+                
+                HStack {
+                    Circle()
+                        .fill(item.color)
+                        .frame(width: 12, height: 12)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.type)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                        
+                        Text("\(item.count) тренировок")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Spacer()
+                    
+                    Text(String(format: "%.1f%%", percentage))
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(item.color)
+                }
+                .padding()
+                .background(Color.white.opacity(0.05))
+                .cornerRadius(12)
+            }
+        }
+    }
+    
+    private func calculateExerciseTypeDistribution() -> [(type: String, percentage: CGFloat, color: Color)] {
+        var typeCounts: [String: Int] = [:]
+        
+        for session in sessions {
+            for set in session.sets {
+                // Try to determine type from exercise name or default to general
+                typeCounts[set.exerciseName, default: 0] += 1
+            }
+        }
+        
+
+        
+        return workoutTypeCounts.map { item in
+            (type: item.type, percentage: CGFloat(item.count) / CGFloat(max(1, sessions.count)), color: item.color)
+        }
     }
 }
 

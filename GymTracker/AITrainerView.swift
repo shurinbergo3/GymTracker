@@ -24,79 +24,78 @@ struct AITrainerView: View {
                 )
                 .ignoresSafeArea()
                 
-                ScrollView {
-                    VStack(spacing: DesignSystem.Spacing.lg) {
-                        
-                        // Hero Section
-                        VStack(spacing: DesignSystem.Spacing.sm) {
-                            ZStack {
-                                Circle()
-                                    .fill(
-                                        RadialGradient(
-                                            colors: [DesignSystem.Colors.neonGreen.opacity(0.3), .clear],
-                                            center: .center,
-                                            startRadius: 0,
-                                            endRadius: 80
-                                        )
+                VStack(spacing: DesignSystem.Spacing.md) {
+                    
+                    // Hero Section
+                    VStack(spacing: 8) {
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    RadialGradient(
+                                        colors: [DesignSystem.Colors.neonGreen.opacity(0.3), .clear],
+                                        center: .center,
+                                        startRadius: 0,
+                                        endRadius: 60
                                     )
-                                    .frame(width: 140, height: 140)
-                                    .blur(radius: 15)
-                                
-                                Image(systemName: "brain.head.profile")
-                                    .font(.system(size: 60))
-                                    .foregroundColor(DesignSystem.Colors.neonGreen)
-                                    .shadow(color: DesignSystem.Colors.neonGreen, radius: 15, x: 0, y: 0)
-                            }
+                                )
+                                .frame(width: 100, height: 100)
+                                .blur(radius: 10)
                             
-                            Text("AI Тренер")
-                                .font(DesignSystem.Typography.title())
-                                .foregroundColor(DesignSystem.Colors.primaryText)
-                            
-                            Text("Ваш персональный аналитик")
-                                .font(DesignSystem.Typography.body())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            Image(systemName: "brain.head.profile")
+                                .font(.system(size: 48))
+                                .foregroundColor(DesignSystem.Colors.neonGreen)
+                                .shadow(color: DesignSystem.Colors.neonGreen, radius: 10, x: 0, y: 0)
                         }
-                        .padding(.top, 20)
                         
-                        // Feature Grid
-                        VStack(spacing: DesignSystem.Spacing.md) {
-                            AIFeatureRow(
-                                icon: "chart.xyaxis.line",
-                                title: "Анализ тренировок",
-                                description: "AI анализирует ваши показатели и подсказывает, где вы можете улучшиться."
-                            )
-                            
-                            AIFeatureRow(
-                                icon: "message.fill",
-                                title: "Умный чат",
-                                description: "Спрашивает о самочувствии и корректирует нагрузку в реальном времени."
-                            )
-                            
-                            AIFeatureRow(
-                                icon: "list.clipboard.fill",
-                                title: "Персональная программа",
-                                description: "Создает план тренировок, идеально подходящий под ваши цели."
-                            )
-                            
-                            AIFeatureRow(
-                                icon: "cross.case.fill",
-                                title: "Мониторинг анализов",
-                                description: "Загрузите результаты анализов, и AI даст рекомендации по питанию и бадам."
-                            )
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        Text("AI Тренер")
+                            .font(DesignSystem.Typography.title())
+                            .foregroundColor(DesignSystem.Colors.primaryText)
                         
-                        Spacer()
-                        
-                        // CTA Button
-                        GradientButton(title: "Активировать (Скоро)", icon: "sparkles") {
-                            // Action placeholder
-                        }
-                        .opacity(0.8) // Showing it's coming soon
-                        .padding(.horizontal, DesignSystem.Spacing.xl)
-                        .padding(.bottom, DesignSystem.Spacing.lg)
+                        Text("Ваш персональный аналитик")
+                            .font(DesignSystem.Typography.body())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
-                    .frame(minHeight: UIScreen.main.bounds.height - 150) // Ensure it fills space but doesn't force scroll if not needed
+                    .padding(.top, 10)
+                    
+                    Spacer()
+                    
+                    // Feature Grid
+                    VStack(spacing: 12) {
+                        AIFeatureRow(
+                            icon: "chart.xyaxis.line",
+                            title: "Анализ тренировок",
+                            description: "AI анализирует ваши показатели и подсказывает, где вы можете улучшиться."
+                        )
+                        
+                        AIFeatureRow(
+                            icon: "message.fill",
+                            title: "Умный чат",
+                            description: "Спрашивает о самочувствии и корректирует нагрузку в реальном времени."
+                        )
+                        
+                        AIFeatureRow(
+                            icon: "list.clipboard.fill",
+                            title: "Персональная программа",
+                            description: "Создает план тренировок, идеально подходящий под ваши цели."
+                        )
+                        
+                        AIFeatureRow(
+                            icon: "cross.case.fill",
+                            title: "Мониторинг анализов",
+                            description: "Загрузите результаты анализов, и AI даст рекомендации по питанию и бадам."
+                        )
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    
+                    Spacer()
+                    
+                    // CTA Button
+                    GradientButton(title: "Активировать (Скоро)", icon: "sparkles") {
+                        // Action placeholder
+                    }
+                    .opacity(0.8) // Showing it's coming soon
+                    .padding(.horizontal, DesignSystem.Spacing.xl)
+                    .padding(.bottom, 20)
                 }
             }
             .navigationTitle("AI Тренер")

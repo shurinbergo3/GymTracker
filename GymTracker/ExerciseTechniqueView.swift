@@ -25,17 +25,23 @@ struct ExerciseInfoButton: View {
         }
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showingTechnique) {
-            ExerciseTechniqueDetailView(exerciseName: exerciseName, technique: technique)
+            ExerciseTechniqueDetailView(exerciseName: exerciseName)
         }
     }
 }
 
 // MARK: - Technique Detail View
 
+// MARK: - Technique Detail View
+
 struct ExerciseTechniqueDetailView: View {
     @Environment(\.dismiss) private var dismiss
     let exerciseName: String
-    let technique: String?
+    
+    // Fetch full exercise object for metadata
+    private var exercise: LibraryExercise? {
+        ExerciseLibrary.getExercise(for: exerciseName)
+    }
     
     var body: some View {
         NavigationStack {
@@ -44,90 +50,100 @@ struct ExerciseTechniqueDetailView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
-                        // Exercise Name
-                        Text(exerciseName)
-                            .font(DesignSystem.Typography.largeTitle())
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                        
-                        // Technique Description
-                        if let technique = technique {
-                            CardView {
-                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                    HStack {
-                                        Image(systemName: "lightbulb.fill")
-                                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                                            .font(.title2)
-                                        Text("Техника выполнения")
-                                            .font(DesignSystem.Typography.title3())
-                                            .foregroundColor(DesignSystem.Colors.primaryText)
-                                    }
+                    VStack(alignment: .leading, spacing: 20) {
+                        // 1. Title & Type
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(exerciseName)
+                                .font(.system(size: 32, weight: .bold)) // Large Title
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.leading)
+                            
+                            // Category / Type Tag
+                            if let exercise = exercise {
+                                HStack(spacing: 8) {
+                                    Image(systemName: exercise.category.icon)
+                                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                                    Text(exercise.category.rawValue)
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(DesignSystem.Colors.neonGreen)
                                     
-                                    Text(technique)
-                                        .font(DesignSystem.Typography.body())
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        .lineSpacing(4)
+                                    Text("•")
+                                        .foregroundColor(.gray)
+                                    
+                                    Text(exercise.muscleGroup.rawValue)
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
                                 }
-                                .padding(DesignSystem.Spacing.xl)
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .background(DesignSystem.Colors.cardBackground)
+                                .cornerRadius(8)
                             }
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                        } else {
-                            // Fallback if technique is missing
-                            CardView {
-                                HStack {
-                                    Image(systemName: "info.circle")
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    Text("Описание техники пока недоступно")
-                                        .font(DesignSystem.Typography.body())
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                }
-                                .padding(DesignSystem.Spacing.xl)
-                            }
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
                         }
+                        .padding(.horizontal, 20)
                         
-                        // YouTube Button (Always Visible)
+                        // 2. Technique Card
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "lightbulb.fill")
+                                    .font(.title3)
+                                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                                Text("Техника выполнения")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                            
+                            if let text = exercise?.technique {
+                                Text(text)
+                                    .font(.body)
+                                    .foregroundColor(Color.white.opacity(0.85))
+                                    .lineSpacing(6)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            } else {
+                                Text("Описание техники пока недоступно для этого упражнения.")
+                                    .font(.body)
+                                    .italic()
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .padding(24)
+                        .background(DesignSystem.Colors.cardBackground) // Use the dark card background
+                        .cornerRadius(20)
+                        .padding(.horizontal, 20)
+                        
+                        Spacer(minLength: 20)
+                        
+                        // 3. YouTube Button
                         if let youtubeUrl = youtubeSearchURL(for: exerciseName) {
                             Link(destination: youtubeUrl) {
-                                HStack(spacing: DesignSystem.Spacing.md) {
-                                    Image(systemName: "play.fill")
-                                        .font(.title3)
-                                        .foregroundColor(.white)
-                                        .padding(8)
-                                        .background(Color.white.opacity(0.2))
-                                        .clipShape(Circle())
-                                    
+                                HStack {
+                                    Image(systemName: "play.circle.fill")
+                                        .font(.title2)
                                     Text("Смотреть на YouTube")
-                                        .font(DesignSystem.Typography.title3())
                                         .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                    
                                     Spacer()
-                                    
                                     Image(systemName: "arrow.up.right")
-                                        .font(.subheadline)
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .font(.footnote)
                                 }
+                                .foregroundColor(.white)
                                 .padding()
                                 .background(
                                     LinearGradient(
-                                        colors: [Color(red: 0.8, green: 0.0, blue: 0.0), Color(red: 0.6, green: 0.0, blue: 0.0)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
+                                        gradient: Gradient(colors: [Color.red, Color(red: 0.8, green: 0, blue: 0)]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
                                     )
                                 )
-                                .cornerRadius(DesignSystem.CornerRadius.large)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                                )
-                                .shadow(color: Color.red.opacity(0.4), radius: 12, x: 0, y: 6)
+                                .cornerRadius(16)
+                                .shadow(color: Color.red.opacity(0.3), radius: 10, x: 0, y: 5)
                             }
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 20)
                         }
                     }
-                    .padding(.vertical, DesignSystem.Spacing.lg)
+                    .padding(.top, 20)
                 }
             }
             .navigationTitle("Гайд упражнения")
@@ -135,8 +151,10 @@ struct ExerciseTechniqueDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundColor(Color(UIColor.systemGray2))
                     }
                 }
             }
@@ -144,7 +162,6 @@ struct ExerciseTechniqueDetailView: View {
     }
     
     private func youtubeSearchURL(for exerciseName: String) -> URL? {
-        // Создаем полный поисковый запрос и кодируем его целиком
         let searchQuery = "\(exerciseName) техника выполнения"
         let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         return URL(string: "https://www.youtube.com/results?search_query=\(encodedQuery)")
@@ -153,7 +170,6 @@ struct ExerciseTechniqueDetailView: View {
 
 #Preview {
     ExerciseTechniqueDetailView(
-        exerciseName: "Приседания со штангой",
-        technique: "Штанга на трапециях. Отводи таз назад, колени смотрят в стороны (по носкам). Дави пятками в пол."
+        exerciseName: "Приседания со штангой"
     )
 }

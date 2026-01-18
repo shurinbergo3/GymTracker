@@ -114,6 +114,7 @@ struct WorkoutCompletionView: View {
                                             }
                                     }
                                 }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             .frame(height: 110)
                             
@@ -137,6 +138,7 @@ struct WorkoutCompletionView: View {
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                     }
                                 }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             .frame(height: 110)
                             
@@ -160,6 +162,7 @@ struct WorkoutCompletionView: View {
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                     }
                                 }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             .frame(height: 110)
                         }

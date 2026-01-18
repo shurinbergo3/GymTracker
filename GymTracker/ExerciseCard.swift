@@ -14,7 +14,8 @@ struct ExerciseCard: View {
     let exercise: ExerciseTemplate
     let programName: String
     let session: WorkoutSession?
-    let workoutType: WorkoutType // Тип тренировки по умолчанию (от дня)
+    let workoutType: WorkoutType // Тип тренировки (от упражнения)
+    var allCompletedSessions: [WorkoutSession] = [] // Passed from parent
     var aiRecommendation: String? = nil // Optional AI recommendation text
     
     @State private var weight: String = ""
@@ -34,12 +35,10 @@ struct ExerciseCard: View {
     @State private var isHistoryExpanded: Bool = false // Для аккордеона истории
     @State private var isWeighted: Bool = false // Для упражнений с собственным весом (доп. вес)
     
-    // Используем локальный тип если установлен, иначе тип дня
+    // Используем локальный тип если установлен, иначе тип упражнения
     private var effectiveWorkoutType: WorkoutType {
         currentWorkoutType ?? workoutType
     }
-    
-    @Query private var allSessions: [WorkoutSession]
     
     private var completedSets: [WorkoutSet] {
         guard let session = session else { return [] }
@@ -49,9 +48,8 @@ struct ExerciseCard: View {
     }
     
     private var previousSets: [WorkoutSet] {
-        let previousSessions = allSessions
-            .filter { $0.isCompleted && $0.workoutDayName == session?.workoutDayName && $0 != session }
-            .sorted { $0.date > $1.date }
+        let previousSessions = allCompletedSessions
+            .filter { $0.workoutDayName == session?.workoutDayName && $0 != session }
         
         guard let prevSession = previousSessions.first else { return [] }
         
@@ -295,7 +293,7 @@ struct ExerciseCard: View {
             CommentEditorView(comment: $exerciseComment)
         }
         .sheet(isPresented: $showingTechnique) {
-            ExerciseTechniqueDetailView(exerciseName: exercise.name, technique: ExerciseLibrary.getTechnique(for: exercise.name))
+            ExerciseTechniqueDetailView(exerciseName: exercise.name)
         }
         .sheet(isPresented: $showingWorkoutTypeChange) {
             WorkoutTypeSelectorView(
@@ -555,8 +553,7 @@ struct CurrentSetInput: View {
             case .strength, .repsOnly:
                 break
             case .duration:
-                timerRunning = true
-                startTimer()
+                break
             }
         }
         .onDisappear {

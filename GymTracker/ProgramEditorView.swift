@@ -17,6 +17,7 @@ struct ProgramEditorView: View {
     @StateObject private var viewModel = ProgramEditorViewModel()
     @State private var showingSaveError = false
     @State private var saveErrorMessage = ""
+    @State private var hasLoaded = false
     
     init(existingProgram: Program? = nil) {
         self.existingProgram = existingProgram
@@ -104,8 +105,9 @@ struct ProgramEditorView: View {
                 Text(saveErrorMessage)
             }
             .onAppear {
-                if let program = existingProgram {
+                if !hasLoaded, let program = existingProgram {
                     viewModel.loadProgram(program)
+                    hasLoaded = true
                 }
             }
         }

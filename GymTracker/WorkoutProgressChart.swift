@@ -216,124 +216,103 @@ struct WorkoutProgressBanner: View {
 struct WorkoutProgressChart: View {
     let sessions: [WorkoutSession]
     
-    // Данные для графика
-    private var chartData: [(date: Date, volume: Double)] {
-        sessions
-            .filter { $0.isCompleted }
+    // Filter sessions for the last 1 month
+    private var filteredSessions: [WorkoutSession] {
+        let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
+        return sessions
+            .filter { $0.isCompleted && $0.date >= oneMonthAgo }
             .sorted { $0.date < $1.date }
-            .map { session in
-                let totalVolume = session.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
-                return (date: session.date, volume: totalVolume)
-            }
     }
     
-    // Logic for trend direction based on total volume of last 2 sessions
-    private var progressState: ProgressState {
-        let completed = sessions.filter { $0.isCompleted }.sorted { $0.date < $1.date }
-        let lastTwo = completed.suffix(2)
-        guard lastTwo.count >= 2 else { return .new }
-        
-        let latest = lastTwo.last!
-        let previous = Array(lastTwo)[0]
-        
-        let latestVolume = latest.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
-        let previousVolume = previous.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
-        
-        if latestVolume > previousVolume {
-            return .improved
-        } else if latestVolume < previousVolume {
-            return .declined
-        } else {
-            return .same
+    // Chart Data
+    private var chartData: [(date: Date, volume: Double)] {
+        filteredSessions.map { session in
+            let totalVolume = session.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+            return (date: session.date, volume: totalVolume)
         }
     }
+    
+    // Trend Logic
+    private var isGrowing: Bool {
+        guard let first = chartData.first, let last = chartData.last, chartData.count > 1 else { return true }
+        return last.volume >= first.volume
+    }
+    
+    @State private var showingDetail = false
 
     var body: some View {
         if !chartData.isEmpty {
-            CardView {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                    HStack {
-                        Text("ПРОГРЕСС")
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                            .tracking(1.2)
-                        
-                        Spacer()
-                        
-                        // Trend Arrow
-                        if progressState != .new && progressState != .same {
-                            Image(systemName: progressState == .improved ? "arrow.up.right" : "arrow.down.right")
-                                .font(.system(size: 14, weight: .bold)) // Adjust size as needed
-                                .foregroundColor(progressState.color)
-                                .padding(6)
-                                .background(progressState.color.opacity(0.1))
-                                .clipShape(Circle())
-                        }
-                    }
-                    
-                    Chart {
-                        ForEach(Array(chartData.enumerated()), id: \.offset) { index, data in
-                            LineMark(
-                                x: .value("Дата", data.date, unit: .day),
-                                y: .value("Объем", data.volume)
-                            )
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [DesignSystem.Colors.neonGreen, DesignSystem.Colors.accent],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
-                            .interpolationMethod(.catmullRom)
-                            
-                            AreaMark(
-                                x: .value("Дата", data.date, unit: .day),
-                                y: .value("Объем", data.volume)
-                            )
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [
-                                        DesignSystem.Colors.neonGreen.opacity(0.3),
-                                        DesignSystem.Colors.accent.opacity(0.0)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .interpolationMethod(.catmullRom)
-                            
-                            PointMark (
-                                x: .value("Дата", data.date, unit: .day),
-                                y: .value("Объем", data.volume)
-                            )
-                            .foregroundStyle(DesignSystem.Colors.background)
-                            .symbolSize(60)
-                            .annotation(position: .overlay) {
-                                Circle()
-                                    .stroke(DesignSystem.Colors.neonGreen, lineWidth: 3)
-                                    .frame(width: 12, height: 12)
-                            }
-                        }
-                    }
-                    .frame(height: 120)
-                    .chartXAxis {
-                        AxisMarks(values: .automatic) { value in
-                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4, 4]))
-                                .foregroundStyle(Color.white.opacity(0.1))
-                            AxisValueLabel()
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundStyle(DesignSystem.Colors.secondaryText)
-                        }
-                    }
-                    .chartYAxis {
-                        AxisMarks(values: .automatic) { value in
-                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4, 4]))
-                                .foregroundStyle(Color.white.opacity(0.1))
-                        }
-                    }
-                }
-                .padding(DesignSystem.Spacing.xl)
+            Button(action: { showingDetail = true }) {
+                PremiumBentoCard {
+                VStack(alignment: .leading, spacing: 12) {
+                     // Header
+                     HStack {
+                         Image(systemName: "chart.line.uptrend.xyaxis")
+                             .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
+                         Text("Показатель роста")
+                             .font(.headline)
+                             .foregroundStyle(.white)
+                         
+                         Spacer()
+                         
+                         // Arrow Indicator
+                         Image(systemName: isGrowing ? "arrow.up.right" : "arrow.down.right")
+                             .font(.title2)
+                             .bold()
+                             .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
+                     }
+                     
+                     Spacer()
+                     
+                     HStack(alignment: .center, spacing: 16) {
+                         // Chart
+                         Chart {
+                             ForEach(Array(chartData.enumerated()), id: \.offset) { index, data in
+                                 LineMark(
+                                     x: .value("Date", index),
+                                     y: .value("Volume", data.volume)
+                                 )
+                                 .foregroundStyle(
+                                     LinearGradient(
+                                         colors: [
+                                             isGrowing ? DesignSystem.Colors.neonGreen : .red,
+                                             (isGrowing ? DesignSystem.Colors.neonGreen : .red).opacity(0.3)
+                                         ],
+                                         startPoint: .leading,
+                                         endPoint: .trailing
+                                     )
+                                 )
+                                 .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                                 .interpolationMethod(.catmullRom)
+                             }
+                         }
+                         .chartXAxis(.hidden)
+                         .chartYAxis(.hidden)
+                         .frame(height: 50)
+                         
+                         // Description
+                         VStack(alignment: .trailing) {
+                             Text(isGrowing ? "Рост\nпоказателей" : "Снижение\nпоказателей")
+                                 .font(.caption)
+                                 .fontWeight(.bold)
+                                 .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
+                                 .multilineTextAlignment(.trailing)
+                             
+                             Text("\(filteredSessions.count) тренировок")
+                                 .font(.caption2)
+                                 .foregroundStyle(.gray)
+                         }
+                         .frame(width: 100, alignment: .trailing)
+                     }
+                     
+                     Spacer()
+                 }
+            }
+            .frame(height: 150)
+            }
+            .buttonStyle(.plain)
+            .sheet(isPresented: $showingDetail) {
+                ProgressDetailView()
             }
         }
     }

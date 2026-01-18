@@ -146,6 +146,7 @@ struct ContentViewWrapper: View {
             .onAppear {
                 if !hasSeeded {
                     ProgramSeeder.seedProgramsIfNeeded(context: modelContext)
+                    ExerciseLibrary.migrateExerciseTypes(context: modelContext)
                     hasSeeded = true
                 }
             }

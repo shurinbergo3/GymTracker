@@ -13,7 +13,7 @@ struct ActiveWorkoutHeader: View {
     @Binding var showingCancelConfirmation: Bool
     
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1.0)) { context in
+        TimelineView(.periodic(from: Date(), by: 0.1)) { context in
             VStack(spacing: DesignSystem.Spacing.md) {
                 // Top Row: Title & Cancel
                 HStack {
@@ -140,11 +140,12 @@ struct ActiveWorkoutHeader: View {
         let hours = Int(elapsed) / 3600
         let minutes = (Int(elapsed) % 3600) / 60
         let seconds = Int(elapsed) % 60
+        let centiseconds = Int((elapsed.truncatingRemainder(dividingBy: 1)) * 100)
         
         if hours > 0 {
-            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+            return String(format: "%d:%02d:%02d.%02d", hours, minutes, seconds, centiseconds)
         } else {
-            return String(format: "%02d:%02d", minutes, seconds)
+            return String(format: "%02d:%02d.%02d", minutes, seconds, centiseconds)
         }
     }
 }

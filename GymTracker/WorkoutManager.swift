@@ -201,6 +201,18 @@ class WorkoutManager: ObservableObject {
     func startWorkout() {
         guard let day = selectedDay else { return }
         
+        // 1. Refresh object to ensure it is valid and attached to context
+        var activeDay = day
+        if let freshDay = modelContext.model(for: day.persistentModelID) as? WorkoutDay {
+            activeDay = freshDay
+            self.selectedDay = freshDay
+        }
+        
+        // 2. Force load exercises relationship before starting
+        // This ensures SwiftData faults it in
+        let _ = activeDay.exercises.count
+        let _ = activeDay.exercises.map { $0.name }
+        
         // Create new session
         let session = WorkoutSession(
             date: Date(),
@@ -514,7 +526,7 @@ class WorkoutManager: ObservableObject {
         
         let now = Date()
         async let calories = HealthManager.shared.fetchCaloriesForWorkout(start: startDate, end: now)
-        async let heartRate = HealthManager.shared.fetchLatestHeartRate(since: startDate)
+        async let heartRate = HealthManager.shared.fetchLatestHeartRate(since: nil)
         
         let (calValue, hrValue) = await (calories, heartRate)
         

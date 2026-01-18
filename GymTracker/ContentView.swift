@@ -29,17 +29,17 @@ struct ContentView: View {
                 }
                 .tag(1)
             
-            // Tab 3: Параметры
-            MeasurementsView()
-                .tabItem {
-                    Label("Статистика", systemImage: "chart.line.uptrend.xyaxis")
-                }
-                .tag(2)
-            
-            // Tab 4: Справочник
+            // Tab 3: Справочник
             ReferenceView()
                 .tabItem {
                     Label("Справочник", systemImage: "book.fill")
+                }
+                .tag(2)
+            
+            // Tab 4: Параметры
+            MeasurementsView()
+                .tabItem {
+                    Label("Статистика", systemImage: "chart.line.uptrend.xyaxis")
                 }
                 .tag(3)
             

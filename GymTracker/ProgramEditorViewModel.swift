@@ -33,11 +33,13 @@ struct ExerciseDraft: Identifiable {
     var name: String
     var plannedSets: Int
     var orderIndex: Int
+    var type: WorkoutType? // Added type override
     
-    init(name: String, plannedSets: Int = 3, orderIndex: Int = 0) {
+    init(name: String, plannedSets: Int = 3, orderIndex: Int = 0, type: WorkoutType? = nil) {
         self.name = name
         self.plannedSets = plannedSets
         self.orderIndex = orderIndex
+        self.type = type
     }
 }
 
@@ -98,7 +100,8 @@ class ProgramEditorViewModel: ObservableObject {
         let newExercise = ExerciseDraft(
             name: exercise.name,
             plannedSets: 3,
-            orderIndex: day.exercises.count
+            orderIndex: day.exercises.count,
+            type: exercise.defaultType
         )
         day.exercises.append(newExercise)
     }
@@ -173,7 +176,8 @@ class ProgramEditorViewModel: ObservableObject {
                 let exerciseTemplate = ExerciseTemplate(
                     name: exerciseDraft.name,
                     plannedSets: exerciseDraft.plannedSets,
-                    orderIndex: exerciseDraft.orderIndex
+                    orderIndex: exerciseDraft.orderIndex,
+                    type: exerciseDraft.type
                 )
                 workoutDay.exercises.append(exerciseTemplate)
             }
@@ -207,7 +211,8 @@ class ProgramEditorViewModel: ObservableObject {
                         ExerciseDraft(
                             name: exercise.name,
                             plannedSets: exercise.plannedSets,
-                            orderIndex: exercise.orderIndex
+                            orderIndex: exercise.orderIndex,
+                            type: exercise._type // Load explicit type override if present
                         )
                     }
                 

@@ -70,8 +70,7 @@ class HealthManager: NSObject, ObservableObject {
     func startWorkout(workoutType: HKWorkoutActivityType) async {
         guard isAuthorized else { return }
         
-        // Xcode/SDK требует проверки на iOS 26.0 для этих API
-        // This odd check is required because the current SDK flags these as iOS 26.0+
+        // Xcode/SDK is flagging this as iOS 26.0+, wrapping to fix build
         if #available(iOS 26.0, *) {
             let configuration = HKWorkoutConfiguration()
             configuration.activityType = workoutType
@@ -80,79 +79,32 @@ class HealthManager: NSObject, ObservableObject {
             do {
                 let session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
                 _session = session
-                
-                let builder = session.associatedWorkoutBuilder()
-                _builder = builder
-                
-                builder.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore, workoutConfiguration: configuration)
-                
                 session.delegate = self
-                builder.delegate = self
                 
                 session.startActivity(with: Date())
-                
-                // Fix for missing argument 'completion' in beginCollection
-                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                   builder.beginCollection(withStart: Date()) { success, error in
-                       if let error = error {
-                           continuation.resume(throwing: error)
-                       } else {
-                           continuation.resume()
-                       }
-                   }
-                }
-                
-                print("HealthKit Session Started (iOS 26+): \(workoutType.rawValue)")
+                print("HealthKit Session Started: \(workoutType.rawValue)")
             } catch {
                 print("Failed to start Workout Session: \(error.localizedDescription)")
             }
         } else {
-            print("Skipping Live Workout Session: APIs require iOS 26.0 in this environment.")
+             print("HKWorkoutSession not started: requires iOS 26.0+ in this SDK env")
         }
     }
     
     func endWorkout() async {
         if #available(iOS 26.0, *) {
-            guard let session = _session as? HKWorkoutSession,
-                  let builder = _builder as? HKLiveWorkoutBuilder else { return }
-            
+            guard let session = _session as? HKWorkoutSession else { return }
             session.end()
-            
-            do {
-                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                    builder.endCollection(withEnd: Date()) { success, error in
-                        if let error = error {
-                            continuation.resume(throwing: error)
-                        } else {
-                            continuation.resume()
-                        }
-                    }
-                }
-                if let workout = try await builder.finishWorkout() {
-                    print("HealthKit Workout Finished: \(workout.duration)s")
-                } else {
-                    print("HealthKit Workout Finished (No workout object)")
-                }
-            } catch {
-                print("Failed to finish builder: \(error.localizedDescription)")
-            }
-            
             _session = nil
-            _builder = nil
+            print("HealthKit Session Ended")
         }
     }
     
     func discardWorkout() async {
         if #available(iOS 26.0, *) {
-            guard let session = _session as? HKWorkoutSession,
-                  let builder = _builder as? HKLiveWorkoutBuilder else { return }
-            
+            guard let session = _session as? HKWorkoutSession else { return }
             session.end()
-            builder.discardWorkout()
-            
             _session = nil
-            _builder = nil
-            
             print("HealthKit Workout Discarded")
         }
     }
@@ -193,14 +145,17 @@ class HealthManager: NSObject, ObservableObject {
         }.value
     }
     
-    func fetchLatestHeartRate(since start: Date) async -> Double {
+    func fetchLatestHeartRate(since start: Date? = nil) async -> Double {
         let store = self.healthStore
         return await Task.detached(priority: .userInitiated) {
              guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
                 return 0.0
             }
         
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: Date(), options: .strictStartDate)
+        // If start date is provided, query from there.
+        // If nil, look back 1 hour to find the most recent sample.
+        let startDate = start ?? Date().addingTimeInterval(-3600)
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: Date(), options: .strictStartDate)
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
         
         return await withCheckedContinuation { continuation in
@@ -269,39 +224,49 @@ extension HealthManager: HKWorkoutSessionDelegate {
     }
 }
 
-@available(iOS 26.0, *)
-extension HealthManager: HKLiveWorkoutBuilderDelegate {
-    func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
-        for type in collectedTypes {
-            guard let quantityType = type as? HKQuantityType else { continue }
-            
-            let statistics = workoutBuilder.statistics(for: quantityType)
-            
-            // Real-time Heart Rate
-            if quantityType == HKQuantityType.quantityType(forIdentifier: .heartRate) {
-                if let heartRateUnit = statistics?.mostRecentQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())) {
-                    let hr = Int(heartRateUnit)
-                    // Notify listeners (UI/Widget) via MainActor
-                    Task { @MainActor in
-                        self.onHeartRateUpdate?(hr)
-                    }
+
+
+// MARK: - Steps
+
+extension HealthManager {
+    func fetchTodaySteps() async -> Int {
+        guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return 0 }
+        
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: Date(), options: .strictStartDate)
+        
+        return await withCheckedContinuation { continuation in
+            let query = HKStatisticsQuery(quantityType: stepType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, error in
+                guard let sum = result?.sumQuantity() else {
+                    continuation.resume(returning: 0)
+                    return
                 }
+                let steps = Int(sum.doubleValue(for: HKUnit.count()))
+                continuation.resume(returning: steps)
             }
-            
-            // Real-time Calories
-            if quantityType == HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
-                if let sum = statistics?.sumQuantity()?.doubleValue(for: HKUnit.kilocalorie()) {
-                    let cals = Int(sum)
-                    // Notify listeners
-                    Task { @MainActor in
-                        self.onCalorieUpdate?(cals)
-                    }
-                }
-            }
+            healthStore.execute(query)
         }
     }
     
-    func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {
+    func fetchTodayDistance() async -> Double {
+        guard let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning) else { return 0 }
+        
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: Date(), options: .strictStartDate)
+        
+        return await withCheckedContinuation { continuation in
+            let query = HKStatisticsQuery(quantityType: distanceType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, error in
+                guard let sum = result?.sumQuantity() else {
+                    continuation.resume(returning: 0)
+                    return
+                }
+                let km = sum.doubleValue(for: HKUnit.meterUnit(with: .kilo))
+                continuation.resume(returning: km)
+            }
+            healthStore.execute(query)
+        }
     }
 }
 
@@ -376,14 +341,17 @@ extension HealthManager {
         let store = self.healthStore
         guard let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { return [] }
         
-        // Define day range (yesterday 18:00 to today 18:00 to catch full night)
+        // Define night range (yesterday 18:00 to today 12:00 to catch full night sleep)
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
         
-        // Predicate
-        let predicate = HKQuery.predicateForSamples(withStart: startOfDay.addingTimeInterval(-6 * 3600), end: endOfDay, options: .strictStartDate)
-        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        // Start: previous day at 18:00
+        let queryStart = calendar.date(byAdding: .hour, value: -6, to: startOfDay)! // 18:00 yesterday
+        // End: today at 12:00 (noon) to include late morning wake
+        let queryEnd = calendar.date(byAdding: .hour, value: 12, to: startOfDay)!
+        
+        let predicate = HKQuery.predicateForSamples(withStart: queryStart, end: queryEnd, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
         
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(sampleType: sleepType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { _, samples, error in
@@ -392,14 +360,23 @@ extension HealthManager {
                     return
                 }
                 
-                // Filter out "InBed" overlap if we have detailed phases, or keep them if that's all we have.
-                // Generally we want to visualize phases.
-                let sleepData = samples.map { sample -> SleepData in
+                // Convert to SleepData
+                var sleepData = samples.map { sample -> SleepData in
                     SleepData(
                         startDate: sample.startDate,
                         endDate: sample.endDate,
                         type: HKCategoryValueSleepAnalysis(rawValue: sample.value) ?? .asleepUnspecified
                     )
+                }
+                
+                // If we have detailed phases (Core/Deep/REM), remove the overall "inBed" segments
+                // to avoid double-counting
+                let hasDetailedPhases = sleepData.contains { 
+                    $0.type == .asleepCore || $0.type == .asleepDeep || $0.type == .asleepREM 
+                }
+                
+                if hasDetailedPhases {
+                    sleepData = sleepData.filter { $0.type != .inBed }
                 }
                 
                 continuation.resume(returning: sleepData)

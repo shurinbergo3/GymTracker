@@ -82,17 +82,20 @@ class LiveActivityManager {
     }
     
     func end() {
-        guard let activity = activity else { return }
+        guard let currentActivity = activity else { return }
         
-        let finalState = activity.content.state
+        // 1. Clear state immediately to prevent race conditions with updates
+        self.activity = nil
+        self.workoutStartDate = nil
+        self.lastUpdateDate = nil
+        self.lastHeartRate = 0
+        self.lastCalories = 0
         
+        let finalState = currentActivity.content.state
+        
+        // 2. Perform the async system call
         Task {
-            await activity.end(.init(state: finalState, staleDate: nil), dismissalPolicy: .immediate)
-            self.activity = nil
-            self.workoutStartDate = nil
-            self.lastUpdateDate = nil
-            self.lastHeartRate = 0
-            self.lastCalories = 0
+            await currentActivity.end(.init(state: finalState, staleDate: nil), dismissalPolicy: .immediate)
             print("Live Activity ended")
         }
     }

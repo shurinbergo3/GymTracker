@@ -36,39 +36,29 @@ struct MeasurementsView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: DesignSystem.Spacing.xl) {
-                        VStack(spacing: DesignSystem.Spacing.md) {
-                            // Активность (Activity Rings)
-                            ActivityRingsCard()
-                            
-                            // Сон (Sleep Card)
+                    VStack(spacing: DesignSystem.Spacing.md) {
+                        // Активность (Activity Rings)
+                        ActivityRingsCard()
+                        
+                        // Сон (Sleep Card)
+                        NavigationLink(destination: SleepGuideView()) {
                             SleepCard()
-                            
-                            // История Тренировок (Кнопка)
-                            NavigationLink(destination: WorkoutHistoryView()) {
+                        }
+                        
+                        // Замеры тела (Swapped position)
+                        NavigationLink(destination: BodyMeasurementsView()) {
+                            CardView {
                                 HStack {
-                                    Image(systemName: "clock.arrow.circlepath")
+                                    Image(systemName: "ruler.fill")
                                         .font(.title2)
                                         .foregroundColor(DesignSystem.Colors.neonGreen)
                                         .frame(width: 40, height: 40)
                                         .background(DesignSystem.Colors.neonGreen.opacity(0.1))
                                         .clipShape(Circle())
                                     
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("История тренировок")
-                                            .font(DesignSystem.Typography.headline())
-                                            .foregroundColor(DesignSystem.Colors.primaryText)
-                                        
-                                        if let last = completedSessions.first {
-                                            Text("Последняя: \(formattedDate(last.date))")
-                                                .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        } else {
-                                            Text("Нет записей")
-                                                .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        }
-                                    }
+                                    Text("Замеры тела")
+                                        .font(DesignSystem.Typography.headline())
+                                        .foregroundColor(DesignSystem.Colors.primaryText)
                                     
                                     Spacer()
                                     
@@ -76,55 +66,55 @@ struct MeasurementsView: View {
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                 }
                                 .padding()
-                                .background(DesignSystem.Colors.cardBackground)
-                                .cornerRadius(DesignSystem.CornerRadius.large)
-                            }
-                            
-                            // График прогресса
-                            if !completedSessions.isEmpty {
-                                WorkoutProgressChart(sessions: completedSessions) // Now height 120
-                                
-                                // Диаграмма типов
-                                WorkoutTypeDistributionChart(sessions: completedSessions)
                             }
                         }
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
                         
-                        // SECTION 2: BODY MEASUREMENTS
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            Text("ЗАМЕРЫ ТЕЛА")
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                .tracking(1.2)
-                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                        // График прогресса
+                        if !completedSessions.isEmpty {
+                            WorkoutProgressChart(sessions: completedSessions)
                             
-                            // Navigation Link to Body Measurements
-                            NavigationLink(destination: BodyMeasurementsView()) {
-                                CardView {
-                                    HStack {
-                                        Image(systemName: "ruler.fill")
-                                            .font(.title2)
-                                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                                            .frame(width: 40, height: 40)
-                                            .background(DesignSystem.Colors.neonGreen.opacity(0.1))
-                                            .clipShape(Circle())
-                                        
-                                        Text("Замеры тела")
-                                            .font(DesignSystem.Typography.headline())
-                                            .foregroundColor(DesignSystem.Colors.primaryText)
-                                        
-                                        Spacer()
-                                        
-                                        Image(systemName: "chevron.right")
+                            // Диаграмма типов
+                            WorkoutTypeDistributionChart(sessions: completedSessions)
+                        }
+                        
+                        // История Тренировок (Moved to bottom)
+                        NavigationLink(destination: WorkoutHistoryView()) {
+                            HStack {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .font(.title2)
+                                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                                    .frame(width: 40, height: 40)
+                                    .background(DesignSystem.Colors.neonGreen.opacity(0.1))
+                                    .clipShape(Circle())
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("История тренировок")
+                                        .font(DesignSystem.Typography.headline())
+                                        .foregroundColor(DesignSystem.Colors.primaryText)
+                                    
+                                    if let last = completedSessions.first {
+                                        Text("Последняя: \(formattedDate(last.date))")
+                                            .font(DesignSystem.Typography.caption())
+                                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    } else {
+                                        Text("Нет записей")
+                                            .font(DesignSystem.Typography.caption())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                     }
-                                    .padding()
                                 }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                            .padding()
+                            .background(DesignSystem.Colors.cardBackground)
+                            .cornerRadius(DesignSystem.CornerRadius.large)
                         }
-                        .padding(.vertical, DesignSystem.Spacing.lg)
                     }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.vertical, DesignSystem.Spacing.lg)
                 }
             }
             .navigationTitle("Статистика")
