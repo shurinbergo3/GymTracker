@@ -15,6 +15,7 @@ import HealthKit
 
 enum WorkoutState {
     case idle       // Dashboard - ready to start
+    case countdown  // 3-2-1 Countdown
     case active     // Workout in progress
     case summary    // Finished, showing results
 }
@@ -199,6 +200,11 @@ class WorkoutManager: ObservableObject {
     // MARK: - Workflow Methods
     
     func startWorkout() {
+        guard selectedDay != nil else { return }
+        workoutState = .countdown
+    }
+    
+    func beginActiveSession() {
         guard let day = selectedDay else { return }
         
         // 1. Refresh object to ensure it is valid and attached to context
@@ -228,14 +234,33 @@ class WorkoutManager: ObservableObject {
         LiveActivityManager.shared.start(workoutType: session.workoutDayName, startDate: startDate)
         startActivityUpdates(startDate: startDate)
         
-        // Start HealthKit Session
+            // Start HealthKit Session
         let shouldSync = UserDefaults.standard.object(forKey: "isHealthSyncEnabled") as? Bool ?? true
         if shouldSync {
             Task {
-                let name = session.workoutDayName.lowercased()
-                let type: HKWorkoutActivityType = (name.contains("run") || name.contains("beg") || name.contains("бег")) ? .running : .traditionalStrengthTraining
+                var type: HKWorkoutActivityType = .traditionalStrengthTraining
+                
+                if let dayType = self.selectedDay?.workoutType {
+                    switch dayType {
+                    case .strength:
+                        type = .traditionalStrengthTraining
+                    case .repsOnly:
+                        type = .functionalStrengthTraining
+                    case .duration:
+                        let name = session.workoutDayName.lowercased()
+                        if name.contains("run") || name.contains("бег") {
+                            type = .running
+                        } else if name.contains("walk") || name.contains("ходьба") {
+                            type = .walking
+                        } else {
+                            type = .mixedCardio
+                        }
+                    }
+                }
+                
                 await HealthManager.shared.startWorkout(workoutType: type)
             }
+            
             
             // Subscribe to real-time updates
             HealthManager.shared.onHeartRateUpdate = { [weak self] hr in

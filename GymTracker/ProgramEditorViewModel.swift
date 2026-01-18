@@ -212,7 +212,7 @@ class ProgramEditorViewModel: ObservableObject {
                             name: exercise.name,
                             plannedSets: exercise.plannedSets,
                             orderIndex: exercise.orderIndex,
-                            type: exercise._type // Load explicit type override if present
+                            type: exercise._customWorkoutType // Load explicit type override if present
                         )
                     }
                 

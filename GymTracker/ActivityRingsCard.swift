@@ -61,9 +61,10 @@ struct ActivityRingsCard: View {
             
             Spacer()
         }
-        .padding(DesignSystem.Spacing.lg)
-        .background(Color(white: 0.1)) // Dark card background
+        .padding() // Default padding match
+        .background(DesignSystem.Colors.cardBackground)
         .cornerRadius(20)
+        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
         .onTapGesture {
             showingDetail = true
         }

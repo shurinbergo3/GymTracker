@@ -49,6 +49,10 @@ struct WorkoutView: View {
                     case .idle:
                         DashboardView() // settings handled by parent toolbar now
                             .environmentObject(workoutManager)
+                    case .countdown:
+                        CountdownView {
+                            workoutManager.beginActiveSession()
+                        }
                     case .active:
                         ActiveWorkoutView()
                             .environmentObject(workoutManager)

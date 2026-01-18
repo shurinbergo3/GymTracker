@@ -762,9 +762,9 @@ struct ExerciseLibrary {
             var migratedCount = 0
             for template in templates {
                 // Устанавливаем тип если он не был явно задан
-                if template._type == nil {
+                if template._customWorkoutType == nil {
                     let defaultType = getDefaultType(for: template.name)
-                    template._type = defaultType
+                    template._customWorkoutType = defaultType
                     migratedCount += 1
                 }
             }

@@ -11,6 +11,41 @@ import Combine
 import Charts
 import HealthKit
 
+// MARK: - Sleep Data Model
+
+struct SleepData: Identifiable {
+    let id = UUID()
+    let startDate: Date
+    let endDate: Date
+    let type: HKCategoryValueSleepAnalysis
+    
+    var duration: TimeInterval {
+        endDate.timeIntervalSince(startDate)
+    }
+    
+    var color: Color {
+        switch type {
+        case .asleepDeep: return .purple
+        case .asleepCore: return .blue
+        case .asleepREM: return .cyan
+        case .awake: return .orange
+        case .inBed: return .gray.opacity(0.3)
+        default: return .clear
+        }
+    }
+    
+    var label: String {
+        switch type {
+        case .asleepDeep: return "Глубокий"
+        case .asleepCore: return "Базовый"
+        case .asleepREM: return "REM"
+        case .awake: return "Бодрствование"
+        case .inBed: return "В кровати"
+        default: return "Неизвестно"
+        }
+    }
+}
+
 // MARK: - Sleep Analysis UI
 
 struct SleepCard: View {
@@ -1262,20 +1297,49 @@ struct ActiveWorkoutContent: View {
     @Query(filter: #Predicate<WorkoutSession> { $0.isCompleted == true }, sort: \WorkoutSession.date, order: .reverse)
     private var allCompletedSessions: [WorkoutSession]
     
+    // Computed active exercise ID
+    @State private var manualSelectedId: UUID? = nil
+
+    private var activeExerciseId: UUID? {
+        if let manual = manualSelectedId { return manual }
+        
+        guard let session = workoutManager.currentSession else {
+            return workoutDay.exercises.sorted { $0.orderIndex < $1.orderIndex }.first?.id
+        }
+        
+        let exercises = workoutDay.exercises.sorted { $0.orderIndex < $1.orderIndex }
+        
+        for exercise in exercises {
+            let completedCount = session.sets.filter { $0.exerciseName == exercise.name }.count
+            if completedCount < exercise.plannedSets {
+                return exercise.id
+            }
+        }
+        
+        return exercises.last?.id
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxl) {
-            // Exercises list - use exercises array directly with count in id to handle lazy loading
             let exercises = workoutDay.exercises.sorted { $0.orderIndex < $1.orderIndex }
+            let activeId = activeExerciseId
             
             ForEach(exercises, id: \.id) { exercise in
                 ExerciseCard(
                     exercise: exercise,
                     programName: programName,
                     session: workoutManager.currentSession,
-                    workoutType: exercise.type,
-                    allCompletedSessions: allCompletedSessions
+                    workoutType: exercise.resolvedWorkoutType,
+                    isActive: exercise.id == activeId,
+                    allCompletedSessions: allCompletedSessions,
+                    aiRecommendation: getRecommendation(for: exercise)
                 )
                 .id(exercise.id)
+                .onTapGesture {
+                    withAnimation {
+                        manualSelectedId = exercise.id
+                    }
+                }
             }
             .id(workoutDay.exercises.count) // Force refresh when exercises count changes
             
@@ -1298,6 +1362,7 @@ struct ActiveWorkoutContent: View {
             // Finish workout button
             if let session = workoutManager.currentSession, !session.sets.isEmpty {
                 GradientButton(title: "Закончить тренировку", icon: "checkmark.circle.fill") {
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
                     workoutManager.finishWorkout()
                 }
                 .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -1322,6 +1387,12 @@ struct ActiveWorkoutContent: View {
         modelContext.insert(newExercise)
         
         showingAddExercise = false
+    }
+    
+    private func getRecommendation(for exercise: ExerciseTemplate) -> String? {
+        // Placeholder for AI recommendation
+        // In real app, this would come from a service or analysis model
+        return nil
     }
 }
 

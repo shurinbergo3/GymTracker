@@ -260,6 +260,8 @@ struct EmptyStateView: View {
                     .multilineTextAlignment(.center)
             }
             
+            Spacer().frame(height: 60)
+            
             GradientButton(title: buttonTitle, action: action)
                 .padding(.horizontal, DesignSystem.Spacing.xxl)
         }

@@ -184,6 +184,7 @@ final class WorkoutDay {
 
 @Model
 final class ExerciseTemplate {
+    var id: UUID
     var name: String // название упражнения
     var plannedSets: Int // плановое кол-во подходов
     var orderIndex: Int // порядок в списке упражнений
@@ -191,18 +192,16 @@ final class ExerciseTemplate {
     var workoutDay: WorkoutDay?
     
     // New: Allow exercise-specific type override (e.g. Bodyweight in a Strength day)
-    var _type: WorkoutType?
+    var _customWorkoutType: WorkoutType?
     
-    var type: WorkoutType {
-        get { _type ?? workoutDay?.workoutType ?? .strength }
-        set { _type = newValue }
-    }
+
     
     init(name: String, plannedSets: Int = 3, orderIndex: Int = 0, type: WorkoutType? = nil) {
+        self.id = UUID()
         self.name = name
         self.plannedSets = plannedSets
         self.orderIndex = orderIndex
-        self._type = type
+        self._customWorkoutType = type
     }
 }
 
@@ -260,5 +259,12 @@ final class WorkoutSet {
         self.isCompleted = false
         self.comment = nil
         self.isWeighted = isWeighted
+    }
+}
+
+extension ExerciseTemplate {
+    var resolvedWorkoutType: WorkoutType {
+        get { _customWorkoutType ?? workoutDay?.workoutType ?? .strength }
+        set { _customWorkoutType = newValue }
     }
 }
