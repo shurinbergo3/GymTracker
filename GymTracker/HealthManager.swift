@@ -242,6 +242,7 @@ class HealthManager: NSObject, ObservableObject {
             }
         }.value
     }
+}
 
 // MARK: - Delegates
 // Using Any or conditional conformance is tricky, but extensions usually allow @available
