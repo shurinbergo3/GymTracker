@@ -40,9 +40,7 @@ struct MeasurementsView: View {
                         // Активность (Activity Rings)
                         ActivityRingsCard()
                         
-                        NavigationLink(destination: SleepGuideView()) {
-                            SleepCard()
-                        }
+                        SleepCard()
                         
                         // Пульс (New Card)
                         HeartRateStatsCard(lastWorkoutSession: completedSessions.first)
