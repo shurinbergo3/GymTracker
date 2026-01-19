@@ -126,14 +126,16 @@ struct ContentViewWrapper: View {
     var body: some View {
         ContentView()
             .task {
-                // Move heavy operations to background
+                // Background seeding - non-blocking
                 if !hasSeeded {
-                    // The seeding logic has been moved to WorkoutTrackerApp's onAppear
-                    // This .task block can be removed or repurposed if needed.
-                    // For now, we'll keep it empty or remove the content.
-                    // If there are other operations specific to ContentViewWrapper, they can go here.
-                    // For this change, we're effectively removing the seeding from here.
-                    hasSeeded = true // Mark as seeded to prevent re-entry if this block remains
+                    Task.detached(priority: .background) {
+                        await MainActor.run {
+                            ProgramSeeder.seedProgramsIfNeeded(context: modelContext)
+                            ExerciseLibrary.migrateExerciseTypes(context: modelContext)
+                            print("✅ Background seeding complete from ContentViewWrapper")
+                        }
+                    }
+                    hasSeeded = true
                 }
             }
     }
