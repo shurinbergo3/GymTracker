@@ -142,6 +142,8 @@ struct ExerciseCard: View {
                                 .font(.system(size: 18))
                                 .foregroundColor(isHistoryExpanded ? DesignSystem.Colors.neonGreen : .gray)
                         }
+                    }
+                    
                     Button(action: { showingTechnique = true }) {
                         Image(systemName: "info.circle") // Info/Technique
                             .font(.system(size: 18))

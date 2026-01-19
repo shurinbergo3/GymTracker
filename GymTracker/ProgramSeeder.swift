@@ -410,6 +410,7 @@ struct ProgramSeeder {
         let program = Program(
             name: "Верх/Низ Силовой",
             desc: "Сплит верх/низ для максимальной силы. Тяжелые базовые движения."
+        )
         // День Верх
         let dayUpper = WorkoutDay(name: "Day Upper", orderIndex: 0, workoutType: .strength)
         addExercise(to: dayUpper, name: "Жим лежа", sets: 5, order: 0)
