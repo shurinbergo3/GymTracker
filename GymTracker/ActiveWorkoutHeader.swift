@@ -10,7 +10,6 @@ import Combine
 
 struct ActiveWorkoutHeader: View {
     @EnvironmentObject var workoutManager: WorkoutManager
-    @Binding var showingCancelConfirmation: Bool
     
     // Timer properties
     @State private var progress: CGFloat = 0.0
@@ -102,20 +101,20 @@ struct ActiveWorkoutHeader: View {
             // Let's keep the discrete X button from previous design but positioned nicely if needed.
             // Actually, usually headers are just data.
         }
-        .overlay(
-            // Optional: Discrete Close Button top right of screen, outside the HUD?
-            // Or maybe a tap on HUD opens options.
-            // For now, I'll add a long press gesture to cancel or just rely on the bottom "Finish" button?
-            // The prompt says "ActiveWorkoutView" has a "End Workout" button.
-            // I'll leave the header purely informational as requested.
-            EmptyView()
-        )
     }
     
     private func timerProgress(_ date: Date) -> CGFloat {
-        // Visual effect: Loop every 60 seconds
-        let seconds = Calendar.current.component(.second, from: date)
-        return CGFloat(seconds) / 60.0
+        // Visual effect: Loop every 60 seconds based on ELAPSED time
+        let elapsed: TimeInterval
+        if let startDate = workoutManager.currentSession?.date {
+            elapsed = date.timeIntervalSince(startDate)
+        } else {
+            elapsed = 0
+        }
+        
+        // Calculate progress within current minute (0.0 to 1.0)
+        let secondsInMinute = elapsed.truncatingRemainder(dividingBy: 60)
+        return CGFloat(secondsInMinute) / 60.0
     }
     
     private func formatTime(_ currentDate: Date) -> String {

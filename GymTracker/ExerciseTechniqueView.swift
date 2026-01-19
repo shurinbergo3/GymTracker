@@ -54,9 +54,11 @@ struct ExerciseTechniqueDetailView: View {
                         // 1. Title & Type
                         VStack(alignment: .leading, spacing: 12) {
                             Text(exerciseName)
-                                .font(.system(size: 32, weight: .bold)) // Large Title
+                                .font(.system(size: 28, weight: .bold)) // Slightly smaller for small screens
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.leading)
+                                .lineLimit(nil) // Allow multiline
+                                .minimumScaleFactor(0.8) // Scale down if needed
                             
                             // Category / Type Tag
                             if let exercise = exercise {
@@ -81,7 +83,8 @@ struct ExerciseTechniqueDetailView: View {
                                 .cornerRadius(8)
                             }
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 16) // Reduced padding for small screens
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         
                         // 2. Technique Card
                         VStack(alignment: .leading, spacing: 16) {
@@ -100,7 +103,7 @@ struct ExerciseTechniqueDetailView: View {
                                     .font(.body)
                                     .foregroundColor(Color.white.opacity(0.85))
                                     .lineSpacing(6)
-                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineLimit(nil) // Allow unlimited lines
                             } else {
                                 Text("Описание техники пока недоступно для этого упражнения.")
                                     .font(.body)
@@ -108,10 +111,11 @@ struct ExerciseTechniqueDetailView: View {
                                     .foregroundColor(.gray)
                             }
                         }
-                        .padding(24)
-                        .background(DesignSystem.Colors.cardBackground) // Use the dark card background
+                        .padding(20) // Reduced from 24
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(DesignSystem.Colors.cardBackground)
                         .cornerRadius(20)
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 16) // Reduced from 20
                         
                         Spacer(minLength: 20)
                         
@@ -139,7 +143,7 @@ struct ExerciseTechniqueDetailView: View {
                                 .cornerRadius(16)
                                 .shadow(color: Color.red.opacity(0.3), radius: 10, x: 0, y: 5)
                             }
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, 16) // Reduced from 20
                             .padding(.bottom, 20)
                         }
                     }
@@ -149,13 +153,8 @@ struct ExerciseTechniqueDetailView: View {
             .navigationTitle("Гайд упражнения")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(Color(UIColor.systemGray2))
-                    }
+                ToolbarItem(placement: .topBarLeading) {
+                    CloseButton(action: { dismiss() })
                 }
             }
         }

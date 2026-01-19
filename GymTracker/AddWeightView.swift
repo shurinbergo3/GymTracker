@@ -40,8 +40,8 @@ struct AddWeightView: View {
             .navigationTitle("Добавить вес")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Отмена") { dismiss() }
+                ToolbarItem(placement: .topBarLeading) {
+                    CloseButton { dismiss() }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {

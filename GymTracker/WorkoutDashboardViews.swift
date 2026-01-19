@@ -555,6 +555,7 @@ struct DashboardView: View {
             VStack(spacing: DesignSystem.Spacing.lg) {
                 // Calendar
                 ExpandableCalendarView()
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
                 
                 // MARK: - Top Stats Row (Neon Style)
                 VStack(spacing: DesignSystem.Spacing.lg) {
@@ -598,8 +599,10 @@ struct DashboardView: View {
                             .padding(.horizontal, DesignSystem.Spacing.lg)
                     } else {
                         ForEach(recentHistory, id: \.self) { session in
-                            HistoryCardView(session: session)
-                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                            NavigationLink(destination: WorkoutHistoryDetailView(session: session)) {
+                                HistoryCardView(session: session)
+                            }
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
                         }
                     }
                 }
@@ -674,65 +677,59 @@ struct PremiumBentoCard<Content: View>: View {
 // MARK: - History Card View
 struct HistoryCardView: View {
     let session: WorkoutSession
-    @State private var showingDetail = false
     
     var body: some View {
-        Button(action: { showingDetail = true }) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    // Day Name (Big)
-                    Text(session.workoutDayName)
-                        .font(.headline)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(.white)
-                    
-                    // Program Name (Small)
-                    if let programName = session.programName {
-                        Text(programName)
-                            .font(.caption)
-                            .foregroundStyle(DesignSystem.Colors.primaryText.opacity(0.7))
-                    }
-                    
-                    // Date & Day (Small Gray)
-                    Text(formatDateFull(session.date))
-                        .font(.caption2)
-                        .foregroundStyle(.gray)
+        // Plain card content, interaction moved to parent
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                // Day Name (Big)
+                Text(session.workoutDayName)
+                    .font(.headline)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(.white)
+                
+                // Program Name (Small)
+                if let programName = session.programName {
+                    Text(programName)
+                        .font(.caption)
+                        .foregroundStyle(DesignSystem.Colors.primaryText.opacity(0.7))
                 }
                 
-                Spacer()
-                
-                // Stats + Arrow
-                VStack(alignment: .trailing, spacing: 4) {
-                    if let calories = session.calories {
-                        Text("\(calories) ккал")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(DesignSystem.Colors.neonGreen)
-                    }
-                    
-                    // Growth Arrow (Visual only for now, or simplified logic)
-                    Image(systemName: "arrow.up") // Placeholder for growth, logic needs expensive fetch
-                        .font(.headline)
+                // Date & Day (Small Gray)
+                Text(formatDateFull(session.date))
+                    .font(.caption2)
+                    .foregroundStyle(.gray)
+            }
+            
+            Spacer()
+            
+            // Stats + Arrow
+            VStack(alignment: .trailing, spacing: 4) {
+                if let calories = session.calories {
+                    Text("\(calories) ккал")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
                         .foregroundStyle(DesignSystem.Colors.neonGreen)
                 }
                 
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.gray)
-                    .padding(.leading, 8)
+                // Growth Arrow (Visual only for now, or simplified logic)
+                Image(systemName: "arrow.up") // Placeholder for growth, logic needs expensive fetch
+                    .font(.headline)
+                    .foregroundStyle(DesignSystem.Colors.neonGreen)
             }
-            .padding()
-            .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(16)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
-            )
+            
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.gray)
+                .padding(.leading, 8)
         }
-        .buttonStyle(.plain)
-        .sheet(isPresented: $showingDetail) {
-            WorkoutSessionDetailView(session: session)
-        }
+        .padding()
+        .background(DesignSystem.Colors.cardBackground)
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white.opacity(0.05), lineWidth: 1)
+        )
     }
     
     private func formatDateFull(_ date: Date) -> String {
@@ -959,11 +956,9 @@ struct ActiveWorkoutView: View {
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.lg) {
                     // Active Workout Bento Header
-                    ActiveWorkoutHeader(
-                        showingCancelConfirmation: $showingCancelConfirmation
-                    )
-                    .environmentObject(workoutManager)
-                    .id("top")
+                    ActiveWorkoutHeader()
+                        .environmentObject(workoutManager)
+                        .id("top")
                     
                     // Current workout card
                     if let selectedDay = workoutManager.selectedDay,
@@ -1002,6 +997,29 @@ struct ActiveWorkoutView: View {
                 Button("Продолжить", role: .cancel) { }
             } message: {
                 Text("Данные текущей тренировки не будут сохранены.")
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showingCancelConfirmation = true }) {
+                        ZStack {
+                            // Outer dark circle border
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 40, height: 40)
+                            
+                            // Inner bright red circle
+                            Circle()
+                                .fill(Color(red: 1.0, green: 0.27, blue: 0.23))
+                                .frame(width: 34, height: 34)
+                            
+                            // White X icon
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .heavy))
+                                .foregroundColor(.white)
+                        }
+                        .shadow(color: Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.5), radius: 8, x: 0, y: 2)
+                    }
+                }
             }
         }
     }
@@ -1166,22 +1184,40 @@ struct SummaryOverlay: View {
                     
                     // Notes field
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        Text("Отзыв о тренировке (необязательно)")
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                            .tracking(1.2)
+                        HStack(spacing: 6) {
+                            Text("комментарий о тренировке".uppercased())
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                .tracking(1.2)
+                            
+                            Image(systemName: "brain.head.profile")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.neonGreen.opacity(0.8))
+                        }
                         
-                        TextEditor(text: $notes)
-                            .frame(height: 120)
-                            .padding(DesignSystem.Spacing.md)
-                            .background(DesignSystem.Colors.cardBackground)
-                            .cornerRadius(DesignSystem.CornerRadius.medium)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                                    .stroke(DesignSystem.Colors.secondaryText.opacity(0.3), lineWidth: 1)
-                            )
-                            .font(DesignSystem.Typography.body())
-                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        ZStack(alignment: .topLeading) {
+                            if notes.isEmpty {
+                                Text("Расскажите как прошла ваша тренировка")
+                                    .font(DesignSystem.Typography.body())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+                                    .padding(.top, 12)
+                                    .padding(.leading, 12)
+                                    .allowsHitTesting(false)
+                            }
+                            
+                            TextEditor(text: $notes)
+                                .scrollContentBackground(.hidden)
+                                .frame(height: 100)
+                                .padding(4)
+                                .font(DesignSystem.Typography.body())
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                        }
+                        .background(DesignSystem.Colors.cardBackground)
+                        .cornerRadius(DesignSystem.CornerRadius.medium)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                                .stroke(DesignSystem.Colors.secondaryText.opacity(0.3), lineWidth: 1)
+                        )
                     }
                     .padding(.horizontal, DesignSystem.Spacing.xl)
                     
@@ -1363,7 +1399,9 @@ struct ActiveWorkoutContent: View {
             if let session = workoutManager.currentSession, !session.sets.isEmpty {
                 GradientButton(title: "Закончить тренировку", icon: "checkmark.circle.fill") {
                     UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    workoutManager.finishWorkout()
+                    Task {
+                        await workoutManager.finishWorkout()
+                    }
                 }
                 .padding(.horizontal, DesignSystem.Spacing.lg)
             }

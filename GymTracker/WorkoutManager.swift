@@ -116,6 +116,7 @@ class WorkoutManager: ObservableObject {
     @Published var currentActiveCalories: Int = 0
     
     private var liveActivityTimer: Timer?
+    private var programObserver: NSObjectProtocol?
     
     private let modelContext: ModelContext
     
@@ -125,7 +126,7 @@ class WorkoutManager: ObservableObject {
         initializeSelectedDay()
         
         // Listen for active program changes
-        NotificationCenter.default.addObserver(
+        programObserver = NotificationCenter.default.addObserver(
             forName: Notification.Name("ActiveProgramChanged"),
             object: nil,
             queue: .main
@@ -140,6 +141,25 @@ class WorkoutManager: ObservableObject {
         restoreActiveSession()
         
         requestHealthAccess()
+    }
+    
+    // MARK: - Cleanup
+    
+    deinit {
+        // Stop timer to prevent memory leak
+        liveActivityTimer?.invalidate()
+        liveActivityTimer = nil
+        
+        // Remove NotificationCenter observer
+        if let observer = programObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        
+        // Clear HealthKit callbacks (nonisolated context)
+        Task { @MainActor in
+            HealthManager.shared.onHeartRateUpdate = nil
+            HealthManager.shared.onCalorieUpdate = nil
+        }
     }
     
     // MARK: - Initialization
@@ -263,17 +283,19 @@ class WorkoutManager: ObservableObject {
             
             
             // Subscribe to real-time updates
-            HealthManager.shared.onHeartRateUpdate = { [weak self] hr in
-                self?.currentHeartRate = hr
-                Task {
-                    await self?.updateLiveActivity(startDate: startDate)
+            Task { @MainActor in
+                HealthManager.shared.onHeartRateUpdate = { [weak self] hr in
+                    self?.currentHeartRate = hr
+                    Task {
+                        await self?.updateLiveActivity(startDate: startDate)
+                    }
                 }
-            }
-            
-            HealthManager.shared.onCalorieUpdate = { [weak self] cals in
-                self?.currentActiveCalories = cals
-                Task {
-                    await self?.updateLiveActivity(startDate: startDate)
+                
+                HealthManager.shared.onCalorieUpdate = { [weak self] cals in
+                    self?.currentActiveCalories = cals
+                    Task {
+                        await self?.updateLiveActivity(startDate: startDate)
+                    }
                 }
             }
         }
@@ -299,17 +321,18 @@ class WorkoutManager: ObservableObject {
         }
     }
     
-    func finishWorkout() {
+    func finishWorkout() async {
         guard let session = currentSession else { return }
         
-        // 1. Immediate UI Transition & Cleanup
-        // We set summary state FIRST so the UI feels responsive
-        stopActivityUpdates() // Stop timer immediately
-        HealthManager.shared.onHeartRateUpdate = nil
-        HealthManager.shared.onCalorieUpdate = nil
+        // 1. Stop live updates immediately
+        stopActivityUpdates()
+        await MainActor.run {
+            HealthManager.shared.onHeartRateUpdate = nil
+            HealthManager.shared.onCalorieUpdate = nil
+        }
         LiveActivityManager.shared.end()
         
-        // Set end time and completion status locally
+        // 2. Set end time and completion status locally
         let endDate = Date()
         session.endTime = endDate
         session.isCompleted = true
@@ -318,34 +341,29 @@ class WorkoutManager: ObservableObject {
         if currentActiveCalories > 0 { session.calories = currentActiveCalories }
         if currentHeartRate > 0 { session.averageHeartRate = currentHeartRate }
         
-        // Transition to summary
-        self.workoutState = .summary
+        // 3. Complete HealthKit session and fetch accurate data
+        await HealthManager.shared.endWorkout()
         
-        // 2. Background Operations (HealthKit & Save)
-        Task {
-            await HealthManager.shared.endWorkout()
+        if HealthManager.shared.isAuthorized {
+            let calories = await HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)
+            let avgHeartRate = await HealthManager.shared.fetchAverageHeartRate(start: session.date, end: endDate)
             
-            // Fetch accurate data
-            if HealthManager.shared.isAuthorized {
-                let calories = await HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)
-                let avgHeartRate = await HealthManager.shared.fetchAverageHeartRate(start: session.date, end: endDate)
-                
-                await MainActor.run {
-                    // Update valid session only
-                    guard self.currentSession?.id == session.id else { return }
-                    
-                    if calories > 0 { session.calories = Int(calories) }
-                    if avgHeartRate > 0 { session.averageHeartRate = Int(avgHeartRate) }
-                    
-                    try? modelContext.save()
-                    print("Workout Completed & Secured. HR: \(session.averageHeartRate ?? 0)")
-                }
-            } else {
-                 await MainActor.run {
-                     try? modelContext.save()
-                 }
-            }
+            // Update with accurate data
+            if calories > 0 { session.calories = Int(calories) }
+            if avgHeartRate > 0 { session.averageHeartRate = Int(avgHeartRate) }
         }
+        
+        // 4. Save data
+        do {
+            try modelContext.save()
+            print("✅ Workout saved successfully. HR: \\(session.averageHeartRate ?? 0), Calories: \\(session.calories ?? 0)")
+        } catch {
+            print("❌ Error saving workout: \\(error.localizedDescription)")
+            // Even on error, we should transition to summary to not block user
+        }
+        
+        // 5. Only NOW transition UI to summary (after all data is saved)
+        self.workoutState = .summary
     }
     
     func requestHealthAccess() {

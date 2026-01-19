@@ -24,48 +24,33 @@ struct WorkoutTrackerApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             UserProfile.self,
-            WeightRecord.self,
+            WorkoutSession.self,
+            WorkoutSet.self,
             BodyMeasurement.self,
+            WeightRecord.self,
             Program.self,
             WorkoutDay.self,
-            ExerciseTemplate.self,
-            WorkoutSession.self,
-            WorkoutSet.self
+            ExerciseTemplate.self
         ])
         
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema)
+            print("✅ ModelContainer initialized")
+            return container
         } catch {
-            print("Failed to create ModelContainer: \(error)")
+            print("⚠️ Error: \(error)")
             
-            // Attempt to delete the existing store and recreate (Nuclear option for dev)
-            let fileManager = FileManager.default
-            let storeURL = modelConfiguration.url
-            
-            print("Attempting to reset database at: \(storeURL.path)")
+            // Reset database on error
+            let config = ModelConfiguration(schema: schema)
+            try? FileManager.default.removeItem(at: config.url)
+            print("🗑️ DB reset")
             
             do {
-                if fileManager.fileExists(atPath: storeURL.path) {
-                    try fileManager.removeItem(at: storeURL)
-                    
-                    // Also delete auxiliary files (wal, shm)
-                    let shmURL = storeURL.appendingPathExtension("shm")
-                    if fileManager.fileExists(atPath: shmURL.path) {
-                         try fileManager.removeItem(at: shmURL)
-                    }
-                    
-                    let walURL = storeURL.appendingPathExtension("wal")
-                    if fileManager.fileExists(atPath: walURL.path) {
-                         try fileManager.removeItem(at: walURL)
-                    }
-                }
-                
-                print("Database deleted. Retrying ModelContainer creation...")
-                return try ModelContainer(for: schema, configurations: [modelConfiguration])
+                let container = try ModelContainer(for: schema)
+                print("✅ Fresh DB created")
+                return container
             } catch {
-                fatalError("Could not create ModelContainer after reset: \(error)")
+                fatalError("❌ Failed: \(error)")
             }
         }
     }()
@@ -76,17 +61,14 @@ struct WorkoutTrackerApp: App {
                 if isCheckingAuth {
                     // Loading / Splash Screen
                     VStack(spacing: 20) {
-                        Image(systemName: "dumbbell.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                        
-                        Text("BODY FORGE")
-                            .font(DesignSystem.Typography.title())
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                            .tracking(2)
+                        Image("launch_logo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 200, height: 200)
                         
                         ProgressView()
                             .tint(DesignSystem.Colors.neonGreen)
+                            .scaleEffect(1.5)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(DesignSystem.Colors.background)
@@ -126,7 +108,7 @@ struct WorkoutTrackerApp: App {
         } else {
             // We expect a session, wait a moment for Firebase/AuthManager to sync
             // AuthManager listener fires async.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 withAnimation {
                     isCheckingAuth = false
                 }
@@ -143,10 +125,16 @@ struct ContentViewWrapper: View {
     
     var body: some View {
         ContentView()
-            .onAppear {
+            .task {
+                // Move heavy operations to background
                 if !hasSeeded {
-                    ProgramSeeder.seedProgramsIfNeeded(context: modelContext)
-                    ExerciseLibrary.migrateExerciseTypes(context: modelContext)
+                    await Task.detached(priority: .userInitiated) {
+                        // These operations don't need to block UI
+                        await MainActor.run {
+                            ProgramSeeder.seedProgramsIfNeeded(context: modelContext)
+                            ExerciseLibrary.migrateExerciseTypes(context: modelContext)
+                        }
+                    }.value
                     hasSeeded = true
                 }
             }

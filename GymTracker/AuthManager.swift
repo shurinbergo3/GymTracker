@@ -127,19 +127,85 @@ class AuthManager: ObservableObject {
         logout()
     }
     
+    
+    /// Comprehensive account deletion for App Store compliance
+    /// Handles: Firestore deletion, Auth deletion, local data cleanup, reauthentication errors
     func deleteAccount(modelContext: ModelContext) async throws {
-        // 1. Delete user from Firebase
-        if let user = Auth.auth().currentUser {
-            try await user.delete()
+        guard let user = Auth.auth().currentUser else {
+            throw NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "No user logged in"])
         }
         
-        // 2. Clear SwiftData
-        // Delete all persistent models
-        try? modelContext.delete(model: WorkoutSession.self)
-        try? modelContext.delete(model: UserProfile.self)
-        try? modelContext.delete(model: BodyMeasurement.self)
+        let uid = user.uid
         
-        // 3. Clear Local State
-        self.logout()
+        // Phase 1: Delete Firestore user document
+        do {
+            try await FirestoreManager.shared.deleteUserDocument(uid: uid)
+            print("✅ Firestore user document deleted")
+        } catch {
+            print("⚠️ Failed to delete Firestore document: \(error.localizedDescription)")
+            // Continue anyway - document might not exist
+        }
+        
+        // Phase 2: Delete Firebase Auth user
+        do {
+            try await user.delete()
+            print("✅ Firebase Auth user deleted")
+        } catch let error as NSError {
+            // Check if reauthentication is required
+            if error.code == AuthErrorCode.requiresRecentLogin.rawValue {
+                // Propagate this specific error to UI for handling
+                throw NSError(
+                    domain: "AuthManager",
+                    code: AuthErrorCode.requiresRecentLogin.rawValue,
+                    userInfo: [
+                        NSLocalizedDescriptionKey: "Для удаления аккаунта требуется повторный вход",
+                        NSLocalizedRecoverySuggestionErrorKey: "Пожалуйста, выйдите и войдите снова, затем попробуйте удалить аккаунт."
+                    ]
+                )
+            }
+            
+            // Other auth errors
+            throw error
+        }
+        
+        // Phase 3: Clear SwiftData (all models)
+        do {
+            try modelContext.delete(model: WorkoutSession.self)
+            try modelContext.delete(model: WorkoutSet.self)
+            try modelContext.delete(model: UserProfile.self)
+            try modelContext.delete(model: WeightRecord.self)
+            try modelContext.delete(model: BodyMeasurement.self)
+            try modelContext.delete(model: Program.self)
+            try modelContext.delete(model: WorkoutDay.self)
+            try modelContext.delete(model: ExerciseTemplate.self)
+            try modelContext.save()
+            print("✅ SwiftData cleared")
+        } catch {
+            print("⚠️ Failed to clear SwiftData: \(error.localizedDescription)")
+            // Continue anyway
+        }
+        
+        // Phase 4: Clear UserDefaults
+        if let bundleID = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleID)
+            UserDefaults.standard.synchronize()
+            print("✅ UserDefaults cleared")
+        }
+        
+        // Phase 5: Clear specific app settings
+        UserDefaults.standard.removeObject(forKey: loggedInKey)
+        UserDefaults.standard.removeObject(forKey: usernameKey)
+        UserDefaults.standard.removeObject(forKey: "isHealthSyncEnabled")
+        UserDefaults.standard.removeObject(forKey: "cachedRestingHR")
+        UserDefaults.standard.removeObject(forKey: "lastHRFetchDate")
+        UserDefaults.standard.synchronize()
+        
+        // Phase 6: Clear local state
+        await MainActor.run {
+            self.isLoggedIn = false
+            self.currentUser = nil
+        }
+        
+        print("✅ Account deletion completed successfully")
     }
 }

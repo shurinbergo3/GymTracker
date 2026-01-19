@@ -95,14 +95,7 @@ struct ProgressDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(width: 32, height: 32)
-                            .background(Color(white: 0.2))
-                            .clipShape(Circle())
-                    }
+                    CloseButton(action: { dismiss() })
                 }
             }
         }
@@ -117,17 +110,18 @@ struct ProgressDetailView: View {
                         .font(.caption)
                         .fontWeight(selectedPeriod == period ? .bold : .medium)
                         .foregroundColor(selectedPeriod == period ? .black : .white)
-                        .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                         .background(
                             selectedPeriod == period ?
                             DesignSystem.Colors.neonGreen :
-                            Color.white.opacity(0.1)
+                            Color(white: 0.15)
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .cornerRadius(8)
                 }
             }
         }
+        .padding(.vertical, 8)
     }
     
     // MARK: - Trend Indicator Card
@@ -150,6 +144,7 @@ struct ProgressDetailView: View {
                     .foregroundStyle(trendDirection.color)
                     .rotationEffect(.degrees(trendDirection.rotation))
             }
+            .shadow(color: trendDirection.color.opacity(0.3), radius: 15)
             
             // Trend Text
             VStack(spacing: 4) {
@@ -173,14 +168,21 @@ struct ProgressDetailView: View {
     // MARK: - Volume Chart
     private var volumeChartSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Объём тренировок")
-                .font(.headline)
-                .foregroundColor(.white)
+            HStack {
+                Image(systemName: "chart.bar.fill")
+                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                Text("Объём тренировок")
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
             
             if chartData.isEmpty {
-                Text("Недостаточно данных")
+                Text("Недостаточно данных за этот период")
+                    .font(.caption)
                     .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, minHeight: 150)
+                    .frame(maxWidth: .infinity, minHeight: 120)
+                    .background(Color(white: 0.05))
+                    .cornerRadius(12)
             } else {
                 Chart {
                     ForEach(Array(chartData.enumerated()), id: \.offset) { index, data in
@@ -190,7 +192,7 @@ struct ProgressDetailView: View {
                         )
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [trendDirection.color.opacity(0.5), trendDirection.color.opacity(0.1)],
+                                colors: [trendDirection.color.opacity(0.5), trendDirection.color.opacity(0.0)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
@@ -204,18 +206,12 @@ struct ProgressDetailView: View {
                         .foregroundStyle(trendDirection.color)
                         .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
                         .interpolationMethod(.catmullRom)
-                        
-                        PointMark(
-                            x: .value("Тренировка", index),
-                            y: .value("Объём", data.volume)
-                        )
-                        .foregroundStyle(trendDirection.color)
-                        .symbolSize(index == chartData.count - 1 ? 80 : 30)
                     }
                 }
                 .chartYAxis(.hidden)
                 .chartXAxis(.hidden)
-                .frame(height: 150)
+                .frame(height: 120)
+                .padding(.vertical, 8)
             }
         }
         .padding()
@@ -225,35 +221,90 @@ struct ProgressDetailView: View {
     
     // MARK: - Stats Grid
     private var statsGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            statCard(title: "Тренировок", value: "\(filteredSessions.count)", icon: "figure.strengthtraining.traditional", color: .blue)
-            statCard(title: "Общий объём", value: formatVolume(totalVolume), icon: "scalemass.fill", color: .purple)
-            statCard(title: "Средний объём", value: formatVolume(avgVolume), icon: "chart.bar.fill", color: .orange)
-            statCard(title: "Лучшая", value: formatVolume(bestVolume), icon: "star.fill", color: .yellow)
+        VStack(spacing: 12) {
+            // First Row: Count and Progress
+            HStack(spacing: 12) {
+                statCard(
+                    title: "Тренировок",
+                    value: "\(filteredSessions.count)",
+                    icon: "figure.strengthtraining.traditional",
+                    color: .blue
+                )
+                
+                statCard(
+                    title: "Прогресс",
+                    value: "\(progressSessionsCount)",
+                    icon: "chart.line.uptrend.xyaxis",
+                    color: DesignSystem.Colors.neonGreen
+                )
+            }
+            
+            // Second Row: Frequency (Wide)
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: "calendar")
+                        .font(.title3)
+                        .foregroundColor(.purple)
+                    Text("Активность (7 дней)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                
+                HStack(spacing: 6) {
+                    ForEach(0..<7) { dayIndex in
+                        VStack(spacing: 4) {
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(weeklyFrequency[dayIndex] ? DesignSystem.Colors.neonGreen : Color(white: 0.2))
+                                .frame(height: 30) // Taller bars
+                            
+                            // Day letter (M, T, W...) - optional, keeping simple for now
+                        }
+                    }
+                }
+            }
+            .padding()
+            .background(Color(white: 0.1))
+            .cornerRadius(16)
+            
+            // Third Row: Calories (Wide for balance)
+            HStack {
+                statCard(
+                    title: "Ср. калории / мес",
+                    value: "\(avgCalories)",
+                    icon: "flame.fill",
+                    color: .orange
+                )
+            }
         }
     }
     
     private func statCard(title: String, value: String, icon: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: icon)
+                    .font(.title3)
                     .foregroundColor(color)
+                    .padding(8)
+                    .background(color.opacity(0.15))
+                    .clipShape(Circle())
                 Spacer()
             }
             
-            Text(value)
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.gray)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
         }
-        .padding()
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(white: 0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
     }
     
     // MARK: - Arrow Legend
@@ -307,6 +358,56 @@ struct ProgressDetailView: View {
     
     private var bestVolume: Double {
         chartData.map { $0.volume }.max() ?? 0
+    }
+    
+    // New Computed Properties
+    private var progressSessionsCount: Int {
+        // Simple logic: Session is "improved" if volume > previous session of SAME type
+        // For simplified view, we check if total volume increased vs immediate previous session in filtered list
+        var count = 0
+        let sessions = Array(filteredSessions.reversed()) // Oldest first
+        guard sessions.count > 1 else { return 0 }
+        
+        for i in 1..<sessions.count {
+            let current = sessions[i]
+            let prev = sessions[i-1]
+            
+            let currVol = current.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+            let prevVol = prev.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+            
+            if currVol > prevVol {
+                count += 1
+            }
+        }
+        return count
+    }
+    
+    private var weeklyFrequency: [Bool] {
+        // Last 7 days, true if workout exists
+        var result = Array(repeating: false, count: 7)
+        let calendar = Calendar.current
+        let today = Date()
+        
+        for i in 0..<7 {
+            // Day 0 is 6 days ago, Day 6 is Today
+            if let date = calendar.date(byAdding: .day, value: -(6 - i), to: today) {
+                // Check if any session exists on this date
+                let hasSession = allSessions.contains { session in
+                    calendar.isDate(session.date, inSameDayAs: date) && session.isCompleted
+                }
+                result[i] = hasSession
+            }
+        }
+        return result
+    }
+    
+    private var avgCalories: Int {
+        // Average for last month (regardless of selected period, user asked for "Average arithmetic for last month")
+        let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
+        let monthSessions = allSessions.filter { $0.date >= oneMonthAgo && $0.isCompleted }
+        
+        let totalCals = monthSessions.reduce(0) { $0 + ($1.calories ?? 0) }
+        return monthSessions.isEmpty ? 0 : totalCals / monthSessions.count
     }
     
     private func formatVolume(_ volume: Double) -> String {

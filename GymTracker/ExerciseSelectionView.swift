@@ -26,60 +26,27 @@ struct ExerciseSelectionView: View {
         Dictionary(grouping: filteredExercises, by: { $0.category })
     }
     
-    private var addCustomExerciseButton: some View {
-        Section {
-            Button(action: { showingCustomExercise = true }) {
-                HStack {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
-                        .foregroundColor(DesignSystem.Colors.accent)
-                    
-                    Text("Добавить своё упражнение")
-                        .font(DesignSystem.Typography.body())
-                        .foregroundColor(DesignSystem.Colors.accent)
-                }
-                .padding(.vertical, DesignSystem.Spacing.xs)
-            }
-        }
-    }
-    
-    private var exerciseList: some View {
-        List {
-            addCustomExerciseButton
-            
-            ForEach(ExerciseCategory.allCases, id: \.self) { category in
-                if let exercises = groupedExercises[category], !exercises.isEmpty {
-                    Section {
-                        ForEach(exercises) { exercise in
-                            ExerciseRow(exercise: exercise) {
-                                onExerciseSelected(exercise)
-                                dismiss()
-                            }
-                        }
-                    } header: {
-                        Label(category.rawValue, systemImage: category.icon)
-                            .font(DesignSystem.Typography.headline())
-                    }
-                }
-            }
-        }
-        .listStyle(.insetGrouped)
-        .searchable(
-            text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Поиск упражнений"
-        )
-    }
-    
     var body: some View {
         NavigationStack {
             exerciseList
+                .background(DesignSystem.Colors.background)
+                .searchable(
+                    text: $searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "Поиск упражнений"
+                )
                 .navigationTitle("Выбор упражнения")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Отмена") {
                             dismiss()
+                        }
+                    }
+                    
+                    ToolbarItem(placement: .primaryAction) {
+                        Button(action: { showingCustomExercise = true }) {
+                            Image(systemName: "plus")
                         }
                     }
                 }
@@ -93,7 +60,47 @@ struct ExerciseSelectionView: View {
                     }
                 } message: {
                     Text("Введите название своего упражнения")
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private var exerciseList: some View {
+        ScrollView {
+            LazyVStack(spacing: DesignSystem.Spacing.sm, pinnedViews: [.sectionHeaders]) {
+                ForEach(ExerciseCategory.allCases, id: \.self) { category in
+                    if let exercises = groupedExercises[category], !exercises.isEmpty {
+                        Section {
+                            VStack(spacing: 0) {
+                                ForEach(exercises) { exercise in
+                                    SelectionRow(exercise: exercise) {
+                                        onExerciseSelected(exercise)
+                                        dismiss()
+                                    }
+                                    
+                                    if exercise.id != exercises.last?.id {
+                                        Divider()
+                                            .padding(.leading, DesignSystem.Spacing.md)
+                                    }
+                                }
+                            }
+                            .background(DesignSystem.Colors.cardBackground)
+                            .cornerRadius(DesignSystem.CornerRadius.medium)
+                        } header: {
+                            HStack {
+                                Label(category.rawValue, systemImage: category.icon)
+                                    .font(DesignSystem.Typography.headline())
+                                    .foregroundColor(DesignSystem.Colors.accent)
+                                    .padding(.vertical, DesignSystem.Spacing.xs)
+                                Spacer()
+                            }
+                            .padding(.horizontal, DesignSystem.Spacing.md)
+                            .background(DesignSystem.Colors.background)
+                        }
+                    }
+                }
             }
+            .padding(DesignSystem.Spacing.md)
         }
     }
     
@@ -111,156 +118,63 @@ struct ExerciseSelectionView: View {
     }
 }
 
-// MARK: - Exercise Row
-
-struct ExerciseRow: View {
+// MARK: - Selection Row (Styled like ExerciseListRow)
+struct SelectionRow: View {
     let exercise: LibraryExercise
     let onSelect: () -> Void
     @State private var showingTechnique = false
+    @Environment(\.openURL) var openURL
     
     var body: some View {
         HStack {
             Button(action: onSelect) {
-                HStack {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text(exercise.name)
-                            .font(DesignSystem.Typography.body())
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                        
-                        Text(exercise.muscleGroup.rawValue)
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                    }
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    Text(exercise.name)
+                        .font(DesignSystem.Typography.body())
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .multilineTextAlignment(.leading)
                     
-                    Spacer()
-                    
-                    Image(systemName: "plus.circle.fill")
-                        .foregroundColor(DesignSystem.Colors.accent)
-                        .font(.title3)
+                    Text(exercise.muscleGroup.rawValue)
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
             }
             .buttonStyle(PlainButtonStyle())
             
-            // Info button for technique
+            Spacer()
+            
+            // Add Button (Visual indicator)
+            Button(action: onSelect) {
+                Image(systemName: "plus.circle.fill")
+                    .foregroundColor(DesignSystem.Colors.accent)
+                    .font(.title3)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .padding(.trailing, 8)
+            
+            // Info Button
             Button(action: { showingTechnique = true }) {
                 Image(systemName: "info.circle")
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                    .font(.body)
+                    .foregroundColor(DesignSystem.Colors.secondaryText) // Distinct color for info
+                    .font(.title3)
             }
             .buttonStyle(PlainButtonStyle())
         }
-        .padding(.vertical, DesignSystem.Spacing.xs)
+        .padding(.vertical, DesignSystem.Spacing.md) // Increased padding for touch targets
+        .padding(.horizontal, DesignSystem.Spacing.md)
         .sheet(isPresented: $showingTechnique) {
-            TechniqueInfoSheet(exercise: exercise)
-        }
-    }
-}
-
-// MARK: - Technique Info Sheet
-
-struct TechniqueInfoSheet: View {
-    let exercise: LibraryExercise
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                DesignSystem.Colors.background
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
-                        // Exercise name
-                        Text(exercise.name)
-                            .font(DesignSystem.Typography.largeTitle())
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                        
-                        // Category and muscle group
-                        HStack(spacing: DesignSystem.Spacing.sm) {
-                            Image(systemName: exercise.category.icon)
-                            Text(exercise.muscleGroup.rawValue)
-                        }
-                        .font(DesignSystem.Typography.body())
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                        
-                        Divider()
-                            .background(DesignSystem.Colors.secondaryText.opacity(0.3))
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                        
-                        // Technique description in CardView
-                        if let technique = exercise.technique {
-                            CardView {
-                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                    HStack {
-                                        Image(systemName: "lightbulb.fill")
-                                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                                            .font(.title2)
-                                        Text("Техника выполнения")
-                                            .font(DesignSystem.Typography.title3())
-                                            .foregroundColor(DesignSystem.Colors.primaryText)
-                                    }
-                                    
-                                    Text(technique)
-                                        .font(DesignSystem.Typography.body())
-                                        .foregroundColor(Color.white.opacity(0.85))
-                                        .lineSpacing(4)
-                                }
-                                .padding(DesignSystem.Spacing.xl)
-                            }
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                        }
-                        
-                        // YouTube button - always show
-                        Button(action: openYouTubeSearch) {
-                            HStack(spacing: DesignSystem.Spacing.md) {
-                                Image(systemName: "play.rectangle.fill")
-                                    .foregroundColor(.red)
-                                    .font(.title2)
-                                
-                                Text("Посмотреть технику на YouTube")
-                                    .font(DesignSystem.Typography.headline())
-                                    .foregroundColor(DesignSystem.Colors.primaryText)
-                                
-                                Spacer()
-                                
-                                Image(systemName: "arrow.up.right")
-                                    .font(.caption)
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                            }
-                            .padding(DesignSystem.Spacing.lg)
-                            .background(DesignSystem.Colors.cardBackground)
-                            .cornerRadius(DesignSystem.CornerRadius.large)
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                    }
-                    .padding(.vertical, DesignSystem.Spacing.lg)
-                }
-            }
-            .navigationTitle("Информация")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Закрыть") {
-                        dismiss()
-                    }
-                }
-            }
+            ExerciseTechniqueDetailView(exerciseName: exercise.name)
         }
     }
     
-    private func openYouTubeSearch() {
-        let searchQuery = "\(exercise.name) техника выполнения"
+    private func youtubeSearchURL(for exerciseName: String) -> URL? {
+        let searchQuery = "\(exerciseName) техника"
         let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        if let youtubeURL = URL(string: "https://www.youtube.com/results?search_query=\(encodedQuery)") {
-            UIApplication.shared.open(youtubeURL)
-        }
+        return URL(string: "https://www.youtube.com/results?search_query=\(encodedQuery)")
     }
 }
 
 #Preview {
-    ExerciseSelectionView { exercise in
-        print("Selected: \(exercise.name)")
-    }
+    ExerciseSelectionView { _ in }
 }
+

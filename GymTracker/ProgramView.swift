@@ -10,7 +10,7 @@ import SwiftData
 
 struct ProgramView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var programs: [Program]
+    @Query(sort: [SortDescriptor(\Program.displayOrder, order: .forward)]) private var programs: [Program]
     @State private var showingCreateProgram = false
     @State private var scrollToTopTrigger = false
     @State private var showingExercises = false
@@ -142,9 +142,8 @@ struct ProgramView: View {
                 }
             }
             .onAppear {
-                if programs.isEmpty {
-                    loadDefaultPrograms()
-                }
+                // Always check to ensure deprecated programs are removed and new order is applied
+                loadDefaultPrograms()
             }
 
             .navigationTitle("Программы")

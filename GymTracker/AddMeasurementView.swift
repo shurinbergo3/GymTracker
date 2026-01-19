@@ -31,8 +31,8 @@ struct AddMeasurementView: View {
             .navigationTitle("Добавить замер")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Отмена") { dismiss() }
+                ToolbarItem(placement: .topBarLeading) {
+                    CloseButton { dismiss() }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {

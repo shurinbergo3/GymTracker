@@ -42,18 +42,8 @@ struct BodyMeasurementsView: View {
             
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.xl) {
-                    // New Wide Header
-                    WeightHeightHeader(
-                        currentWeight: currentWeight,
-                        previousWeight: previousWeight,
-                        userProfile: currentProfile,
-                        onAddWeight: { showingAddWeight = true },
-                        onUpdateHeight: { showingAddProfile = true }
-                    )
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                    
                     LazyVGrid(columns: columns, spacing: DesignSystem.Spacing.md) {
-                        // Measurement Cards (Weight removed from here)
+                        // Measurement Cards
                         ForEach(MeasurementType.allCases, id: \.self) { type in
                             NavigationLink(destination: MeasurementDetailView(measurementType: type)) {
                                 StatCard(
@@ -110,83 +100,5 @@ struct BodyMeasurementsView: View {
         case .waist: return "figure.stand"
         default: return "ruler.fill"
         }
-    }
-}
-
-// MARK: - Weight & Height Header
-struct WeightHeightHeader: View {
-    let currentWeight: Double
-    let previousWeight: Double?
-    let userProfile: UserProfile?
-    let onAddWeight: () -> Void
-    let onUpdateHeight: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            // Weight Section (Left)
-            Button(action: onAddWeight) {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Image(systemName: "scalemass.fill")
-                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                        Text("Вес")
-                            .font(DesignSystem.Typography.subheadline())
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Text(currentWeight > 0 ? String(format: "%.1f кг", currentWeight) : "—")
-                        .font(.system(size: 34, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                    
-                    if let prev = previousWeight {
-                        Text("Было: \(String(format: "%.1f", prev))")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    } else {
-                        Text("История пуста")
-                            .font(.caption)
-                            .foregroundColor(.gray.opacity(0.5))
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-            }
-            
-            Divider()
-                .background(Color.white.opacity(0.1))
-            
-            // Height Section (Right)
-            Button(action: onUpdateHeight) {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Image(systemName: "lines.measurement.vertical")
-                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                        Text("Рост")
-                            .font(DesignSystem.Typography.subheadline())
-                            .foregroundColor(.gray)
-                    }
-                    
-                    if let profile = userProfile, profile.height > 0 {
-                        Text("\(Int(profile.height)) см")
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                    } else {
-                        Text("Указать")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundColor(DesignSystem.Colors.accent)
-                    }
-                    
-                    Text("Изменить")
-                        .font(.caption)
-                        .foregroundColor(.gray.opacity(0.0)) // Spacer basically, keeping layout balanced
-                        .accessibilityHidden(true)
-                }
-                .frame(width: 140, alignment: .leading)
-                .padding()
-            }
-        }
-        .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(DesignSystem.CornerRadius.large)
     }
 }

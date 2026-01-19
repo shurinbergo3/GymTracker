@@ -249,21 +249,33 @@ class HealthManager: NSObject, ObservableObject {
     func fetchRestingHeartRate() async -> Double {
         let store = self.healthStore
         return await Task.detached(priority: .userInitiated) {
-             guard let type = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else { return 0.0 }
-             let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
-             
+            guard let restingHRType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else { return 0.0 }
+            
+            // Fetch average resting HR for the last 7 days
+            let endDate = Date()
+            guard let startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate) else { return 0.0 }
+            let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+            
             return await withCheckedContinuation { continuation in
-                let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, _ in
-                    guard let sample = samples?.first as? HKQuantitySample else {
+                let query = HKStatisticsQuery(
+                    quantityType: restingHRType,
+                    quantitySamplePredicate: predicate,
+                    options: .discreteAverage
+                ) { _, result, error in
+                    guard let result = result,
+                          let averageQuantity = result.averageQuantity(),
+                          error == nil else {
                         continuation.resume(returning: 0.0)
                         return
                     }
-                    continuation.resume(returning: sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())))
+                    let avgHR = averageQuantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
+                    continuation.resume(returning: avgHR)
                 }
                 store.execute(query)
             }
         }.value
     }
+    
     
     // MARK: - Legacy Helpers
     func fetchTodaySteps() async -> Int {

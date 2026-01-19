@@ -16,14 +16,12 @@ struct MeasurementsView: View {
     
 
     @Query(sort: \WorkoutSession.date, order: .reverse) private var allSessions: [WorkoutSession]
+    @Query private var userProfiles: [UserProfile]
     
-
-    
+    // Sessions completed
     private var completedSessions: [WorkoutSession] {
         allSessions.filter { $0.isCompleted }
     }
-    
-
     
 
     
@@ -36,16 +34,64 @@ struct MeasurementsView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: DesignSystem.Spacing.md) {
+                    VStack(spacing: DesignSystem.Spacing.lg) {
+                        // График прогресса
+                        if !completedSessions.isEmpty {
+                            WorkoutProgressChart(sessions: completedSessions)
+                                .padding(.horizontal, DesignSystem.Spacing.lg)
+                        }
+
+                        // История Тренировок
+                        NavigationLink(destination: WorkoutHistoryView()) {
+                            CardView {
+                                HStack {
+                                    Image(systemName: "clock.arrow.circlepath")
+                                        .font(.title2)
+                                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                                        .frame(width: 40, height: 40)
+                                        .background(DesignSystem.Colors.neonGreen.opacity(0.1))
+                                        .clipShape(Circle())
+                                    
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("История тренировок")
+                                            .font(DesignSystem.Typography.headline())
+                                            .foregroundColor(DesignSystem.Colors.primaryText)
+                                        
+                                        if let last = completedSessions.first {
+                                            Text("Последняя: \(formattedDate(last.date))")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        } else {
+                                            Text("Нет записей")
+                                                .font(DesignSystem.Typography.caption())
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
+                                .padding()
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+
                         // Активность (Activity Rings)
                         ActivityRingsCard()
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
                         
-                        SleepCard()
-                        
-                        // Пульс (New Card)
+                        // Пульс
                         HeartRateStatsCard(lastWorkoutSession: completedSessions.first)
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
                         
-                        // Замеры тела (Swapped position)
+                        // Weight Tracker
+                        WeightTrackerCard()
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                        
+                        // Замеры тела
                         NavigationLink(destination: BodyMeasurementsView()) {
                             CardView {
                                 HStack {
@@ -68,53 +114,14 @@ struct MeasurementsView: View {
                                 .padding()
                             }
                         }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
                         
-                        // График прогресса
-                        if !completedSessions.isEmpty {
-                            WorkoutProgressChart(sessions: completedSessions)
-                            
-                            // Диаграмма типов
-                            WorkoutTypeDistributionChart(sessions: completedSessions)
-                        }
-                        
-                        // История Тренировок (Moved to bottom)
-                        NavigationLink(destination: WorkoutHistoryView()) {
-                            HStack {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .font(.title2)
-                                    .foregroundColor(DesignSystem.Colors.neonGreen)
-                                    .frame(width: 40, height: 40)
-                                    .background(DesignSystem.Colors.neonGreen.opacity(0.1))
-                                    .clipShape(Circle())
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("История тренировок")
-                                        .font(DesignSystem.Typography.headline())
-                                        .foregroundColor(DesignSystem.Colors.primaryText)
-                                    
-                                    if let last = completedSessions.first {
-                                        Text("Последняя: \(formattedDate(last.date))")
-                                            .font(DesignSystem.Typography.caption())
-                                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    } else {
-                                        Text("Нет записей")
-                                            .font(DesignSystem.Typography.caption())
-                                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                            }
-                            .padding()
-                            .background(DesignSystem.Colors.cardBackground)
-                            .cornerRadius(DesignSystem.CornerRadius.large)
-                        }
+                        // Sleep Card
+                        SleepCard()
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                            .padding(.bottom, DesignSystem.Spacing.xxl)
                     }
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                    .padding(.vertical, DesignSystem.Spacing.lg)
                 }
             }
             .navigationTitle("Статистика")
@@ -147,6 +154,8 @@ struct MeasurementsView: View {
 struct HeartRateStatsCard: View {
     let lastWorkoutSession: WorkoutSession?
     @State private var restingHR: Int = 0
+    @AppStorage("cachedRestingHR") private var cachedRestingHR: Int = 0
+    @AppStorage("lastHRFetchDate") private var lastHRFetchDateString: String = ""
     
     var body: some View {
         BentoCard {
@@ -160,15 +169,11 @@ struct HeartRateStatsCard: View {
                     
                     Spacer()
                     
-                    if HealthManager.shared.isAuthorized {
-                        Image(systemName: "checkmark.shield.fill")
-                            .font(.caption)
-                            .foregroundStyle(DesignSystem.Colors.neonGreen)
-                    }
+
                 }
                 
                 HStack(spacing: 20) {
-                    // Resting HR
+                    // Resting HR (Weekly Average)
                     VStack(alignment: .leading, spacing: 4) {
                         Text("В покое")
                             .font(.caption)
@@ -181,6 +186,12 @@ struct HeartRateStatsCard: View {
                             Text("уд/мин")
                                 .font(.caption2)
                                 .foregroundStyle(.gray)
+                        }
+                        
+                        if restingHR > 0 {
+                            Text("среднее за неделю")
+                                .font(.system(size: 9))
+                                .foregroundStyle(.gray.opacity(0.7))
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -217,13 +228,33 @@ struct HeartRateStatsCard: View {
             }
         }
         .task {
-            if HealthManager.shared.isAuthorized {
+            // Load cached value immediately
+            restingHR = cachedRestingHR
+            
+            // Check if we need to fetch new data (once per day)
+            if HealthManager.shared.isAuthorized && shouldFetchNewData() {
                 let hr = await HealthManager.shared.fetchRestingHeartRate()
                 await MainActor.run {
-                    self.restingHR = Int(hr)
+                    let hrInt = Int(hr)
+                    if hrInt > 0 {
+                        self.restingHR = hrInt
+                        self.cachedRestingHR = hrInt
+                        self.lastHRFetchDateString = todayDateString()
+                    }
                 }
             }
         }
+    }
+    
+    private func shouldFetchNewData() -> Bool {
+        let today = todayDateString()
+        return lastHRFetchDateString != today
+    }
+    
+    private func todayDateString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
     }
 }
 

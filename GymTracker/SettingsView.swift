@@ -18,6 +18,9 @@ struct SettingsView: View {
     @EnvironmentObject var authManager: AuthManager
     
     @State private var showingDeleteConfirmation = false
+    @State private var showingDeleteError = false
+    @State private var deleteErrorMessage = ""
+    @State private var requiresReauth = false
     
     // User info
     private var userEmail: String? {
@@ -87,6 +90,26 @@ struct SettingsView: View {
                     Text("О приложении")
                 }
                 
+                // Section 3.5: Support
+                Section {
+                    Link(destination: URL(string: "https://t.me/sumotry")!) {
+                        HStack {
+                            Image(systemName: "paperplane.fill")
+                                .foregroundStyle(DesignSystem.Colors.accent)
+                            Text("Связаться с разработчиком")
+                                .foregroundStyle(DesignSystem.Colors.primaryText)
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .font(.caption)
+                                .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        }
+                    }
+                } header: {
+                    Text("Поддержка")
+                } footer: {
+                    Text("Telegram: @sumotry")
+                }
+                
                 // Section 4: Danger Zone
                 Section {
                     Button(action: {
@@ -111,12 +134,48 @@ struct SettingsView: View {
                 Button("Отмена", role: .cancel) { }
                 Button("Удалить", role: .destructive) {
                     Task {
-                        try? await authManager.deleteAccount(modelContext: modelContext)
-                        dismiss()
+                        await handleAccountDeletion()
                     }
                 }
             } message: {
-                Text("Это действие необратимо. Все ваши данные будут удалены.")
+                Text("Это действие необратимо. Все ваши данные будут удалены из Firebase и с устройства.")
+            }
+            .alert("Ошибка удаления", isPresented: $showingDeleteError) {
+                if requiresReauth {
+                    Button("Выйти и войти снова") {
+                        authManager.signOut()
+                        dismiss()
+                    }
+                    Button("Отмена", role: .cancel) {
+                        requiresReauth = false
+                    }
+                } else {
+                    Button("OK", role: .cancel) { }
+                }
+            } message: {
+                Text(deleteErrorMessage)
+            }
+        }
+    }
+    
+    private func handleAccountDeletion() async {
+        do {
+            try await authManager.deleteAccount(modelContext: modelContext)
+            // Success - user will be automatically logged out
+            await MainActor.run {
+                dismiss()
+            }
+        } catch let error as NSError {
+            await MainActor.run {
+                // Check if reauthentication is required
+                if error.code == AuthErrorCode.requiresRecentLogin.rawValue {
+                    requiresReauth = true
+                    deleteErrorMessage = error.localizedRecoverySuggestion ?? "Требуется повторный вход для безопасности"
+                } else {
+                    requiresReauth = false
+                    deleteErrorMessage = "Не удалось удалить аккаунт: \(error.localizedDescription)"
+                }
+                showingDeleteError = true
             }
         }
     }

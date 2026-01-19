@@ -39,8 +39,8 @@ struct CreateProfileView: View {
             .navigationTitle("Создать профиль")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Отмена") { dismiss() }
+                ToolbarItem(placement: .topBarLeading) {
+                    CloseButton { dismiss() }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {

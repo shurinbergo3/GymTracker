@@ -108,8 +108,9 @@ enum WorkoutType: String, Codable, CaseIterable {
         case "Круговая", "Кардио": // Legacy mappings
             self = .duration
         default:
-            // Fallback to duration or strength depending on preference, or throw
-            // Keeping safe fallback to strength if unknown
+            // Fallback to strength for unknown types
+            // Log this so we can identify migration issues
+            print("⚠️ WorkoutType Migration: Unknown type '\\(rawValue)', defaulting to .strength")
             self = .strength
         }
     }
@@ -123,15 +124,17 @@ final class Program {
     var desc: String
     var startDate: Date
     var isActive: Bool
+    var displayOrder: Int = 100 // Default to 100 (low priority)
     
     @Relationship(deleteRule: .cascade, inverse: \WorkoutDay.program)
     var days: [WorkoutDay]
     
-    init(name: String, desc: String = "", startDate: Date = Date(), isActive: Bool = false) {
+    init(name: String, desc: String = "", startDate: Date = Date(), isActive: Bool = false, displayOrder: Int = 100) {
         self.name = name
         self.desc = desc
         self.startDate = startDate
         self.isActive = isActive
+        self.displayOrder = displayOrder
         self.days = []
     }
     
@@ -167,15 +170,20 @@ final class WorkoutDay {
         set { _workoutType = newValue }
     }
     
+    var defaultRestTime: Int = 90 // default rest time between sets in seconds
+    var restTimerEnabled: Bool = true // whether rest timer is enabled for this day
+    
     var program: Program?
     
     @Relationship(deleteRule: .cascade, inverse: \ExerciseTemplate.workoutDay)
     var exercises: [ExerciseTemplate]
     
-    init(name: String, orderIndex: Int, workoutType: WorkoutType = .strength) {
+    init(name: String, orderIndex: Int, workoutType: WorkoutType = .strength, defaultRestTime: Int = 90, restTimerEnabled: Bool = true) {
         self.name = name
         self.orderIndex = orderIndex
         self._workoutType = workoutType
+        self.defaultRestTime = defaultRestTime
+        self.restTimerEnabled = restTimerEnabled
         self.exercises = []
     }
 }
@@ -236,8 +244,8 @@ final class WorkoutSession {
 @Model
 final class WorkoutSet {
     var exerciseName: String // название упражнения
-    var weight: Double // вес в кг
-    var reps: Int // количество повторений
+    private var _weight: Double // вес в кг
+    private var _reps: Int // количество повторений
     var date: Date
     var isCompleted: Bool
     var comment: String?
@@ -250,10 +258,21 @@ final class WorkoutSet {
     // New: Indicates if bodyweight exercise has added weight
     var isWeighted: Bool
     
+    // Validated properties
+    var weight: Double {
+        get { _weight }
+        set { _weight = max(0, newValue) } // Can't be negative
+    }
+    
+    var reps: Int {
+        get { _reps }
+        set { _reps = max(0, newValue) } // Can't be negative
+    }
+    
     init(exerciseName: String, weight: Double = 0, reps: Int = 0, setNumber: Int = 1, date: Date = Date(), isWeighted: Bool = false) {
         self.exerciseName = exerciseName
-        self.weight = weight
-        self.reps = reps
+        self._weight = max(0, weight)
+        self._reps = max(0, reps)
         self.setNumber = setNumber
         self.date = date
         self.isCompleted = false

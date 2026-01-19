@@ -26,11 +26,7 @@ struct ExerciseListView: View {
                 .navigationTitle("Упражнения")
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Закрыть") {
-                            dismiss()
-                        }
-                    }
+                    // Toolbar left empty intentionally to rely on default 'Back' button
                 }
         }
     }
@@ -86,6 +82,7 @@ struct ExerciseListView: View {
 struct ExerciseListRow: View {
     let exercise: LibraryExercise
     @State private var showingTechnique = false
+    @Environment(\.openURL) var openURL
     
     var body: some View {
         HStack {
@@ -101,6 +98,16 @@ struct ExerciseListRow: View {
             
             Spacer()
             
+            if let url = youtubeSearchURL(for: exercise.name) {
+                Button(action: { openURL(url) }) {
+                    Image(systemName: "play.rectangle.fill")
+                        .foregroundColor(.red)
+                        .font(.title3)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .padding(.trailing, 8)
+            }
+            
             Button(action: { showingTechnique = true }) {
                 Image(systemName: "info.circle")
                     .foregroundColor(DesignSystem.Colors.accent)
@@ -115,6 +122,13 @@ struct ExerciseListRow: View {
         }
     }
 }
+
+    private func youtubeSearchURL(for exerciseName: String) -> URL? {
+        let searchQuery = "\(exerciseName) техника"
+        let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        return URL(string: "https://www.youtube.com/results?search_query=\(encodedQuery)")
+    }
+
 
 #Preview {
     ExerciseListView()

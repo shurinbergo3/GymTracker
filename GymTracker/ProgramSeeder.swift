@@ -13,96 +13,90 @@ struct ProgramSeeder {
     
     // MARK: - Main Seed Function
     
-    /// Генерирует все 15 предустановленных программ
+    /// Генерирует и обновляет список программ
     static func generateDefaultPrograms(context: ModelContext) -> [Program] {
         var allPrograms: [Program] = []
         
-        // Category I: Full Body
-        allPrograms.append(createFundamental2Day())
-        allPrograms.append(createHighFrequency3Day())
-        allPrograms.append(createAdvancedDUP4Day())
+        // 1. Simple / Beginners
+        let prog1 = createFundamental2Day(); prog1.displayOrder = 1
+        allPrograms.append(prog1)
         
-        // Category II: Split
-        allPrograms.append(createAestheticsBalance())
-        allPrograms.append(createVolumeSplit())
-        allPrograms.append(createPreExhaustion())
+        let prog2 = createStreetWorkoutBeginner(); prog2.displayOrder = 2
+        allPrograms.append(prog2)
         
-        // Category III: Fat Loss / Circuit
-        allPrograms.append(createBearComplex())
-        allPrograms.append(createEDT())
-        allPrograms.append(createPHA())
+        // 2. Popular Splits
+        let prog3 = createHighFrequency3Day(); prog3.displayOrder = 3
+        allPrograms.append(prog3)
         
-        // Category IV: Strength
-        allPrograms.append(create531Beginner())
-        allPrograms.append(createGZCLP())
-        allPrograms.append(createUpperLowerStrength())
+        let prog4 = createStreetWorkoutIntermediate(); prog4.displayOrder = 4
+        allPrograms.append(prog4)
         
-        // Category V: Cardio
-        allPrograms.append(createHIITPyramid())
-        allPrograms.append(createStairmasterGlutes())
-        allPrograms.append(createLISSElliptical())
+        let prog5 = create531Beginner(); prog5.displayOrder = 5
+        allPrograms.append(prog5)
         
-        // Category VI: Calisthenics
-        allPrograms.append(createStreetWorkoutBeginner())
-        allPrograms.append(createStreetWorkoutIntermediate())
+        let prog6 = createAestheticsBalance(); prog6.displayOrder = 6
+        allPrograms.append(prog6)
         
-        // Insert all programs into context
-        for program in allPrograms {
-            context.insert(program)
-        }
+        let prog7 = createUpperLowerStrength(); prog7.displayOrder = 7
+        allPrograms.append(prog7)
+        
+        let prog8 = createGZCLP(); prog8.displayOrder = 8
+        allPrograms.append(prog8)
+        
+        // 3. Cardio Focus
+        let prog9 = createHIITPyramid(); prog9.displayOrder = 9
+        allPrograms.append(prog9)
+        
+        let prog10 = createLISSElliptical(); prog10.displayOrder = 10
+        allPrograms.append(prog10)
         
         return allPrograms
     }
     
-    /// Проверяет и создает программы, если их еще нет
+    /// Проверяет и создает программы, удаляет устаревшие
     static func seedProgramsIfNeeded(context: ModelContext) {
         let descriptor = FetchDescriptor<Program>()
+        
+        // Programs to REMOVE (Unpopular)
+        let deprecatedPrograms = [
+            "Продвинутый DUP",
+            "Объемный Сплит",
+            "Pre-Exhaustion",
+            "Комплекс Медведь (The Bear)",
+            "EDT Плотность",
+            "PHA (Сердце)",
+            "Stairmaster Glutes"
+        ]
         
         do {
             let existingPrograms = try context.fetch(descriptor)
             let existingNames = Set(existingPrograms.map { $0.name })
             
-            // Список ожидаемых программ
-            let expectedPrograms = [
-                "Фулбади: Фундаментальная",
-                "Высокочастотная Гипертрофия",
-                "Продвинутый DUP",
-                "Эстетика и Баланс",
-                "Объемный Сплит",
-                "Pre-Exhaustion",
-                "Комплекс Медведь (The Bear)",
-                "EDT Плотность",
-                "PHA (Сердце)",
-                "5/3/1 Новичок",
-                "GZCLP Линейная",
-                "Верх/Низ Силовой",
-                "HIIT Пирамида",
-                "Stairmaster Glutes",
-                "LISS Эллипс",
-                "Воркаут: Старт",
-                "Воркаут: Прогресс"
-            ]
-            
-            // Если все программы уже есть, не создаем новые
-            let missingPrograms = expectedPrograms.filter { !existingNames.contains($0) }
-            
-            if missingPrograms.isEmpty {
-                print("All programs already exist (\(existingPrograms.count) programs)")
-                return
+            // 1. Remove Deprecated
+            for prog in existingPrograms {
+                if deprecatedPrograms.contains(prog.name) {
+                    context.delete(prog)
+                    print("Deleted deprecated program: \(prog.name)")
+                }
             }
             
-            print("Seeding \(missingPrograms.count) missing programs...")
-            let allPrograms = generateDefaultPrograms(context: context)
+            // 2. Add Missing
+            let programsToCreate = generateDefaultPrograms(context: context)
             
-            // Вставляем только недостающие программы
-            for program in allPrograms {
-                if missingPrograms.contains(program.name) {
+            for program in programsToCreate {
+                if !existingNames.contains(program.name) {
                     context.insert(program)
+                    print("Seeded program: \(program.name)")
+                } else {
+                    // Update order of existing
+                    if let existing = existingPrograms.first(where: { $0.name == program.name }) {
+                        existing.displayOrder = program.displayOrder
+                    }
                 }
             }
             
             try context.save()
-            print("Successfully seeded programs. Total: \(try context.fetch(descriptor).count)")
+            print("Successfully updated programs library.")
         } catch {
             print("Failed to seed programs: \(error)")
         }

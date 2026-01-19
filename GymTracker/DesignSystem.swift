@@ -311,3 +311,30 @@ struct StatCard: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
+
+// MARK: - Close Button
+struct CloseButton: View {
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                // Outer dark circle border
+                Circle()
+                    .fill(Color.black.opacity(0.6))
+                    .frame(width: 44, height: 44)
+                
+                // Inner bright red circle
+                Circle()
+                    .fill(Color(red: 1.0, green: 0.27, blue: 0.23)) // Bright red like reference
+                    .frame(width: 36, height: 36)
+                
+                // White X icon
+                Image(systemName: "xmark")
+                    .font(.system(size: 16, weight: .heavy))
+                    .foregroundColor(.white)
+            }
+            .shadow(color: Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.5), radius: 8, x: 0, y: 2)
+        }
+    }
+}

@@ -18,6 +18,23 @@ struct DayEditorView: View {
             Section {
                 TextField("Название дня", text: $day.name)
                     .font(DesignSystem.Typography.body())
+                
+                // Rest Timer Toggle
+                Toggle("Таймер отдыха", isOn: $day.restTimerEnabled)
+                    .font(DesignSystem.Typography.body())
+                
+                // Rest Time Picker (only if enabled)
+                if day.restTimerEnabled {
+                    Picker("Время отдыха", selection: $day.defaultRestTime) {
+                        Text("30 сек").tag(30)
+                        Text("60 сек").tag(60)
+                        Text("90 сек").tag(90)
+                        Text("2 мин").tag(120)
+                        Text("3 мин").tag(180)
+                    }
+                    .pickerStyle(.menu)
+                    .font(DesignSystem.Typography.body())
+                }
             } header: {
                 Text("Основная информация")
                     .font(DesignSystem.Typography.headline())

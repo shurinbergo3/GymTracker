@@ -60,4 +60,23 @@ class FirestoreManager {
             try? document.data(as: Workout.self)
         }
     }
+    
+    // MARK: - Delete User Data
+    
+    /// Delete user document and all subcollections from Firestore
+    /// Used during account deletion for compliance with App Store guidelines
+    func deleteUserDocument(uid: String) async throws {
+        let userDocRef = db.collection("users").document(uid)
+        
+        // Delete workouts subcollection first
+        let workoutsSnapshot = try await userDocRef.collection("workouts").getDocuments()
+        for document in workoutsSnapshot.documents {
+            try await document.reference.delete()
+        }
+        
+        // Delete user document
+        try await userDocRef.delete()
+        
+        print("✅ Deleted Firestore data for user: \(uid)")
+    }
 }

@@ -81,6 +81,7 @@
 		01D712D22F17D88800BF9D6C /* Exceptions for "GymTracker" folder in "Body ForgeWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				PrivacyInfo.xcprivacy,
 				WorkoutAttributes.swift,
 			);
 			target = 01D712B22F17D53900BF9D6C /* Body ForgeWidgetExtension */;

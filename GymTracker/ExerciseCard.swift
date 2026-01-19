@@ -33,6 +33,7 @@ struct ExerciseCard: View {
     @State private var currentWorkoutType: WorkoutType? = nil
     @State private var isHistoryExpanded: Bool = false
     @State private var isWeighted: Bool = false
+    @State private var showRestTimer: Bool = false
     
     @State private var timer: Timer? = nil
     
@@ -74,6 +75,14 @@ struct ExerciseCard: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            // Rest Timer (shown after set completion)
+            if showRestTimer, let workoutDay = exercise.workoutDay, workoutDay.restTimerEnabled {
+                RestTimerView(
+                    isPresented: $showRestTimer,
+                    defaultDuration: workoutDay.defaultRestTime
+                )
+                .padding(.top, 8)
+            }
             // MARK: - Header (Title + Icons)
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -81,12 +90,44 @@ struct ExerciseCard: View {
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
                     
-                    // Progress Pills
-                    HStack(spacing: 4) {
-                        ForEach(0..<max(exercise.plannedSets, completedSets.count), id: \.self) { index in
-                            RoundedRectangle(cornerRadius: 2)
-                                .fill(index < completedSets.count ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.1))
-                                .frame(width: 24, height: 6)
+                    // Progress Pills / Boxes
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            // User requested "amount of approaches always same as set in program".
+                            // But we must show completed ones if they exceed the plan.
+                            let totalCount = max(exercise.plannedSets, completedSets.count)
+                            
+                            ForEach(1...totalCount, id: \.self) { setNum in
+                                let isCompleted = setNum <= completedSets.count
+                                let isExtra = setNum > exercise.plannedSets
+                                let isCurrent = setNum == completedSets.count + 1
+                                
+                                VStack(spacing: 2) {
+                                    // Box
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .fill(
+                                                isCompleted ? (isExtra ? DesignSystem.Colors.secondaryAccent : DesignSystem.Colors.neonGreen) :
+                                                    (isCurrent ? Color.white.opacity(0.3) : Color.white.opacity(0.1))
+                                            )
+                                            .frame(width: 28, height: 28)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 4)
+                                                    .stroke(isExtra ? DesignSystem.Colors.secondaryAccent : DesignSystem.Colors.neonGreen, lineWidth: (isCurrent || isCompleted) ? 0 : 0)
+                                            )
+                                        
+                                        if isCompleted {
+                                            Image(systemName: "checkmark")
+                                                .font(.system(size: 12, weight: .bold))
+                                                .foregroundColor(.black)
+                                        } else {
+                                            Text("\(setNum)")
+                                                .font(.system(size: 12, weight: .bold))
+                                                .foregroundColor(isCurrent ? .white : .gray)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -115,9 +156,6 @@ struct ExerciseCard: View {
                         }
                         Button(action: { showingWorkoutTypeChange = true }) {
                             Label("Изменить тип", systemImage: "gearshape")
-                        }
-                        Button(action: { showingTechnique = true }) {
-                            Label("Техника упражнения", systemImage: "info.circle")
                         }
                     } label: {
                         Image(systemName: "ellipsis")
@@ -326,14 +364,14 @@ struct ExerciseCard: View {
                         
                         Spacer()
                         
-                        Button("+ Подход") {
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                            // Increment planned sets dynamically
-                            exercise.plannedSets += 1
+                        // Show "Дополнительный подход" Label if we are on the last set or extra set
+                        if completedSets.count >= exercise.plannedSets - 1 {
+                             Text("Дополнительный подход")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(DesignSystem.Colors.secondaryAccent)
+                                .padding(.trailing, 16)
+                                .opacity(completedSets.count >= exercise.plannedSets ? 1.0 : 0.0)
                         }
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                        .padding(.trailing, 16)
                         
                         // Large Check Button
                         Button(action: saveCurrentSet) {
@@ -455,6 +493,13 @@ struct ExerciseCard: View {
         modelContext.insert(set)
         session.sets.append(set)
         try? modelContext.save()
+        
+        // Start rest timer (skip if last set)
+        if completedSets.count < exercise.plannedSets {
+            withAnimation {
+                showRestTimer = true
+            }
+        }
         
         // Reset Inputs
         reps = ""

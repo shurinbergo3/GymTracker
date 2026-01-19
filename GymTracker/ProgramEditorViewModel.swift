@@ -16,13 +16,17 @@ class WorkoutDayDraft: Identifiable, ObservableObject {
     let id = UUID()
     @Published var name: String
     @Published var workoutType: WorkoutType
+    @Published var defaultRestTime: Int
+    @Published var restTimerEnabled: Bool
     @Published var exercises: [ExerciseDraft]
     var orderIndex: Int
     
-    init(name: String, orderIndex: Int, workoutType: WorkoutType = .strength, exercises: [ExerciseDraft] = []) {
+    init(name: String, orderIndex: Int, workoutType: WorkoutType = .strength, defaultRestTime: Int = 90, restTimerEnabled: Bool = true, exercises: [ExerciseDraft] = []) {
         self.name = name
         self.orderIndex = orderIndex
         self.workoutType = workoutType
+        self.defaultRestTime = defaultRestTime
+        self.restTimerEnabled = restTimerEnabled
         self.exercises = exercises
     }
 }
@@ -168,7 +172,9 @@ class ProgramEditorViewModel: ObservableObject {
             let workoutDay = WorkoutDay(
                 name: dayDraft.name,
                 orderIndex: dayDraft.orderIndex,
-                workoutType: dayDraft.workoutType
+                workoutType: dayDraft.workoutType,
+                defaultRestTime: dayDraft.defaultRestTime,
+                restTimerEnabled: dayDraft.restTimerEnabled
             )
             
             // Создаем упражнения
@@ -220,6 +226,8 @@ class ProgramEditorViewModel: ObservableObject {
                     name: day.name,
                     orderIndex: day.orderIndex,
                     workoutType: day.workoutType,
+                    defaultRestTime: day.defaultRestTime,
+                    restTimerEnabled: day.restTimerEnabled,
                     exercises: exercises
                 )
             }

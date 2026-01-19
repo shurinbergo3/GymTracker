@@ -44,7 +44,17 @@ struct ReferenceView: View {
                             .gridCellColumns(2) // Span across 2 columns
                             
                             // 2. Supplements (Medium Card)
-                            NavigationLink(destination: SupplementsView()) {
+                            NavigationLink(destination: WorkoutGuideView()) {
+                    ReferenceBentoCard(
+                        title: "Тренировки",
+                        subtitle: "Гайд по тренингу",
+                        icon: "dumbbell.fill",
+                        color: .purple,
+                        height: 160
+                    )
+                }
+                
+                NavigationLink(destination: SupplementsView()) {
                                 ReferenceBentoCard(
                                     title: "Бады",
                                     subtitle: "Топовые добавки",
@@ -76,15 +86,16 @@ struct ReferenceView: View {
                                 )
                             }
 
-                            // 4. Nutrition (Medium Card - Placeholder)
-                            ReferenceBentoCard(
-                                title: "Питание",
-                                subtitle: "В разработке",
-                                icon: "fork.knife",
-                                color: .orange,
-                                height: 160,
-                                isDisabled: true
-                            )
+                            // 4. Nutrition (Medium Card)
+                            NavigationLink(destination: NutritionGuideView()) {
+                                ReferenceBentoCard(
+                                    title: "Питание",
+                                    subtitle: "Топливо для тела",
+                                    icon: "fork.knife",
+                                    color: .orange,
+                                    height: 160
+                                )
+                            }
                         }
                         .padding(.horizontal, DesignSystem.Spacing.lg)
                     }

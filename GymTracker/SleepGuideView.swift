@@ -16,14 +16,18 @@ struct SleepGuideView: View {
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.lg) {
                     // Header Image
-                    ZStack(alignment: .bottomLeading) {
-                        Rectangle()
-                            .fill(LinearGradient(
-                                colors: [.blue.opacity(0.3), .purple.opacity(0.3)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ))
-                            .frame(height: 200)
+                        Image("sleep_header")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: 250)
+                            .clipped()
+                            .overlay(
+                                LinearGradient(
+                                    colors: [.black.opacity(0.6), .clear],
+                                    startPoint: .bottom,
+                                    endPoint: .top
+                                )
+                            )
                             .cornerRadius(DesignSystem.CornerRadius.large)
                         
                         VStack(alignment: .leading, spacing: 8) {
@@ -35,7 +39,6 @@ struct SleepGuideView: View {
                                 .foregroundColor(.white.opacity(0.8))
                         }
                         .padding(DesignSystem.Spacing.lg)
-                    }
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                     .padding(.top, DesignSystem.Spacing.md)
                     
