@@ -239,13 +239,12 @@ class WorkoutManager: ObservableObject {
         // Update selectedDay reference
         self.selectedDay = freshDay
         
-        // 2. Safely access exercises with guard
-        guard !freshDay.exercises.isEmpty else {
+        // 2. Log exercises count (warning if empty, but continue anyway)
+        if freshDay.exercises.isEmpty {
             print("⚠️ No exercises in this workout day")
-            // Continue anyway - user can still track sets
+        } else {
+            print("✅ Loaded \(freshDay.exercises.count) exercises")
         }
-        
-        print("✅ Loaded \(freshDay.exercises.count) exercises")
         
         // Create new session
         let session = WorkoutSession(
