@@ -115,6 +115,9 @@ class WorkoutManager: ObservableObject {
     @Published var currentHeartRate: Int = 0
     @Published var currentActiveCalories: Int = 0
     
+    // HealthKit workout type selection
+    private var selectedActivityType: HKWorkoutActivityType = .functionalStrengthTraining
+    
     private var liveActivityTimer: Timer?
     private var programObserver: NSObjectProtocol?
     
@@ -254,17 +257,17 @@ class WorkoutManager: ObservableObject {
         LiveActivityManager.shared.start(workoutType: session.workoutDayName, startDate: startDate)
         startActivityUpdates(startDate: startDate)
         
-            // Start HealthKit Session
+            // Start HealthKit Session with smart type selection
         let shouldSync = UserDefaults.standard.object(forKey: "isHealthSyncEnabled") as? Bool ?? true
         if shouldSync {
             Task {
-                var type: HKWorkoutActivityType = .traditionalStrengthTraining
+                // Smart workout type selection
+                var type: HKWorkoutActivityType = .functionalStrengthTraining
                 
                 if let dayType = self.selectedDay?.workoutType {
                     switch dayType {
-                    case .strength:
-                        type = .traditionalStrengthTraining
-                    case .repsOnly:
+                    case .strength, .repsOnly:
+                        // Use functional for bodyweight + free weights (better calorie estimation)
                         type = .functionalStrengthTraining
                     case .duration:
                         let name = session.workoutDayName.lowercased()
@@ -277,6 +280,9 @@ class WorkoutManager: ObservableObject {
                         }
                     }
                 }
+                
+                // Save for later use in finishWorkout
+                self.selectedActivityType = type
                 
                 await HealthManager.shared.startWorkout(workoutType: type)
             }
@@ -342,7 +348,7 @@ class WorkoutManager: ObservableObject {
         if currentHeartRate > 0 { session.averageHeartRate = currentHeartRate }
         
         // 3. Complete HealthKit session and fetch accurate data
-        await HealthManager.shared.endWorkout()
+        await HealthManager.shared.endWorkout(activityType: selectedActivityType)
         
         if HealthManager.shared.isAuthorized {
             let calories = await HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)

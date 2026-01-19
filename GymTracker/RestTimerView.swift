@@ -147,37 +147,42 @@ struct RestTimerView: View {
     private func timerCompleted() {
         pauseTimer()
         
-        // New vibration pattern: 3 light taps + 2 long (1s each)
-        let lightGenerator = UIImpactFeedbackGenerator(style: .light)
+        // STRONG vibration pattern: 3 heavy taps + 2 very heavy (with intensity)
         let heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
-        lightGenerator.prepare()
+        let rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
         heavyGenerator.prepare()
+        rigidGenerator.prepare()
         
-        // First light tap
-        lightGenerator.impactOccurred()
+        // First heavy tap
+        heavyGenerator.impactOccurred(intensity: 1.0)
         
-        // Second light tap after 0.2s
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            lightGenerator.impactOccurred()
+        // Second heavy tap after 0.15s
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            heavyGenerator.impactOccurred(intensity: 1.0)
             
-            // Third light tap after 0.2s
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                lightGenerator.impactOccurred()
+            // Third heavy tap after 0.15s
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                heavyGenerator.impactOccurred(intensity: 1.0)
                 
-                // First long vibration (1s) after 0.3s pause
+                // First VERY STRONG vibration after 0.3s pause
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    heavyGenerator.impactOccurred()
+                    rigidGenerator.impactOccurred(intensity: 1.0)
                     
-                    // Second long vibration (1s) after 1.2s
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                        heavyGenerator.impactOccurred()
+                    // Second VERY STRONG vibration after 0.4s
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        rigidGenerator.impactOccurred(intensity: 1.0)
+                        
+                        // Third for extra emphasis
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                            rigidGenerator.impactOccurred(intensity: 1.0)
+                        }
                     }
                 }
             }
         }
         
-        // Auto-dismiss after all vibrations complete (0.2 + 0.2 + 0.3 + 1.2 + 1.0 = 2.9s + buffer)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+        // Auto-dismiss after all vibrations
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             isPresented = false
         }
     }

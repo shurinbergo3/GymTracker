@@ -77,34 +77,57 @@ class HealthManager: NSObject, ObservableObject {
         // Start Live Queries
         startLiveQueries()
         
-        print("Workout Started locally (HealthKit queries active)")
+        print("✅ Workout started: \(workoutType.rawValue)")
     }
     
-    func endWorkout() async {
+    func endWorkout(activityType: HKWorkoutActivityType = .functionalStrengthTraining) async {
         guard isWorkoutActive, let startDate = workoutStartDate else { return }
         
         let endDate = Date()
+        let duration = endDate.timeIntervalSince(startDate)
         isWorkoutActive = false
         workoutStartDate = nil
         
         stopLiveQueries()
         
-        // Save Workout to HealthKit Manually using HKWorkoutBuilder
-        let duration = endDate.timeIntervalSince(startDate)
+        // Fetch actual metrics from HealthKit
+        let calories = await fetchCaloriesForWorkout(start: startDate, end: endDate)
         
         let configuration = HKWorkoutConfiguration()
-        configuration.activityType = .traditionalStrengthTraining
+        configuration.activityType = activityType
         configuration.locationType = .indoor
         
         let builder = HKWorkoutBuilder(healthStore: healthStore, configuration: configuration, device: .local())
         
         do {
             try await builder.beginCollection(at: startDate)
+            
+            // Add calorie data as sample BEFORE finishing
+            if calories > 0 {
+                guard let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) else {
+                    print("⚠️ Could not create energy type")
+                    try await builder.endCollection(at: endDate)
+                    _ = try await builder.finishWorkout()
+                    return
+                }
+                
+                let energyQuantity = HKQuantity(unit: .kilocalorie(), doubleValue: calories)
+                let energySample = HKQuantitySample(type: energyType, quantity: energyQuantity, start: startDate, end: endDate)
+                
+                try await builder.addSamples([energySample])
+                print("✅ Added \(Int(calories))kcal to workout")
+            }
+            
             try await builder.endCollection(at: endDate)
-            _ = try await builder.finishWorkout()
-            print("Usage: Manual HKWorkout saved via Builder: \(duration)s")
+            let workout = try await builder.finishWorkout()
+            
+            print("✅ HKWorkout saved successfully:")
+            print("   Duration: \(Int(duration))s")
+            print("   Calories: \(Int(calories))kcal")
+            print("   Type: \(activityType.rawValue)")
+            print("   UUID: \(workout.uuid)")
         } catch {
-            print("Failed to save manual HKWorkout: \(error)")
+            print("❌ Failed to save HKWorkout: \(error.localizedDescription)")
         }
     }
     

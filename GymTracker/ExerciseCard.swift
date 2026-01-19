@@ -142,15 +142,25 @@ struct ExerciseCard: View {
                                 .font(.system(size: 18))
                                 .foregroundColor(isHistoryExpanded ? DesignSystem.Colors.neonGreen : .gray)
                         }
-                    }
-                    
                     Button(action: { showingTechnique = true }) {
                         Image(systemName: "info.circle") // Info/Technique
                             .font(.system(size: 18))
                             .foregroundColor(.gray)
                     }
-                    
+                    // Menu Button
                     Menu {
+                        Button {
+                            showingTechnique = true
+                        } label: {
+                            Label("Гайд", systemImage: "book")
+                        }
+                        
+                        Button {
+                            isHistoryExpanded.toggle()
+                        } label: {
+                            Label("История", systemImage: "clock.arrow.circlepath")
+                        }
+                        
                         Button(action: { showingReplacement = true }) {
                             Label("Заменить упражнение", systemImage: "arrow.triangle.2.circlepath")
                         }
@@ -159,8 +169,10 @@ struct ExerciseCard: View {
                         }
                     } label: {
                         Image(systemName: "ellipsis")
-                            .font(.system(size: 18))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.6))
+                            .frame(width: 44, height: 44) // Larger tap area
+                            .contentShape(Rectangle())
                     }
                 }
             }
