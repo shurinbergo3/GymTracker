@@ -231,16 +231,21 @@ class WorkoutManager: ObservableObject {
         guard let day = selectedDay else { return }
         
         // 1. Refresh object to ensure it is valid and attached to context
-        var activeDay = day
-        if let freshDay = modelContext.model(for: day.persistentModelID) as? WorkoutDay {
-            activeDay = freshDay
-            self.selectedDay = freshDay
+        guard let freshDay = modelContext.model(for: day.persistentModelID) as? WorkoutDay else {
+            print("❌ Failed to refresh WorkoutDay from context")
+            return
         }
         
-        // 2. Force load exercises relationship before starting
-        // This ensures SwiftData faults it in
-        let _ = activeDay.exercises.count
-        let _ = activeDay.exercises.map { $0.name }
+        // Update selectedDay reference
+        self.selectedDay = freshDay
+        
+        // 2. Safely access exercises with guard
+        guard !freshDay.exercises.isEmpty else {
+            print("⚠️ No exercises in this workout day")
+            // Continue anyway - user can still track sets
+        }
+        
+        print("✅ Loaded \(freshDay.exercises.count) exercises")
         
         // Create new session
         let session = WorkoutSession(
