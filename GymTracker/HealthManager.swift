@@ -119,13 +119,12 @@ class HealthManager: NSObject, ObservableObject {
             }
             
             try await builder.endCollection(at: endDate)
-            let workout = try await builder.finishWorkout()
+            _ = try await builder.finishWorkout()
             
             print("✅ HKWorkout saved successfully:")
             print("   Duration: \(Int(duration))s")
             print("   Calories: \(Int(calories))kcal")
             print("   Type: \(activityType.rawValue)")
-            print("   UUID: \(workout.uuid)")
         } catch {
             print("❌ Failed to save HKWorkout: \(error.localizedDescription)")
         }
