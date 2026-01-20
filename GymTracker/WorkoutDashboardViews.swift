@@ -381,72 +381,32 @@ struct SleepDetailView: View {
     let sleepData: [SleepData]
     @Environment(\.dismiss) var dismiss
     
+    @State private var selectedRange: SleepTimeRange = .day
+    @State private var historyData: [DailySleepData] = []
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
                     
-                    // Header Stats
-                    HStack(spacing: 20) {
-                        SleepStatBox(title: "Всего сна", value: formatDuration(totalSleep), color: .white)
-                        SleepStatBox(title: "В кровати", value: formatDuration(totalInBed), color: .gray)
+                    // Range Picker
+                    Picker("Период", selection: $selectedRange) {
+                        ForEach(SleepTimeRange.allCases) { range in
+                            Text(range.rawValue).tag(range)
+                        }
                     }
-                    .padding(.top)
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
                     
-                    // Main Graph
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Фазы сна")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                        
-                        Chart {
-                            ForEach(sleepData) { datum in
-                                BarMark(
-                                    x: .value("Time", datum.startDate ..< datum.endDate),
-                                    y: .value("Stage", datum.label)
-                                )
-                                .foregroundStyle(datum.color)
-                            }
-                        }
-                        .chartYAxis {
-                            AxisMarks(preset: .extended, position: .leading) { value in
-                                AxisValueLabel()
-                                    .foregroundStyle(.gray)
-                            }
-                        }
-                        .chartXAxis {
-                            AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                                AxisGridLine()
-                                AxisValueLabel(format: .dateTime.hour().minute())
-                                    .foregroundStyle(.gray)
-                            }
-                        }
-                        .frame(height: 300)
+                    if selectedRange == .day {
+                        // MARK: - Day View (Original)
+                        dayViewContent
+                    } else {
+                        // MARK: - History View (New)
+                        historyViewContent
                     }
-                    .padding()
-                    .background(DesignSystem.Colors.cardBackground)
-                    .cornerRadius(16)
-                    
-                    // Legend / Breakdown
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Детализация")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .padding(.bottom, 4)
-                        
-                        SleepLegendRow(color: .purple, label: "Глубокий сон", duration: duration(for: .asleepDeep))
-                        Divider().background(Color.gray.opacity(0.3))
-                        SleepLegendRow(color: .blue, label: "Базовый сон", duration: duration(for: .asleepCore))
-                        Divider().background(Color.gray.opacity(0.3))
-                        SleepLegendRow(color: .cyan, label: "Быстрый сон (REM)", duration: duration(for: .asleepREM))
-                        Divider().background(Color.gray.opacity(0.3))
-                        SleepLegendRow(color: .orange, label: "Бодрствование", duration: duration(for: .awake))
-                    }
-                    .padding()
-                    .background(DesignSystem.Colors.cardBackground)
-                    .cornerRadius(16)
                 }
-                .padding()
+                .padding(.vertical)
             }
             .background(DesignSystem.Colors.background.ignoresSafeArea())
             .navigationTitle("Сон")
@@ -457,20 +417,204 @@ struct SleepDetailView: View {
                         .foregroundStyle(DesignSystem.Colors.neonGreen)
                 }
             }
+            .onChange(of: selectedRange) { _, newRange in
+                if newRange != .day {
+                    Task {
+                        self.historyData = await HealthManager.shared.fetchSleepHistory(for: newRange)
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Day Content
+    private var dayViewContent: some View {
+        VStack(spacing: 24) {
+            // Header Stats
+            HStack(spacing: 20) {
+                SleepStatBox(title: "Всего сна", value: formatDuration(totalSleep), color: .white)
+                SleepStatBox(title: "В кровати", value: formatDuration(totalInBed), color: .gray)
+            }
+            .padding(.horizontal)
+            
+            // Main Graph
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Фазы сна (Сегодня)")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                
+                Chart {
+                    ForEach(sleepData) { datum in
+                        BarMark(
+                            x: .value("Time", datum.startDate ..< datum.endDate),
+                            y: .value("Stage", datum.label)
+                        )
+                        .foregroundStyle(datum.color)
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks(preset: .extended, position: .leading) { value in
+                        AxisValueLabel()
+                            .foregroundStyle(.gray)
+                    }
+                }
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 5)) { value in
+                        AxisGridLine()
+                        AxisValueLabel(format: .dateTime.hour().minute())
+                            .foregroundStyle(.gray)
+                    }
+                }
+                .frame(height: 300)
+            }
+            .padding()
+            .background(DesignSystem.Colors.cardBackground)
+            .cornerRadius(16)
+            .padding(.horizontal)
+            
+            // Legend / Breakdown
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Детализация")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .padding(.bottom, 4)
+                
+                SleepLegendRow(color: .purple, label: "Глубокий сон", duration: duration(for: .asleepDeep))
+                Divider().background(Color.gray.opacity(0.3))
+                SleepLegendRow(color: .blue, label: "Базовый сон", duration: duration(for: .asleepCore))
+                Divider().background(Color.gray.opacity(0.3))
+                SleepLegendRow(color: .cyan, label: "Быстрый сон (REM)", duration: duration(for: .asleepREM))
+                Divider().background(Color.gray.opacity(0.3))
+                SleepLegendRow(color: .orange, label: "Бодрствование", duration: duration(for: .awake))
+            }
+            .padding()
+            .background(DesignSystem.Colors.cardBackground)
+            .cornerRadius(16)
+            .padding(.horizontal)
+        }
+    }
+    
+    // MARK: - History Content
+    private var historyViewContent: some View {
+        VStack(spacing: 24) {
+            // Avg Stats
+            let avgSleep = historyData.isEmpty ? 0 : historyData.reduce(0) { $0 + $1.totalDuration } / Double(historyData.count)
+            
+            HStack(spacing: 20) {
+                SleepStatBox(title: "Средний сон", value: formatDuration(avgSleep), color: .white)
+                // Placeholder for second stat or remove
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            // History Graph
+            VStack(alignment: .leading, spacing: 16) {
+                Text("История (\(selectedRange.rawValue))")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                
+                if historyData.isEmpty {
+                    Text("Нет данных за этот период")
+                        .foregroundStyle(.gray)
+                        .frame(maxWidth: .infinity, minHeight: 200)
+                } else {
+                    Chart {
+                        ForEach(historyData) { datum in
+                            BarMark(
+                                x: .value("Date", datum.date, unit: .day),
+                                y: .value("Hours", datum.totalDuration / 3600.0) // Convert to Hours
+                            )
+                            .foregroundStyle(DesignSystem.Colors.neonGreen.gradient)
+                        }
+                        
+                        // RuleMark for Goal (e.g. 8h)
+                        RuleMark(y: .value("Goal", 8))
+                            .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                            .foregroundStyle(.purple.opacity(0.5))
+                            .annotation(position: .leading) {
+                                Text("8ч")
+                                    .font(.caption)
+                                    .foregroundStyle(.purple)
+                            }
+                    }
+                    .chartYAxis {
+                        AxisMarks(position: .leading) { value in
+                            AxisGridLine()
+                            AxisValueLabel()
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                    .chartXAxis {
+                        AxisMarks(values: .automatic(desiredCount: selectedRange == .week ? 7 : 5)) { value in
+                            AxisValueLabel(format: .dateTime.day().month())
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                    .frame(height: 300)
+                }
+            }
+            .padding()
+            .background(DesignSystem.Colors.cardBackground)
+            .cornerRadius(16)
+            .padding(.horizontal)
         }
     }
     
     // Helpers
     private var totalSleep: TimeInterval {
-        sleepData.filter { $0.type == .asleepCore || $0.type == .asleepDeep || $0.type == .asleepREM || $0.type == .asleepUnspecified }.reduce(0) { $0 + $1.duration }
+        let filtered = sleepData.filter {
+            $0.type == .asleepCore ||
+            $0.type == .asleepDeep ||
+            $0.type == .asleepREM ||
+            $0.type == .asleepUnspecified
+        }.sorted { $0.startDate < $1.startDate }
+        
+        return calculateDuration(for: filtered)
     }
     
     private var totalInBed: TimeInterval {
-        sleepData.filter { $0.type == .inBed }.reduce(0) { $0 + $1.duration }
+        let filtered = sleepData.filter { $0.type == .inBed }
+            .sorted { $0.startDate < $1.startDate }
+        
+        return calculateDuration(for: filtered)
     }
     
     private func duration(for type: HKCategoryValueSleepAnalysis) -> TimeInterval {
-        sleepData.filter { $0.type == type }.reduce(0) { $0 + $1.duration }
+        let filtered = sleepData.filter { $0.type == type }
+            .sorted { $0.startDate < $1.startDate }
+        
+        return calculateDuration(for: filtered)
+    }
+    
+    private func calculateDuration(for segments: [SleepData]) -> TimeInterval {
+        guard !segments.isEmpty else { return 0 }
+        
+        var totalDuration: TimeInterval = 0
+        var currentInterval: (start: Date, end: Date)?
+        
+        for segment in segments {
+            if let current = currentInterval {
+                if segment.startDate < current.end {
+                    // Overlap: Extend end if needed
+                    if segment.endDate > current.end {
+                        currentInterval?.end = segment.endDate
+                    }
+                } else {
+                    // No overlap: Commit current and start new
+                    totalDuration += current.end.timeIntervalSince(current.start)
+                    currentInterval = (segment.startDate, segment.endDate)
+                }
+            } else {
+                currentInterval = (segment.startDate, segment.endDate)
+            }
+        }
+        
+        // Commit last interval
+        if let current = currentInterval {
+            totalDuration += current.end.timeIntervalSince(current.start)
+        }
+        
+        return totalDuration
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {

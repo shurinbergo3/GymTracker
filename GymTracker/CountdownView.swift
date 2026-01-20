@@ -4,6 +4,7 @@
 //  Apple Fitness-style countdown with animated ring
 
 import SwiftUI
+import AudioToolbox
 
 struct CountdownView: View {
     var onComplete: () -> Void
@@ -11,6 +12,7 @@ struct CountdownView: View {
     @State private var countdown = 3
     @State private var progress: CGFloat = 0.0
     @State private var scale: CGFloat = 1.0
+    @State private var ringRotation: Double = 0.0 // Ring rotation angle
     
     var body: some View {
         ZStack {
@@ -30,9 +32,9 @@ struct CountdownView: View {
                         )
                         .frame(width: 240, height: 240)
                     
-                    // Animated Progress Ring (full circle, rotating)
+                    // Animated Progress Ring (fills + rotates)
                     Circle()
-                        .trim(from: 0, to: 1.0)
+                        .trim(from: 0, to: progress)
                         .stroke(
                             DesignSystem.Colors.neonGreen,
                             style: StrokeStyle(
@@ -41,8 +43,9 @@ struct CountdownView: View {
                             )
                         )
                         .frame(width: 240, height: 240)
-                        .rotationEffect(.degrees(progress * 360 - 90.0)) // Rotate full 360° per second
-                        .animation(.linear(duration: 1.0), value: progress)
+                        .rotationEffect(.degrees(-90 + ringRotation)) // Start from top + rotation
+                        .animation(.linear(duration: 1.0), value: ringRotation)
+                        .animation(.easeInOut(duration: 1.0), value: progress)
                     
                     // Countdown Number
                     if countdown > 0 {
@@ -78,9 +81,17 @@ struct CountdownView: View {
     }
     
     private func performCountdownStep() {
+        // Play beep sound (Apple Fitness-style)
+        playBeepSound()
+        
         // Animate ring filling for this second
         withAnimation(.easeInOut(duration: 1.0)) {
             progress = 1.0
+        }
+        
+        // Rotate ring continuously (360° per second)
+        withAnimation(.linear(duration: 1.0)) {
+            ringRotation += 360.0
         }
         
         // Pulse scale animation
@@ -106,7 +117,10 @@ struct CountdownView: View {
                 progress = 0.0
                 performCountdownStep()
             } else {
-                // Countdown complete - trigger onComplete
+                // Countdown complete - play final sound
+                playFinalSound()
+                
+                // Trigger onComplete
                 withAnimation {
                     scale = 0.8
                 }
@@ -115,6 +129,16 @@ struct CountdownView: View {
                 }
             }
         }
+    }
+    
+    private func playBeepSound() {
+        // System beep sound (1057 is a short beep, similar to Apple Fitness)
+        AudioServicesPlaySystemSound(1057)
+    }
+    
+    private func playFinalSound() {
+        // Final "GO" sound (stronger beep)
+        AudioServicesPlaySystemSound(1113)
     }
 }
 

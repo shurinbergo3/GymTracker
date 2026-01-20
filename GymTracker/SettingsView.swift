@@ -71,7 +71,7 @@ struct SettingsView: View {
                                 .foregroundStyle(DesignSystem.Colors.primaryText)
                         }
                     }
-                    .tint(Color.green)
+                    .tint(Color.purple.opacity(0.8))
                 } header: {
                     Text("Интеграции")
                 } footer: {

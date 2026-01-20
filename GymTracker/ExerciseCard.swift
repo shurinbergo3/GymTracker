@@ -77,10 +77,11 @@ struct ExerciseCard: View {
     var body: some View {
         VStack(spacing: 0) {
             // Rest Timer (shown after set completion)
-            if showRestTimer, let workoutDay = exercise.workoutDay, workoutDay.restTimerEnabled {
+            if showRestTimer, isTimerEnabledForExercise {
                 RestTimerView(
                     isPresented: $showRestTimer,
-                    defaultDuration: workoutDay.defaultRestTime
+                    defaultDuration: exercise.workoutDay?.defaultRestTime ?? 90,
+                    autoStart: true
                 )
                 .padding(.top, 8)
             }
@@ -154,6 +155,10 @@ struct ExerciseCard: View {
                     Menu {
                         Button {
                             isTimerEnabledForExercise.toggle()
+                            // If turning off, hide any active timer immediately
+                            if !isTimerEnabledForExercise {
+                                showRestTimer = false
+                            }
                         } label: {
                             Label(
                                 isTimerEnabledForExercise ? "Выкл. таймер" : "Вкл. таймер",
@@ -508,8 +513,9 @@ struct ExerciseCard: View {
         session.sets.append(set)
         try? modelContext.save()
         
-        // Start rest timer (skip if last set)
-        if completedSets.count < exercise.plannedSets {
+        // Start rest timer after completing ANY set (if timer is enabled)
+        // This includes extra/bonus sets beyond the planned amount
+        if isTimerEnabledForExercise {
             withAnimation {
                 showRestTimer = true
             }

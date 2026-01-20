@@ -11,7 +11,11 @@ import Charts
 
 struct WorkoutHistoryView: View {
     @Environment(\.dismiss) private var dismiss
+    @Binding var selectedTab: Int // Added for navigation
+    
     @Query(sort: \WorkoutSession.date, order: .reverse) private var allSessions: [WorkoutSession]
+    @Query private var programs: [Program] // To check if user has programs
+    
     @State private var historyMode: HistoryMode = .sessions
     
     enum HistoryMode: String, CaseIterable {
@@ -53,13 +57,65 @@ struct WorkoutHistoryView: View {
                 .ignoresSafeArea()
             
             if completedSessions.isEmpty {
-                EmptyStateView(
-                    icon: "figure.strengthtraining.traditional",
-                    title: "Нет завершенных тренировок",
-                    message: "История ваших тренировок появится здесь",
-                    buttonTitle: "Начать тренировку"
-                ) {
-                    dismiss()
+                // Custom Empty State
+                VStack(spacing: 24) {
+                    Spacer()
+                    
+                    // Icon with Glow
+                    ZStack {
+                        Circle()
+                            .fill(DesignSystem.Colors.cardBackground)
+                            .frame(width: 100, height: 100)
+                            .overlay(
+                                Circle()
+                                    .stroke(DesignSystem.Colors.neonGreen.opacity(0.1), lineWidth: 1)
+                            )
+                        
+                        Image(systemName: "figure.strengthtraining.traditional")
+                            .font(.system(size: 44))
+                            .foregroundColor(DesignSystem.Colors.neonGreen)
+                    }
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.2), radius: 20, x: 0, y: 0)
+                    
+                    // Text
+                    VStack(spacing: 8) {
+                        Text("Нет завершенных тренировок")
+                            .font(DesignSystem.Typography.title3())
+                            .foregroundColor(.white)
+                            .fontWeight(.semibold)
+                        
+                        Text("История ваших тренировок появится здесь.\nНачните свой путь прямо сейчас!")
+                            .font(DesignSystem.Typography.body())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                            .lineSpacing(4)
+                    }
+                    
+                    Spacer()
+                    
+                    // Smart Button
+                    Button(action: {
+                        if programs.isEmpty {
+                            // No programs -> Go to Programs tab to create one
+                            selectedTab = 1
+                        } else {
+                            // Programs exist -> Go to Workout tab to start
+                            selectedTab = 0
+                        }
+                        dismiss()
+                    }) {
+                        Text("Начать тренировку")
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(DesignSystem.Colors.neonGreen)
+                            .cornerRadius(16)
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 20)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.2), radius: 10, y: 4)
                 }
             } else {
                 VStack(spacing: 0) {
@@ -325,6 +381,13 @@ struct WorkoutHistoryCard: View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                 HStack {
+                    // App Icon/Logo
+                    Image("launch_logo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 44, height: 44)
+                        .cornerRadius(10)
+                    
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         // Program Name Label
                         if let programName = session.programName {
@@ -1023,6 +1086,6 @@ struct PieSlice: Shape {
 }
 
 #Preview {
-    WorkoutHistoryView()
+    WorkoutHistoryView(selectedTab: .constant(3))
         .modelContainer(for: [WorkoutSession.self, WorkoutSet.self], inMemory: true)
 }

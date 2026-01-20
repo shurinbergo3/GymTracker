@@ -15,6 +15,7 @@ struct MeasurementsView: View {
     @EnvironmentObject var authManager: AuthManager
     
 
+    @Binding var selectedTab: Int
     @Query(sort: \WorkoutSession.date, order: .reverse) private var allSessions: [WorkoutSession]
     @Query private var userProfiles: [UserProfile]
     
@@ -22,8 +23,6 @@ struct MeasurementsView: View {
     private var completedSessions: [WorkoutSession] {
         allSessions.filter { $0.isCompleted }
     }
-    
-
     
     @State private var showingSettings = false
 
@@ -42,7 +41,7 @@ struct MeasurementsView: View {
                         }
 
                         // История Тренировок
-                        NavigationLink(destination: WorkoutHistoryView()) {
+                        NavigationLink(destination: WorkoutHistoryView(selectedTab: $selectedTab)) {
                             CardView {
                                 HStack {
                                     Image(systemName: "clock.arrow.circlepath")
@@ -263,7 +262,7 @@ extension MeasurementType: Identifiable {
 }
 
 #Preview {
-    MeasurementsView()
+    MeasurementsView(selectedTab: .constant(3))
         .modelContainer(for: [UserProfile.self, WeightRecord.self, BodyMeasurement.self], inMemory: true)
         .environmentObject(AuthManager())
 }

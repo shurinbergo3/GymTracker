@@ -37,7 +37,7 @@ struct ContentView: View {
                 .tag(2)
             
             // Tab 4: Параметры
-            MeasurementsView()
+            MeasurementsView(selectedTab: $selectedTab)
                 .tabItem {
                     Label("Статистика", systemImage: "chart.line.uptrend.xyaxis")
                 }

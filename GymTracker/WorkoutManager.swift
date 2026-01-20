@@ -123,6 +123,9 @@ class WorkoutManager: ObservableObject {
     
     private let modelContext: ModelContext
     
+    // Helper ID for safe async passing via Countdown (prevents invalidation crash)
+    private var pendingWorkoutDayID: PersistentIdentifier?
+    
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
         loadActiveProgram()
@@ -223,23 +226,35 @@ class WorkoutManager: ObservableObject {
     // MARK: - Workflow Methods
     
     func startWorkout() {
-        guard selectedDay != nil else { return }
+        guard let day = selectedDay else { return }
+        // Store ID safely before countdown starts
+        self.pendingWorkoutDayID = day.persistentModelID
         workoutState = .countdown
     }
     
     func beginActiveSession() {
-        guard let day = selectedDay else { return }
+        // Use pending ID if available, otherwise fallback to selectedDay?.id (risky)
+        guard let dayID = pendingWorkoutDayID ?? selectedDay?.persistentModelID else { return }
         
-        // 1. Refresh object to ensure it is valid and attached to context
-        guard let freshDay = modelContext.model(for: day.persistentModelID) as? WorkoutDay else {
+        // 1. Refresh object directly from ID to avoid using potentially invalidated 'selectedDay' reference
+        guard let freshDay = modelContext.model(for: dayID) as? WorkoutDay else {
             print("❌ Failed to refresh WorkoutDay from context")
+            workoutState = .idle // Reset state on error
             return
         }
         
-        // Update selectedDay reference
+        if freshDay.isDeleted {
+             print("❌ WorkoutDay was deleted")
+             workoutState = .idle
+             return
+        }
+        
+        // Update selectedDay reference to the fresh one
         self.selectedDay = freshDay
+        self.pendingWorkoutDayID = nil // Clear pending ID
         
         // 2. Log exercises count (warning if empty, but continue anyway)
+        // Accessing .exercises here should now be safe on freshDay
         if freshDay.exercises.isEmpty {
             print("⚠️ No exercises in this workout day")
         } else {
@@ -249,7 +264,7 @@ class WorkoutManager: ObservableObject {
         // Create new session
         let session = WorkoutSession(
             date: Date(),
-            workoutDayName: day.name,
+            workoutDayName: freshDay.name,
             programName: activeProgram?.name
         )
         modelContext.insert(session)
@@ -363,14 +378,19 @@ class WorkoutManager: ObservableObject {
             if avgHeartRate > 0 { session.averageHeartRate = Int(avgHeartRate) }
         }
         
-        // 4. Save data
+        // 4. Save data to SwiftData
         do {
             try modelContext.save()
-            print("✅ Workout saved successfully. HR: \\(session.averageHeartRate ?? 0), Calories: \\(session.calories ?? 0)")
+            print("✅ Workout saved successfully. HR: \(session.averageHeartRate ?? 0), Calories: \(session.calories ?? 0)")
         } catch {
-            print("❌ Error saving workout: \\(error.localizedDescription)")
+            print("❌ Error saving workout: \(error.localizedDescription)")
             // Even on error, we should transition to summary to not block user
         }
+        
+        // 4.5 NEW: Sync to Firestore for cloud backup
+        let workout = Workout(from: session)
+        FirestoreManager.shared.save(workout: workout)
+        print("📤 Syncing workout to Firestore...")
         
         // 5. Only NOW transition UI to summary (after all data is saved)
         self.workoutState = .summary

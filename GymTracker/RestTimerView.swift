@@ -6,20 +6,27 @@
 //
 
 import SwiftUI
+import AudioToolbox
+import UserNotifications
 
 struct RestTimerView: View {
     @Binding var isPresented: Bool
     let defaultDuration: Int // in seconds
+    let autoStart: Bool // whether to auto-start timer
     
     @State private var remainingTime: Int
     @State private var isRunning: Bool = false
     @State private var timer: Timer?
     
-    init(isPresented: Binding<Bool>, defaultDuration: Int = 90) {
+    init(isPresented: Binding<Bool>, defaultDuration: Int = 90, autoStart: Bool = false) {
         self._isPresented = isPresented
         self.defaultDuration = defaultDuration
+        self.autoStart = autoStart
         self._remainingTime = State(initialValue: defaultDuration)
     }
+    
+    @Environment(\.scenePhase) var scenePhase
+    @State private var backgroundEntryDate: Date?
     
     var body: some View {
         HStack(spacing: 12) {
@@ -104,6 +111,39 @@ struct RestTimerView: View {
         )
         .padding(.horizontal, DesignSystem.Spacing.lg)
         .transition(.move(edge: .top).combined(with: .opacity))
+        .onAppear {
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+            if autoStart && !isRunning {
+                startTimer()
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                if isRunning {
+                    // Pause timer to save CPU
+                    timer?.invalidate()
+                    backgroundEntryDate = Date()
+                    // Schedule notification just in case
+                    scheduleNotification()
+                }
+            } else if newPhase == .active {
+                if isRunning, let bgDate = backgroundEntryDate {
+                    let timePassed = Date().timeIntervalSince(bgDate)
+                    remainingTime -= Int(timePassed)
+                    backgroundEntryDate = nil
+                    
+                    if remainingTime <= 0 {
+                        remainingTime = 0
+                        timerCompleted()
+                    } else {
+                        // Restart UI timer
+                        startTimer()
+                    }
+                    // Cancel notification as we are back
+                    cancelNotification()
+                }
+            }
+        }
     }
     
     private var timeColor: Color {
@@ -123,6 +163,9 @@ struct RestTimerView: View {
     }
     
     private func startTimer() {
+        // Invalidate existing timer just in case
+        timer?.invalidate()
+        
         isRunning = true
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             if remainingTime > 0 {
@@ -147,6 +190,9 @@ struct RestTimerView: View {
     private func timerCompleted() {
         pauseTimer()
         
+        // Play completion sound
+        AudioServicesPlaySystemSound(1057) // Short beep
+        
         // STRONG vibration pattern: 3 heavy taps + 2 very heavy (with intensity)
         let heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
         let rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
@@ -167,6 +213,9 @@ struct RestTimerView: View {
                 // First VERY STRONG vibration after 0.3s pause
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     rigidGenerator.impactOccurred(intensity: 1.0)
+                    
+                    // Play second beep
+                    AudioServicesPlaySystemSound(1057)
                     
                     // Second VERY STRONG vibration after 0.4s
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -196,6 +245,26 @@ struct RestTimerView: View {
             remainingTime -= 15
         }
     }
+    
+    // MARK: - Notification Helpers
+    private func scheduleNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Время отдыха вышло!"
+        content.body = "Пора приступать к следующему подходу"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "beep.mp3")) // Fallback to default if custom missing
+        if content.sound == nil { content.sound = .default }
+        
+        let triggerTime = Double(remainingTime)
+        if triggerTime > 0 {
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: triggerTime, repeats: false)
+            let request = UNNotificationRequest(identifier: "RestTimerDone", content: content, trigger: trigger)
+            UNUserNotificationCenter.current().add(request)
+        }
+    }
+    
+    private func cancelNotification() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["RestTimerDone"])
+    }
 }
 
 #Preview {
@@ -204,7 +273,7 @@ struct RestTimerView: View {
         
         VStack {
             Spacer()
-            RestTimerView(isPresented: .constant(true), defaultDuration: 90)
+            RestTimerView(isPresented: .constant(true), defaultDuration: 90, autoStart: false)
             Spacer()
         }
     }
