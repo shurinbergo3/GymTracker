@@ -93,10 +93,18 @@ class LiveActivityManager {
         
         let finalState = currentActivity.content.state
         
-        // 2. Perform the async system call
+        // 2. End activity with proper dismissal
         Task {
-            await currentActivity.end(.init(state: finalState, staleDate: nil), dismissalPolicy: .immediate)
-            print("Live Activity ended")
+            // First, update to final state
+            await currentActivity.update(.init(state: finalState, staleDate: nil))
+            
+            // Small delay to ensure state is updated before ending
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+            
+            // Then end with default dismissal policy (more reliable than .immediate)
+            await currentActivity.end(.init(state: finalState, staleDate: nil), dismissalPolicy: .default)
+            
+            print("✅ Live Activity ended and dismissed")
         }
     }
 }

@@ -214,6 +214,26 @@ struct ExerciseCard: View {
                 .transition(.opacity)
             }
             
+            // MARK: - Current Session Sets (NEW)
+            if !completedSets.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Выполнено:")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(completedSets, id: \.self) { set in
+                                CompletedSetChip(set: set, workoutType: effectiveWorkoutType)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+                .transition(.opacity)
+            }
+            
             // MARK: - AI Banner
             if isActive, let recommendation = aiRecommendation {
                 HStack {
@@ -513,9 +533,11 @@ struct ExerciseCard: View {
         session.sets.append(set)
         try? modelContext.save()
         
-        // Start rest timer after completing ANY set (if timer is enabled)
-        // This includes extra/bonus sets beyond the planned amount
-        if isTimerEnabledForExercise {
+        // Start rest timer only if NOT the last planned set
+        // Don't start timer if user just completed their last planned set
+        let isLastPlannedSet = completedSets.count >= exercise.plannedSets
+        
+        if isTimerEnabledForExercise && !isLastPlannedSet {
             withAnimation {
                 showRestTimer = true
             }
@@ -555,5 +577,60 @@ struct ExerciseCard: View {
         let minutes = Int(timeInterval) / 60
         let seconds = Int(timeInterval) % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+}
+
+// MARK: - Completed Set Chip Component
+
+struct CompletedSetChip: View {
+    let set: WorkoutSet
+    let workoutType: WorkoutType
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            // Set number badge
+            Text("\(set.setNumber)")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.black)
+                .frame(width: 24, height: 24)
+                .background(DesignSystem.Colors.neonGreen)
+                .clipShape(Circle())
+            
+            // Set details
+            Text(setDetails)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(DesignSystem.Colors.neonGreen.opacity(0.3), lineWidth: 1)
+                )
+        )
+    }
+    
+    private var setDetails: String {
+        switch workoutType {
+        case .strength:
+            return "\(Int(set.weight))кг × \(set.reps)"
+        case .repsOnly:
+            if set.weight > 0 {
+                return "\(Int(set.weight))кг × \(set.reps)"
+            } else {
+                return "\(set.reps) повт."
+            }
+        case .duration:
+            if let duration = set.duration, duration > 0 {
+                let minutes = Int(duration) / 60
+                let seconds = Int(duration) % 60
+                return String(format: "%02d:%02d", minutes, seconds)
+            } else {
+                return "Завершено"
+            }
+        }
     }
 }

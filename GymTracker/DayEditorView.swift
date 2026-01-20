@@ -32,6 +32,7 @@ struct DayEditorView: View {
                         Text("90 сек").tag(90)
                         Text("2 мин").tag(120)
                         Text("3 мин").tag(180)
+                        Text("5 мин").tag(300)
                     }
                     .pickerStyle(.menu)
                     .font(DesignSystem.Typography.body())

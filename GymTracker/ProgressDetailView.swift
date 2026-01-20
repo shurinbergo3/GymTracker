@@ -44,28 +44,10 @@ struct ProgressDetailView: View {
         }
     }
     
-    private var trendDirection: TrendDirection {
-        guard chartData.count >= 2 else { return .stable }
-        
-        let firstHalf = chartData.prefix(chartData.count / 2)
-        let secondHalf = chartData.suffix(chartData.count / 2)
-        
-        let firstAvg = firstHalf.map { $0.volume }.reduce(0, +) / Double(max(1, firstHalf.count))
-        let secondAvg = secondHalf.map { $0.volume }.reduce(0, +) / Double(max(1, secondHalf.count))
-        
-        let changePercent = ((secondAvg - firstAvg) / max(1, firstAvg)) * 100
-        
-        if changePercent > 10 {
-            return .strongUp
-        } else if changePercent > 3 {
-            return .up
-        } else if changePercent > -3 {
-            return .stable
-        } else if changePercent > -10 {
-            return .down
-        } else {
-            return .strongDown
-        }
+    
+    private var progressTrend: ProgressTrend {
+        // Use the scientific Volume Load-based calculation
+        ProgressTrend.calculate(from: Array(allSessions))
     }
     
     var body: some View {
@@ -83,9 +65,6 @@ struct ProgressDetailView: View {
                     
                     // Statistics Grid
                     statsGrid
-                    
-                    // Arrow Legend
-                    arrowLegendSection
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 40)
@@ -132,28 +111,28 @@ struct ProgressDetailView: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [trendDirection.color.opacity(0.3), trendDirection.color.opacity(0.1)],
+                            colors: [progressTrend.color.opacity(0.3), progressTrend.color.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
                     .frame(width: 140, height: 140)
                 
-                Image(systemName: trendDirection.arrowName)
+                Image(systemName: progressTrend.icon)
                     .font(.system(size: 60, weight: .bold))
-                    .foregroundStyle(trendDirection.color)
-                    .rotationEffect(.degrees(trendDirection.rotation))
+                    .foregroundStyle(progressTrend.color)
+                    .rotationEffect(.degrees(progressTrend.rotation))
             }
-            .shadow(color: trendDirection.color.opacity(0.3), radius: 15)
+            .shadow(color: progressTrend.color.opacity(0.3), radius: 15)
             
             // Trend Text
             VStack(spacing: 4) {
-                Text(trendDirection.title)
+                Text(progressTrend.title)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
-                Text(trendDirection.subtitle)
+                Text(progressTrend.subtitle)
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
@@ -192,7 +171,7 @@ struct ProgressDetailView: View {
                         )
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [trendDirection.color.opacity(0.5), trendDirection.color.opacity(0.0)],
+                                colors: [progressTrend.color.opacity(0.5), progressTrend.color.opacity(0.0)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
@@ -203,7 +182,7 @@ struct ProgressDetailView: View {
                             x: .value("Тренировка", index),
                             y: .value("Объём", data.volume)
                         )
-                        .foregroundStyle(trendDirection.color)
+                        .foregroundStyle(progressTrend.color)
                         .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
                         .interpolationMethod(.catmullRom)
                     }
@@ -307,46 +286,6 @@ struct ProgressDetailView: View {
         .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
     }
     
-    // MARK: - Arrow Legend
-    private var arrowLegendSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Что означают стрелки")
-                .font(.headline)
-                .foregroundColor(.white)
-            
-            ForEach(TrendDirection.allCases, id: \.self) { direction in
-                HStack(spacing: 16) {
-                    Image(systemName: direction.arrowName)
-                        .font(.title2)
-                        .foregroundColor(direction.color)
-                        .rotationEffect(.degrees(direction.rotation))
-                        .frame(width: 40)
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(direction.legendTitle)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                        
-                        Text(direction.legendDescription)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-                
-                if direction != TrendDirection.allCases.last {
-                    Divider().background(Color.white.opacity(0.1))
-                }
-            }
-        }
-        .padding()
-        .background(Color(white: 0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-    
     // MARK: - Computed Properties
     private var totalVolume: Double {
         chartData.reduce(0) { $0 + $1.volume }
@@ -360,12 +299,9 @@ struct ProgressDetailView: View {
         chartData.map { $0.volume }.max() ?? 0
     }
     
-    // New Computed Properties
     private var progressSessionsCount: Int {
-        // Simple logic: Session is "improved" if volume > previous session of SAME type
-        // For simplified view, we check if total volume increased vs immediate previous session in filtered list
         var count = 0
-        let sessions = Array(filteredSessions.reversed()) // Oldest first
+        let sessions = Array(filteredSessions.reversed())
         guard sessions.count > 1 else { return 0 }
         
         for i in 1..<sessions.count {
@@ -383,15 +319,12 @@ struct ProgressDetailView: View {
     }
     
     private var weeklyFrequency: [Bool] {
-        // Last 7 days, true if workout exists
         var result = Array(repeating: false, count: 7)
         let calendar = Calendar.current
         let today = Date()
         
         for i in 0..<7 {
-            // Day 0 is 6 days ago, Day 6 is Today
             if let date = calendar.date(byAdding: .day, value: -(6 - i), to: today) {
-                // Check if any session exists on this date
                 let hasSession = allSessions.contains { session in
                     calendar.isDate(session.date, inSameDayAs: date) && session.isCompleted
                 }
@@ -402,7 +335,6 @@ struct ProgressDetailView: View {
     }
     
     private var avgCalories: Int {
-        // Average for last month (regardless of selected period, user asked for "Average arithmetic for last month")
         let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
         let monthSessions = allSessions.filter { $0.date >= oneMonthAgo && $0.isCompleted }
         
@@ -415,82 +347,6 @@ struct ProgressDetailView: View {
             return String(format: "%.1fк", volume / 1000)
         }
         return String(format: "%.0f", volume)
-    }
-}
-
-// MARK: - Trend Direction Enum
-
-enum TrendDirection: CaseIterable {
-    case strongUp, up, stable, down, strongDown
-    
-    var arrowName: String {
-        switch self {
-        case .strongUp: return "arrow.up"
-        case .up: return "arrow.up.right"
-        case .stable: return "arrow.right"
-        case .down: return "arrow.down.right"
-        case .strongDown: return "arrow.down"
-        }
-    }
-    
-    var rotation: Double {
-        switch self {
-        case .strongUp: return 0
-        case .up: return 0
-        case .stable: return 0
-        case .down: return 0
-        case .strongDown: return 0
-        }
-    }
-    
-    var color: Color {
-        switch self {
-        case .strongUp: return DesignSystem.Colors.neonGreen
-        case .up: return Color(red: 0.5, green: 0.9, blue: 0.3)
-        case .stable: return .gray
-        case .down: return .orange
-        case .strongDown: return .red
-        }
-    }
-    
-    var title: String {
-        switch self {
-        case .strongUp: return "Отличный прогресс!"
-        case .up: return "Хороший рост"
-        case .stable: return "Стабильно"
-        case .down: return "Небольшое снижение"
-        case .strongDown: return "Требует внимания"
-        }
-    }
-    
-    var subtitle: String {
-        switch self {
-        case .strongUp: return "Ваши показатели значительно улучшились"
-        case .up: return "Вы на правильном пути"
-        case .stable: return "Показатели держатся на одном уровне"
-        case .down: return "Попробуйте увеличить нагрузку"
-        case .strongDown: return "Рекомендуем пересмотреть программу"
-        }
-    }
-    
-    var legendTitle: String {
-        switch self {
-        case .strongUp: return "Сильный рост (>10%)"
-        case .up: return "Умеренный рост (3-10%)"
-        case .stable: return "Стабильно (±3%)"
-        case .down: return "Небольшое снижение (3-10%)"
-        case .strongDown: return "Значительное снижение (>10%)"
-        }
-    }
-    
-    var legendDescription: String {
-        switch self {
-        case .strongUp: return "Отличная динамика! Продолжайте в том же духе"
-        case .up: return "Хорошие результаты, есть прогресс"
-        case .stable: return "Показатели стабильны, попробуйте увеличить нагрузку"
-        case .down: return "Возможно, нужен отдых или корректировка программы"
-        case .strongDown: return "Рекомендуем обратить внимание на восстановление"
-        }
     }
 }
 

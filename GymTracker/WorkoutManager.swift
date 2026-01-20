@@ -223,6 +223,27 @@ class WorkoutManager: ObservableObject {
         selectedDay = day
     }
     
+    /// Automatically selects the next day in the program sequence
+    /// Cycles back to first day after the last day
+    func selectNextWorkoutDay() {
+        guard let program = activeProgram,
+              let currentDay = selectedDay else { return }
+        
+        let sortedDays = program.days.sorted { $0.orderIndex < $1.orderIndex }
+        guard !sortedDays.isEmpty else { return }
+        
+        // Find current day's position
+        if let currentIndex = sortedDays.firstIndex(where: { $0.id == currentDay.id }) {
+            // Select next day, or cycle to first
+            let nextIndex = (currentIndex + 1) % sortedDays.count
+            selectedDay = sortedDays[nextIndex]
+            print("✅ Auto-selected next day: \(sortedDays[nextIndex].name)")
+        } else {
+            // Fallback: if current day not found, select first day
+            selectedDay = sortedDays.first
+        }
+    }
+    
     // MARK: - Workflow Methods
     
     func startWorkout() {
@@ -391,6 +412,9 @@ class WorkoutManager: ObservableObject {
         let workout = Workout(from: session)
         FirestoreManager.shared.save(workout: workout)
         print("📤 Syncing workout to Firestore...")
+        
+        // 4.6 Auto-select next workout day for next session
+        selectNextWorkoutDay()
         
         // 5. Only NOW transition UI to summary (after all data is saved)
         self.workoutState = .summary

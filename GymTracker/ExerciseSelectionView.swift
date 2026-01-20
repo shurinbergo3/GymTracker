@@ -12,6 +12,7 @@ struct ExerciseSelectionView: View {
     @State private var searchText = ""
     @State private var showingCustomExercise = false
     @State private var customExerciseName = ""
+    @State private var expandedCategories: Set<ExerciseCategory> = Set(ExerciseCategory.allCases) // All expanded by default
     
     let onExerciseSelected: (LibraryExercise) -> Void
     
@@ -70,32 +71,60 @@ struct ExerciseSelectionView: View {
             LazyVStack(spacing: DesignSystem.Spacing.sm, pinnedViews: [.sectionHeaders]) {
                 ForEach(ExerciseCategory.allCases, id: \.self) { category in
                     if let exercises = groupedExercises[category], !exercises.isEmpty {
+                        let isExpanded = expandedCategories.contains(category)
+                        
                         Section {
-                            VStack(spacing: 0) {
-                                ForEach(exercises) { exercise in
-                                    SelectionRow(exercise: exercise) {
-                                        onExerciseSelected(exercise)
-                                        dismiss()
-                                    }
-                                    
-                                    if exercise.id != exercises.last?.id {
-                                        Divider()
-                                            .padding(.leading, DesignSystem.Spacing.md)
+                            if isExpanded {
+                                VStack(spacing: 0) {
+                                    ForEach(exercises) { exercise in
+                                        SelectionRow(exercise: exercise) {
+                                            onExerciseSelected(exercise)
+                                            dismiss()
+                                        }
+                                        
+                                        if exercise.id != exercises.last?.id {
+                                            Divider()
+                                                .padding(.leading, DesignSystem.Spacing.md)
+                                        }
                                     }
                                 }
+                                .background(DesignSystem.Colors.cardBackground)
+                                .cornerRadius(DesignSystem.CornerRadius.medium)
+                                .transition(.opacity.combined(with: .scale(scale: 0.95)))
                             }
-                            .background(DesignSystem.Colors.cardBackground)
-                            .cornerRadius(DesignSystem.CornerRadius.medium)
                         } header: {
-                            HStack {
-                                Label(category.rawValue, systemImage: category.icon)
-                                    .font(DesignSystem.Typography.headline())
-                                    .foregroundColor(DesignSystem.Colors.accent)
-                                    .padding(.vertical, DesignSystem.Spacing.xs)
-                                Spacer()
+                            Button(action: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    if expandedCategories.contains(category) {
+                                        expandedCategories.remove(category)
+                                    } else {
+                                        expandedCategories.insert(category)
+                                    }
+                                }
+                            }) {
+                                HStack {
+                                    Label(category.rawValue, systemImage: category.icon)
+                                        .font(DesignSystem.Typography.headline())
+                                        .foregroundColor(DesignSystem.Colors.accent)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundColor(DesignSystem.Colors.accent)
+                                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExpanded)
+                                    
+                                    Text("(\(exercises.count))")
+                                        .font(DesignSystem.Typography.caption())
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
+                                .padding(.vertical, DesignSystem.Spacing.sm)
+                                .padding(.horizontal, DesignSystem.Spacing.md)
+                                .background(DesignSystem.Colors.cardBackground.opacity(0.5))
+                                .cornerRadius(DesignSystem.CornerRadius.small)
                             }
-                            .padding(.horizontal, DesignSystem.Spacing.md)
-                            .background(DesignSystem.Colors.background)
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                 }
