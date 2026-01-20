@@ -150,6 +150,9 @@ struct WorkoutHistoryView: View {
 // MARK: - Session History View
 struct SessionHistoryView: View {
     let completedSessions: [WorkoutSession]
+    @Environment(\.modelContext) private var modelContext
+    @State private var sessionToDelete: WorkoutSession?
+    @State private var showingDeleteConfirmation = false
     
     var body: some View {
         VStack(spacing: DesignSystem.Spacing.lg) {
@@ -165,10 +168,47 @@ struct SessionHistoryView: View {
                         WorkoutHistoryCard(session: session, progressState: progress)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            sessionToDelete = session
+                            showingDeleteConfirmation = true
+                        } label: {
+                            Label("Удалить", systemImage: "trash.fill")
+                        }
+                    }
                 }
             }
             .padding(.horizontal, DesignSystem.Spacing.lg)
         }
+        .alert("Удалить тренировку?", isPresented: $showingDeleteConfirmation) {
+            Button("Отмена", role: .cancel) {
+                sessionToDelete = nil
+            }
+            Button("Удалить", role: .destructive) {
+                if let session = sessionToDelete {
+                    deleteWorkout(session)
+                    sessionToDelete = nil
+                }
+            }
+        } message: {
+            if let session = sessionToDelete {
+                Text("Вы уверены, что хотите удалить тренировку \"\(session.workoutDayName)\" от \(formattedDate(session.date))? Это действие нельзя отменить.")
+            }
+        }
+    }
+    
+    private func deleteWorkout(_ session: WorkoutSession) {
+        withAnimation {
+            modelContext.delete(session)
+            try? modelContext.save()
+        }
+    }
+    
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMMM yyyy"
+        return formatter.string(from: date)
     }
     
     private func calculateProgress(for session: WorkoutSession) -> ProgressState? {
