@@ -31,9 +31,10 @@ struct ExerciseCard: View {
     @State private var exerciseComment: String = ""
     @State private var showingWorkoutTypeChange = false
     @State private var currentWorkoutType: WorkoutType? = nil
-    @State private var isHistoryExpanded: Bool = false
+    @State private var isHistoryExpanded: Bool = true // Expanded by default
     @State private var isWeighted: Bool = false
     @State private var showRestTimer: Bool = false
+    @State private var isTimerEnabledForExercise: Bool = true // Timer toggle state
     
     @State private var timer: Timer? = nil
     
@@ -152,16 +153,15 @@ struct ExerciseCard: View {
                     // Menu Button
                     Menu {
                         Button {
-                            showingTechnique = true
+                            isTimerEnabledForExercise.toggle()
                         } label: {
-                            Label("Гайд", systemImage: "book")
+                            Label(
+                                isTimerEnabledForExercise ? "Выкл. таймер" : "Вкл. таймер",
+                                systemImage: isTimerEnabledForExercise ? "timer.circle.fill" : "timer.circle"
+                            )
                         }
                         
-                        Button {
-                            isHistoryExpanded.toggle()
-                        } label: {
-                            Label("История", systemImage: "clock.arrow.circlepath")
-                        }
+                        Divider()
                         
                         Button(action: { showingReplacement = true }) {
                             Label("Заменить упражнение", systemImage: "arrow.triangle.2.circlepath")
