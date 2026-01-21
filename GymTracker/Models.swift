@@ -227,7 +227,7 @@ final class WorkoutSession {
     var endTime: Date?
     var calories: Int?
     var averageHeartRate: Int?
-    var isSynced: Bool // Track if synced to Firestore
+    var isSynced: Bool? // Optional to avoid migration - nil means needs sync
     
     @Relationship(deleteRule: .cascade, inverse: \WorkoutSet.session)
     var sets: [WorkoutSet]
@@ -240,6 +240,11 @@ final class WorkoutSession {
         self.isCompleted = false
         self.isSynced = false
         self.sets = []
+    }
+    
+    // Helper computed property for easy checking
+    var needsSync: Bool {
+        return isSynced != true && isCompleted
     }
 }
 

@@ -55,7 +55,9 @@ class SyncManager: ObservableObject {
         
         let context = modelContainer.mainContext
         let descriptor = FetchDescriptor<WorkoutSession>(
-            predicate: #Predicate { $0.isSynced == false && $0.isCompleted == true }
+            predicate: #Predicate { session in
+                (session.isSynced == nil || session.isSynced == false) && session.isCompleted == true
+            }
         )
         
         guard let unsyncedSessions = try? context.fetch(descriptor) else {
@@ -103,7 +105,9 @@ class SyncManager: ObservableObject {
         
         // Update unsynced count
         let remainingDescriptor = FetchDescriptor<WorkoutSession>(
-            predicate: #Predicate { $0.isSynced == false && $0.isCompleted == true }
+            predicate: #Predicate { session in
+                (session.isSynced == nil || session.isSynced == false) && session.isCompleted == true
+            }
         )
         let remaining = (try? context.fetch(remainingDescriptor)) ?? []
         hasUnsyncedWorkouts = !remaining.isEmpty
