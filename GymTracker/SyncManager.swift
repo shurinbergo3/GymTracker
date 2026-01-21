@@ -25,7 +25,7 @@ class SyncManager: ObservableObject {
         monitor = NWPathMonitor()
         let queue = DispatchQueue(label: "NetworkMonitor")
         
-        monitor?.pathUpdateHandler = { [weak self] path in
+        monitor?.pathUpdateHandler = { path in
             if path.status == .satisfied {
                 // Network is available
                 // Note: Auto-sync will be triggered from WorkoutTrackerApp with proper context
