@@ -285,10 +285,6 @@ struct StatCard: View {
                         .foregroundColor(color)
                     
                     Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
                 }
                 
                 Spacer(minLength: 0)

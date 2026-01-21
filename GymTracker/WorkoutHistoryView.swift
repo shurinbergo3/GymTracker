@@ -153,6 +153,7 @@ struct SessionHistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var sessionToDelete: WorkoutSession?
     @State private var showingDeleteConfirmation = false
+    @State private var selectedSession: WorkoutSession?
     
     var body: some View {
         VStack(spacing: DesignSystem.Spacing.lg) {
@@ -164,21 +165,24 @@ struct SessionHistoryView: View {
             LazyVStack(spacing: DesignSystem.Spacing.md) {
                 ForEach(completedSessions, id: \.self) { session in
                     let progress = calculateProgress(for: session)
-                    NavigationLink(destination: WorkoutHistoryDetailView(session: session)) {
-                        WorkoutHistoryCard(session: session, progressState: progress)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            sessionToDelete = session
-                            showingDeleteConfirmation = true
-                        } label: {
-                            Label("Удалить", systemImage: "trash.fill")
+                    WorkoutHistoryCard(session: session, progressState: progress)
+                        .onTapGesture {
+                            selectedSession = session
                         }
-                    }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                sessionToDelete = session
+                                showingDeleteConfirmation = true
+                            } label: {
+                                Label("Удалить", systemImage: "trash.fill")
+                            }
+                        }
                 }
             }
             .padding(.horizontal, DesignSystem.Spacing.lg)
+        }
+        .navigationDestination(item: $selectedSession) { session in
+            WorkoutHistoryDetailView(session: session)
         }
         .alert("Удалить тренировку?", isPresented: $showingDeleteConfirmation) {
             Button("Отмена", role: .cancel) {
