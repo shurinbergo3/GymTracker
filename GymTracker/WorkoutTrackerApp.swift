@@ -34,19 +34,27 @@ struct WorkoutTrackerApp: App {
         
         do {
             let container = try ModelContainer(for: schema)
+            #if DEBUG
             print("✅ ModelContainer initialized")
+            #endif
             return container
         } catch {
+            #if DEBUG
             print("⚠️ Error: \(error)")
+            #endif
             
             // Reset database on error
             let config = ModelConfiguration(schema: schema)
             try? FileManager.default.removeItem(at: config.url)
+            #if DEBUG
             print("🗑️ DB reset")
+            #endif
             
             do {
                 let container = try ModelContainer(for: schema)
+                #if DEBUG
                 print("✅ Fresh DB created")
+                #endif
                 return container
             } catch {
                 fatalError("❌ Failed: \(error)")
@@ -138,7 +146,9 @@ struct ContentViewWrapper: View {
                         await MainActor.run {
                             ProgramSeeder.seedProgramsIfNeeded(context: modelContext)
                             ExerciseLibrary.migrateExerciseTypes(context: modelContext)
+                            #if DEBUG
                             print("✅ Background seeding complete from ContentViewWrapper")
+                            #endif
                         }
                     }
                     hasSeeded = true
@@ -152,7 +162,9 @@ struct ContentViewWrapper: View {
             let firestoreWorkouts = try await FirestoreManager.shared.fetchHistory()
             
             guard !firestoreWorkouts.isEmpty else {
+                #if DEBUG
                 print("📭 No workouts found in Firestore")
+                #endif
                 return
             }
             
@@ -160,7 +172,9 @@ struct ContentViewWrapper: View {
             let descriptor = FetchDescriptor<WorkoutSession>()
             let localSessions = (try? modelContext.fetch(descriptor)) ?? []
             
+            #if DEBUG
             print("📥 Found \(firestoreWorkouts.count) workouts in Firestore, \(localSessions.count) local")
+            #endif
             
             var restoredCount = 0
             
@@ -181,12 +195,18 @@ struct ContentViewWrapper: View {
             
             if restoredCount > 0 {
                 try modelContext.save()
+                #if DEBUG
                 print("✅ Restored \(restoredCount) workouts from Firestore")
+                #endif
             } else {
+                #if DEBUG
                 print("ℹ️ All workouts already synced")
+                #endif
             }
         } catch {
+            #if DEBUG
             print("❌ Error restoring workouts: \(error)")
+            #endif
         }
     }
     

@@ -2147,10 +2147,14 @@ struct ExerciseLibrary {
             
             if migratedCount > 0 {
                 try context.save()
+                #if DEBUG
                 print("Migrated \(migratedCount) exercises to correct workout types")
+                #endif
             }
         } catch {
+            #if DEBUG
             print("Failed to migrate exercise types: \(error)")
+            #endif
         }
     }
 }

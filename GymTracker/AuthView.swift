@@ -213,7 +213,9 @@ struct AuthView: View {
             do {
                 try await authManager.deleteAccount(modelContext: modelContext)
             } catch {
+                #if DEBUG
                 print("Delete Account Error: \(error.localizedDescription)")
+                #endif
             }
             isLoading = false
         }
@@ -229,7 +231,9 @@ struct AuthView: View {
                     try await authManager.signInWithEmail(email: email, password: password)
                 }
             } catch {
+                #if DEBUG
                 print("Auth Error: \(error.localizedDescription)")
+                #endif
             }
             isLoading = false
         }
@@ -242,7 +246,9 @@ struct AuthView: View {
         do {
             try await authManager.signInWithGoogle()
         } catch {
+            #if DEBUG
             print("Google Auth Error: \(error.localizedDescription)")
+            #endif
         }
         isLoading = false
     }

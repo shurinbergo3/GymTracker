@@ -88,7 +88,9 @@ enum AppMigrationPlan: SchemaMigrationPlan {
         toVersion: SchemaV2.self,
         willMigrate: { context in
             // Optional: Pre-migration tasks
+            #if DEBUG
             print("🔄 Starting migration from V1 to V2...")
+            #endif
         },
         didMigrate: { context in
             // Set default values for new fields
@@ -102,7 +104,9 @@ enum AppMigrationPlan: SchemaMigrationPlan {
             }
             
             try context.save()
+            #if DEBUG
             print("✅ Migration V1→V2 complete: \(workoutDays.count) days updated")
+            #endif
         }
     )
 }

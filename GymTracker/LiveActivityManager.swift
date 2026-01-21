@@ -36,9 +36,13 @@ class LiveActivityManager {
                 attributes: attributes,
                 content: .init(state: initialState, staleDate: nil)
             )
+            #if DEBUG
             print("Live Activity started: \(activity?.id ?? "")")
+            #endif
         } catch {
+            #if DEBUG
             print("Error starting Live Activity: \(error.localizedDescription)")
+            #endif
         }
     }
     
@@ -104,7 +108,9 @@ class LiveActivityManager {
             // Then end with default dismissal policy (more reliable than .immediate)
             await currentActivity.end(.init(state: finalState, staleDate: nil), dismissalPolicy: .default)
             
+            #if DEBUG
             print("✅ Live Activity ended and dismissed")
+            #endif
         }
     }
 }

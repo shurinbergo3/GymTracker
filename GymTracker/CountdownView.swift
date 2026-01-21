@@ -144,6 +144,8 @@ struct CountdownView: View {
 
 #Preview {
     CountdownView {
+        #if DEBUG
         print("Countdown complete!")
+        #endif
     }
 }

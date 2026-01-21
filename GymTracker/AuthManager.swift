@@ -91,7 +91,9 @@ class AuthManager: ObservableObject {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first,
               let rootViewController = window.rootViewController else {
+            #if DEBUG
             print("No root view controller found")
+            #endif
             return
         }
         
@@ -118,7 +120,9 @@ class AuthManager: ObservableObject {
             try Auth.auth().signOut()
             // Listener will handle clearing state
         } catch {
+            #if DEBUG
             print("Error signing out: \(error.localizedDescription)")
+            #endif
         }
     }
     
@@ -140,16 +144,22 @@ class AuthManager: ObservableObject {
         // Phase 1: Delete Firestore user document
         do {
             try await FirestoreManager.shared.deleteUserDocument(uid: uid)
+            #if DEBUG
             print("✅ Firestore user document deleted")
+            #endif
         } catch {
+            #if DEBUG
             print("⚠️ Failed to delete Firestore document: \(error.localizedDescription)")
+            #endif
             // Continue anyway - document might not exist
         }
         
         // Phase 2: Delete Firebase Auth user
         do {
             try await user.delete()
+            #if DEBUG
             print("✅ Firebase Auth user deleted")
+            #endif
         } catch let error as NSError {
             // Check if reauthentication is required
             if error.code == AuthErrorCode.requiresRecentLogin.rawValue {
@@ -179,9 +189,13 @@ class AuthManager: ObservableObject {
             try modelContext.delete(model: WorkoutDay.self)
             try modelContext.delete(model: ExerciseTemplate.self)
             try modelContext.save()
+            #if DEBUG
             print("✅ SwiftData cleared")
+            #endif
         } catch {
+            #if DEBUG
             print("⚠️ Failed to clear SwiftData: \(error.localizedDescription)")
+            #endif
             // Continue anyway
         }
         
@@ -189,7 +203,9 @@ class AuthManager: ObservableObject {
         if let bundleID = Bundle.main.bundleIdentifier {
             UserDefaults.standard.removePersistentDomain(forName: bundleID)
             UserDefaults.standard.synchronize()
+            #if DEBUG
             print("✅ UserDefaults cleared")
+            #endif
         }
         
         // Phase 5: Clear specific app settings
@@ -206,6 +222,8 @@ class AuthManager: ObservableObject {
             self.currentUser = nil
         }
         
+        #if DEBUG
         print("✅ Account deletion completed successfully")
+        #endif
     }
 }

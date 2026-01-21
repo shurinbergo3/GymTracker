@@ -24,7 +24,9 @@ class HealthManager: NSObject, ObservableObject {
     
     func requestAuthorization() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
+            #if DEBUG
             print("HealthKit not available on this device")
+            #endif
             return false
         }
         
@@ -61,7 +63,9 @@ class HealthManager: NSObject, ObservableObject {
             }
             return true
         } catch {
+            #if DEBUG
             print("HealthKit Authorization Failed: \(error.localizedDescription)")
+            #endif
             return false
         }
     }
@@ -77,7 +81,9 @@ class HealthManager: NSObject, ObservableObject {
         // Start Live Queries
         startLiveQueries()
         
+        #if DEBUG
         print("✅ Workout started: \(workoutType.rawValue)")
+        #endif
     }
     
     func endWorkout(activityType: HKWorkoutActivityType = .functionalStrengthTraining) async {
@@ -105,7 +111,9 @@ class HealthManager: NSObject, ObservableObject {
             // Add calorie data as sample BEFORE finishing
             if calories > 0 {
                 guard let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) else {
+                    #if DEBUG
                     print("⚠️ Could not create energy type")
+                    #endif
                     try await builder.endCollection(at: endDate)
                     _ = try await builder.finishWorkout()
                     return
@@ -115,18 +123,24 @@ class HealthManager: NSObject, ObservableObject {
                 let energySample = HKQuantitySample(type: energyType, quantity: energyQuantity, start: startDate, end: endDate)
                 
                 try await builder.addSamples([energySample])
+                #if DEBUG
                 print("✅ Added \(Int(calories))kcal to workout")
+                #endif
             }
             
             try await builder.endCollection(at: endDate)
             _ = try await builder.finishWorkout()
             
+            #if DEBUG
             print("✅ HKWorkout saved successfully:")
             print("   Duration: \(Int(duration))s")
             print("   Calories: \(Int(calories))kcal")
             print("   Type: \(activityType.rawValue)")
+            #endif
         } catch {
+            #if DEBUG
             print("❌ Failed to save HKWorkout: \(error.localizedDescription)")
+            #endif
         }
     }
     
@@ -134,7 +148,9 @@ class HealthManager: NSObject, ObservableObject {
         isWorkoutActive = false
         workoutStartDate = nil
         stopLiveQueries()
+        #if DEBUG
         print("Workout Discarded")
+        #endif
     }
     
     // MARK: - Live Queries (HKAnchoredObjectQuery)

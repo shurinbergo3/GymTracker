@@ -76,7 +76,9 @@ struct ProgramSeeder {
             for prog in existingPrograms {
                 if deprecatedPrograms.contains(prog.name) {
                     context.delete(prog)
+                    #if DEBUG
                     print("Deleted deprecated program: \(prog.name)")
+                    #endif
                 }
             }
             
@@ -86,7 +88,9 @@ struct ProgramSeeder {
             for program in programsToCreate {
                 if !existingNames.contains(program.name) {
                     context.insert(program)
+                    #if DEBUG
                     print("Seeded program: \(program.name)")
+                    #endif
                 } else {
                     // Update order of existing
                     if let existing = existingPrograms.first(where: { $0.name == program.name }) {
@@ -96,9 +100,13 @@ struct ProgramSeeder {
             }
             
             try context.save()
+            #if DEBUG
             print("Successfully updated programs library.")
+            #endif
         } catch {
+            #if DEBUG
             print("Failed to seed programs: \(error)")
+            #endif
         }
     }
     

@@ -45,7 +45,9 @@ struct ActivityRingsView: UIViewRepresentable {
         return await withCheckedContinuation { continuation in
             let query = HKActivitySummaryQuery(predicate: predicate) { _, summaries, error in
                 if let error = error {
+                    #if DEBUG
                     print("Error fetching rings: \(error.localizedDescription)")
+                    #endif
                     continuation.resume(returning: nil)
                     return
                 }

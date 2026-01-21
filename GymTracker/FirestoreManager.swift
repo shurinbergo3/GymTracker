@@ -22,7 +22,9 @@ class FirestoreManager {
     func save(workout: Workout) {
         // Authenticated user check
         guard let userId = Auth.auth().currentUser?.uid else {
+             #if DEBUG
              print("Error: User not logged in, cannot save workout.")
+             #endif
              return
         }
         
@@ -32,13 +34,19 @@ class FirestoreManager {
         do {
             try db.collection(collectionPath).addDocument(from: workout) { error in
                 if let error = error {
+                    #if DEBUG
                     print("Error saving workout to Firestore: \(error.localizedDescription)")
+                    #endif
                 } else {
+                    #if DEBUG
                     print("Successfully saved workout to \(collectionPath)!")
+                    #endif
                 }
             }
         } catch {
+            #if DEBUG
             print("Error encoding workout: \(error.localizedDescription)")
+            #endif
         }
     }
     
@@ -46,7 +54,9 @@ class FirestoreManager {
     
     func fetchHistory() async throws -> [Workout] {
         guard let userId = Auth.auth().currentUser?.uid else {
+             #if DEBUG
              print("Error: User not logged in, cannot fetch history.")
+             #endif
              return []
         }
         
@@ -77,6 +87,8 @@ class FirestoreManager {
         // Delete user document
         try await userDocRef.delete()
         
+        #if DEBUG
         print("✅ Deleted Firestore data for user: \(uid)")
+        #endif
     }
 }

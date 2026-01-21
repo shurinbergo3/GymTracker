@@ -110,7 +110,9 @@ enum WorkoutType: String, Codable, CaseIterable {
         default:
             // Fallback to strength for unknown types
             // Log this so we can identify migration issues
+            #if DEBUG
             print("⚠️ WorkoutType Migration: Unknown type '\\(rawValue)', defaulting to .strength")
+            #endif
             self = .strength
         }
     }
