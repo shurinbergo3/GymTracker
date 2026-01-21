@@ -461,7 +461,7 @@ struct WorkoutHistoryCard: View {
                         Button(action: {
                             showingMenu = true
                         }) {
-                            Image(systemName: "ellipsis.circle.fill")
+                            Image(systemName: "ellipsis")
                                 .font(.title3)
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
