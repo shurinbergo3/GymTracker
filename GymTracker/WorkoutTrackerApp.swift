@@ -98,10 +98,6 @@ struct WorkoutTrackerApp: App {
             .modelContainer(sharedModelContainer)
             .onAppear {
                 checkAuthStatus()
-                // Initialize SyncManager for automatic Firestore sync
-                Task {
-                    await SyncManager.shared.syncUnsyncedWorkouts()
-                }
             }
         }
     }
@@ -143,6 +139,9 @@ struct ContentViewWrapper: View {
                     await restoreWorkoutsFromFirestore()
                     hasRestored = true
                 }
+                
+                // 1.5 Sync any unsynced workouts to Firestore
+                await SyncManager.shared.syncUnsyncedWorkouts(context: modelContext)
                 
                 // 2. Background seeding - non-blocking
                 if !hasSeeded {

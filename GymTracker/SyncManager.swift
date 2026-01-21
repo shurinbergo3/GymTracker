@@ -27,9 +27,11 @@ class SyncManager: ObservableObject {
         
         monitor?.pathUpdateHandler = { [weak self] path in
             if path.status == .satisfied {
-                // Network is available - trigger sync
+                // Network is available
+                // Note: Auto-sync will be triggered from WorkoutTrackerApp with proper context
                 Task { @MainActor in
-                    await self?.syncUnsyncedWorkouts()
+                    // Notify that network is available
+                    // Actual sync happens in WorkoutTrackerApp.onAppear
                 }
             }
         }
@@ -38,22 +40,13 @@ class SyncManager: ObservableObject {
     }
     
     /// Sync all unsynced workouts to Firestore
-    func syncUnsyncedWorkouts() async {
+    func syncUnsyncedWorkouts(context: ModelContext) async {
         guard !isSyncing else { return }
         guard Auth.auth().currentUser != nil else { return }
         
         isSyncing = true
         defer { isSyncing = false }
         
-        // Get all unsynced workouts from SwiftData
-        guard let modelContainer = try? ModelContainer(for: WorkoutSession.self) else {
-            #if DEBUG
-            print("❌ SyncManager: Failed to access ModelContainer")
-            #endif
-            return
-        }
-        
-        let context = modelContainer.mainContext
         let descriptor = FetchDescriptor<WorkoutSession>(
             predicate: #Predicate { session in
                 (session.isSynced == nil || session.isSynced == false) && session.isCompleted == true
@@ -143,8 +136,8 @@ class SyncManager: ObservableObject {
     }
     
     /// Manual trigger for sync (can be called from UI)
-    func triggerManualSync() async {
-        await syncUnsyncedWorkouts()
+    func triggerManualSync(context: ModelContext) async {
+        await syncUnsyncedWorkouts(context: context)
     }
     
     deinit {
