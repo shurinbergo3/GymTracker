@@ -156,16 +156,20 @@ struct SessionHistoryView: View {
     @State private var selectedSession: WorkoutSession?
     
     var body: some View {
-        VStack(spacing: DesignSystem.Spacing.lg) {
+        VStack(spacing: 0) {
             // Календарь
             ExpandableCalendarView()
                 .padding(.horizontal, DesignSystem.Spacing.lg)
+                .padding(.bottom, DesignSystem.Spacing.md)
             
             // Список тренировок
-            LazyVStack(spacing: DesignSystem.Spacing.md) {
+            List {
                 ForEach(completedSessions, id: \.self) { session in
                     let progress = calculateProgress(for: session)
                     WorkoutHistoryCard(session: session, progressState: progress)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                         .onTapGesture {
                             selectedSession = session
                         }
@@ -179,7 +183,8 @@ struct SessionHistoryView: View {
                         }
                 }
             }
-            .padding(.horizontal, DesignSystem.Spacing.lg)
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
         }
         .navigationDestination(item: $selectedSession) { session in
             WorkoutHistoryDetailView(session: session)
