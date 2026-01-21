@@ -47,17 +47,21 @@ class SyncManager: ObservableObject {
         isSyncing = true
         defer { isSyncing = false }
         
+        // Fetch all completed workouts and filter in Swift
         let descriptor = FetchDescriptor<WorkoutSession>(
-            predicate: #Predicate { session in
-                (session.isSynced == nil || session.isSynced == false) && session.isCompleted == true
-            }
+            predicate: #Predicate { $0.isCompleted == true }
         )
         
-        guard let unsyncedSessions = try? context.fetch(descriptor) else {
+        guard let allCompletedSessions = try? context.fetch(descriptor) else {
             #if DEBUG
-            print("❌ SyncManager: Failed to fetch unsynced workouts")
+            print("❌ SyncManager: Failed to fetch workouts")
             #endif
             return
+        }
+        
+        // Filter unsynced in Swift (avoid complex Predicate)
+        let unsyncedSessions = allCompletedSessions.filter { session in
+            session.isSynced != true
         }
         
         guard !unsyncedSessions.isEmpty else {
@@ -96,13 +100,11 @@ class SyncManager: ObservableObject {
         // Save changes
         try? context.save()
         
-        // Update unsynced count
-        let remainingDescriptor = FetchDescriptor<WorkoutSession>(
-            predicate: #Predicate { session in
-                (session.isSynced == nil || session.isSynced == false) && session.isCompleted == true
-            }
-        )
-        let remaining = (try? context.fetch(remainingDescriptor)) ?? []
+        // Update unsynced count - filter in Swift again
+        let allCompleted = (try? context.fetch(FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.isCompleted == true }
+        ))) ?? []
+        let remaining = allCompleted.filter { $0.isSynced != true }
         hasUnsyncedWorkouts = !remaining.isEmpty
         
         #if DEBUG
