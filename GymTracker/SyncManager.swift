@@ -2,6 +2,8 @@ import Foundation
 import SwiftData
 import Network
 import FirebaseAuth
+import FirebaseFirestore
+import Combine
 
 /// Manages automatic Firestore synchronization with offline support
 @MainActor
