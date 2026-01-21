@@ -71,6 +71,29 @@ class FirestoreManager {
         }
     }
     
+    /// Async version of save that throws errors for sync tracking
+    func saveAsync(workout: Workout) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "FirestoreManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+        }
+        
+        let collectionPath = "users/\(userId)/workouts"
+        
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            do {
+                try db.collection(collectionPath).addDocument(from: workout) { error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+    
     // MARK: - Delete User Data
     
     /// Delete user document and all subcollections from Firestore

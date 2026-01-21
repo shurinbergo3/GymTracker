@@ -402,16 +402,37 @@ class WorkoutManager: ObservableObject {
         // 4. Save data to SwiftData
         do {
             try modelContext.save()
+            #if DEBUG
             print("✅ Workout saved successfully. HR: \(session.averageHeartRate ?? 0), Calories: \(session.calories ?? 0)")
+            #endif
         } catch {
+            #if DEBUG
             print("❌ Error saving workout: \(error.localizedDescription)")
+            #endif
             // Even on error, we should transition to summary to not block user
         }
         
-        // 4.5 NEW: Sync to Firestore for cloud backup
+        // 4.5 NEW: Sync to Firestore for cloud backup with offline support
         let workout = Workout(from: session)
-        FirestoreManager.shared.save(workout: workout)
-        print("📤 Syncing workout to Firestore...")
+        Task {
+            do {
+                try await FirestoreManager.shared.saveAsync(workout: workout)
+                // Mark as synced on success
+                await MainActor.run {
+                    session.isSynced = true
+                    try? modelContext.save()
+                }
+                #if DEBUG
+                print("✅ Workout synced to Firestore")
+                #endif
+            } catch {
+                // Failed to sync - leave isSynced = false
+                // SyncManager will retry automatically when network available
+                #if DEBUG
+                print("⚠️ Firestore sync failed (will retry later): \(error.localizedDescription)")
+                #endif
+            }
+        }
         
         // 4.6 Auto-select next workout day for next session
         selectNextWorkoutDay()

@@ -98,6 +98,10 @@ struct WorkoutTrackerApp: App {
             .modelContainer(sharedModelContainer)
             .onAppear {
                 checkAuthStatus()
+                // Initialize SyncManager for automatic Firestore sync
+                Task {
+                    await SyncManager.shared.syncUnsyncedWorkouts()
+                }
             }
         }
     }

@@ -227,6 +227,7 @@ final class WorkoutSession {
     var endTime: Date?
     var calories: Int?
     var averageHeartRate: Int?
+    var isSynced: Bool // Track if synced to Firestore
     
     @Relationship(deleteRule: .cascade, inverse: \WorkoutSet.session)
     var sets: [WorkoutSet]
@@ -237,6 +238,7 @@ final class WorkoutSession {
         self.programName = programName
         self.notes = notes
         self.isCompleted = false
+        self.isSynced = false
         self.sets = []
     }
 }
