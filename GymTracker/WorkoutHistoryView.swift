@@ -156,35 +156,32 @@ struct SessionHistoryView: View {
     @State private var selectedSession: WorkoutSession?
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Календарь
-            ExpandableCalendarView()
-                .padding(.horizontal, DesignSystem.Spacing.lg)
-                .padding(.bottom, DesignSystem.Spacing.md)
-            
-            // Список тренировок
-            List {
-                ForEach(completedSessions, id: \.self) { session in
-                    let progress = calculateProgress(for: session)
-                    WorkoutHistoryCard(session: session, progressState: progress)
-                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .onTapGesture {
-                            selectedSession = session
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) {
-                                sessionToDelete = session
-                                showingDeleteConfirmation = true
-                            } label: {
-                                Label("Удалить", systemImage: "trash.fill")
+        ScrollView {
+            VStack(spacing: DesignSystem.Spacing.lg) {
+                // Календарь
+                ExpandableCalendarView()
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                
+                // Список тренировок
+                LazyVStack(spacing: DesignSystem.Spacing.md) {
+                    ForEach(completedSessions, id: \.self) { session in
+                        let progress = calculateProgress(for: session)
+                        WorkoutHistoryCard(session: session, progressState: progress)
+                            .onTapGesture {
+                                selectedSession = session
                             }
-                        }
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    sessionToDelete = session
+                                    showingDeleteConfirmation = true
+                                } label: {
+                                    Label("Удалить", systemImage: "trash.fill")
+                                }
+                            }
+                    }
                 }
+                .padding(.horizontal, DesignSystem.Spacing.lg)
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
         }
         .navigationDestination(item: $selectedSession) { session in
             WorkoutHistoryDetailView(session: session)
