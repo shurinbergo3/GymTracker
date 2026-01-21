@@ -166,18 +166,17 @@ struct SessionHistoryView: View {
                 LazyVStack(spacing: DesignSystem.Spacing.md) {
                     ForEach(completedSessions, id: \.self) { session in
                         let progress = calculateProgress(for: session)
-                        WorkoutHistoryCard(session: session, progressState: progress)
-                            .onTapGesture {
-                                selectedSession = session
+                        WorkoutHistoryCard(
+                            session: session,
+                            progressState: progress,
+                            onDelete: {
+                                sessionToDelete = session
+                                showingDeleteConfirmation = true
                             }
-                            .contextMenu {
-                                Button(role: .destructive) {
-                                    sessionToDelete = session
-                                    showingDeleteConfirmation = true
-                                } label: {
-                                    Label("Удалить", systemImage: "trash.fill")
-                                }
-                            }
+                        )
+                        .onTapGesture {
+                            selectedSession = session
+                        }
                     }
                 }
                 .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -405,6 +404,9 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
 struct WorkoutHistoryCard: View {
     let session: WorkoutSession
     var progressState: ProgressState? = nil
+    var onDelete: (() -> Void)? = nil
+    
+    @State private var showingMenu = false
     
     private var formattedDate: String {
         let formatter = DateFormatter()
@@ -453,6 +455,23 @@ struct WorkoutHistoryCard: View {
                     }
                     
                     Spacer()
+                    
+                    // Menu Button (if onDelete is provided)
+                    if onDelete != nil {
+                        Button(action: {
+                            showingMenu = true
+                        }) {
+                            Image(systemName: "ellipsis.circle.fill")
+                                .font(.title3)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                        .confirmationDialog("Действия", isPresented: $showingMenu, titleVisibility: .hidden) {
+                            Button("Удалить тренировку", role: .destructive) {
+                                onDelete?()
+                            }
+                            Button("Отмена", role: .cancel) {}
+                        }
+                    }
                     
                     // Session Progress Arrow
                     if let state = progressState {
