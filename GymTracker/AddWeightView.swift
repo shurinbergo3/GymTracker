@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import FirebaseAuth
 
 struct AddWeightView: View {
     @Environment(\.dismiss) private var dismiss
@@ -64,6 +65,21 @@ struct AddWeightView: View {
         userProfile.updatedAt = Date()
         
         try? modelContext.save()
+        
+        // Sync to Firestore
+        Task {
+            // Get active program if any
+            let descriptor = FetchDescriptor<Program>(
+                predicate: #Predicate<Program> { $0.isActive == true }
+            )
+            let activeProgram = try? modelContext.fetch(descriptor).first
+            
+            await SyncManager.shared.syncUserProfile(
+                profile: userProfile,
+                activeProgram: activeProgram,
+                context: modelContext
+            )
+        }
     }
 }
 

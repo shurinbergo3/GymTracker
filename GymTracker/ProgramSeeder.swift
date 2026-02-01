@@ -14,7 +14,7 @@ struct ProgramSeeder {
     // MARK: - Main Seed Function
     
     /// Генерирует и обновляет список программ
-    static func generateDefaultPrograms(context: ModelContext) -> [Program] {
+    nonisolated static func generateDefaultPrograms(context: ModelContext) -> [Program] {
         var allPrograms: [Program] = []
         
         // 1. Simple / Beginners
@@ -54,7 +54,7 @@ struct ProgramSeeder {
     }
     
     /// Проверяет и создает программы, удаляет устаревшие
-    static func seedProgramsIfNeeded(context: ModelContext) {
+    nonisolated static func seedProgramsIfNeeded(context: ModelContext) {
         let descriptor = FetchDescriptor<Program>()
         
         // Programs to REMOVE (Unpopular)
@@ -112,7 +112,7 @@ struct ProgramSeeder {
     
     // MARK: - Category I: Full Body (Силовая)
     
-    private static func createFundamental2Day() -> Program {
+    private nonisolated static func createFundamental2Day() -> Program {
         let program = Program(
             name: "Фулбади: Фундаментальная",
             desc: "Базовая программа full body для начинающих. 2 тренировки в неделю с акцентом на основные движения."
@@ -143,7 +143,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createHighFrequency3Day() -> Program {
+    private nonisolated static func createHighFrequency3Day() -> Program {
         let program = Program(
             name: "Высокочастотная Гипертрофия",
             desc: "Тренировка всего тела 3 раза в неделю. Высокая частота для максимальной гипертрофии."
@@ -172,7 +172,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createAdvancedDUP4Day() -> Program {
+    private nonisolated static func createAdvancedDUP4Day() -> Program {
         let program = Program(
             name: "Продвинутый DUP",
             desc: "4 дня в неделю. Волновая периодизация: чередование силовых и объемных дней."
@@ -219,7 +219,7 @@ struct ProgramSeeder {
     
     // MARK: - Category II: Split (Силовая)
     
-    private static func createAestheticsBalance() -> Program {
+    private nonisolated static func createAestheticsBalance() -> Program {
         let program = Program(
             name: "Эстетика и Баланс",
             desc: "2-дневный сплит. Фокус на гармоничное развитие всех мышечных групп."
@@ -250,7 +250,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createVolumeSplit() -> Program {
+    private nonisolated static func createVolumeSplit() -> Program {
         let program = Program(
             name: "Объемный Сплит",
             desc: "Фокус на плечи и руки. Высокий объем работы."
@@ -280,7 +280,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createPreExhaustion() -> Program {
+    private nonisolated static func createPreExhaustion() -> Program {
         let program = Program(
             name: "Pre-Exhaustion",
             desc: "Изоляция перед базой. Предварительное утомление целевых мышц."
@@ -309,7 +309,7 @@ struct ProgramSeeder {
     
     // MARK: - Category III: Circuit / Fat Loss (Круговая)
     
-    private static func createBearComplex() -> Program {
+    private nonisolated static func createBearComplex() -> Program {
         let program = Program(
             name: "Комплекс Медведь (The Bear)",
             desc: "Выполнить 7 циклов без отдыха = 1 раунд. Всего 3-5 раундов."
@@ -327,7 +327,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createEDT() -> Program {
+    private nonisolated static func createEDT() -> Program {
         let program = Program(
             name: "EDT Плотность",
             desc: "Escalating Density Training. Два 15-минутных блока."
@@ -344,7 +344,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createPHA() -> Program {
+    private nonisolated static func createPHA() -> Program {
         let program = Program(
             name: "PHA (Сердце)",
             desc: "Peripheral Heart Action. Круговая без остановки для максимальной кардио-нагрузки."
@@ -364,7 +364,7 @@ struct ProgramSeeder {
     
     // MARK: - Category IV: Strength (Силовая)
     
-    private static func create531Beginner() -> Program {
+    private nonisolated static func create531Beginner() -> Program {
         let program = Program(
             name: "5/3/1 Новичок",
             desc: "Классическая программа Джима Вендлера для новичков. 2 дня в неделю."
@@ -389,7 +389,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createGZCLP() -> Program {
+    private nonisolated static func createGZCLP() -> Program {
         let program = Program(
             name: "GZCLP Линейная",
             desc: "GZCL Linear Progression. Три уровня интенсивности: T1, T2, T3."
@@ -414,7 +414,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createUpperLowerStrength() -> Program {
+    private nonisolated static func createUpperLowerStrength() -> Program {
         let program = Program(
             name: "Верх/Низ Силовой",
             desc: "Сплит верх/низ для максимальной силы. Тяжелые базовые движения."
@@ -441,7 +441,7 @@ struct ProgramSeeder {
     
     // MARK: - Category V: Cardio (Кардио)
     
-    private static func createHIITPyramid() -> Program {
+    private nonisolated static func createHIITPyramid() -> Program {
         let program = Program(
             name: "HIIT Пирамида",
             desc: "Высокоинтенсивные интервалы на беговой дорожке. 30/30, 45/45, 60/60."
@@ -455,7 +455,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createStairmasterGlutes() -> Program {
+    private nonisolated static func createStairmasterGlutes() -> Program {
         let program = Program(
             name: "Stairmaster Glutes",
             desc: "Степпер для ягодиц. Шаг через ступеньку, перекрестный шаг. Не держаться за поручни!"
@@ -469,7 +469,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createLISSElliptical() -> Program {
+    private nonisolated static func createLISSElliptical() -> Program {
         let program = Program(
             name: "LISS Эллипс",
             desc: "40-60 минут в зоне 2 пульса. Активно работать руками (push-pull)."
@@ -485,7 +485,7 @@ struct ProgramSeeder {
     
     // MARK: - Category VI: Calisthenics (Стрит Воркаут)
     
-    private static func createStreetWorkoutBeginner() -> Program {
+    private nonisolated static func createStreetWorkoutBeginner() -> Program {
         let program = Program(
             name: "Воркаут: Старт",
             desc: "Программа для начинающих на турниках и брусьях. Базовые движения."
@@ -504,7 +504,7 @@ struct ProgramSeeder {
         return program
     }
     
-    private static func createStreetWorkoutIntermediate() -> Program {
+    private nonisolated static func createStreetWorkoutIntermediate() -> Program {
         let program = Program(
             name: "Воркаут: Прогресс",
             desc: "Продвинутая программа для уличной площадки. Изучение элементов."
@@ -535,7 +535,7 @@ struct ProgramSeeder {
 
     // MARK: - Helper
     
-    private static func addExercise(to day: WorkoutDay, name: String, sets: Int, order: Int, type: WorkoutType? = nil) {
+    private nonisolated static func addExercise(to day: WorkoutDay, name: String, sets: Int, order: Int, type: WorkoutType? = nil) {
         let exercise = ExerciseTemplate(name: name, plannedSets: sets, orderIndex: order, type: type)
         day.exercises.append(exercise)
     }

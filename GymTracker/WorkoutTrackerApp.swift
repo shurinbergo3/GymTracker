@@ -15,6 +15,7 @@ struct WorkoutTrackerApp: App {
     // Use shared instance to ensure consistent state across the app
     @StateObject private var authManager = AuthManager.shared
     @State private var isCheckingAuth = true
+    @State private var isRestoringData = false
     
     init() {
         FirebaseApp.configure()
@@ -83,12 +84,22 @@ struct WorkoutTrackerApp: App {
                 } else {
                     Group {
                         if authManager.isLoggedIn {
-                            ContentViewWrapper()
-                                .environmentObject(authManager)
+                            if isRestoringData {
+                                RestoringDataView(isRestoring: $isRestoringData, onFinish: {
+                                    // Transition to content
+                                    isRestoringData = false
+                                })
                                 .transition(.opacity)
+                            } else {
+                                ContentViewWrapper()
+                                    .environmentObject(authManager)
+                                    .transition(.opacity)
+                            }
                         } else {
                             LoginView()
-                                .environmentObject(authManager) // LoginView uses implicit shared but passing environment is good practice
+                            // Removed environmentObject from here if it was redundant, 
+                            // but LoginView uses Singleton AuthManager.shared internally so it's fine.
+                            // Keeping it clean.
                                 .transition(.opacity)
                         }
                     }
@@ -98,6 +109,11 @@ struct WorkoutTrackerApp: App {
             .modelContainer(sharedModelContainer)
             .onAppear {
                 checkAuthStatus()
+            }
+            .onChange(of: authManager.isLoggedIn) { _, isLoggedIn in
+                if isLoggedIn {
+                    checkForFreshInstall()
+                }
             }
         }
     }
@@ -122,6 +138,40 @@ struct WorkoutTrackerApp: App {
             }
         }
     }
+    
+    /// Check if DB is empty on login to trigger auto-restore
+    private func checkForFreshInstall() {
+        // Check if we've already restored data before
+        let hasRestoredBefore = UserDefaults.standard.bool(forKey: "hasRestoredCloudData")
+        if hasRestoredBefore {
+            return
+        }
+        
+        let context = sharedModelContainer.mainContext
+        let descriptor = FetchDescriptor<WorkoutSession>()
+        
+        do {
+            let count = try context.fetchCount(descriptor)
+            
+            if count == 0 {
+                // Database is empty! Trigger Restore Flow
+                #if DEBUG
+                print("🆕 Fresh install detected. Triggering auto-restore.")
+                #endif
+                
+                withAnimation {
+                    isRestoringData = true
+                }
+            } else {
+                // Database has data, mark as restored to prevent future auto-restores
+                UserDefaults.standard.set(true, forKey: "hasRestoredCloudData")
+            }
+        } catch {
+            #if DEBUG
+            print("⚠️ Failed to check DB count: \(error)")
+            #endif
+        }
+    }
 }
 
 // MARK: - Content View Wrapper
@@ -134,113 +184,118 @@ struct ContentViewWrapper: View {
     var body: some View {
         ContentView()
             .task {
-                // 1. FIRST: Restore workouts from Firestore (before seeding)
-                if !hasRestored {
-                    await restoreWorkoutsFromFirestore()
-                    hasRestored = true
-                }
+                // Capture needed values
+                let container = modelContext.container
                 
-                // 1.5 Sync any unsynced workouts to Firestore
-                await SyncManager.shared.syncUnsyncedWorkouts(context: modelContext)
-                
-                // 2. Background seeding - non-blocking
-                if !hasSeeded {
-                    Task.detached(priority: .background) {
+                // Fire-and-forget: Launch all initialization in background
+                // This allows the view to appear immediately without blocking
+                Task.detached(priority: .userInitiated) {
+                    // Determine if this is a "first launch" scenario
+                    let isFirstLaunch = await MainActor.run { !hasSeeded }
+                    
+                    // 1. Restore Programs (Cloud) - runs in background only on first launch
+                    if isFirstLaunch {
+                        await SyncManager.shared.restoreProgramsFromFirestore(container: container)
+                    }
+                    
+                    // 2. Seeding (Local) - run in background context
+                    let needsSeeding = await MainActor.run { !hasSeeded }
+                    if needsSeeding {
+                        // Create a background context for seeding
+                        let bgContext = ModelContext(container)
+                        
+                        // Check if we actually need to seed (quick read)
+                        let descriptor = FetchDescriptor<Program>()
+                        let count = try? bgContext.fetchCount(descriptor)
+                        
+                        if count == 0 || count == nil {
+                            // DB is empty, seed defaults
+                            ProgramSeeder.seedProgramsIfNeeded(context: bgContext)
+                        } else {
+                            // Run migration/cleanup
+                            ProgramSeeder.seedProgramsIfNeeded(context: bgContext)
+                        }
+                        
+                        // Run exercise migration with safe error handling
+                        await ExerciseLibrary.migrateExerciseTypes(container: container)
+                        
                         await MainActor.run {
-                            ProgramSeeder.seedProgramsIfNeeded(context: modelContext)
-                            ExerciseLibrary.migrateExerciseTypes(context: modelContext)
-                            #if DEBUG
-                            print("✅ Background seeding complete from ContentViewWrapper")
-                            #endif
+                            hasSeeded = true
                         }
                     }
-                    hasSeeded = true
+                    
+                    // 3. User Data Restore (Async Parallelizable)
+                    let needsRestore = await MainActor.run { !hasRestored }
+                    if needsRestore {
+                        // Run profile restore
+                        await restoreUserProfileFromFirestore()
+                        
+                        await MainActor.run {
+                            hasRestored = true
+                        }
+                    }
                 }
             }
     }
     
-    /// Restore workout history from Firestore to SwiftData
-    private func restoreWorkoutsFromFirestore() async {
-        do {
-            let firestoreWorkouts = try await FirestoreManager.shared.fetchHistory()
-            
-            guard !firestoreWorkouts.isEmpty else {
-                #if DEBUG
-                print("📭 No workouts found in Firestore")
-                #endif
-                return
-            }
-            
-            // Check if workouts already exist in SwiftData to avoid duplicates
-            let descriptor = FetchDescriptor<WorkoutSession>()
-            let localSessions = (try? modelContext.fetch(descriptor)) ?? []
-            
-            #if DEBUG
-            print("📥 Found \(firestoreWorkouts.count) workouts in Firestore, \(localSessions.count) local")
-            #endif
-            
-            var restoredCount = 0
-            
-            // Convert Firestore workouts to SwiftData sessions
-            for workout in firestoreWorkouts {
-                // Skip if already exists (check by date + workout type)
-                let exists = localSessions.contains { session in
-                    Calendar.current.isDate(session.date, inSameDayAs: workout.date) &&
-                    session.workoutDayName == workout.workoutType
+    // restoreWorkoutsFromFirestore moved to SyncManager
+    
+    // convertToWorkoutSession moved to SyncManager
+    
+    /// Restore User Profile & Active Program from Firestore
+    private func restoreUserProfileFromFirestore() async {
+        guard let profileData = await SyncManager.shared.fetchUserProfile() else { return }
+        
+        // 1. Update or Create UserProfile
+        let descriptor = FetchDescriptor<UserProfile>()
+        let profiles = (try? modelContext.fetch(descriptor)) ?? []
+        let profile: UserProfile
+        
+        if let existing = profiles.last {
+            profile = existing
+            // Only update if cloud is newer? Or just overwrite?
+            // For now, trust cloud if fetching
+            profile.height = profileData.height
+            profile.age = profileData.age
+            // Weight logic is complex (history), maybe skip or add new record
+        } else {
+            profile = UserProfile(height: profileData.height, initialWeight: profileData.weight, age: profileData.age)
+            modelContext.insert(profile)
+        }
+        
+        // 2. Activate Program
+        if let activeName = profileData.activeProgramName {
+            // Find program by name
+            let progDescriptor = FetchDescriptor<Program>() // Fetch all to be safe
+            if let allPrograms = try? modelContext.fetch(progDescriptor) {
+                
+                var found = false
+                for program in allPrograms {
+                    if program.name == activeName {
+                        program.isActive = true
+                        found = true
+                        #if DEBUG
+                        print("✅ Restored Active Program: \(activeName)")
+                        #endif
+                    } else {
+                        // Deactivate others to ensure single source of truth
+                        program.isActive = false
+                    }
                 }
                 
-                if !exists {
-                    let session = convertToWorkoutSession(workout)
-                    modelContext.insert(session)
-                    restoredCount += 1
+                if !found {
+                    #if DEBUG
+                    print("⚠️ Active program '\(activeName)' not found locally")
+                    #endif
                 }
             }
-            
-            if restoredCount > 0 {
-                try modelContext.save()
-                #if DEBUG
-                print("✅ Restored \(restoredCount) workouts from Firestore")
-                #endif
-            } else {
-                #if DEBUG
-                print("ℹ️ All workouts already synced")
-                #endif
-            }
-        } catch {
-            #if DEBUG
-            print("❌ Error restoring workouts: \(error)")
-            #endif
-        }
-    }
-    
-    /// Convert Firestore Workout to SwiftData WorkoutSession
-    private func convertToWorkoutSession(_ workout: Workout) -> WorkoutSession {
-        let session = WorkoutSession(
-            workoutDayName: workout.workoutType,
-            programName: "Restored"
-        )
-        session.date = workout.date
-        session.endTime = workout.date.addingTimeInterval(workout.duration)
-        session.calories = workout.calories
-        session.notes = workout.notes
-        session.isCompleted = true
-        
-        // Convert exercises to sets
-        for exercise in workout.exercises {
-            for set in exercise.sets {
-                let workoutSet = WorkoutSet(
-                    exerciseName: exercise.name,
-                    weight: set.weight,
-                    reps: set.reps,
-                    setNumber: set.setNumber,
-                    isWeighted: set.weight > 0
-                )
-                workoutSet.isCompleted = set.isCompleted
-                workoutSet.session = session
-                session.sets.append(workoutSet)
-            }
         }
         
-        return session
+        try? modelContext.save()
+        
+        // Notify app to refresh (WorkoutManager listens to this)
+        await MainActor.run {
+            NotificationCenter.default.post(name: Notification.Name("ActiveProgramChanged"), object: nil)
+        }
     }
 }

@@ -14,6 +14,7 @@
 		01D712B62F17D53900BF9D6C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D712B52F17D53900BF9D6C /* WidgetKit.framework */; };
 		01D712B82F17D53900BF9D6C /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D712B72F17D53900BF9D6C /* SwiftUI.framework */; };
 		01D712C72F17D53A00BF9D6C /* Body ForgeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 01D712B32F17D53900BF9D6C /* Body ForgeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		01F287602F22CC8200D06EBF /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 01F2875F2F22CC8200D06EBF /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 		01D712B32F17D53900BF9D6C /* Body ForgeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Body ForgeWidgetExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		01D712B52F17D53900BF9D6C /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		01D712B72F17D53900BF9D6C /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		01F2875F2F22CC8200D06EBF /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -159,6 +161,7 @@
 		01B86D2D2F0FAEBD00695F47 = {
 			isa = PBXGroup;
 			children = (
+				01F2875F2F22CC8200D06EBF /* Localizable.xcstrings */,
 				01B86D382F0FAEBD00695F47 /* GymTracker */,
 				01B86D482F0FAEBE00695F47 /* GymTrackerTests */,
 				01B86D522F0FAEBE00695F47 /* GymTrackerUITests */,
@@ -319,6 +322,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 01B86D2D2F0FAEBD00695F47;
 			minimizedProjectReferenceProxies = 1;
@@ -344,6 +348,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01F287602F22CC8200D06EBF /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -479,6 +484,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -535,6 +541,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

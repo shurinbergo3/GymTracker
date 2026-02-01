@@ -16,95 +16,86 @@ struct ActiveWorkoutHeader: View {
     
     var body: some View {
         TimelineView(.periodic(from: Date(), by: 0.1)) { context in
-            HStack(spacing: 0) {
-                // 1. Digital Time & Circular Progress (Left)
+            HStack(spacing: 20) {
+                // 1. Digital Time (Left)
                 HStack(spacing: 12) {
                     ZStack {
-                        // Background Ring
                         Circle()
-                            .stroke(Color.white.opacity(0.1), lineWidth: 4)
-                            .frame(width: 50, height: 50)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 3)
+                            .frame(width: 44, height: 44)
                             
-                        // Progress Ring (Visual loop effect for now, e.g. 60s loop)
                         Circle()
                             .trim(from: 0, to: timerProgress(context.date))
                             .stroke(
                                 DesignSystem.Colors.neonGreen,
-                                style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                                style: StrokeStyle(lineWidth: 3, lineCap: .round)
                             )
                             .rotationEffect(.degrees(-90))
-                            .frame(width: 50, height: 50)
+                            .frame(width: 44, height: 44)
+                            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 4)
                             .animation(.linear(duration: 0.1), value: context.date)
                         
-                        // Play Icon or small indicator inside? 
-                        // Request says "digital time inside" but 50px is too small for "24:15".
-                        // Reference image shows large digital time inside a LARGE ring.
-                        // Let's adjust layout to be one large container.
+                        Image(systemName: "timer")
+                            .font(.system(size: 14))
+                            .foregroundColor(DesignSystem.Colors.neonGreen)
                     }
                     
                     Text(formatTime(context.date))
-                        .font(.system(size: 24, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
+                        .font(DesignSystem.Typography.monospaced(.title2, weight: .bold))
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                 }
-                .padding(.leading, 16)
                 
                 Spacer()
                 
                 // 2. Heart Rate (Middle)
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
                     Image(systemName: "heart.fill")
                         .font(.system(size: 16))
                         .foregroundColor(.red)
+                        .shadow(color: .red.opacity(0.5), radius: 5)
                     
                     VStack(alignment: .leading, spacing: 0) {
                         Text("\(workoutManager.currentHeartRate)")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                        Text("уд/мин")
-                            .font(.system(size: 10)) // Fixed typo from 'sze'
-                            .foregroundColor(.gray)
+                            .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        Text("BPM")
+                            .font(DesignSystem.Typography.sectionHeader())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .tracking(1.0)
                     }
                 }
                 
                 Spacer()
                 
                 // 3. Calories (Right)
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
                     Image(systemName: "flame.fill")
                         .font(.system(size: 16))
                         .foregroundColor(.orange)
+                        .shadow(color: .orange.opacity(0.5), radius: 5)
                     
                     VStack(alignment: .leading, spacing: 0) {
                         Text("\(workoutManager.currentActiveCalories)")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                        Text("ккал")
-                            .font(.system(size: 10))
-                            .foregroundColor(.gray)
+                            .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        Text("KCAL")
+                            .font(DesignSystem.Typography.sectionHeader())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .tracking(1.0)
                     }
                 }
-                .padding(.trailing, 16)
             }
-            .frame(height: 80)
-            .background(Color(red: 0.1, green: 0.1, blue: 0.1)) // Dark grey background
-            .cornerRadius(40) // Fully rounded pills
-            .overlay(
-                RoundedRectangle(cornerRadius: 40)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-            )
+            .padding(.horizontal, 20)
+            .frame(height: 74)
+            .background(DesignSystem.Colors.cardBackground)
+            .cornerRadius(40) // Pill shape for header
+            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
             .padding(.horizontal, DesignSystem.Spacing.lg)
-            // Cancel button moved out or overlay? Reference image doesn't show cancel.
-            // We'll keep Cancel button available but discrete, maybe above?
-            // Or usually "End" is at the bottom.
-            // Requirement says "Replicate HUD style... Single wide dark rounded container".
-            // I will add the Cancel 'X' as a small overlay on the top right OUTSIDE or just tap header to open menu?
-            // Let's keep the discrete X button from previous design but positioned nicely if needed.
-            // Actually, usually headers are just data.
+    
         }
     }
     
     private func timerProgress(_ date: Date) -> CGFloat {
-        // Visual effect: Loop every 60 seconds based on ELAPSED time
         let elapsed: TimeInterval
         if let startDate = workoutManager.currentSession?.date {
             elapsed = date.timeIntervalSince(startDate)
@@ -112,7 +103,9 @@ struct ActiveWorkoutHeader: View {
             elapsed = 0
         }
         
-        // Calculate progress within current minute (0.0 to 1.0)
+        // Return 0 if negative to avoid crashes/weird UI
+        if elapsed < 0 { return 0 }
+        
         let secondsInMinute = elapsed.truncatingRemainder(dividingBy: 60)
         return CGFloat(secondsInMinute) / 60.0
     }
@@ -125,8 +118,11 @@ struct ActiveWorkoutHeader: View {
             elapsed = 0
         }
         
-        let minutes = Int(elapsed) / 60
-        let seconds = Int(elapsed) % 60
+        if elapsed < 0 { return "00:00" }
+        
+        let totalSeconds = Int(elapsed)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
 }

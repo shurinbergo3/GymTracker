@@ -142,8 +142,11 @@ struct ProgramView: View {
                 }
             }
             .onAppear {
-                // Always check to ensure deprecated programs are removed and new order is applied
-                loadDefaultPrograms()
+                // Ensure default programs are loaded (once per app session/install)
+                if !UserDefaults.standard.bool(forKey: "ProgramsSeeded_v3") {
+                    loadDefaultPrograms()
+                    UserDefaults.standard.set(true, forKey: "ProgramsSeeded_v3")
+                }
             }
 
             .navigationTitle("Программы")

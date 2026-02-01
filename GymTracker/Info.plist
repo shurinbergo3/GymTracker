@@ -11,6 +11,12 @@
 	<!-- Bundle Info -->
 	<key>CFBundleGetInfoString</key>
 	<string></string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>ru</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>ru</string>
+    </array>
 	
 	<!-- Google Sign-In Configuration -->
 	<key>CFBundleURLTypes</key>

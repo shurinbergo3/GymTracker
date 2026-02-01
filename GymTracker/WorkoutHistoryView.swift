@@ -174,6 +174,14 @@ struct SessionHistoryView: View {
                                 showingDeleteConfirmation = true
                             }
                         )
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                sessionToDelete = session
+                                showingDeleteConfirmation = true
+                            } label: {
+                                Label("Удалить", systemImage: "trash")
+                            }
+                        }
                         .onTapGesture {
                             selectedSession = session
                         }

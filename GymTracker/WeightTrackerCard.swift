@@ -144,7 +144,12 @@ struct WeightTrackerCard: View {
             }
         }
         .sheet(isPresented: $showingProfile) {
-            CreateProfileView()
+            if let profile = currentProfile {
+                EditHeightView(userProfile: profile)
+                    .presentationDetents([.height(250)])
+            } else {
+                CreateProfileView()
+            }
         }
     }
     

@@ -31,7 +31,7 @@ struct WorkoutTypeSelectorView: View {
                                     .foregroundColor(selectedType == type ? DesignSystem.Colors.neonGreen : DesignSystem.Colors.primaryText)
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(type.rawValue)
+                                    Text(type.displayName)
                                         .font(DesignSystem.Typography.headline())
                                         .foregroundColor(DesignSystem.Colors.primaryText)
                                     

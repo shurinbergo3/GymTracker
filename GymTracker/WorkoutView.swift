@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+@MainActor
 struct WorkoutView: View {
     @Environment(\.modelContext) private var modelContext
     @StateObject private var workoutManager: WorkoutManager
@@ -19,7 +20,11 @@ struct WorkoutView: View {
     @State private var showingSettings = false
     
     init(modelContext: ModelContext, selectedTab: Binding<Int>) {
-        _workoutManager = StateObject(wrappedValue: WorkoutManager(modelContext: modelContext))
+        _workoutManager = StateObject(wrappedValue: WorkoutManager(
+            modelContext: modelContext,
+            healthProvider: HealthManager.shared,
+            activityProvider: LiveActivityManager.shared
+        ))
         _selectedTab = selectedTab
     }
     
@@ -37,9 +42,9 @@ struct WorkoutView: View {
                     // Empty State
                     EmptyStateView(
                         icon: "figure.strengthtraining.traditional",
-                        title: "Нет активной программы",
-                        message: "Создайте программу тренировок, чтобы начать отслеживать свой прогресс",
-                        buttonTitle: "Задать программу тренировок"
+                        title: String(localized: "no_active_program_title"),
+                        message: String(localized: "no_active_program_message"),
+                        buttonTitle: String(localized: "set_program_button")
                     ) {
                         selectedTab = 1 // Switch to Program tab
                     }
@@ -62,7 +67,7 @@ struct WorkoutView: View {
                     }
                 }
             }
-            .navigationTitle("Body Forge")
+            .navigationTitle(Text("app_title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -75,10 +80,17 @@ struct WorkoutView: View {
                 SettingsView()
             }
         }
+
         .onAppear {
             if workoutManager.activeProgram == nil {
                 workoutManager.loadActiveProgram()
                 workoutManager.initializeSelectedDay()
+            }
+        }
+        .task {
+            // Optimization: Only request if not authorized (prevents onAppear loops)
+            if !HealthManager.shared.isAuthorized {
+                workoutManager.requestHealthAccess()
             }
         }
     }

@@ -59,5 +59,54 @@
 
 Этот проект распространяется под лицензией MIT. Подробности см. в файле [LICENSE](LICENSE).
 
+
 ---
 *Developed with ❤️ by Antigravity*
+
+## 🤖 AI Context
+
+> *Этот раздел предназначен для AI-ассистентов, чтобы ускорить погружение в архитектуру проекта.*
+
+### 📂 Структура Проекта
+
+Проект имеет относительно плоскую структуру внутри основной папки таргета.
+
+```text
+GymTracker/
+├── GymTracker/                  # Ядро приложения (Source Code)
+│   ├── Models/                  # Выделенные модели данных
+│   ├── Services/                # Сервисные классы (Analytics, Sleep, etc.)
+│   ├── [Root]                   # ~70 файлов в корне: Views, ViewModels, Managers
+│   │   ├── *View.swift          # SwiftUI представления (Screens & Components)
+│   │   ├── *ViewModel.swift     # Логика представлений
+│   │   ├── *Manager.swift       # Singleton-менеджеры (Health, Sync, LiveActivity)
+│   │   └── DesignSystem.swift   # Система стилей (цвета, шрифты)
+│   └── Assets.xcassets          # Ресурсы (иконки, цвета)
+├── GymTrackerWidget/            # Target виджетов и Live Activities
+├── GymTrackerTests/             # Unit Tests
+├── GymTrackerUITests/           # UI Tests
+└── Localizable.xcstrings        # Локализация
+```
+
+### 🛠 Технический Стек
+
+*   **Язык**: Swift 5.9+
+*   **UI**: SwiftUI (основной), UIKit (минимум/отсутствует).
+*   **Архитектура**: MVVM (Model-View-ViewModel).
+*   **База Данных**: SwiftData (Persistence).
+*   **Асинхронность**: Swift Concurrency (`async/await`, `Task`, `@MainActor`), Combine (частично).
+
+### 🧩 Ключевые Фреймворки & Компоненты
+
+*   **HealthKit**: `HealthManager.swift` — чтение/запись тренировок, пульса, калорий, колец активности.
+*   **ActivityKit**: `LiveActivityManager.swift` и `GymTrackerWidget` — поддержка Live Activities и Dynamic Island.
+*   **Swift Charts**: Испольуется для визуализации прогресса (`WorkoutProgressChart.swift`).
+*   **Cloud & Sync**:
+    *   `SyncManager.swift`: Синхронизация данных (включая CloudKit/Firestore аспекты если есть).
+    *   `FirestoreManager.swift`: Интеграция с Firebase Firestore.
+    *   `AuthManager.swift`: Аутентификация (Google Sign-In).
+
+### 🎨 Design System
+
+Все основные UI-константы, цвета и модификаторы вынесены в `DesignSystem.swift`. Приложение использует "Bento Grid" стиль с темной темой и неоновыми акцентами.
+

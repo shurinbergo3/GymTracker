@@ -1,6 +1,7 @@
 
 import SwiftUI
 import SwiftData
+import FirebaseAuth
 
 struct AddMeasurementView: View {
     @Environment(\.dismiss) private var dismiss
@@ -56,5 +57,24 @@ struct AddMeasurementView: View {
         )
         modelContext.insert(measurement)
         try? modelContext.save()
+        
+        // Sync to Firestore
+        Task {
+            // Get user profile
+            let profileDescriptor = FetchDescriptor<UserProfile>()
+            guard let profile = try? modelContext.fetch(profileDescriptor).first else { return }
+            
+            // Get active program if any
+            let programDescriptor = FetchDescriptor<Program>(
+                predicate: #Predicate<Program> { $0.isActive == true }
+            )
+            let activeProgram = try? modelContext.fetch(programDescriptor).first
+            
+            await SyncManager.shared.syncUserProfile(
+                profile: profile,
+                activeProgram: activeProgram,
+                context: modelContext
+            )
+        }
     }
 }

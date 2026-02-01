@@ -9,20 +9,27 @@ import SwiftUI
 
 struct AITrainerView: View {
     @State private var showingSettings = false
+    @State private var showingDevAlert = false // Alert state
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Animated Background Gradient
+                // OLED Black Background
+                DesignSystem.Colors.background
+                    .ignoresSafeArea()
+                
+                // Subtle top gradient for depth
                 LinearGradient(
                     colors: [
-                        Color(red: 0.05, green: 0.05, blue: 0.1),
-                        Color(red: 0.1, green: 0.0, blue: 0.2) // Deep purple tint
+                        DesignSystem.Colors.cardBackground.opacity(0.8),
+                        DesignSystem.Colors.background
                     ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
                 .ignoresSafeArea()
+                .frame(height: 300)
+                .position(x: UIScreen.main.bounds.width / 2, y: 0)
                 
                 VStack(spacing: DesignSystem.Spacing.md) {
                     
@@ -32,10 +39,10 @@ struct AITrainerView: View {
                             Circle()
                                 .fill(
                                     RadialGradient(
-                                        colors: [DesignSystem.Colors.neonGreen.opacity(0.3), .clear],
+                                        colors: [DesignSystem.Colors.neonGreen.opacity(0.2), .clear],
                                         center: .center,
                                         startRadius: 0,
-                                        endRadius: 60
+                                        endRadius: 50
                                     )
                                 )
                                 .frame(width: 100, height: 100)
@@ -47,58 +54,59 @@ struct AITrainerView: View {
                                 .shadow(color: DesignSystem.Colors.neonGreen, radius: 10, x: 0, y: 0)
                         }
                         
-                        Text("AI Тренер")
+                        Text("AI Coach") // English Match
                             .font(DesignSystem.Typography.title())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
-                        Text("Ваш персональный аналитик")
+                        Text("Your Personal Analyst") // English Match
                             .font(DesignSystem.Typography.body())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
-                    .padding(.top, 10)
+                    .padding(.top, 20)
                     
                     Spacer()
                     
                     // Feature Grid
-                    VStack(spacing: 12) {
-                        AIFeatureRow(
-                            icon: "chart.xyaxis.line",
-                            title: "Анализ тренировок",
-                            description: "AI анализирует ваши показатели и подсказывает, где вы можете улучшиться."
-                        )
-                        
-                        AIFeatureRow(
-                            icon: "message.fill",
-                            title: "Умный чат",
-                            description: "Спрашивает о самочувствии и корректирует нагрузку в реальном времени."
-                        )
-                        
-                        AIFeatureRow(
-                            icon: "list.clipboard.fill",
-                            title: "Персональная программа",
-                            description: "Создает план тренировок, идеально подходящий под ваши цели."
-                        )
-                        
-                        AIFeatureRow(
-                            icon: "cross.case.fill",
-                            title: "Мониторинг анализов",
-                            description: "Загрузите результаты анализов, и AI даст рекомендации по питанию и бадам."
-                        )
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            AIFeatureRow(
+                                icon: "chart.xyaxis.line",
+                                title: "Анализ тренировок",
+                                description: "AI анализирует ваши показатели и подсказывает, где вы можете улучшиться."
+                            )
+                            
+                            AIFeatureRow(
+                                icon: "message.fill",
+                                title: "Умный чат",
+                                description: "Спрашивает о самочувствии и корректирует нагрузку в реальном времени."
+                            )
+                            
+                            AIFeatureRow(
+                                icon: "list.clipboard.fill",
+                                title: "Персональная программа",
+                                description: "Создает план тренировок, идеально подходящий под ваши цели."
+                            )
+                            
+                            AIFeatureRow(
+                                icon: "cross.case.fill",
+                                title: "Мониторинг анализов",
+                                description: "Загрузите результаты анализов, и AI даст рекомендации по питанию и бадам."
+                            )
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
                     }
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
                     
                     Spacer()
                     
                     // CTA Button
                     GradientButton(title: "Активировать (Скоро)", icon: "sparkles") {
-                        // Action placeholder
+                        showingDevAlert = true
                     }
-                    .opacity(0.8) // Showing it's coming soon
                     .padding(.horizontal, DesignSystem.Spacing.xl)
                     .padding(.bottom, 20)
                 }
             }
-            .navigationTitle("AI Тренер")
+            .navigationTitle("AI Coach") // English Match
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -109,6 +117,12 @@ struct AITrainerView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+            }
+            // The requested "Success" alert/window
+            .alert("В разработке", isPresented: $showingDevAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Этот функционал еще создается. Скоро будет доступно!")
             }
         }
     }

@@ -87,16 +87,14 @@ struct ExerciseCard: View {
             }
             // MARK: - Header (Title + Icons)
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text(exercise.name)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
+                        .font(DesignSystem.Typography.title3())
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                     
                     // Progress Pills / Boxes
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 6) {
-                            // User requested "amount of approaches always same as set in program".
-                            // But we must show completed ones if they exceed the plan.
+                        HStack(spacing: 8) {
                             let totalCount = max(exercise.plannedSets, completedSets.count)
                             
                             ForEach(1...totalCount, id: \.self) { setNum in
@@ -104,29 +102,23 @@ struct ExerciseCard: View {
                                 let isExtra = setNum > exercise.plannedSets
                                 let isCurrent = setNum == completedSets.count + 1
                                 
-                                VStack(spacing: 2) {
-                                    // Box
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .fill(
-                                                isCompleted ? (isExtra ? DesignSystem.Colors.secondaryAccent : DesignSystem.Colors.neonGreen) :
-                                                    (isCurrent ? Color.white.opacity(0.3) : Color.white.opacity(0.1))
-                                            )
-                                            .frame(width: 28, height: 28)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 4)
-                                                    .stroke(isExtra ? DesignSystem.Colors.secondaryAccent : DesignSystem.Colors.neonGreen, lineWidth: (isCurrent || isCompleted) ? 0 : 0)
-                                            )
-                                        
-                                        if isCompleted {
-                                            Image(systemName: "checkmark")
-                                                .font(.system(size: 12, weight: .bold))
-                                                .foregroundColor(.black)
-                                        } else {
-                                            Text("\(setNum)")
-                                                .font(.system(size: 12, weight: .bold))
-                                                .foregroundColor(isCurrent ? .white : .gray)
-                                        }
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                                        .fill(
+                                            isCompleted ? (isExtra ? DesignSystem.Colors.secondaryAccent : DesignSystem.Colors.neonGreen) :
+                                                (isCurrent ? Color.white.opacity(0.15) : Color.white.opacity(0.05))
+                                        )
+                                        .frame(width: 32, height: 32)
+                                        .shadow(color: isCompleted ? (isExtra ? DesignSystem.Colors.secondaryAccent : DesignSystem.Colors.neonGreen).opacity(0.4) : .clear, radius: 4)
+                                    
+                                    if isCompleted {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 14, weight: .black))
+                                            .foregroundColor(.black)
+                                    } else {
+                                        Text("\(setNum)")
+                                            .font(DesignSystem.Typography.monospaced(.caption, weight: .bold))
+                                            .foregroundColor(isCurrent ? .white : .gray)
                                     }
                                 }
                             }
@@ -161,7 +153,7 @@ struct ExerciseCard: View {
                             }
                         } label: {
                             Label(
-                                isTimerEnabledForExercise ? "Выкл. таймер" : "Вкл. таймер",
+                                isTimerEnabledForExercise ? "Таймер Отдыха (ВКЛ)" : "Таймер Отдыха (ВЫКЛ)",
                                 systemImage: isTimerEnabledForExercise ? "timer.circle.fill" : "timer.circle"
                             )
                         }
@@ -194,7 +186,7 @@ struct ExerciseCard: View {
                     
                     ForEach(previousSets, id: \.self) { set in
                         HStack {
-                            Text("Подход \(set.setNumber):")
+                            Text("Сет \(set.setNumber):")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                             if (set.duration ?? 0) > 0 {
@@ -217,7 +209,7 @@ struct ExerciseCard: View {
             // MARK: - Current Session Sets (NEW)
             if !completedSets.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Выполнено:")
+                    Text("Завершено:")
                         .font(.caption)
                         .foregroundColor(.gray)
                     
@@ -225,6 +217,13 @@ struct ExerciseCard: View {
                         HStack(spacing: 8) {
                             ForEach(completedSets, id: \.self) { set in
                                 CompletedSetChip(set: set, workoutType: effectiveWorkoutType)
+                                    .contextMenu {
+                                        Button(role: .destructive) {
+                                            deleteSet(set)
+                                        } label: {
+                                            Label("dictionary_delete", systemImage: "trash")
+                                        }
+                                    }
                             }
                         }
                     }
@@ -261,58 +260,76 @@ struct ExerciseCard: View {
                     case .strength:
                         HStack(spacing: 12) {
                             // Weight Input
-                            VStack(spacing: 4) {
-                                Text("Вес")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                            VStack(spacing: 6) {
+                                Text("ВЕС (КГ)")
+                                    .font(DesignSystem.Typography.sectionHeader())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .tracking(1.0)
+                                
                                 TextField("0", text: $weight)
                                     .keyboardType(.decimalPad)
                                     .multilineTextAlignment(.center)
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .frame(height: 60)
+                                    .font(DesignSystem.Typography.monospaced(.title, weight: .bold))
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                    .frame(height: 70)
                                     .background(Color.white.opacity(0.05))
-                                    .cornerRadius(12)
+                                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                    )
                             }
                             
                             // Reps Input
-                            VStack(spacing: 4) {
-                                Text("Повторы")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                            VStack(spacing: 6) {
+                                Text("ПОВТОРЫ")
+                                    .font(DesignSystem.Typography.sectionHeader())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .tracking(1.0)
+                                
                                 TextField("0", text: $reps)
                                     .keyboardType(.numberPad)
                                     .multilineTextAlignment(.center)
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .frame(height: 60)
+                                    .font(DesignSystem.Typography.monospaced(.title, weight: .bold))
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                    .frame(height: 70)
                                     .background(Color.white.opacity(0.05))
-                                    .cornerRadius(12)
+                                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                    )
                             }
                         }
                         
                     case .repsOnly:
                         VStack(spacing: 12) {
                             // Single Large Reps Input
-                            VStack(spacing: 4) {
-                                Text("Повторы")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                            VStack(spacing: 6) {
+                                Text("ПОВТОРЫ")
+                                    .font(DesignSystem.Typography.sectionHeader())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .tracking(1.0)
+                                
                                 TextField("0", text: $reps)
                                     .keyboardType(.numberPad)
                                     .multilineTextAlignment(.center)
-                                    .font(.system(size: 44, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .frame(height: 80)
+                                    .font(DesignSystem.Typography.monospaced(.largeTitle, weight: .bold))
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                    .frame(height: 100)
                                     .background(Color.white.opacity(0.05))
-                                    .cornerRadius(16)
+                                    .cornerRadius(DesignSystem.CornerRadius.large)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                    )
                             }
                             
                             // Weighted Toggle Button
                             HStack {
                                 if isWeighted {
                                     HStack {
-                                        TextField("Вес", text: $weight)
+                                        TextField("weight_label", text: $weight)
                                             .keyboardType(.decimalPad)
                                             .frame(width: 60)
                                             .multilineTextAlignment(.center)
@@ -327,7 +344,7 @@ struct ExerciseCard: View {
                                     }
                                 } else {
                                     Button(action: { isWeighted = true }) {
-                                        Text("+ Доп. вес")
+                                        Text("+ Вес")
                                             .font(.system(size: 14, weight: .semibold))
                                             .foregroundColor(DesignSystem.Colors.neonGreen)
                                             .padding(.vertical, 6)
@@ -360,7 +377,7 @@ struct ExerciseCard: View {
                             
                             // Distance Input (Optional)
                             HStack {
-                                Text("Дистанция (км):")
+                                Text("КМ")
                                     .font(.caption)
                                     .foregroundColor(.gray)
                                 TextField("--", text: $distance)
@@ -405,7 +422,7 @@ struct ExerciseCard: View {
                         
                         // Show "Дополнительный подход" Label if we are on the last set or extra set
                         if completedSets.count >= exercise.plannedSets - 1 {
-                             Text("Дополнительный подход")
+                             Text("ДОП. ПОДХОД")
                                 .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(DesignSystem.Colors.secondaryAccent)
                                 .padding(.trailing, 16)
@@ -415,16 +432,16 @@ struct ExerciseCard: View {
                         // Large Check Button
                         Button(action: saveCurrentSet) {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 24, weight: .bold))
+                                .font(.system(size: 24, weight: .black))
                                 .foregroundColor(.black)
-                                .frame(width: 50, height: 50)
-                                .background(canSave ? DesignSystem.Colors.neonGreen : Color.gray.opacity(0.3))
+                                .frame(width: 56, height: 56)
+                                .background(canSave ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.1))
                                 .clipShape(Circle())
+                                .shadow(color: canSave ? DesignSystem.Colors.neonGreen.opacity(0.4) : .clear, radius: 12)
                         }
                         .disabled(!canSave)
-                        .shadow(color: canSave ? DesignSystem.Colors.neonGreen.opacity(0.5) : .clear, radius: 10)
                     }
-                    .padding(.top, 8)
+                    .padding(.top, 12)
                 }
                 .padding(16)
             } else {
@@ -432,25 +449,22 @@ struct ExerciseCard: View {
                 if !completedSets.isEmpty {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Выполнено: \(completedSets.count) / \(exercise.plannedSets)")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
                             .padding(.horizontal, 16)
                             .padding(.bottom, 16)
                     }
                 }
             }
         }
-        .background(Color(white: 0.12)) // Dark grey card bg
-        .cornerRadius(20)
+        .background(DesignSystem.Colors.cardBackground)
+        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
         // Focus Mode Styles
-        .opacity(isActive ? 1.0 : 0.5)
+        .opacity(isActive ? 1.0 : 0.6)
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(isActive ? DesignSystem.Colors.neonGreen : Color.clear, lineWidth: 2)
-        )
-        .shadow(
-            color: isActive ? DesignSystem.Colors.neonGreen.opacity(0.3) : Color.clear,
-            radius: 20, x: 0, y: 0
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                .stroke(isActive ? DesignSystem.Colors.neonGreen.opacity(0.4) : Color.clear, lineWidth: 2)
         )
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isActive)
         // Sheets & Actions
@@ -501,7 +515,7 @@ struct ExerciseCard: View {
         guard let session = session else { return }
         
         // Validation Logic
-        let weightVal = Double(weight) ?? 0
+        let weightVal = Double(weight.replacingOccurrences(of: ",", with: ".")) ?? 0
         let repsVal = Int(reps) ?? 0
         
         // Basic check based on type
@@ -573,6 +587,32 @@ struct ExerciseCard: View {
         }
     }
     
+    private func deleteSet(_ set: WorkoutSet) {
+        guard let session = session else { return }
+        
+        withAnimation {
+            // Remove from session local array if needed (SwiftData might handle relationship automation but manual update ensures UI refresh)
+            if let index = session.sets.firstIndex(where: { $0.id == set.id }) {
+                session.sets.remove(at: index)
+            }
+            
+            // Delete from context
+            modelContext.delete(set)
+            
+            // Re-number remaining sets for this exercise
+            let exerciseSets = session.sets
+                .filter { $0.exerciseName == exercise.name }
+                .sorted { $0.setNumber < $1.setNumber }
+            
+            for (index, s) in exerciseSets.enumerated() {
+                s.setNumber = index + 1
+            }
+            
+            try? modelContext.save()
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        }
+    }
+    
     private func formatTime(_ timeInterval: TimeInterval) -> String {
         let minutes = Int(timeInterval) / 60
         let seconds = Int(timeInterval) % 60
@@ -629,7 +669,7 @@ struct CompletedSetChip: View {
                 let seconds = Int(duration) % 60
                 return String(format: "%02d:%02d", minutes, seconds)
             } else {
-                return "Завершено"
+                return "Готово"
             }
         }
     }

@@ -16,13 +16,11 @@ struct MeasurementsView: View {
     
 
     @Binding var selectedTab: Int
-    @Query(sort: \WorkoutSession.date, order: .reverse) private var allSessions: [WorkoutSession]
-    @Query private var userProfiles: [UserProfile]
+    // Optimized Query: Only fetch completed sessions from DB, sorted by date
+    @Query(filter: #Predicate<WorkoutSession> { $0.isCompleted == true }, sort: \WorkoutSession.date, order: .reverse) 
+    private var completedSessions: [WorkoutSession]
     
-    // Sessions completed
-    private var completedSessions: [WorkoutSession] {
-        allSessions.filter { $0.isCompleted }
-    }
+    @Query private var userProfiles: [UserProfile]
     
     @State private var showingSettings = false
 
@@ -34,6 +32,10 @@ struct MeasurementsView: View {
                 
                 ScrollView {
                     VStack(spacing: DesignSystem.Spacing.lg) {
+                        // Календарь
+                        ExpandableCalendarView()
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+
                         // График прогресса
                         if !completedSessions.isEmpty {
                             WorkoutProgressChart(sessions: completedSessions)
@@ -119,7 +121,7 @@ struct MeasurementsView: View {
                         // Sleep Card
                         SleepCard()
                             .padding(.horizontal, DesignSystem.Spacing.lg)
-                            .padding(.bottom, DesignSystem.Spacing.xxl)
+                            // Removed extra bottom padding for tighter layout
                     }
                 }
             }

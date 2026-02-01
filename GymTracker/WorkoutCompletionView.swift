@@ -300,11 +300,20 @@ fileprivate struct CompletionBentoCard<Content: View>: View {
 }
 
 #Preview {
+    makeWorkoutCompletionViewPreview()
+}
+
+@MainActor
+private func makeWorkoutCompletionViewPreview() -> some View {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: WorkoutSession.self, configurations: config)
     let session = WorkoutSession(workoutDayName: "День груди")
     container.mainContext.insert(session)
-    let mockManager = WorkoutManager(modelContext: container.mainContext)
+    let mockManager = WorkoutManager(
+        modelContext: container.mainContext,
+        healthProvider: HealthManager.shared,
+        activityProvider: LiveActivityManager.shared
+    )
     
     return WorkoutCompletionView(session: session)
         .environmentObject(mockManager)

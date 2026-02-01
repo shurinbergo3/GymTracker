@@ -192,6 +192,11 @@ class ProgramEditorViewModel: ObservableObject {
         }
         
         try context.save()
+        
+        // Trigger Cloud Sync for the new/updated program
+        Task {
+            await SyncManager.shared.syncAllPrograms(context: context)
+        }
     }
     
     // MARK: - Reset

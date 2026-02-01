@@ -20,88 +20,6 @@ enum WorkoutState {
     case summary    // Finished, showing results
 }
 
-// MARK: - Progress State
-
-enum ProgressState {
-    case improved   // User lifted more weight
-    case declined   // User lifted less weight
-    case same       // Same performance
-    case new        // First time doing this exercise
-    
-    var icon: String {
-        switch self {
-        case .improved: return "arrow.up" // Green Up
-        case .declined: return "arrow.down" // Red Down
-        case .same: return "arrow.forward" // White Straight
-        case .new: return "star.fill"
-        }
-    }
-    
-    var color: Color {
-        switch self {
-        case .improved: return DesignSystem.Colors.neonGreen
-        case .declined: return .red // Explicit Red
-        case .same: return .white // Explicit White
-        case .new: return DesignSystem.Colors.accent
-        }
-    }
-
-    var description: String {
-        switch self {
-        case .improved: return "Ты растёшь! Только вперёд!"
-        case .declined: return "Ты недостаточно усердно тренируешься"
-        case .same: return "Ты в режиме поддержания формы"
-        case .new: return "Первая тренировка"
-        }
-    }
-}
-
-// MARK: - Exercise Progress Data
-
-struct ExerciseProgress {
-    let exerciseName: String
-    let progressState: ProgressState
-    let currentStats: String
-    let previousStats: String?
-}
-
-// MARK: - Growth Trend System
-
-struct GrowthTrend {
-    enum Direction {
-        case up     // Green: Increasing load/volume
-        case flat   // White: Maintenance
-        case down   // Red: Decreasing
-        
-        var color: Color {
-            switch self {
-            case .up: return DesignSystem.Colors.neonGreen
-            case .flat: return .white
-            case .down: return .red
-            }
-        }
-        
-        var icon: String {
-            switch self {
-            case .up: return "arrow.up.forward"
-            case .flat: return "arrow.right"
-            case .down: return "arrow.down.forward"
-            }
-        }
-        
-        var description: String {
-            switch self {
-            case .up: return "Рост показателей"
-            case .flat: return "Стабильность"
-            case .down: return "Спад активности"
-            }
-        }
-    }
-    
-    let direction: Direction
-    let dataPoints: [Double]
-}
-
 // MARK: - Workout Manager
 
 @MainActor
@@ -121,14 +39,31 @@ class WorkoutManager: ObservableObject {
     private var liveActivityTimer: Timer?
     private var programObserver: NSObjectProtocol?
     
-    private let modelContext: ModelContext
+    @preconcurrency private let modelContext: ModelContext
+    
+    // Injected Dependencies
+    private let healthProvider: HealthProvider
+    private let activityProvider: ActivityProvider
     
     // Helper ID for safe async passing via Countdown (prevents invalidation crash)
     private var pendingWorkoutDayID: PersistentIdentifier?
     
-    init(modelContext: ModelContext) {
+    @MainActor
+    init(
+        modelContext: ModelContext,
+        healthProvider: HealthProvider,
+        activityProvider: ActivityProvider
+    ) {
         self.modelContext = modelContext
+        self.healthProvider = healthProvider
+        self.activityProvider = activityProvider
+
         loadActiveProgram()
+        
+        
+        // Cleanup disabled by user request (data already cleaned)
+        // Task { ... }
+        
         initializeSelectedDay()
         
         // Listen for active program changes
@@ -140,13 +75,23 @@ class WorkoutManager: ObservableObject {
             guard let self else { return }
             Task { @MainActor in
                 self.refreshActiveProgram()
+                
+                // Trigger Cloud Sync for Active Program persistence
+                if let profile = try? self.modelContext.fetch(FetchDescriptor<UserProfile>()).last {
+                    await SyncManager.shared.syncUserProfile(
+                        profile: profile,
+                        activeProgram: self.activeProgram,
+                        context: self.modelContext
+                    )
+                }
             }
         }
         
         
+        
         restoreActiveSession()
         
-        requestHealthAccess()
+        // requestHealthAccess() - Removed from init to prevent UI freeze (called in onAppear instead)
     }
     
     // MARK: - Cleanup
@@ -162,9 +107,9 @@ class WorkoutManager: ObservableObject {
         }
         
         // Clear HealthKit callbacks (nonisolated context)
-        Task { @MainActor in
-            HealthManager.shared.onHeartRateUpdate = nil
-            HealthManager.shared.onCalorieUpdate = nil
+        Task { @MainActor [weak healthProvider] in
+            healthProvider?.onHeartRateUpdate = nil
+            healthProvider?.onCalorieUpdate = nil
         }
     }
     
@@ -206,6 +151,76 @@ class WorkoutManager: ObservableObject {
             predicate: #Predicate { $0.isActive == true }
         )
         activeProgram = try? modelContext.fetch(descriptor).first
+    }
+    
+    // MARK: - Deduplication
+    
+    /// One-time migration to remove duplicate sessions from history
+    /// One-time migration to remove duplicate sessions from history
+    func cleanupDuplicateSessions() {
+        let migrationKey = "hasPerformedOneTimeDeduplication_v6" // Bumped to v6
+        if UserDefaults.standard.bool(forKey: migrationKey) { return }
+        
+        // Run in background to verify duplicates without blocking UI
+        Task.detached(priority: .background) {
+            do {
+                print("🧹 Starting duplicate cleanup (v6) - Aggressive Mode...")
+                let container = try ModelContainer(for: WorkoutSession.self, UserProfile.self, Program.self, WorkoutDay.self, ExerciseTemplate.self)
+                let context = ModelContext(container)
+                context.autosaveEnabled = false
+                
+                // Fetch ALL sessions
+                let descriptor = FetchDescriptor<WorkoutSession>(
+                     sortBy: [SortDescriptor(\.date, order: .reverse)]
+                )
+                
+                let sessions = try context.fetch(descriptor)
+                
+                if sessions.isEmpty {
+                     await MainActor.run { UserDefaults.standard.set(true, forKey: migrationKey) }
+                     return
+                }
+                
+                var uniqueKeys = Set<String>()
+                var sessionsToDelete: [PersistentIdentifier] = []
+                
+                // Keep only ONE session per (Type + Date-Minute)
+                // Filter duplicates by checking a "signature"
+                for session in sessions {
+                    let dateKey = Int(session.date.timeIntervalSince1970 / 60) // Down to minute resolution
+                    let key = "\(session.workoutDayName)-\(dateKey)"
+                    
+                    if uniqueKeys.contains(key) {
+                        // Already saw one like this? Delete this one.
+                        sessionsToDelete.append(session.persistentModelID)
+                    } else {
+                        uniqueKeys.insert(key)
+                    }
+                }
+                
+                if !sessionsToDelete.isEmpty {
+                    print("🗑️ Found \(sessionsToDelete.count) duplicates (Aggressive v6). Deleting...")
+                    
+                    // Batch delete
+                    for id in sessionsToDelete {
+                        if let model = context.model(for: id) as? WorkoutSession {
+                            context.delete(model)
+                        }
+                    }
+                    try context.save()
+                    print("✅ cleanupDuplicateSessions (v6) complete. Removed \(sessionsToDelete.count) sessions.")
+                } else {
+                    print("✅ No duplicates found (v6).")
+                }
+                
+                await MainActor.run {
+                     UserDefaults.standard.set(true, forKey: migrationKey)
+                }
+                
+            } catch {
+                print("❌ Cleanup error: \(error)")
+            }
+        }
     }
     
     func refreshActiveProgram() {
@@ -282,6 +297,27 @@ class WorkoutManager: ObservableObject {
             print("✅ Loaded \(freshDay.exercises.count) exercises")
         }
         
+        // Guard against duplicate starts (Rapid tapping)
+        // Check if we already have a session for this day created in the last 60 seconds
+        let oneMinuteAgo = Date().addingTimeInterval(-60)
+        let dayName = freshDay.name
+        let duplicateDescriptor = FetchDescriptor<WorkoutSession>(
+             predicate: #Predicate { $0.workoutDayName == dayName && $0.date > oneMinuteAgo }
+        )
+        
+        if let existingRecent = try? modelContext.fetch(duplicateDescriptor).first {
+             print("⚠️ Preventing duplicate session start. Using existing session from \(existingRecent.date)")
+             currentSession = existingRecent
+             workoutState = .active
+             // Ensure live activity is running for this existing session
+             if activityProvider is LiveActivityManager { // Optional check
+                 let startDate = existingRecent.date
+                 activityProvider.start(workoutType: existingRecent.workoutDayName, startDate: startDate)
+                 startActivityUpdates(startDate: startDate)
+             }
+             return
+        }
+        
         // Create new session
         let session = WorkoutSession(
             date: Date(),
@@ -294,7 +330,7 @@ class WorkoutManager: ObservableObject {
         
         // Start Live Activity
         let startDate = Date()
-        LiveActivityManager.shared.start(workoutType: session.workoutDayName, startDate: startDate)
+        activityProvider.start(workoutType: session.workoutDayName, startDate: startDate)
         startActivityUpdates(startDate: startDate)
         
             // Start HealthKit Session with smart type selection
@@ -324,20 +360,20 @@ class WorkoutManager: ObservableObject {
                 // Save for later use in finishWorkout
                 self.selectedActivityType = type
                 
-                await HealthManager.shared.startWorkout(workoutType: type)
+                await self.healthProvider.startWorkout(workoutType: type)
             }
             
             
             // Subscribe to real-time updates
             Task { @MainActor in
-                HealthManager.shared.onHeartRateUpdate = { [weak self] hr in
+                self.healthProvider.onHeartRateUpdate = { [weak self] hr in
                     self?.currentHeartRate = hr
                     Task {
                         await self?.updateLiveActivity(startDate: startDate)
                     }
                 }
                 
-                HealthManager.shared.onCalorieUpdate = { [weak self] cals in
+                self.healthProvider.onCalorieUpdate = { [weak self] cals in
                     self?.currentActiveCalories = cals
                     Task {
                         await self?.updateLiveActivity(startDate: startDate)
@@ -351,10 +387,10 @@ class WorkoutManager: ObservableObject {
         Task { @MainActor in
             // Stop Live Activity
             stopActivityUpdates()
-            LiveActivityManager.shared.end()
+            activityProvider.end()
             
             // Discard HealthKit Session
-            await HealthManager.shared.discardWorkout()
+            await healthProvider.discardWorkout()
             
             // Delete current session without saving
             if let session = currentSession {
@@ -370,13 +406,18 @@ class WorkoutManager: ObservableObject {
     func finishWorkout() async {
         guard let session = currentSession else { return }
         
+        // Prevent double-saving (race condition protection)
+        // If finishWorkout is called twice (e.g. double tap), the first call sets isCompleted = true synchronously.
+        // Subsequent calls will hit this guard and exit before saving duplicates.
+        if session.isCompleted { return }
+        
         // 1. Stop live updates immediately
         stopActivityUpdates()
         await MainActor.run {
-            HealthManager.shared.onHeartRateUpdate = nil
-            HealthManager.shared.onCalorieUpdate = nil
+            healthProvider.onHeartRateUpdate = nil
+            healthProvider.onCalorieUpdate = nil
         }
-        LiveActivityManager.shared.end()
+        activityProvider.end()
         
         // 2. Set end time and completion status locally
         let endDate = Date()
@@ -388,15 +429,51 @@ class WorkoutManager: ObservableObject {
         if currentHeartRate > 0 { session.averageHeartRate = currentHeartRate }
         
         // 3. Complete HealthKit session and fetch accurate data
-        await HealthManager.shared.endWorkout(activityType: selectedActivityType)
+        await healthProvider.endWorkout(activityType: selectedActivityType)
         
-        if HealthManager.shared.isAuthorized {
-            let calories = await HealthManager.shared.fetchCaloriesForWorkout(start: session.date, end: endDate)
-            let avgHeartRate = await HealthManager.shared.fetchAverageHeartRate(start: session.date, end: endDate)
+        if healthProvider.isAuthorized {
+            let calories = await healthProvider.fetchCaloriesForWorkout(start: session.date, end: endDate)
+            let avgHeartRate = await healthProvider.fetchAverageHeartRate(start: session.date, end: endDate)
             
             // Update with accurate data
-            if calories > 0 { session.calories = Int(calories) }
             if avgHeartRate > 0 { session.averageHeartRate = Int(avgHeartRate) }
+            
+            // Smart Calorie Fallback
+            // If HealthKit returns unusually low calories (or 0) for a workout, we estimate them
+            // Formula: Calories/min = (-55.0969 + (0.6309 x HR) + (0.1988 x Weight) + (0.2017 x Age)) / 4.184
+            
+            let durationMinutes = session.endTime!.timeIntervalSince(session.date) / 60.0
+            var finalCalories = calories
+            
+            if durationMinutes > 5 && (calories < (durationMinutes * 2)) {
+                // Fetch user profile for weight/age
+                let descriptor = FetchDescriptor<UserProfile>()
+                if let profile = try? modelContext.fetch(descriptor).last {
+                    let weight = profile.currentWeight
+                    let age = Double(profile.age)
+                    let hr = Double(session.averageHeartRate ?? 0)
+                    
+                    if hr > 0 && weight > 0 {
+                        // Use extracted service (SRP)
+                        let estimatedTotal = CalorieCalculator.calculate(
+                            heartRate: hr,
+                            weightKg: weight,
+                            age: age,
+                            durationMinutes: durationMinutes
+                        )
+                        
+                        if estimatedTotal > 0 {
+                             // Use the larger value (HK or Estimate), but trust HK if it's substantial
+                            finalCalories = max(calories, estimatedTotal)
+                            #if DEBUG
+                            print("🔥 Low HK Calories (\(Int(calories))). Estimated fallback: \(Int(estimatedTotal))")
+                            #endif
+                        }
+                    }
+                }
+            }
+            
+            if finalCalories > 0 { session.calories = Int(finalCalories) }
         }
         
         // 4. Save data to SwiftData
@@ -405,6 +482,11 @@ class WorkoutManager: ObservableObject {
             #if DEBUG
             print("✅ Workout saved successfully. HR: \(session.averageHeartRate ?? 0), Calories: \(session.calories ?? 0)")
             #endif
+            
+            // 5. Sync to Firestore in background
+            Task.detached {
+                await SyncManager.shared.syncUnsyncedWorkouts(context: self.modelContext)
+            }
         } catch {
             #if DEBUG
             print("❌ Error saving workout: \(error.localizedDescription)")
@@ -443,7 +525,7 @@ class WorkoutManager: ObservableObject {
     
     func requestHealthAccess() {
         Task {
-            _ = await HealthManager.shared.requestAuthorization()
+            _ = await healthProvider.requestAuthorization()
         }
     }
     
@@ -473,153 +555,46 @@ class WorkoutManager: ObservableObject {
     
     // MARK: - Progress Comparison
     
+    // MARK: - Progress Comparison (Delegated to AnalyticsService)
+    
     func comparePerformance(
         exercise: ExerciseTemplate,
         currentSession: WorkoutSession,
         previousSession: WorkoutSession?
     ) -> ProgressState {
-        guard let previousSession = previousSession else {
-            return .new
-        }
-        
-        let currentSets = currentSession.sets.filter { $0.exerciseName == exercise.name }
-        let previousSets = previousSession.sets.filter { $0.exerciseName == exercise.name }
-        
-        guard !currentSets.isEmpty else { return .new }
-        guard !previousSets.isEmpty else { return .new }
-        
-        // Calculate Total Volume for accurate "Growth" vs "Reference" comparison
-        let currentVolume = currentSets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
-        let previousVolume = previousSets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
-        
-        // Logic:
-        // Green (Improved): Increased Volume OR Max Weight
-        // White (Same): Roughly the same volume (within small margin/maintenance) or slightly less but acceptable
-        // Red (Declined): Significantly less volume/weight (e.g. < 90% of previous)
-        
-        if currentVolume > previousVolume {
-             return .improved // Active growth
-        }
-        
-        // Check for slight decrease or equal (Maintenance) -> White Arrow
-        // If current volume is at least 90% of previous, consider it maintenance/neutral
-        if currentVolume >= (previousVolume * 0.9) {
-            return .same
-        }
-        
-        // Otherwise it's a significant drop -> Red Arrow
-        return .declined
+        return AnalyticsService.comparePerformance(
+            exercise: exercise,
+            currentSession: currentSession,
+            previousSession: previousSession
+        )
     }
     
-    // MARK: - Get Progress Data
+    // MARK: - Get Progress Data (Delegated to AnalyticsService)
     
     func getProgressData(for session: WorkoutSession, comparedTo previousSession: WorkoutSession?) -> [ExerciseProgress] {
         guard let day = selectedDay else { return [] }
         
-        return day.exercises.sorted { $0.orderIndex < $1.orderIndex }.compactMap { exercise in
-            let currentSets = session.sets.filter { $0.exerciseName == exercise.name }
-            let previousSets = previousSession?.sets.filter { $0.exerciseName == exercise.name } ?? []
-            
-            guard !currentSets.isEmpty else { return nil }
-            
-            let progressState = comparePerformance(
-                exercise: exercise,
-                currentSession: session,
-                previousSession: previousSession
-            )
-            
-            // Format current stats
-            let maxWeight = currentSets.map { $0.weight }.max() ?? 0
-            let currentStats = String(format: "%.0f кг", maxWeight)
-            
-            // Format previous stats
-            var previousStats: String?
-            if !previousSets.isEmpty {
-                let prevMaxWeight = previousSets.map { $0.weight }.max() ?? 0
-                previousStats = String(format: "%.0f кг", prevMaxWeight)
-            }
-            
-            return ExerciseProgress(
-                exerciseName: exercise.name,
-                progressState: progressState,
-                currentStats: currentStats,
-                previousStats: previousStats
-            )
-        }
+        return AnalyticsService.getProgressData(
+            for: session,
+            comparedTo: previousSession,
+            workoutDay: day
+        )
     }
     
     func getPreviewProgressData() -> [ExerciseProgress] {
         guard let day = selectedDay else { return [] }
         let previousSession = getPreviousSession(for: day)
         
-        guard let previousSession = previousSession else {
-            // No previous data - return empty state
-            return []
-        }
-        
-        return day.exercises.sorted { $0.orderIndex < $1.orderIndex }.compactMap { exercise in
-            let previousSets = previousSession.sets.filter { $0.exerciseName == exercise.name }
-            
-            guard !previousSets.isEmpty else { return nil }
-            
-            let maxWeight = previousSets.map { $0.weight }.max() ?? 0
-            let stats = String(format: "%.0f кг", maxWeight)
-            
-            return ExerciseProgress(
-                exerciseName: exercise.name,
-                progressState: .same, // No current session to compare
-                currentStats: stats,
-                previousStats: nil
-            )
-        }
+        return AnalyticsService.getPreviewProgressData(
+            workoutDay: day,
+            previousSession: previousSession
+        )
     }
     
-    // MARK: - Growth Analysis
+    // MARK: - Growth Analysis (Delegated to AnalyticsService)
     
     func calculateGrowthTrend(history: [WorkoutSession]) -> GrowthTrend {
-        // We analyze the Volume (Weight * Reps) of the last 10 workouts
-        let recentSessions = history.sorted { $0.date < $1.date }.suffix(10)
-        
-        guard recentSessions.count >= 2 else {
-            return GrowthTrend(direction: .flat, dataPoints: [])
-        }
-        
-        let volumes = recentSessions.map { session -> Double in
-            let sessionVolume = session.sets.reduce(0.0) { result, set in
-                // Logic: Volume = Weight * Reps.
-                // For Bodyweight (weight=0) we assume 1 "unit" of weight per rep to track reps volume.
-                // For Duration, we use duration seconds / 10 as "volume" points.
-                if set.weight > 0 {
-                    return result + (set.weight * Double(set.reps))
-                } else if set.reps > 0 {
-                    return result + Double(set.reps * (set.isWeighted ? 2 : 1)) // Weighted BW counts double? Simplified.
-                } else if let dur = set.duration {
-                    return result + (dur / 10.0)
-                }
-                return result
-            }
-            return sessionVolume
-        }
-        
-        // Simple Trend Analysis: Recent Avg vs Previous Avg
-        let half = volumes.count / 2
-        let firstHalf = volumes.prefix(half)
-        let secondHalf = volumes.suffix(from: half)
-        
-        let firstAvg = firstHalf.reduce(0, +) / Double(firstHalf.count)
-        let secondAvg = secondHalf.reduce(0, +) / Double(secondHalf.count)
-        
-        let direction: GrowthTrend.Direction
-        
-        if secondAvg > firstAvg * 1.05 { // > 5% growth
-            direction = .up
-        } else if secondAvg < firstAvg * 0.95 { // < 5% decline
-            direction = .down
-        } else {
-            direction = .flat
-        }
-        
-        return GrowthTrend(direction: direction, dataPoints: volumes)
+        return AnalyticsService.calculateGrowthTrend(history: history)
     }
     
     // MARK: - Live Activity Updates
@@ -643,15 +618,26 @@ class WorkoutManager: ObservableObject {
         // HealthManager handles errors gracefully and returns 0 if access is denied/unavailable.
         
         let now = Date()
-        async let calories = HealthManager.shared.fetchCaloriesForWorkout(start: startDate, end: now)
-        async let heartRate = HealthManager.shared.fetchLatestHeartRate(since: nil)
+        async let calories = healthProvider.fetchCaloriesForWorkout(start: startDate, end: now)
+        async let heartRate = healthProvider.fetchLatestHeartRate(since: nil)
         
         let (calValue, hrValue) = await (calories, heartRate)
         
-        LiveActivityManager.shared.update(heartRate: Int(hrValue), calories: Int(calValue))
+        // Live Estimate Fallback
+        var displayCalories = Int(calValue)
+        if displayCalories < 5 { // If nearly 0, try to estimate live
+             let durationMinutes = Date().timeIntervalSince(startDate) / 60.0
+             if durationMinutes > 1 && hrValue > 80 {
+                 // Try to estimate relative
+                 // Simple approximation: ~5-6 cals/min for active lifting
+                 displayCalories = Int(durationMinutes * 5.5) 
+             }
+        }
+        
+        activityProvider.update(heartRate: Int(hrValue), calories: displayCalories)
         
         // Update local state for UI
         self.currentHeartRate = Int(hrValue)
-        self.currentActiveCalories = Int(calValue)
+        self.currentActiveCalories = displayCalories
     }
 }

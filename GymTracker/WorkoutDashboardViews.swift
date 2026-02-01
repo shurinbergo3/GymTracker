@@ -13,39 +13,6 @@ import HealthKit
 
 // MARK: - Sleep Data Model
 
-struct SleepData: Identifiable {
-    let id = UUID()
-    let startDate: Date
-    let endDate: Date
-    let type: HKCategoryValueSleepAnalysis
-    
-    var duration: TimeInterval {
-        endDate.timeIntervalSince(startDate)
-    }
-    
-    var color: Color {
-        switch type {
-        case .asleepDeep: return .purple
-        case .asleepCore: return .blue
-        case .asleepREM: return .cyan
-        case .awake: return .orange
-        case .inBed: return .gray.opacity(0.3)
-        default: return .clear
-        }
-    }
-    
-    var label: String {
-        switch type {
-        case .asleepDeep: return "Глубокий"
-        case .asleepCore: return "Базовый"
-        case .asleepREM: return "REM"
-        case .awake: return "Бодрствование"
-        case .inBed: return "В кровати"
-        default: return "Неизвестно"
-        }
-    }
-}
-
 // MARK: - Sleep Analysis UI
 
 struct SleepCard: View {
@@ -60,7 +27,7 @@ struct SleepCard: View {
                     HStack {
                         Image(systemName: "bed.double.fill")
                             .foregroundStyle(Color.purple)
-                        Text("Сон")
+                        Text("sleep_title")
                             .font(.headline)
                             .foregroundStyle(.white)
                         
@@ -72,7 +39,7 @@ struct SleepCard: View {
                     }
                     
                     if sleepData.isEmpty {
-                        Text("Нет данных")
+                        Text("no_data")
                             .font(.caption)
                             .foregroundStyle(.gray)
                     } else {
@@ -80,7 +47,7 @@ struct SleepCard: View {
                             Text(formatDuration(totalSleep))
                                 .font(.system(size: 32, weight: .bold))
                                 .foregroundStyle(.white)
-                            Text("всего")
+                            Text("sleep_total_label")
                                 .font(.caption)
                                 .foregroundStyle(.gray)
                                 .padding(.bottom, 4)
@@ -111,40 +78,16 @@ struct SleepCard: View {
         .task {
             // Fetch logic
             if HealthManager.shared.isAuthorized {
-                let data = await HealthManager.shared.fetchSleepData()
+                // Use SleepService for fetching (SRP)
+                let data = await SleepService.shared.fetchSleepData()
                 await MainActor.run {
                     self.sleepData = data
                     
-                    // Smart calculation: Merge overlapping intervals
+                    // Use SleepService logic
                     let filteredSegments = data.filter { $0.type != .inBed }
                     let sortedSegments = filteredSegments.sorted { $0.startDate < $1.startDate }
                     
-                    var totalDuration: TimeInterval = 0
-                    var currentInterval: (start: Date, end: Date)?
-                    
-                    for segment in sortedSegments {
-                        if let current = currentInterval {
-                            if segment.startDate < current.end {
-                                // Overlap: Extend end if needed
-                                if segment.endDate > current.end {
-                                    currentInterval?.end = segment.endDate
-                                }
-                            } else {
-                                // No overlap: Commit current and start new
-                                totalDuration += current.end.timeIntervalSince(current.start)
-                                currentInterval = (segment.startDate, segment.endDate)
-                            }
-                        } else {
-                            currentInterval = (segment.startDate, segment.endDate)
-                        }
-                    }
-                    
-                    // Commit last interval
-                    if let current = currentInterval {
-                        totalDuration += current.end.timeIntervalSince(current.start)
-                    }
-                    
-                    self.totalSleep = totalDuration
+                    self.totalSleep = SleepService.shared.calculateTotalDuration(from: sortedSegments)
                 }
             }
         }
@@ -181,21 +124,19 @@ struct TodayWorkoutCard: View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
             HStack {
                 VStack(alignment: .leading) {
-                    Text("ПЛАН НА СЕГОДНЯ")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.gray)
+                    Text("План на сегодня".localizedUppercase)
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        .tracking(1.2)
                     
                     if let day = workoutManager.selectedDay {
                         Text(day.name)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
+                            .font(DesignSystem.Typography.title2())
+                            .foregroundStyle(DesignSystem.Colors.primaryText)
                     } else {
-                        Text("Отдых")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
+                        Text("rest_day_title")
+                            .font(DesignSystem.Typography.title2())
+                            .foregroundStyle(DesignSystem.Colors.primaryText)
                     }
                 }
                 
@@ -206,9 +147,10 @@ struct TodayWorkoutCard: View {
                     Image(systemName: "list.dash")
                         .font(.title2)
                         .foregroundStyle(DesignSystem.Colors.neonGreen)
-                        .padding(8)
-                        .background(Color.white.opacity(0.1))
+                        .padding(10)
+                        .background(.ultraThinMaterial)
                         .clipShape(Circle())
+                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.3), radius: 10)
                 }
             }
             
@@ -218,18 +160,19 @@ struct TodayWorkoutCard: View {
             Button(action: { workoutManager.startWorkout() }) {
                 HStack {
                     Spacer()
-                    Text(workoutManager.selectedDay == nil ? "Выбрать программу" : "НАЧАТЬ ТРЕНИРОВКУ")
-                        .font(.headline)
+                    Text(workoutManager.selectedDay == nil ? String(localized: "select_program_button") : String(localized: "start_workout_button"))
+                        .font(DesignSystem.Typography.headline())
                         .fontWeight(.bold)
                     Image(systemName: "play.fill")
                     Spacer()
                 }
                 .padding()
                 .background(
-                    LinearGradient(colors: [DesignSystem.Colors.neonGreen, DesignSystem.Colors.accent], startPoint: .leading, endPoint: .trailing)
+                    LinearGradient(colors: [DesignSystem.Colors.neonGreen, Color(red: 0.6, green: 0.9, blue: 0.15)], startPoint: .leading, endPoint: .trailing)
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small))
                 .foregroundStyle(.black)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 15, x: 0, y: 8)
             }
             .disabled(workoutManager.selectedDay == nil)
             .opacity(workoutManager.selectedDay == nil ? 0.6 : 1)
@@ -243,16 +186,15 @@ struct TodayWorkoutCard: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("ТРЕНИРОВКА")
-                            .font(.caption)
-                            .fontWeight(.bold)
+                        Text("workout_active_label".localizedUppercase)
+                            .font(DesignSystem.Typography.sectionHeader())
                             .foregroundStyle(DesignSystem.Colors.neonGreen)
+                            .tracking(1.2)
                         
                         if let day = workoutManager.selectedDay {
                             Text(day.name)
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.white)
+                                .font(DesignSystem.Typography.title2())
+                                .foregroundStyle(DesignSystem.Colors.primaryText)
                         }
                     }
                     
@@ -261,7 +203,8 @@ struct TodayWorkoutCard: View {
                     // Pulsing indicator
                     Circle()
                         .fill(DesignSystem.Colors.neonGreen)
-                        .frame(width: 12, height: 12)
+                        .frame(width: 10, height: 10)
+                        .shadow(color: DesignSystem.Colors.neonGreen, radius: 10)
                         .overlay(
                             Circle()
                                 .stroke(DesignSystem.Colors.neonGreen.opacity(0.4), lineWidth: 3)
@@ -273,33 +216,33 @@ struct TodayWorkoutCard: View {
                 HStack(spacing: 20) {
                     // Timer
                     VStack(alignment: .leading, spacing: 2) {
-                        Label("Время", systemImage: "timer")
-                            .font(.caption)
-                            .foregroundStyle(.gray)
+                        Label("time_label", systemImage: "timer")
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundStyle(DesignSystem.Colors.secondaryText)
                         Text(formatElapsedTime(context.date))
-                            .font(.system(size: 24, weight: .bold, design: .monospaced))
-                            .foregroundStyle(.white)
+                            .font(DesignSystem.Typography.monospaced(.title2, weight: .bold))
+                            .foregroundStyle(DesignSystem.Colors.primaryText)
                     }
                     
                     Spacer()
                     
                     // Exercises Progress
                     VStack(alignment: .trailing, spacing: 2) {
-                        Label("Прогресс", systemImage: "checkmark.circle")
-                            .font(.caption)
-                            .foregroundStyle(.gray)
+                        Label("progress_label", systemImage: "checkmark.circle")
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundStyle(DesignSystem.Colors.secondaryText)
                         Text(progressText)
-                            .font(.system(size: 18, weight: .bold))
+                            .font(DesignSystem.Typography.monospaced(.title3, weight: .semibold))
                             .foregroundStyle(DesignSystem.Colors.neonGreen)
                     }
                     
                     // Calories
                     VStack(alignment: .trailing, spacing: 2) {
-                        Label("Ккал", systemImage: "flame.fill")
-                            .font(.caption)
-                            .foregroundStyle(.gray)
+                        Label("calories_label", systemImage: "flame.fill")
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundStyle(DesignSystem.Colors.secondaryText)
                         Text("\(workoutManager.currentActiveCalories)")
-                            .font(.system(size: 18, weight: .bold))
+                            .font(DesignSystem.Typography.monospaced(.title3, weight: .semibold))
                             .foregroundStyle(.orange)
                     }
                 }
@@ -307,33 +250,37 @@ struct TodayWorkoutCard: View {
                 // Progress Bar
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 4)
+                        RoundedRectangle(cornerRadius: 10)
                             .fill(Color.white.opacity(0.1))
-                            .frame(height: 6)
+                            .frame(height: 8)
                         
-                        RoundedRectangle(cornerRadius: 4)
+                        RoundedRectangle(cornerRadius: 10)
                             .fill(
-                                LinearGradient(colors: [DesignSystem.Colors.neonGreen, DesignSystem.Colors.accent], startPoint: .leading, endPoint: .trailing)
+                                LinearGradient(colors: [DesignSystem.Colors.neonGreen, Color(red: 0.6, green: 0.9, blue: 0.15)], startPoint: .leading, endPoint: .trailing)
                             )
-                            .frame(width: geo.size.width * progressPercentage, height: 6)
+                            .frame(width: geo.size.width * progressPercentage, height: 8)
+                            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.3), radius: 5)
                     }
                 }
-                .frame(height: 6)
+                .frame(height: 8)
                 
                 // Tap to View Button
                 Button(action: onOpenWorkout) {
                     HStack {
                         Spacer()
-                        Text("ОТКРЫТЬ ТРЕНИРОВКУ")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
+                        Text("open_workout_button")
+                            .font(DesignSystem.Typography.headline())
                         Image(systemName: "arrow.right")
                         Spacer()
                     }
-                    .padding(.vertical, 12)
-                    .background(Color.white.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .foregroundStyle(.white)
+                    .padding(.vertical, 14)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small))
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                    )
                 }
             }
         }
@@ -390,7 +337,7 @@ struct SleepDetailView: View {
                 VStack(spacing: 24) {
                     
                     // Range Picker
-                    Picker("Период", selection: $selectedRange) {
+                    Picker("period_picker_label", selection: $selectedRange) {
                         ForEach(SleepTimeRange.allCases) { range in
                             Text(range.rawValue).tag(range)
                         }
@@ -409,18 +356,21 @@ struct SleepDetailView: View {
                 .padding(.vertical)
             }
             .background(DesignSystem.Colors.background.ignoresSafeArea())
-            .navigationTitle("Сон")
+            .navigationTitle("sleep_title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Готово") { dismiss() }
+                    Button("done_button") { dismiss() }
                         .foregroundStyle(DesignSystem.Colors.neonGreen)
                 }
             }
             .onChange(of: selectedRange) { _, newRange in
                 if newRange != .day {
                     Task {
-                        self.historyData = await HealthManager.shared.fetchSleepHistory(for: newRange)
+                    Task {
+                        // Use SleepService
+                        self.historyData = await SleepService.shared.fetchSleepHistory(for: newRange)
+                    }
                     }
                 }
             }
@@ -432,14 +382,14 @@ struct SleepDetailView: View {
         VStack(spacing: 24) {
             // Header Stats
             HStack(spacing: 20) {
-                SleepStatBox(title: "Всего сна", value: formatDuration(totalSleep), color: .white)
-                SleepStatBox(title: "В кровати", value: formatDuration(totalInBed), color: .gray)
+                SleepStatBox(title: String(localized: "total_sleep_stat"), value: formatDuration(totalSleep), color: .white)
+                SleepStatBox(title: String(localized: "in_bed_stat"), value: formatDuration(totalInBed), color: .gray)
             }
             .padding(.horizontal)
             
             // Main Graph
             VStack(alignment: .leading, spacing: 16) {
-                Text("Фазы сна (Сегодня)")
+                Text("sleep_stages_today")
                     .font(.headline)
                     .foregroundStyle(.white)
                 
@@ -447,9 +397,9 @@ struct SleepDetailView: View {
                     ForEach(sleepData) { datum in
                         BarMark(
                             x: .value("Time", datum.startDate ..< datum.endDate),
-                            y: .value("Stage", datum.label)
+                            y: .value("Stage", datum.label) // Converted to helper or extension
                         )
-                        .foregroundStyle(datum.color)
+                        .foregroundStyle(datum.color) // Converted to helper or extension
                     }
                 }
                 .chartYAxis {
@@ -474,18 +424,18 @@ struct SleepDetailView: View {
             
             // Legend / Breakdown
             VStack(alignment: .leading, spacing: 12) {
-                Text("Детализация")
+                Text("details_section")
                     .font(.headline)
                     .foregroundStyle(.white)
                     .padding(.bottom, 4)
                 
-                SleepLegendRow(color: .purple, label: "Глубокий сон", duration: duration(for: .asleepDeep))
+                SleepLegendRow(color: .purple, label: String(localized: "deep_sleep_legend"), duration: duration(for: .asleepDeep))
                 Divider().background(Color.gray.opacity(0.3))
-                SleepLegendRow(color: .blue, label: "Базовый сон", duration: duration(for: .asleepCore))
+                SleepLegendRow(color: .blue, label: String(localized: "core_sleep_legend"), duration: duration(for: .asleepCore))
                 Divider().background(Color.gray.opacity(0.3))
-                SleepLegendRow(color: .cyan, label: "Быстрый сон (REM)", duration: duration(for: .asleepREM))
+                SleepLegendRow(color: .cyan, label: String(localized: "rem_sleep_legend"), duration: duration(for: .asleepREM))
                 Divider().background(Color.gray.opacity(0.3))
-                SleepLegendRow(color: .orange, label: "Бодрствование", duration: duration(for: .awake))
+                SleepLegendRow(color: .orange, label: String(localized: "awake_sleep_legend"), duration: duration(for: .awake))
             }
             .padding()
             .background(DesignSystem.Colors.cardBackground)
@@ -501,7 +451,7 @@ struct SleepDetailView: View {
             let avgSleep = historyData.isEmpty ? 0 : historyData.reduce(0) { $0 + $1.totalDuration } / Double(historyData.count)
             
             HStack(spacing: 20) {
-                SleepStatBox(title: "Средний сон", value: formatDuration(avgSleep), color: .white)
+                SleepStatBox(title: String(localized: "avg_sleep_stat"), value: formatDuration(avgSleep), color: .white)
                 // Placeholder for second stat or remove
                 Spacer()
             }
@@ -509,12 +459,12 @@ struct SleepDetailView: View {
             
             // History Graph
             VStack(alignment: .leading, spacing: 16) {
-                Text("История (\(selectedRange.rawValue))")
+                Text("\(String(localized: "history_title")) (\(selectedRange.rawValue))")
                     .font(.headline)
                     .foregroundStyle(.white)
                 
                 if historyData.isEmpty {
-                    Text("Нет данных за этот период")
+                    Text("no_data_period")
                         .foregroundStyle(.gray)
                         .frame(maxWidth: .infinity, minHeight: 200)
                 } else {
@@ -569,53 +519,24 @@ struct SleepDetailView: View {
             $0.type == .asleepUnspecified
         }.sorted { $0.startDate < $1.startDate }
         
-        return calculateDuration(for: filtered)
+        return SleepService.shared.calculateTotalDuration(from: filtered)
     }
     
     private var totalInBed: TimeInterval {
         let filtered = sleepData.filter { $0.type == .inBed }
             .sorted { $0.startDate < $1.startDate }
         
-        return calculateDuration(for: filtered)
+        return SleepService.shared.calculateTotalDuration(from: filtered)
     }
     
     private func duration(for type: HKCategoryValueSleepAnalysis) -> TimeInterval {
         let filtered = sleepData.filter { $0.type == type }
             .sorted { $0.startDate < $1.startDate }
         
-        return calculateDuration(for: filtered)
+        return SleepService.shared.calculateTotalDuration(from: filtered)
     }
     
-    private func calculateDuration(for segments: [SleepData]) -> TimeInterval {
-        guard !segments.isEmpty else { return 0 }
-        
-        var totalDuration: TimeInterval = 0
-        var currentInterval: (start: Date, end: Date)?
-        
-        for segment in segments {
-            if let current = currentInterval {
-                if segment.startDate < current.end {
-                    // Overlap: Extend end if needed
-                    if segment.endDate > current.end {
-                        currentInterval?.end = segment.endDate
-                    }
-                } else {
-                    // No overlap: Commit current and start new
-                    totalDuration += current.end.timeIntervalSince(current.start)
-                    currentInterval = (segment.startDate, segment.endDate)
-                }
-            } else {
-                currentInterval = (segment.startDate, segment.endDate)
-            }
-        }
-        
-        // Commit last interval
-        if let current = currentInterval {
-            totalDuration += current.end.timeIntervalSince(current.start)
-        }
-        
-        return totalDuration
-    }
+
     
     private func formatDuration(_ duration: TimeInterval) -> String {
         let hours = Int(duration) / 3600
@@ -678,10 +599,11 @@ struct SleepLegendRow: View {
 struct DashboardView: View {
     @EnvironmentObject var workoutManager: WorkoutManager
     @State private var showingDaySelection = false
+    @Environment(\.modelContext) private var modelContext
     
-    // Fetch recent history
-    @Query(filter: #Predicate<WorkoutSession> { $0.isCompleted == true }, sort: \WorkoutSession.date, order: .reverse)
-    private var history: [WorkoutSession]
+    // CRITICAL FIX: Limit query to prevent freeze with large datasets
+    // Only fetch last 100 workouts instead of ALL workouts
+    @State private var history: [WorkoutSession] = []
     
     private var recentHistory: [WorkoutSession] {
         Array(history.prefix(1))
@@ -696,69 +618,57 @@ struct DashboardView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: DesignSystem.Spacing.lg) {
-                // Calendar
+            VStack(spacing: DesignSystem.Spacing.xl) {
+                // Calendar (Hero Section)
                 ExpandableCalendarView()
                     .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .transition(.move(edge: .top).combined(with: .opacity))
                 
-                // MARK: - Top Stats Row (Neon Style)
-                VStack(spacing: DesignSystem.Spacing.lg) {
-                    
-                    // Row 1: Activity Rings (Standardized)
-                    ActivityRingsCard()
-                    
-                    // Row 2: Growth Indicator (Replaces Progress)
-                    // Row 2: Growth Indicator
+                    // Full Width Chart
                     WorkoutProgressChart(sessions: history)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
                     
-
-                }
-                .padding(.horizontal, DesignSystem.Spacing.lg)
+                    // Last Workout Preview (moved to main column)
+                    if let lastSession = recentHistory.first {
+                        NavigationLink(destination: WorkoutHistoryDetailView(session: lastSession)) {
+                            LastWorkoutBento(session: lastSession)
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                    }
                 
-                // Row 2: Today's Plan / Active Workout Card
+                // MARK: - Today's Plan (Action Hero Card)
                 TodayWorkoutCard(
                     workoutManager: workoutManager,
                     showingDaySelection: $showingDaySelection,
-                    onOpenWorkout: {
-                        // Scroll to active workout
-                        if workoutManager.workoutState == .active {
-                            // The active workout view will be shown via the main dashboard logic
-                        }
-                    }
+                    onOpenWorkout: { }
                 )
                 .padding(.horizontal, DesignSystem.Spacing.lg)
                 
-                // History Section (Cards List)
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                    Text("ПРОШЛАЯ ТРЕНИРОВКА")
-                        .font(DesignSystem.Typography.caption())
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                        .tracking(1.2)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                    
-                    if recentHistory.isEmpty {
-                        Text("История пуста")
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                    } else {
-                        ForEach(recentHistory, id: \.self) { session in
-                            NavigationLink(destination: WorkoutHistoryDetailView(session: session)) {
-                                HistoryCardView(session: session)
-                            }
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                        }
-                    }
-                }
+
                 
-                // AI Coach Placeholder
+                // AI Coach / Insights (Premium Glass)
                 AICoachPlaceholderView()
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                 
-                Spacer().frame(height: 80) // Bottom padding
+                Spacer().frame(height: 100)
             }
         }
-
+        .task {
+            // Load limited history asynchronously to prevent freeze
+            var descriptor = FetchDescriptor<WorkoutSession>(
+                predicate: #Predicate { $0.isCompleted == true },
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            // CRITICAL: Limit to 100 most recent to prevent freeze with thousands of workouts
+            descriptor.fetchLimit = 100
+            
+            if let fetchedHistory = try? modelContext.fetch(descriptor) {
+                await MainActor.run {
+                    self.history = fetchedHistory
+                }
+            }
+        }
         .sheet(isPresented: $showingDaySelection) {
             if let program = workoutManager.activeProgram {
                 DaySelectionSheet(
@@ -1201,72 +1111,16 @@ struct SummaryOverlay: View {
                         .multilineTextAlignment(.center)
                     
                     if let currentSession = workoutManager.currentSession {
-                        
                         // MARK: - Bento Grid Stats
                         VStack(spacing: DesignSystem.Spacing.lg) {
                             
                             // 1. Activity Rings (Top) - Standardized
                             ActivityRingsCard()
+                            // Removed glassModifier, check inside component or earlier fix
                             
-                            // 2. Stats Grid (Equal Height)
+                            // 2. Records & Progression
                             HStack(spacing: DesignSystem.Spacing.md) {
-                                // Time (Blue)
-                                StatBentoCard(
-                                    title: "Время",
-                                    value: formatDuration(currentSession.endTime?.timeIntervalSince(currentSession.date) ?? 0),
-                                    icon: "clock.fill",
-                                    color: .blue
-                                )
-                                .frame(height: 120)
-                                .frame(maxWidth: .infinity)
-                                
-                                // Calories (Orange, Interactive)
-                                CardView {
-                                    VStack(alignment: .leading) {
-                                        HStack {
-                                            Image(systemName: "flame.fill")
-                                                .foregroundColor(.orange)
-                                            Text("Ккал")
-                                                .font(DesignSystem.Typography.caption())
-                                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                        }
-                                        
-                                        Spacer()
-                                        
-                                        if isEditingCalories {
-                                            TextField("0", value: $calories, format: .number)
-                                                .keyboardType(.numberPad)
-                                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                .foregroundColor(DesignSystem.Colors.primaryText)
-                                        } else {
-                                            Text("\(calories > 0 ? "\(calories)" : "--")")
-                                                .font(DesignSystem.Typography.title2())
-                                                .foregroundColor(DesignSystem.Colors.primaryText)
-                                                .onTapGesture {
-                                                    if calories == 0 { isEditingCalories = true }
-                                                }
-                                        }
-                                    }
-                                    .padding()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                                .frame(height: 120)
-                                .frame(maxWidth: .infinity)
-                            }
-                            
-                            HStack(spacing: DesignSystem.Spacing.md) {
-                                // Heart Rate (Red)
-                                StatBentoCard(
-                                    title: "Пульс",
-                                    value: heartRate > 0 ? "\(heartRate)" : "--",
-                                    subValue: "уд/мин",
-                                    icon: "heart.fill",
-                                    color: .red
-                                )
-                                .frame(height: 120)
-                                .frame(maxWidth: .infinity)
-                                
-                                // Records / Best (Green)
+                                // Records / Best (Green) -> Full Width now since others are gone
                                 StatBentoCard(
                                     title: "Рекорды",
                                     value: "\(countImprovements())",
@@ -1274,7 +1128,7 @@ struct SummaryOverlay: View {
                                     icon: "trophy.fill",
                                     color: DesignSystem.Colors.neonGreen
                                 )
-                                .frame(height: 120)
+                                .frame(height: 100)
                                 .frame(maxWidth: .infinity)
                             }
                             
@@ -1387,9 +1241,16 @@ struct SummaryOverlay: View {
                 heartRate = session.averageHeartRate ?? 0
                 
                 // Compare with previous session logic
-                if let day = workoutManager.selectedDay {
+                // Fix: selectedDay might have already advanced to the next day.
+                // We need to find the day that corresponds to the COMPLETED session.
+                if let program = workoutManager.activeProgram,
+                   let day = program.days.first(where: { $0.name == session.workoutDayName }) {
                      let previousSession = workoutManager.getPreviousSession(for: day)
                      progressData = workoutManager.getProgressData(for: session, comparedTo: previousSession)
+                } else if let day = workoutManager.selectedDay, day.name == session.workoutDayName {
+                    // Fallback to selectedDay if names match (unlikely if advanced)
+                    let previousSession = workoutManager.getPreviousSession(for: day)
+                    progressData = workoutManager.getProgressData(for: session, comparedTo: previousSession)
                 }
             }
         }
@@ -1528,6 +1389,7 @@ struct ActiveWorkoutContent: View {
                 HStack {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
+                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 5)
                     Text("Добавить упражнение")
                         .font(DesignSystem.Typography.headline())
                 }
@@ -1535,9 +1397,11 @@ struct ActiveWorkoutContent: View {
                 .frame(maxWidth: .infinity)
                 .padding(DesignSystem.Spacing.xl)
                 .background(DesignSystem.Colors.cardBackground)
-                .cornerRadius(DesignSystem.CornerRadius.large)
+                .cornerRadius(DesignSystem.CornerRadius.medium)
+                .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
             }
             .padding(.horizontal, DesignSystem.Spacing.lg)
+            .staggeredAppear(index: 8)
             
             // Finish workout button
             if let session = workoutManager.currentSession, !session.sets.isEmpty {
@@ -1548,6 +1412,8 @@ struct ActiveWorkoutContent: View {
                     }
                 }
                 .padding(.horizontal, DesignSystem.Spacing.lg)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 15, x: 0, y: 8)
+                .staggeredAppear(index: 9)
             }
         }
         .padding(.vertical, DesignSystem.Spacing.xl)
@@ -1590,8 +1456,9 @@ struct BentoCard<Content: View>: View {
         content
             .padding()
             .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(20)
-            .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
+            .cornerRadius(DesignSystem.CornerRadius.medium)
+            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
+    
     }
 }
 
@@ -1607,6 +1474,7 @@ struct StatBentoCard: View {
         HeaderBentoCard(color: color.opacity(0.15)) {
             content
         }
+
     }
 
     @ViewBuilder
@@ -1616,23 +1484,104 @@ struct StatBentoCard: View {
                 Image(systemName: icon)
                     .font(.caption)
                     .foregroundColor(color)
+                    .shadow(color: color.opacity(0.5), radius: 4)
                 
-                Text(title.uppercased())
-                    .font(.system(size: 10, weight: .bold))
+                Text(title.localizedUppercase)
+                    .font(DesignSystem.Typography.sectionHeader())
                     .foregroundColor(color.opacity(0.8))
+                    .tracking(1.0)
             }
             
             HStack(alignment: .lastTextBaseline, spacing: 2) {
                 Text(value)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 
                 if let sub = subValue {
                     Text(sub)
-                        .font(.system(size: 12, weight: .bold))
+                        .font(DesignSystem.Typography.monospaced(.caption, weight: .bold))
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
             }
         }
+    }
+}
+
+// MARK: - Missing Helper Components
+
+struct LastWorkoutBento: View {
+    let session: WorkoutSession
+    
+    var body: some View {
+        BentoCard {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .foregroundStyle(DesignSystem.Colors.neonGreen)
+                    Text("Последняя тренировка")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    Spacer()
+                    Text(formatDate(session.date))
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                }
+                
+                Text(session.workoutDayName)
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.8))
+                    .lineLimit(1)
+                
+                HStack(spacing: 12) {
+                    if let cals = session.calories {
+                        Label("\(cals) kcal", systemImage: "flame.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                    
+                    if let duration = session.endTime?.timeIntervalSince(session.date) {
+                        Label(formatDuration(duration), systemImage: "timer")
+                            .font(.caption)
+                            .foregroundStyle(.blue)
+                    }
+                }
+            }
+        }
+        .frame(height: 120)
+    }
+    
+    func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMM"
+        return formatter.string(from: date)
+    }
+    
+    func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        return "\(minutes) мин"
+    }
+}
+
+// MARK: - View Modifiers
+
+struct StaggeredAppearModifier: ViewModifier {
+    let index: Int
+    @State private var isVisible = false
+    
+    func body(content: Content) -> some View {
+        content
+            .opacity(isVisible ? 1 : 0)
+            .offset(y: isVisible ? 0 : 20)
+            .onAppear {
+                withAnimation(.easeOut(duration: 0.5).delay(Double(index) * 0.1)) {
+                    isVisible = true
+                }
+            }
+    }
+}
+
+extension View {
+    func staggeredAppear(index: Int) -> some View {
+        modifier(StaggeredAppearModifier(index: index))
     }
 }

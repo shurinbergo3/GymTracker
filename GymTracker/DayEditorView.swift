@@ -155,7 +155,7 @@ struct ExerciseEditRow: View {
                 Menu {
                     ForEach(WorkoutType.allCases, id: \.self) { type in
                         Button(action: { updateType(to: type) }) {
-                            Label(type.rawValue, systemImage: type.icon)
+                            Label(type.displayName, systemImage: type.icon)
                         }
                     }
                 } label: {

@@ -100,7 +100,7 @@ struct LibraryExercise: Identifiable, Hashable {
 // MARK: - Exercise Library
 
 struct ExerciseLibrary {
-    static let allExercises: [LibraryExercise] = [
+    nonisolated static let allExercises: [LibraryExercise] = [
         // MARK: - ГРУДЬ
         LibraryExercise(
             name: "Жим штанги лежа",
@@ -2098,7 +2098,7 @@ struct ExerciseLibrary {
     // MARK: - Helper Methods
     
     /// Получение полного объекта упражнения
-    static func getExercise(for name: String) -> LibraryExercise? {
+    nonisolated static func getExercise(for name: String) -> LibraryExercise? {
         // 1. Точное совпадение
         if let exactMatch = allExercises.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
             return exactMatch
@@ -2120,7 +2120,7 @@ struct ExerciseLibrary {
     }
     
     /// Получение дефолтного типа тренировки для упражнения
-    static func getDefaultType(for name: String) -> WorkoutType {
+    nonisolated static func getDefaultType(for name: String) -> WorkoutType {
         getExercise(for: name)?.defaultType ?? .strength
     }
     
@@ -2130,14 +2130,27 @@ struct ExerciseLibrary {
     }
     
     /// Миграция существующих упражнений для установки правильного типа
-    static func migrateExerciseTypes(context: ModelContext) {
-        do {
+    /// Миграция существующих упражнений для установки правильного типа (Background Safe)
+    static func migrateExerciseTypes(container: ModelContainer) async {
+        // Use a detached task with the SHARED container to avoid database conflicts
+        await Task.detached(priority: .utility) {
+            let context = ModelContext(container)
+            // Disable autosave for performance, save once at end
+            context.autosaveEnabled = false
+            
             let descriptor = FetchDescriptor<ExerciseTemplate>()
-            let templates = try context.fetch(descriptor)
+            
+            // Try to fetch templates, if this throws we skip migration
+            guard let templates = try? context.fetch(descriptor) else {
+                #if DEBUG
+                print("⚠️ Migration: Failed to fetch templates")
+                #endif
+                return
+            }
             
             var migratedCount = 0
             for template in templates {
-                // Устанавливаем тип если он не был явно задан
+                // Safely check and update each template
                 if template._customWorkoutType == nil {
                     let defaultType = getDefaultType(for: template.name)
                     template._customWorkoutType = defaultType
@@ -2146,16 +2159,19 @@ struct ExerciseLibrary {
             }
             
             if migratedCount > 0 {
-                try context.save()
-                #if DEBUG
-                print("Migrated \(migratedCount) exercises to correct workout types")
-                #endif
+                // Try to save, but don't crash if it fails
+                do {
+                    try context.save()
+                    #if DEBUG
+                    print("✅ Background Migration: Updated \(migratedCount) exercises")
+                    #endif
+                } catch {
+                    #if DEBUG
+                    print("⚠️ Migration: Failed to save: \(error)")
+                    #endif
+                }
             }
-        } catch {
-            #if DEBUG
-            print("Failed to migrate exercise types: \(error)")
-            #endif
-        }
+        }.value
     }
 }
 

@@ -13,6 +13,7 @@ import SwiftData
 @Model
 final class UserProfile {
     var height: Double // в см
+    var age: Int // возраст
     var createdAt: Date
     var updatedAt: Date
     
@@ -26,8 +27,9 @@ final class UserProfile {
             .first?.weight ?? 0
     }
     
-    init(height: Double, initialWeight: Double) {
+    init(height: Double, initialWeight: Double, age: Int = 30) {
         self.height = height
+        self.age = age
         self.createdAt = Date()
         self.updatedAt = Date()
         self.weightHistory = []
@@ -81,9 +83,17 @@ final class BodyMeasurement {
 // MARK: - Workout Type
 
 enum WorkoutType: String, Codable, CaseIterable {
-    case strength = "Силовая"
-    case repsOnly = "Свой вес"
-    case duration = "На время / Кардио"
+    case strength = "strength"
+    case repsOnly = "repsOnly"
+    case duration = "duration"
+    
+    var displayName: String {
+        switch self {
+        case .strength: return "Силовая"
+        case .repsOnly: return "Свой вес"
+        case .duration: return "На время / Кардио"
+        }
+    }
     
     var icon: String {
         switch self {
@@ -93,29 +103,6 @@ enum WorkoutType: String, Codable, CaseIterable {
         }
     }
     
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let rawValue = try container.decode(String.self)
-        
-        // Migration logic for legacy types
-        switch rawValue {
-        case "Силовая":
-            self = .strength
-        case "Свой вес":
-            self = .repsOnly
-        case "На время / Кардио":
-            self = .duration
-        case "Круговая", "Кардио": // Legacy mappings
-            self = .duration
-        default:
-            // Fallback to strength for unknown types
-            // Log this so we can identify migration issues
-            #if DEBUG
-            print("⚠️ WorkoutType Migration: Unknown type '\\(rawValue)', defaulting to .strength")
-            #endif
-            self = .strength
-        }
-    }
 }
 
 // MARK: - Program

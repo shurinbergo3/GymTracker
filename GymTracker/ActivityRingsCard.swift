@@ -22,49 +22,63 @@ struct ActivityRingsCard: View {
             // Left: Rings
             ZStack {
                 ActivityRingsView()
-                    .frame(width: 130, height: 130)
+                    .frame(width: 120, height: 120)
+                    .shadow(color: .black.opacity(0.3), radius: 10)
             }
-            .frame(width: 140)
+            .frame(width: 130)
             
             // Right: Text Details
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 14) {
                 // Move (Red)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Подвижность")
-                        .font(.system(size: 14))
-                        .foregroundColor(.white)
-                    Text("\(Int(move))/\(Int(moveGoal)) ККАЛ")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(Color(red: 1.0, green: 0.2, blue: 0.4)) // Activity Red
+                    Text("Подвижность".localizedUppercase)
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .tracking(1.0)
+                    Text("\(Int(move))/\(Int(moveGoal))")
+                        .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
+                        .foregroundColor(Color(red: 1.0, green: 0.2, blue: 0.4))
+                    + Text(" ККАЛ")
+                        .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
+                        .foregroundColor(Color(red: 1.0, green: 0.2, blue: 0.4).opacity(0.7))
                 }
                 
                 // Exercise (Green)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Упражнения")
-                        .font(.system(size: 14))
-                        .foregroundColor(.white)
-                    Text("\(Int(exercise))/\(Int(exerciseGoal)) МИН")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(Color(red: 0.4, green: 1.0, blue: 0.2)) // Activity Green
+                    Text("Упражнения".localizedUppercase)
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .tracking(1.0)
+                    Text("\(Int(exercise))/\(Int(exerciseGoal))")
+                        .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
+                        .foregroundColor(Color(red: 0.4, green: 1.0, blue: 0.2))
+                    + Text(" МИН")
+                        .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
+                        .foregroundColor(Color(red: 0.4, green: 1.0, blue: 0.2).opacity(0.7))
                 }
                 
                 // Stand (Blue)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("С разминкой")
-                        .font(.system(size: 14))
-                        .foregroundColor(.white)
-                    Text("\(Int(stand))/\(Int(standGoal)) Ч")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(Color(red: 0.2, green: 0.8, blue: 1.0)) // Activity Blue
+                    Text("С разминкой".localizedUppercase)
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .tracking(1.0)
+                    Text("\(Int(stand))/\(Int(standGoal))")
+                        .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
+                        .foregroundColor(Color(red: 0.2, green: 0.8, blue: 1.0))
+                    + Text(" Ч")
+                        .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
+                        .foregroundColor(Color(red: 0.2, green: 0.8, blue: 1.0).opacity(0.7))
                 }
             }
             
             Spacer()
         }
-        .padding() // Default padding match
+        .padding(DesignSystem.Spacing.lg)
         .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(20)
-        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
+        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
+
         .onTapGesture {
             showingDetail = true
         }

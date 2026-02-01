@@ -15,46 +15,53 @@ struct ExpandableCalendarView: View {
     @State private var selectedSession: WorkoutSession?
     
     var body: some View {
-        VStack(spacing: 0) { // Removed Button wrapper to allow inner buttons
-            CardView {
-                VStack(spacing: DesignSystem.Spacing.md) {
-                    // Заголовок с месяцем
-                    MonthHeaderView(
-                        month: selectedMonth,
-                        isExpanded: isExpanded,
-                        onPreviousMonth: previousMonth,
-                        onNextMonth: nextMonth,
-                        onToggleExpand: {
-                            withAnimation { isExpanded.toggle() }
-                        }
-                    )
-                    
-                    if isExpanded {
-                        // Полный месяц
-                        FullMonthView(
-                            month: selectedMonth,
-                            sessions: allSessions,
-                            onDaySelected: handleDaySelection
-                        )
-                    } else {
-                        // Текущая неделя
-                        WeekView(
-                            date: Date(),
-                            sessions: allSessions,
-                            onDaySelected: handleDaySelection
-                        )
+        CardView {
+            VStack(spacing: DesignSystem.Spacing.md) {
+                // Заголовок с месяцем
+                MonthHeaderView(
+                    month: selectedMonth,
+                    isExpanded: isExpanded,
+                    onPreviousMonth: previousMonth,
+                    onNextMonth: nextMonth,
+                    onToggleExpand: {
+                        withAnimation { isExpanded.toggle() }
                     }
+                )
+                
+                if isExpanded {
+                    // Полный месяц
+                    FullMonthView(
+                        month: selectedMonth,
+                        completedDates: completedDates,
+                        onDaySelected: handleDaySelection
+                    )
+                } else {
+                    // Текущая неделя
+                    WeekView(
+                        date: Date(),
+                        completedDates: completedDates,
+                        onDaySelected: handleDaySelection
+                    )
                 }
-                .padding(DesignSystem.Spacing.md)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    withAnimation { isExpanded.toggle() }
-                }
+            }
+            .padding(DesignSystem.Spacing.md)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                withAnimation { isExpanded.toggle() }
             }
         }
         .sheet(item: $selectedSession) { session in
             WorkoutHistoryDetailView(session: session)
         }
+    }
+    
+    // Cache normalized dates for O(1) lookup
+    private var completedDates: Set<Date> {
+        let calendar = Calendar.current
+        return Set(allSessions.compactMap { session -> Date? in
+            guard session.isCompleted else { return nil }
+            return calendar.startOfDay(for: session.date)
+        })
     }
     
     private func handleDaySelection(_ date: Date) {
@@ -101,8 +108,8 @@ struct MonthHeaderView: View {
         HStack {
             Button(action: onPreviousMonth) {
                 Image(systemName: "chevron.left")
-                    .font(.headline)
-                    .foregroundColor(DesignSystem.Colors.accent)
+                .font(.headline)
+                .foregroundColor(DesignSystem.Colors.accent)
             }
             
             // Tappable Middle Section
@@ -122,8 +129,8 @@ struct MonthHeaderView: View {
             
             Button(action: onNextMonth) {
                 Image(systemName: "chevron.right")
-                    .font(.headline)
-                    .foregroundColor(DesignSystem.Colors.accent)
+                .font(.headline)
+                .foregroundColor(DesignSystem.Colors.accent)
             }
         }
     }
@@ -133,7 +140,7 @@ struct MonthHeaderView: View {
 
 struct WeekView: View {
     let date: Date
-    let sessions: [WorkoutSession]
+    let completedDates: Set<Date>
     let onDaySelected: (Date) -> Void
     
     private var weekDates: [Date] {
@@ -155,7 +162,11 @@ struct WeekView: View {
         HStack(spacing: DesignSystem.Spacing.sm) {
             ForEach(weekDates, id: \.self) { date in
                 Button(action: { onDaySelected(date) }) {
-                    DayCell(date: date, isToday: Calendar.current.isDateInToday(date), sessions: sessions)
+                    DayCell(
+                        date: date,
+                        isToday: Calendar.current.isDateInToday(date),
+                        hasWorkout: completedDates.contains(Calendar.current.startOfDay(for: date))
+                    )
                 }
                 .buttonStyle(PlainButtonStyle())
             }
@@ -167,7 +178,7 @@ struct WeekView: View {
 
 struct FullMonthView: View {
     let month: Date
-    let sessions: [WorkoutSession]
+    let completedDates: Set<Date>
     let onDaySelected: (Date) -> Void
     
     private var monthDates: [[Date?]] {
@@ -222,7 +233,11 @@ struct FullMonthView: View {
                     ForEach(Array(week.enumerated()), id: \.offset) { _, date in
                         if let date = date {
                             Button(action: { onDaySelected(date) }) {
-                                DayCell(date: date, isToday: Calendar.current.isDateInToday(date), sessions: sessions)
+                                DayCell(
+                                    date: date,
+                                    isToday: Calendar.current.isDateInToday(date),
+                                    hasWorkout: completedDates.contains(Calendar.current.startOfDay(for: date))
+                                )
                             }
                             .buttonStyle(PlainButtonStyle())
                         } else {
@@ -241,7 +256,7 @@ struct FullMonthView: View {
 struct DayCell: View {
     let date: Date
     let isToday: Bool
-    let sessions: [WorkoutSession]
+    let hasWorkout: Bool
     
     private var dayName: String {
         let formatter = DateFormatter()
@@ -254,12 +269,6 @@ struct DayCell: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "d"
         return formatter.string(from: date)
-    }
-    
-    private var hasWorkout: Bool {
-        sessions.contains { session in
-            Calendar.current.isDate(session.date, inSameDayAs: date) && session.isCompleted
-        }
     }
     
     var body: some View {

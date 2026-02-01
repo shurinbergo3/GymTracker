@@ -34,13 +34,13 @@ struct ExerciseSelectionView: View {
                 .searchable(
                     text: $searchText,
                     placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "Поиск упражнений"
+                    prompt: "search_exercises_placeholder"
                 )
-                .navigationTitle("Выбор упражнения")
+                .navigationTitle("exercise_selection_title")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Отмена") {
+                        Button("cancel_button") {
                             dismiss()
                         }
                     }
@@ -51,16 +51,16 @@ struct ExerciseSelectionView: View {
                         }
                     }
                 }
-                .alert("Новое упражнение", isPresented: $showingCustomExercise) {
-                    TextField("Название упражнения", text: $customExerciseName)
-                    Button("Отмена", role: .cancel) {
+                .alert("new_exercise_title", isPresented: $showingCustomExercise) {
+                    TextField("exercise_name_placeholder", text: $customExerciseName)
+                    Button("cancel_button", role: .cancel) {
                         customExerciseName = ""
                     }
-                    Button("Добавить") {
+                    Button("add_button") {
                         addCustomExercise()
                     }
                 } message: {
-                    Text("Введите название своего упражнения")
+                    Text("enter_exercise_name_message")
                 }
         }
     }

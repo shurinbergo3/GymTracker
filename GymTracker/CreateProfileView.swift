@@ -14,6 +14,7 @@ struct CreateProfileView: View {
     
     @State private var height = ""
     @State private var weight = ""
+    @State private var age = ""
     
     var body: some View {
         NavigationStack {
@@ -34,6 +35,14 @@ struct CreateProfileView: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                     }
+                    
+                    HStack {
+                        Text("Возраст")
+                        Spacer()
+                        TextField("30", text: $age)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                    }
                 }
             }
             .navigationTitle("Создать профиль")
@@ -48,7 +57,7 @@ struct CreateProfileView: View {
                         createProfile()
                         dismiss()
                     }
-                    .disabled(height.isEmpty || weight.isEmpty)
+                    .disabled(height.isEmpty || weight.isEmpty || age.isEmpty)
                 }
             }
         }
@@ -56,9 +65,10 @@ struct CreateProfileView: View {
     
     private func createProfile() {
         guard let heightValue = Double(height),
-              let weightValue = Double(weight) else { return }
+              let weightValue = Double(weight),
+              let ageValue = Int(age) else { return }
         
-        let profile = UserProfile(height: heightValue, initialWeight: weightValue)
+        let profile = UserProfile(height: heightValue, initialWeight: weightValue, age: ageValue)
         modelContext.insert(profile)
         try? modelContext.save()
     }

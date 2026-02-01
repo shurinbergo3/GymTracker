@@ -143,6 +143,13 @@ struct RestTimerView: View {
                     cancelNotification()
                 }
             }
+                }
+
+        .onDisappear {
+            // Ensure timer is stopped when view is removed
+            timer?.invalidate()
+            timer = nil
+            cancelNotification()
         }
     }
     

@@ -14,26 +14,31 @@ struct DesignSystem {
     // MARK: - Colors
     
     struct Colors {
-        // Apple Fitness+ Dark Mode Palette
-        static let background = Color(uiColor: .systemBackground) // Deep black in dark mode
-        static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground) // Dark gray cards
+        // OLED optimized black
+        static let background = Color.black // Pure black for OLED
+        static let oledBlack = Color.black
         
-        // Neon Volt/Lime Green (Activity Ring Style)
-        static let accent = Color(red: 0.75, green: 1.0, blue: 0.2)
-        static let neonGreen = Color(red: 0.75, green: 1.0, blue: 0.2)
+        static let cardBackground = Color(white: 0.1) // fallback for non-glass elements
+        static let glassBackground = Color.white.opacity(0.1)
+        
+        // Intense Neon Volt (Charged aesthetic)
+        static let accent = Color(red: 0.75, green: 1.0, blue: 0.0) // Slightly more saturated
+        static let neonGreen = Color(red: 0.75, green: 1.0, blue: 0.0)
         
         // Secondary Accents
         static let secondaryAccent = Color.orange
         static let accentMint = Color.mint
+        static let accentPurple = Color(red: 0.6, green: 0.4, blue: 1.0) // For sleep
         
         // Progress colors
-        static let progressPositive = Color(red: 0.75, green: 1.0, blue: 0.2) // Neon green
+        static let progressPositive = Color(red: 0.75, green: 1.0, blue: 0.0)
         static let progressNegative = Color.red
-        static let progressNeutral = Color.gray
+        static let progressNeutral = Color.white.opacity(0.2)
         
         // Text colors
         static let primaryText = Color.white
-        static let secondaryText = Color(white: 0.7)
+        static let secondaryText = Color.white.opacity(0.6)
+        static let tertiaryText = Color.white.opacity(0.4)
     }
     
     // MARK: - Spacing (Increased for "breathing" design)
@@ -44,7 +49,7 @@ struct DesignSystem {
         static let md: CGFloat = 16
         static let lg: CGFloat = 20
         static let xl: CGFloat = 28
-        static let xxl: CGFloat = 32
+        static let xxl: CGFloat = 36 // Slightly increased
     }
     
     // MARK: - Corner Radius (Larger, more rounded)
@@ -52,11 +57,11 @@ struct DesignSystem {
     struct CornerRadius {
         static let small: CGFloat = 16
         static let medium: CGFloat = 20
-        static let large: CGFloat = 24
-        static let extraLarge: CGFloat = 28
+        static let large: CGFloat = 30 // More aggressive rounding
+        static let extraLarge: CGFloat = 36
     }
     
-    // MARK: - Typography (Heavy, Bold, Rounded)
+    // MARK: - Typography (Heavy, Bold, Rounded + Monospaced)
     
     struct Typography {
         static func largeTitle() -> Font {
@@ -83,6 +88,11 @@ struct DesignSystem {
             .system(.body, design: .rounded)
         }
         
+        /// Tech/Data oriented monospaced font
+        static func monospaced(_ style: Font.TextStyle = .body, weight: Font.Weight = .regular) -> Font {
+            .system(style, design: .monospaced).weight(weight)
+        }
+        
         static func callout() -> Font {
             .system(.callout, design: .rounded)
         }
@@ -106,6 +116,31 @@ struct DesignSystem {
 /// Enhanced card with shadow for Apple Fitness aesthetic
 struct CardView<Content: View>: View {
     let content: Content
+    var useGlass: Bool = false
+    
+    init(useGlass: Bool = false, @ViewBuilder content: () -> Content) {
+        self.useGlass = useGlass
+        self.content = content()
+    }
+    
+    var body: some View {
+        Group {
+            if useGlass {
+                content
+                    .glassModifier()
+            } else {
+                content
+                    .background(DesignSystem.Colors.cardBackground)
+                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                    .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
+            }
+        }
+    }
+}
+
+/// Premium Glass Card
+struct GlassCardView<Content: View>: View {
+    let content: Content
     
     init(@ViewBuilder content: () -> Content) {
         self.content = content()
@@ -113,9 +148,7 @@ struct CardView<Content: View>: View {
     
     var body: some View {
         content
-            .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(DesignSystem.CornerRadius.medium)
-            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
+            .glassModifier()
     }
 }
 
@@ -247,22 +280,26 @@ struct EmptyStateView: View {
         VStack(spacing: DesignSystem.Spacing.xxl) {
             Image(systemName: icon)
                 .font(.system(size: 80))
-                .foregroundColor(DesignSystem.Colors.secondaryText)
+                .foregroundColor(DesignSystem.Colors.tertiaryText)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.1), radius: 20)
             
             VStack(spacing: DesignSystem.Spacing.md) {
-                Text(title)
+                Text(title.localizedUppercase)
                     .font(DesignSystem.Typography.title())
                     .foregroundColor(DesignSystem.Colors.primaryText)
+                    .tracking(1.2)
                 
                 Text(message)
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, DesignSystem.Spacing.xl)
             }
             
-            Spacer().frame(height: 60)
+            Spacer().frame(height: 40)
             
             GradientButton(title: buttonTitle, action: action)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 15, x: 0, y: 8)
                 .padding(.horizontal, DesignSystem.Spacing.xxl)
         }
         .padding(DesignSystem.Spacing.xxl)
@@ -275,14 +312,16 @@ struct StatCard: View {
     let value: String
     let icon: String
     let color: Color
+    var useGlass: Bool = true
     
     var body: some View {
-        CardView {
+        CardView(useGlass: useGlass) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
                 HStack(alignment: .top) {
                     Image(systemName: icon)
                         .font(.title2)
                         .foregroundColor(color)
+                        .shadow(color: color.opacity(0.5), radius: 5)
                     
                     Spacer()
                 }
@@ -291,20 +330,44 @@ struct StatCard: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(value)
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .minimumScaleFactor(0.8)
                         .lineLimit(1)
                     
-                    Text(title)
-                        .font(DesignSystem.Typography.caption())
+                    Text(title.localizedUppercase)
+                        .font(DesignSystem.Typography.sectionHeader())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .tracking(1.2)
                 }
             }
             .frame(height: 120) // Fixed height to make them squares/uniform
             .padding(DesignSystem.Spacing.md)
         }
+
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - View Modifiers
+
+struct GlassModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .background(.ultraThinMaterial)
+            .background(DesignSystem.Colors.glassBackground)
+            .cornerRadius(DesignSystem.CornerRadius.medium)
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+            )
+            .shadow(color: Color.black.opacity(0.2), radius: 20, x: 0, y: 10)
+    }
+}
+
+extension View {
+    func glassModifier() -> some View {
+        self.modifier(GlassModifier())
     }
 }
 

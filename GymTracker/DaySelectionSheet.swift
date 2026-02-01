@@ -137,6 +137,11 @@ struct DaySelectionCard: View {
 }
 
 #Preview {
+    makeDaySelectionSheetPreview()
+}
+
+@MainActor
+private func makeDaySelectionSheetPreview() -> some View {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Program.self, WorkoutDay.self, configurations: config)
     
@@ -148,7 +153,11 @@ struct DaySelectionCard: View {
     program.days = [day1, day2, day3]
     container.mainContext.insert(program)
     
-    return DaySelectionSheet(program: program, selectedDay: .constant(day1))
+    return DaySelectionSheet(program: program, selectedDay: .constant(day1 as WorkoutDay?))
         .modelContainer(container)
-        .environmentObject(WorkoutManager(modelContext: container.mainContext))
+        .environmentObject(WorkoutManager(
+            modelContext: container.mainContext,
+            healthProvider: HealthManager.shared,
+            activityProvider: LiveActivityManager.shared
+        ))
 }

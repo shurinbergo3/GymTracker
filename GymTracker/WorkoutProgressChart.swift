@@ -12,22 +12,28 @@ import Charts
 struct WorkoutProgressBanner: View {
     let programName: String
     let program: Program?
-    @Query private var allSessions: [WorkoutSession]
+    
+    // Optimized Query: Fetch only completed sessions, sorted reverse by date
+    @Query(filter: #Predicate<WorkoutSession> { $0.isCompleted == true }, sort: \WorkoutSession.date, order: .reverse)
+    private var allSessions: [WorkoutSession]
     
     // All completed sessions for this program
     private var programSessions: [WorkoutSession] {
         allSessions
-            .filter { $0.isCompleted }
-            .sorted { $0.date < $1.date }
+            .filter { $0.programName == programName }
+            // Already sorted by query, but verification needs oldest first usually for charts?
+            // Chart logic below uses .suffix(10) of .sorted { $0.date < $1.date }
+            // So we need oldest first for the logic below, or we assume query order.
+            .reversed() // Query is reverse (newest first), so reversed() gives oldest first
     }
     
     // Chart data for last 7-10 workouts
     private var chartData: [(date: Date, volume: Double)] {
+        // programSessions is now oldest->newest
         programSessions
             .suffix(10)
             .map { session in
-                let totalVolume = session.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
-                return (date: session.date, volume: totalVolume)
+                return (date: session.date, volume: session.volume)
             }
     }
     
@@ -39,8 +45,8 @@ struct WorkoutProgressBanner: View {
         let latest = lastTwo.last!
         let previous = Array(lastTwo)[0]
         
-        let latestVolume = latest.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
-        let previousVolume = previous.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+        let latestVolume = latest.volume
+        let previousVolume = previous.volume
         
         if latestVolume > previousVolume {
             return .improved
@@ -216,105 +222,134 @@ struct WorkoutProgressBanner: View {
 struct WorkoutProgressChart: View {
     let sessions: [WorkoutSession]
     
-    // Filter sessions for the last 1 month
-    private var filteredSessions: [WorkoutSession] {
-        let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
-        return sessions
-            .filter { $0.isCompleted && $0.date >= oneMonthAgo }
-            .sorted { $0.date < $1.date }
-    }
-    
-    // Chart Data
-    private var chartData: [(date: Date, volume: Double)] {
-        filteredSessions.map { session in
-            let totalVolume = session.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
-            return (date: session.date, volume: totalVolume)
-        }
-    }
+    @State private var chartData: [(date: Date, volume: Double)] = []
+    @State private var isLoading = true
+    @State private var showingDetail = false
     
     // Trend Logic
     private var isGrowing: Bool {
         guard let first = chartData.first, let last = chartData.last, chartData.count > 1 else { return true }
         return last.volume >= first.volume
     }
-    
-    @State private var showingDetail = false
 
     var body: some View {
-        if !chartData.isEmpty {
-            Button(action: { showingDetail = true }) {
+        Group {
+            if isLoading {
+                // Placeholder while loading
                 PremiumBentoCard {
-                VStack(alignment: .leading, spacing: 12) {
-                     // Header
-                     HStack {
-                         Image(systemName: "chart.line.uptrend.xyaxis")
-                             .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
-                         Text("Показатель роста")
-                             .font(.headline)
-                             .foregroundStyle(.white)
-                         
-                         Spacer()
-                         
-                         // Arrow Indicator
-                         Image(systemName: isGrowing ? "arrow.up.right" : "arrow.down.right")
-                             .font(.title2)
-                             .bold()
-                             .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
-                     }
-                     
-                     Spacer()
-                     
-                     HStack(alignment: .center, spacing: 16) {
-                         // Chart
-                         Chart {
-                             ForEach(Array(chartData.enumerated()), id: \.offset) { index, data in
-                                 LineMark(
-                                     x: .value("Date", index),
-                                     y: .value("Volume", data.volume)
-                                 )
-                                 .foregroundStyle(
-                                     LinearGradient(
-                                         colors: [
-                                             isGrowing ? DesignSystem.Colors.neonGreen : .red,
-                                             (isGrowing ? DesignSystem.Colors.neonGreen : .red).opacity(0.3)
-                                         ],
-                                         startPoint: .leading,
-                                         endPoint: .trailing
-                                     )
-                                 )
-                                 .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
-                                 .interpolationMethod(.catmullRom)
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .tint(DesignSystem.Colors.neonGreen)
+                        Spacer()
+                    }
+                }
+                .frame(height: 150)
+            } else if !chartData.isEmpty {
+                Button(action: { showingDetail = true }) {
+                    PremiumBentoCard {
+                        VStack(alignment: .leading, spacing: 12) {
+                             // Header
+                             HStack {
+                                 Image(systemName: "chart.line.uptrend.xyaxis")
+                                     .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
+                                 Text("Показатель роста")
+                                     .font(.headline)
+                                     .foregroundStyle(.white)
+                                 
+                                 Spacer()
+                                 
+                                 // Arrow Indicator
+                                 Image(systemName: isGrowing ? "arrow.up.right" : "arrow.down.right")
+                                     .font(.title2)
+                                     .bold()
+                                     .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
                              }
-                         }
-                         .chartXAxis(.hidden)
-                         .chartYAxis(.hidden)
-                         .frame(height: 50)
-                         
-                         // Description
-                         VStack(alignment: .trailing) {
-                             Text(isGrowing ? "Рост\nпоказателей" : "Снижение\nпоказателей")
-                                 .font(.caption)
-                                 .fontWeight(.bold)
-                                 .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
-                                 .multilineTextAlignment(.trailing)
                              
-                             Text("\(filteredSessions.count) тренировок")
-                                 .font(.caption2)
-                                 .foregroundStyle(.gray)
+                             Spacer()
+                             
+                             HStack(alignment: .center, spacing: 16) {
+                                 // Chart
+                                 Chart {
+                                     ForEach(Array(chartData.enumerated()), id: \.offset) { index, data in
+                                         LineMark(
+                                             x: .value("Date", index),
+                                             y: .value("Volume", data.volume)
+                                         )
+                                         .foregroundStyle(
+                                             LinearGradient(
+                                                 colors: [
+                                                     isGrowing ? DesignSystem.Colors.neonGreen : .red,
+                                                     (isGrowing ? DesignSystem.Colors.neonGreen : .red).opacity(0.3)
+                                                 ],
+                                                 startPoint: .leading,
+                                                 endPoint: .trailing
+                                             )
+                                         )
+                                         .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                                         .interpolationMethod(.catmullRom)
+                                     }
+                                 }
+                                 .chartXAxis(.hidden)
+                                 .chartYAxis(.hidden)
+                                 .frame(height: 50)
+                                 
+                                 // Description
+                                 VStack(alignment: .trailing) {
+                                     Text(isGrowing ? "Рост\nпоказателей" : "Снижение\nпоказателей")
+                                         .font(.caption)
+                                         .fontWeight(.bold)
+                                         .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
+                                         .multilineTextAlignment(.trailing)
+                                     
+                                     Text("\(chartData.count) тренировок")
+                                         .font(.caption2)
+                                         .foregroundStyle(.gray)
+                                 }
+                                 .frame(width: 100, alignment: .trailing)
+                             }
+                             
+                             Spacer()
                          }
-                         .frame(width: 100, alignment: .trailing)
-                     }
-                     
-                     Spacer()
-                 }
-            }
-            .frame(height: 150)
-            }
-            .buttonStyle(.plain)
-            .sheet(isPresented: $showingDetail) {
-                ProgressDetailView()
+                    }
+                    .frame(height: 150)
+                    .contentShape(Rectangle()) // Ensure tap target
+                }
+                .buttonStyle(.plain)
+                .sheet(isPresented: $showingDetail) {
+                    ProgressDetailView()
+                }
             }
         }
+        .task(id: sessions.count) {
+             await calculateChartData()
+        }
+    }
+    
+    private func calculateChartData() async {
+        // Run on background thread to avoid blocking UI with set loading/volume calc
+        // We implement an improved MainActor version that doesn't block "deadly".
+        let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
+        
+        // Filter first
+        let relevantSessions = sessions.filter { $0.isCompleted && $0.date >= oneMonthAgo }.sorted { $0.date < $1.date }
+        
+        var results: [(Date, Double)] = []
+        
+        // Process in chunks to allow UI to breathe
+        for session in relevantSessions {
+            // Access properties (might trigger fetch)
+            let vol = session.volume
+            results.append((session.date, vol))
+            
+            // Yield every few items to let Main RunLoop process events (animations, scrolling)
+            if results.count % 5 == 0 {
+                await Task.yield() 
+            }
+        }
+        
+        self.chartData = results
+        self.isLoading = false
     }
 }
 
