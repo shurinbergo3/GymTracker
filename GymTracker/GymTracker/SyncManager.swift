@@ -5,6 +5,29 @@ import FirebaseAuth
 import FirebaseFirestore
 import Combine
 
+// MARK: - DTO Structs (outside @MainActor for Codable compatibility)
+
+struct WeightRecordDTO: Codable, Sendable {
+    let weight: Double
+    let date: Date
+}
+
+struct BodyMeasurementDTO: Codable, Sendable {
+    let date: Date
+    let type: String // MeasurementType raw value
+    let value: Double
+}
+
+struct UserProfileData: Codable, Sendable {
+    let height: Double
+    let weight: Double
+    let age: Int
+    let activeProgramName: String?
+    let lastUpdated: Date
+    let weightHistory: [WeightRecordDTO]?
+    let bodyMeasurements: [BodyMeasurementDTO]?
+}
+
 /// Manages automatic Firestore synchronization with offline support
 @MainActor
 class SyncManager: ObservableObject {
@@ -143,27 +166,6 @@ class SyncManager: ObservableObject {
     }
     
     // MARK: - User Profile Sync
-    
-    struct WeightRecordDTO: Codable {
-        let weight: Double
-        let date: Date
-    }
-    
-    struct BodyMeasurementDTO: Codable {
-        let date: Date
-        let type: String // MeasurementType raw value
-        let value: Double
-    }
-    
-    struct UserProfileData: Codable {
-        let height: Double
-        let weight: Double
-        let age: Int
-        let activeProgramName: String?
-        let lastUpdated: Date
-        let weightHistory: [WeightRecordDTO]?
-        let bodyMeasurements: [BodyMeasurementDTO]?
-    }
     
     /// Sync User Profile and Active Program to Firestore
     func syncUserProfile(profile: UserProfile, activeProgram: Program?, context: ModelContext) async {
@@ -669,20 +671,20 @@ class SyncManager: ObservableObject {
             if let profile = try bgContext.fetch(FetchDescriptor<UserProfile>()).last {
                 // Reuse existing logic manually to avoid actor hopping
                 // Weights
-                let weightHistoryDTOs = profile.weightHistory.map { SyncManager.WeightRecordDTO(weight: $0.weight, date: $0.date) }
+                let weightHistoryDTOs = profile.weightHistory.map { WeightRecordDTO(weight: $0.weight, date: $0.date) }
                 
                 // Measurements
                 let measurementDescriptor = FetchDescriptor<BodyMeasurement>()
                 let allMeasurements = try bgContext.fetch(measurementDescriptor)
                 let bodyMeasurementsDTOs = allMeasurements.map {
-                    SyncManager.BodyMeasurementDTO(date: $0.date, type: $0.type.rawValue, value: $0.value)
+                    BodyMeasurementDTO(date: $0.date, type: $0.type.rawValue, value: $0.value)
                 }
                 
                 // Active Program
                 let programDescriptor = FetchDescriptor<Program>(predicate: #Predicate { $0.isActive })
                 let activeProgramName = try bgContext.fetch(programDescriptor).first?.name
                 
-                let profileData = SyncManager.UserProfileData(
+                let profileData = UserProfileData(
                     height: profile.height,
                     weight: profile.currentWeight,
                     age: profile.age,

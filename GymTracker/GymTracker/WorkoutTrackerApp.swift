@@ -18,9 +18,6 @@ struct WorkoutTrackerApp: App {
     
     init() {
         FirebaseApp.configure()
-        
-        // Provide ModelContainer to AuthManager for auto-sync
-        authManager.setModelContainer(sharedModelContainer)
     }
     
     var sharedModelContainer: ModelContainer = {
@@ -102,6 +99,8 @@ struct WorkoutTrackerApp: App {
             .preferredColorScheme(.dark)
             .modelContainer(sharedModelContainer)
             .onAppear {
+                // Set ModelContainer for AuthManager (must be done here, not in init)
+                authManager.setModelContainer(sharedModelContainer)
                 checkAuthStatus()
             }
             .onChange(of: authManager.isLoggedIn) { _, isLoggedIn in

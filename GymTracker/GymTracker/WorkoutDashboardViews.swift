@@ -176,6 +176,7 @@ struct TodayWorkoutCard: View {
             }
             .disabled(workoutManager.selectedDay == nil)
             .opacity(workoutManager.selectedDay == nil ? 0.6 : 1)
+            .accessibilityIdentifier("btn_start_workout")
         }
     }
     

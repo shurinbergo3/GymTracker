@@ -21,6 +21,7 @@ struct ContentView: View {
                     Label("Тренировка", systemImage: "figure.strengthtraining.traditional")
                 }
                 .tag(0)
+                .accessibilityIdentifier("tab_workout")
             
             // Tab 2: Программа
             ProgramView()
@@ -28,6 +29,7 @@ struct ContentView: View {
                     Label("Программа", systemImage: "list.bullet.clipboard.fill")
                 }
                 .tag(1)
+                .accessibilityIdentifier("tab_program")
             
             // Tab 3: Справочник
             ReferenceView()
@@ -35,6 +37,7 @@ struct ContentView: View {
                     Label("Справочник", systemImage: "book.fill")
                 }
                 .tag(2)
+                .accessibilityIdentifier("tab_reference")
             
             // Tab 4: Параметры
             MeasurementsView(selectedTab: $selectedTab)
@@ -42,6 +45,7 @@ struct ContentView: View {
                     Label("Статистика", systemImage: "chart.line.uptrend.xyaxis")
                 }
                 .tag(3)
+                .accessibilityIdentifier("tab_stats")
             
             // Tab 5: AI Тренер
             AITrainerView()
@@ -49,8 +53,10 @@ struct ContentView: View {
                     Label("AI Тренер", systemImage: "brain.head.profile")
                 }
                 .tag(4)
+                .accessibilityIdentifier("tab_ai")
         }
         .tint(DesignSystem.Colors.accent)
+        .accessibilityIdentifier("main_tab_bar")
     }
 }
 
