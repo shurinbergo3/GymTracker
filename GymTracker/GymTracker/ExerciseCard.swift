@@ -44,12 +44,23 @@ struct ExerciseCard: View {
     }
     
     private var previousSets: [WorkoutSet] {
-        let pastSessions = allCompletedSessions
-            .filter { $0.id != session?.id }
-            .sorted { $0.date > $1.date }
+        // Find all past sessions that contain THIS SPECIFIC EXERCISE
+        // (regardless of program or workout day)
+        let sessionsWithExercise = allCompletedSessions
+            .filter { session in
+                // Exclude current session
+                guard session.id != self.session?.id else { return false }
+                
+                // Only include sessions that have this exercise
+                return session.sets.contains { $0.exerciseName == exercise.name }
+            }
+            .sorted { $0.date > $1.date } // Most recent first
         
-        guard let lastSession = pastSessions.first else { return [] }
-        return lastSession.sets.filter { $0.exerciseName == exercise.name }
+        // Get sets from the most recent session that had this exercise
+        guard let lastSessionWithExercise = sessionsWithExercise.first else { return [] }
+        return lastSessionWithExercise.sets
+            .filter { $0.exerciseName == exercise.name }
+            .sorted { $0.setNumber < $1.setNumber }
     }
     
     private var completedSets: [WorkoutSet] {

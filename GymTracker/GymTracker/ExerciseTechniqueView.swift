@@ -120,32 +120,32 @@ struct ExerciseTechniqueDetailView: View {
                         Spacer(minLength: 20)
                         
                         // 3. YouTube Button
-                        if let youtubeUrl = youtubeSearchURL(for: exerciseName) {
-                            Link(destination: youtubeUrl) {
-                                HStack {
-                                    Image(systemName: "play.circle.fill")
-                                        .font(.title2)
-                                    Text("Смотреть на YouTube")
-                                        .fontWeight(.bold)
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .font(.footnote)
-                                }
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [Color.red, Color(red: 0.8, green: 0, blue: 0)]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .cornerRadius(16)
-                                .shadow(color: Color.red.opacity(0.3), radius: 10, x: 0, y: 5)
+                        Button(action: {
+                            openVideo()
+                        }) {
+                            HStack {
+                                Image(systemName: "play.circle.fill")
+                                    .font(.title2)
+                                Text("Смотреть на YouTube")
+                                    .fontWeight(.bold)
+                                Spacer()
+                                Image(systemName: "arrow.up.right")
+                                    .font(.footnote)
                             }
-                            .padding(.horizontal, 16) // Reduced from 20
-                            .padding(.bottom, 20)
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.red, Color(red: 0.8, green: 0, blue: 0)]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .cornerRadius(16)
+                            .shadow(color: Color.red.opacity(0.3), radius: 10, x: 0, y: 5)
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 20)
                     }
                     .padding(.top, 20)
                 }
@@ -160,10 +160,48 @@ struct ExerciseTechniqueDetailView: View {
         }
     }
     
-    private func youtubeSearchURL(for exerciseName: String) -> URL? {
-        let searchQuery = "\(exerciseName) техника выполнения"
-        let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        return URL(string: "https://www.youtube.com/results?search_query=\(encodedQuery)")
+    private func openVideo() {
+        // 1. Determine the base URL string
+        var urlString: String
+        // Prefer stored URL if valid
+        if let stored = exercise?.videoUrl, !stored.isEmpty {
+            urlString = stored
+        } else {
+            // Fallback to search
+            let searchQuery = "\(exerciseName) техника выполнения"
+            if let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+                urlString = "https://www.youtube.com/results?search_query=\(encodedQuery)"
+            } else {
+                return
+            }
+        }
+        
+        // 2. Try to open in YouTube App (youtube:// scheme)
+        // Standard YouTube links: https://www.youtube.com/watch?v=... -> youtube://watch?v=...
+        // Search links: https://www.youtube.com/results?... -> youtube://results?...
+        // Short links: https://youtu.be/ID -> need expansion, but keeping simple for now.
+        // Simple heuristic: replace scheme.
+        
+        let appUrlString = urlString
+            .replacingOccurrences(of: "https://", with: "youtube://")
+            .replacingOccurrences(of: "http://", with: "youtube://")
+            
+        if let appUrl = URL(string: appUrlString), UIApplication.shared.canOpenURL(appUrl) {
+            UIApplication.shared.open(appUrl)
+            return
+        }
+        
+        // 3. Fallback to Browser (Prioritize Mobile)
+        // Ensure we force mobile site if it's a generic www link, though modern iOS usually handles this well.
+        // But for explicit mobile preference:
+        var webUrlString = urlString
+        if webUrlString.contains("www.youtube.com") {
+             webUrlString = webUrlString.replacingOccurrences(of: "www.youtube.com", with: "m.youtube.com")
+        }
+        
+        if let webUrl = URL(string: webUrlString) {
+            UIApplication.shared.open(webUrl)
+        }
     }
 }
 

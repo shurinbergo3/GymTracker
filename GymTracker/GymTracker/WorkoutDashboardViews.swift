@@ -625,19 +625,6 @@ struct DashboardView: View {
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 
-                    // Full Width Chart
-                    WorkoutProgressChart(sessions: history)
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                    
-                    // Last Workout Preview (moved to main column)
-                    if let lastSession = recentHistory.first {
-                        NavigationLink(destination: WorkoutHistoryDetailView(session: lastSession)) {
-                            LastWorkoutBento(session: lastSession)
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                    }
-                
                 // MARK: - Today's Plan (Action Hero Card)
                 TodayWorkoutCard(
                     workoutManager: workoutManager,
@@ -646,9 +633,20 @@ struct DashboardView: View {
                 )
                 .padding(.horizontal, DesignSystem.Spacing.lg)
                 
-
+                // Full Width Chart (Show only if data exists)
+                if !history.isEmpty {
+                    WorkoutProgressChart(sessions: history)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                }
                 
-
+                // Last Workout Preview (moved to main column)
+                if let lastSession = recentHistory.first {
+                    NavigationLink(destination: WorkoutHistoryDetailView(session: lastSession)) {
+                        LastWorkoutBento(session: lastSession)
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                }
                 
                 Spacer().frame(height: 100)
             }

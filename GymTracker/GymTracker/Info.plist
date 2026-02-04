@@ -44,5 +44,13 @@
     <string>Body Forge использует данные о тренировках для отслеживания калорий и пульса.</string>
     <key>NSHealthUpdateUsageDescription</key>
     <string>Body Forge сохраняет выполненные тренировки в Apple Health для заполнения колец активности.</string>
+
+    <!-- App Capabilities -->
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>youtube</string>
+        <string>instagram</string>
+        <string>tg</string>
+    </array>
 </dict>
 </plist>

@@ -60,7 +60,10 @@ class LiveActivityManager: ActivityProvider {
     func update(heartRate: Int, calories: Int) {
         guard let activity = activity, let startDate = workoutStartDate else { return }
         
-        if shouldUpdate(heartRate: heartRate) {
+        // Always update if calories changed significantly OR if it's first update
+        let caloriesChanged = abs(calories - lastCalories) > 5
+        
+        if shouldUpdate(heartRate: heartRate) || caloriesChanged {
             performUpdate(activity: activity, startDate: startDate, heartRate: heartRate, calories: calories)
         }
     }

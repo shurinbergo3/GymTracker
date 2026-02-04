@@ -417,12 +417,12 @@ struct ExerciseLibrary {
             videoUrl: "https://www.youtube.com/results?search_query=pushups+technique"
         ),
         LibraryExercise(
-            name: "Пек-Дек",
+            name: "Бабочка (грудь)",
             category: .chest,
             muscleGroup: .middleChest,
             defaultType: .strength,
             technique: "Исключает трицепс. Важно держать локти на уровне плеч для безопасности сустава. Внутренняя часть груди",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9F%D0%B5%D0%BA-%D0%94%D0%B5%D0%BA%20technique"
+            videoUrl: "https://www.youtube.com/results?search_query=%D0%91%D0%B0%D0%B1%D0%BE%D1%87%D0%BA%D0%B0%20%D0%B3%D1%80%D1%83%D0%B4%D1%8C%20technique"
         ),
         LibraryExercise(
             name: "Разводка гантелей",
