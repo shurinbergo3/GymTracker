@@ -62,9 +62,17 @@ class FirestoreManager {
         
         let collectionPath = "users/\(userId)/workouts"
         
+        #if DEBUG
+        print("📥 Fetching workouts from Firestore...")
+        #endif
+        
         let snapshot = try await db.collection(collectionPath)
             .order(by: "date", descending: true)
             .getDocuments()
+        
+        #if DEBUG
+        print("📥 Found \(snapshot.documents.count) workout documents in Firestore")
+        #endif
         
         var workouts: [Workout] = []
         var failedCount = 0
@@ -88,6 +96,7 @@ class FirestoreManager {
         if failedCount > 0 {
             print("⚠️ Failed to parse \(failedCount)/\(snapshot.documents.count) workout documents")
         }
+        print("✅ Successfully parsed \(workouts.count) workouts")
         #endif
         
         return workouts
@@ -233,11 +242,28 @@ class FirestoreManager {
         // Delete workouts subcollection first
         let workoutsSnapshot = try await userDocRef.collection("workouts").getDocuments()
         for document in workoutsSnapshot.documents {
-            try await document.reference.delete()
+            let docRef = document.reference
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                docRef.delete { error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            }
         }
         
         // Delete user document
-        try await userDocRef.delete()
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            userDocRef.delete { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
         
         #if DEBUG
         print("✅ Deleted Firestore data for user: \(uid)")
@@ -253,10 +279,22 @@ class FirestoreManager {
         let collectionPath = "users/\(userId)/programs"
         
         // Use program name (sanitized) or UUID as document ID
-        // Assuming name is unique enough for now, or use ID if available
-        let docId = program.name 
+        // Use UUID from DTO (preferred) or sanitized name as fallback
+        let docId = program.id ?? program.name.replacingOccurrences(of: "/", with: "_") 
         
-        try await db.collection(collectionPath).document(docId).setData(from: program)
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            do {
+                try db.collection(collectionPath).document(docId).setData(from: program) { error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
         
         #if DEBUG
         print("✅ Saved program '\(program.name)' to Firestore")
@@ -264,14 +302,67 @@ class FirestoreManager {
     }
     
     func fetchPrograms() async throws -> [ProgramDTO] {
-        guard let userId = Auth.auth().currentUser?.uid else { return [] }
+        guard let userId = Auth.auth().currentUser?.uid else { 
+            #if DEBUG
+            print("⚠️ Cannot fetch programs: User not logged in")
+            #endif
+            return [] 
+        }
         
         let collectionPath = "users/\(userId)/programs"
         
+        #if DEBUG
+        print("📥 Fetching programs from Firestore...")
+        #endif
+        
         let snapshot = try await db.collection(collectionPath).getDocuments()
         
-        return snapshot.documents.compactMap { document in
-            try? document.data(as: ProgramDTO.self)
+        #if DEBUG
+        print("📥 Found \(snapshot.documents.count) program documents in Firestore")
+        #endif
+        
+        let programs = snapshot.documents.compactMap { document -> ProgramDTO? in
+            do {
+                return try document.data(as: ProgramDTO.self)
+            } catch {
+                #if DEBUG
+                print("⚠️ Failed to parse program document: \(error)")
+                #endif
+                return nil
+            }
         }
+        
+        #if DEBUG
+        print("✅ Successfully parsed \(programs.count) programs")
+        #endif
+        
+        return programs
+    }
+    
+    func deleteProgram(id: String) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "FirestoreManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+        }
+        
+        let collectionPath = "users/\(userId)/programs"
+        
+        // We need to handle both cases: manual ID logic or Firestore ID
+        // Since we pass an ID, we assume it's the document ID.
+        // However, if the legacy saved strategy was `program.name`, we might need to be careful.
+        // But for deletion, we should rely on what SyncManager passes.
+        
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            db.collection(collectionPath).document(id).delete { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+        
+        #if DEBUG
+        print("✅ Deleted program '\(id)' from Firestore")
+        #endif
     }
 }

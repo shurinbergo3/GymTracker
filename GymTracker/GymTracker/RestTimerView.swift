@@ -170,6 +170,11 @@ struct RestTimerView: View {
     }
     
     private func startTimer() {
+        // If timer finished (0), restart it from default duration
+        if remainingTime <= 0 {
+            remainingTime = defaultDuration
+        }
+
         // Invalidate existing timer just in case
         timer?.invalidate()
         

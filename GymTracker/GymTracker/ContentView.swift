@@ -47,13 +47,7 @@ struct ContentView: View {
                 .tag(3)
                 .accessibilityIdentifier("tab_stats")
             
-            // Tab 5: AI Тренер
-            AITrainerView()
-                .tabItem {
-                    Label("AI Тренер", systemImage: "brain.head.profile")
-                }
-                .tag(4)
-                .accessibilityIdentifier("tab_ai")
+
         }
         .tint(DesignSystem.Colors.accent)
         .accessibilityIdentifier("main_tab_bar")

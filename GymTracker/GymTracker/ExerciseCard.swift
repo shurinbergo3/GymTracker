@@ -150,10 +150,12 @@ struct ExerciseCard: View {
                             // If turning off, hide any active timer immediately
                             if !isTimerEnabledForExercise {
                                 showRestTimer = false
+                            } else {
+                                showRestTimer = true
                             }
                         } label: {
                             Label(
-                                isTimerEnabledForExercise ? "Таймер Отдыха (ВКЛ)" : "Таймер Отдыха (ВЫКЛ)",
+                                isTimerEnabledForExercise ? "Выключить таймер" : "Включить таймер",
                                 systemImage: isTimerEnabledForExercise ? "timer.circle.fill" : "timer.circle"
                             )
                         }
@@ -221,7 +223,7 @@ struct ExerciseCard: View {
                                         Button(role: .destructive) {
                                             deleteSet(set)
                                         } label: {
-                                            Label("dictionary_delete", systemImage: "trash")
+                                            Label("Удалить", systemImage: "trash")
                                         }
                                     }
                             }
@@ -498,7 +500,13 @@ struct ExerciseCard: View {
             }
             if isActive && weight.isEmpty {
                  if let lastSet = previousSets.last {
-                     weight = String(format: "%.0f", lastSet.weight)
+                     // Smart format: 17.0 -> "17", 17.5 -> "17.5"
+                     let w = lastSet.weight
+                     if w.truncatingRemainder(dividingBy: 1) == 0 {
+                         weight = String(format: "%.0f", w)
+                     } else {
+                         weight = String(format: "%.1f", w) // Supports .5 etc
+                     }
                  }
             }
         }
@@ -656,10 +664,10 @@ struct CompletedSetChip: View {
     private var setDetails: String {
         switch workoutType {
         case .strength:
-            return "\(Int(set.weight))кг × \(set.reps)"
+            return "\(formattedWeight)кг × \(set.reps)"
         case .repsOnly:
             if set.weight > 0 {
-                return "\(Int(set.weight))кг × \(set.reps)"
+                return "\(formattedWeight)кг × \(set.reps)"
             } else {
                 return "\(set.reps) повт."
             }
@@ -671,6 +679,16 @@ struct CompletedSetChip: View {
             } else {
                 return "Готово"
             }
+            }
+        }
+
+    
+    private var formattedWeight: String {
+        let w = set.weight
+        if w.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f", w)
+        } else {
+            return String(format: "%.1f", w)
         }
     }
 }

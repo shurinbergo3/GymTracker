@@ -328,24 +328,20 @@ struct WorkoutProgressChart: View {
     
     private func calculateChartData() async {
         // Run on background thread to avoid blocking UI with set loading/volume calc
-        // We implement an improved MainActor version that doesn't block "deadly".
-        let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
         
-        // Filter first
-        let relevantSessions = sessions.filter { $0.isCompleted && $0.date >= oneMonthAgo }.sorted { $0.date < $1.date }
+        // RELAXED FILTER: Take last 20 sessions regardless of date (and don't filter strict completion as we might be in the completion screen)
+        // This ensures the graph shows data even if the user hasn't worked out in a while OR if it's the current just-finished session
+        let relevantSessions = sessions
+            // .filter { $0.isCompleted } // <-- REMOVED to show current session
+            .sorted { $0.date < $1.date }
+            .suffix(20) // Take last 20
         
         var results: [(Date, Double)] = []
         
-        // Process in chunks to allow UI to breathe
+        // Process directly (20 items is fast enough for MainActor or simple async)
         for session in relevantSessions {
-            // Access properties (might trigger fetch)
             let vol = session.volume
             results.append((session.date, vol))
-            
-            // Yield every few items to let Main RunLoop process events (animations, scrolling)
-            if results.count % 5 == 0 {
-                await Task.yield() 
-            }
         }
         
         self.chartData = results

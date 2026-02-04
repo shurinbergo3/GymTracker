@@ -88,6 +88,15 @@ struct ProgramDetailView: View {
     }
     
     private func deleteProgram() {
+        // Trigger Cloud Sync (Delete)
+        // We must do this BEFORE deleting from context, or at least capture the data
+        // But SyncManager needs the object properties.
+        // It's safe to start the Task with the object, even if context deletes it locally.
+        let programToDelete = program
+        Task {
+            await SyncManager.shared.syncProgramDeletion(program: programToDelete)
+        }
+        
         modelContext.delete(program)
         try? modelContext.save()
         dismiss()

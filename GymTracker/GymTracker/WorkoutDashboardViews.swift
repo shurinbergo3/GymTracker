@@ -648,9 +648,7 @@ struct DashboardView: View {
                 
 
                 
-                // AI Coach / Insights (Premium Glass)
-                AICoachPlaceholderView()
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
+
                 
                 Spacer().frame(height: 100)
             }
@@ -823,71 +821,6 @@ struct SparklineGraph: Shape {
         }
         
         return path
-    }
-}
-
-// MARK: - AI Coach Placeholder
-struct AICoachPlaceholderView: View {
-    var body: some View {
-        ZStack {
-            // Background
-            RoundedRectangle(cornerRadius: 20)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.black, Color(red: 0.1, green: 0, blue: 0.2)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.purple.opacity(0.5), lineWidth: 1)
-                )
-                .shadow(color: Color.purple.opacity(0.2), radius: 10)
-            
-            // Content
-            HStack(spacing: 20) {
-                Image(systemName: "brain.head.profile")
-                    .font(.system(size: 40))
-                    .foregroundStyle(
-                        LinearGradient(colors: [.purple, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("AI Тренер")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                    
-                    Text("Персональные советы и анализ прогресса")
-                        .font(.caption)
-                        .foregroundStyle(.gray)
-                }
-                
-                Spacer()
-            }
-            .padding(24)
-            .opacity(0.3) // Dimmed
-            
-            // Overlay "In Development"
-            ZStack {
-                Color.black.opacity(0.6)
-                    .cornerRadius(20)
-                
-                VStack(spacing: 8) {
-                    Image(systemName: "lock.fill")
-                        .font(.title)
-                        .foregroundStyle(.gray)
-                    
-                    Text("В РАЗРАБОТКЕ")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white.opacity(0.8))
-                        .tracking(2)
-                }
-            }
-        }
-        .frame(height: 120)
     }
 }
 
@@ -1115,8 +1048,8 @@ struct SummaryOverlay: View {
                         // MARK: - Bento Grid Stats
                         VStack(spacing: DesignSystem.Spacing.lg) {
                             
-                            // 1. Activity Rings (Top) - Standardized
-                            ActivityRingsCard()
+                            // 1. Stats Summary (Top)
+                            WorkoutSummaryStats(session: currentSession)
                             // Removed glassModifier, check inside component or earlier fix
                             
                             // 2. Records & Progression
@@ -1584,5 +1517,94 @@ struct StaggeredAppearModifier: ViewModifier {
 extension View {
     func staggeredAppear(index: Int) -> some View {
         modifier(StaggeredAppearModifier(index: index))
+    }
+}
+
+// MARK: - Workout Summary Stats
+struct WorkoutSummaryStats: View {
+    let session: WorkoutSession
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // 1. Duration (Blue)
+            SummaryStatBox(
+                title: "ВРЕМЯ",
+                value: formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0),
+                unit: nil,
+                icon: "timer",
+                color: .blue
+            )
+            
+            // 2. Calories (Orange)
+            SummaryStatBox(
+                title: "ККАЛ",
+                value: "\(session.calories ?? 0)",
+                unit: "ккал",
+                icon: "flame.fill",
+                color: .orange
+            )
+            
+            // 3. Heart Rate (Red)
+            SummaryStatBox(
+                title: "ПУЛЬС",
+                value: "\(session.averageHeartRate ?? 0)",
+                unit: "уд/мин",
+                icon: "heart.fill",
+                color: .red
+            )
+        }
+        .frame(height: 100)
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = .abbreviated
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "ru_RU")
+        formatter.calendar = calendar
+        return formatter.string(from: duration) ?? "0 мин"
+    }
+}
+
+struct SummaryStatBox: View {
+    let title: String
+    let value: String
+    let unit: String?
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        BentoCard {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Image(systemName: icon)
+                        .foregroundColor(color)
+                        .font(.caption)
+                    
+                    Text(title)
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(value)
+                        .font(DesignSystem.Typography.title3())
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(1)
+                    
+                    if let unit = unit {
+                        Text(unit)
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 }

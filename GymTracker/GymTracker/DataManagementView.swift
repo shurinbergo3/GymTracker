@@ -16,16 +16,9 @@ struct DataManagementView: View {
     @State private var isRestoring = false
     @State private var showingRestoreAlert = false
     @State private var restoreMessage = ""
+    @State private var restoreProgress = ""
     
-    // Profile restore states
-    @State private var isRestoringProfile = false
-    @State private var showingProfileRestoreAlert = false
-    @State private var profileRestoreMessage = ""
-    
-    // Deduplication states
-    @State private var isDeduplicating = false
-    @State private var showingDedupAlert = false
-    @State private var dedupMessage = ""
+
     
     // Delete all workouts states
     @State private var isDeletingWorkouts = false
@@ -42,87 +35,45 @@ struct DataManagementView: View {
     var body: some View {
         Form {
             Section {
-                // Sync from cloud
+                // Sync from cloud (Full Restore)
                 Button {
                     isRestoring = true
-                    Task {
-                        let result = await SyncManager.shared.restoreWorkoutsFromFirestore(container: modelContext.container)
+                    restoreProgress = "Загрузка..."
+                    Task.detached(priority: .userInitiated) {
+                        // Run in detached task to avoid blocking
+                        let message = await SyncManager.shared.restoreAllData(container: modelContext.container)
+                        
                         await MainActor.run {
                             isRestoring = false
-                            switch result {
-                            case .success(let count):
-                                if count == 0 {
-                                    restoreMessage = "В облаке нет тренировок для загрузки или все уже синхронизировано"
-                                } else {
-                                    restoreMessage = "Загружено \(count) тренировок из облака"
-                                }
-                            case .failure(let error):
-                                restoreMessage = error.localizedDescription
-                            }
+                            restoreProgress = ""
+                            restoreMessage = message
                             showingRestoreAlert = true
                         }
                     }
                 } label: {
-                    HStack {
-                        if isRestoring {
-                            ProgressView()
-                                .scaleEffect(0.7)
-                        } else {
-                            Image(systemName: "icloud.and.arrow.down")
-                                .foregroundStyle(DesignSystem.Colors.accent)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            if isRestoring {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                            } else {
+                                Image(systemName: "icloud.and.arrow.down")
+                                    .foregroundStyle(DesignSystem.Colors.accent)
+                            }
+                            Text("Полная синхронизация (Всё)")
+                                .foregroundStyle(isRestoring ? DesignSystem.Colors.secondaryText : DesignSystem.Colors.primaryText)
                         }
-                        Text("Синхронизировать из облака")
-                            .foregroundStyle(isRestoring ? DesignSystem.Colors.secondaryText : DesignSystem.Colors.primaryText)
+                        
+                        if isRestoring && !restoreProgress.isEmpty {
+                            Text(restoreProgress)
+                                .font(.caption2)
+                                .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        }
                     }
                 }
                 .disabled(isRestoring)
                 
-                // Load profile
-                Button {
-                    isRestoringProfile = true
-                    Task {
-                        await SyncManager.shared.restoreUserProfileFromFirestore(container: modelContext.container)
-                        await MainActor.run {
-                            isRestoringProfile = false
-                            profileRestoreMessage = "Профиль успешно восстановлен из облака"
-                            showingProfileRestoreAlert = true
-                        }
-                    }
-                } label: {
-                    HStack {
-                        if isRestoringProfile {
-                            ProgressView()
-                                .scaleEffect(0.7)
-                        } else {
-                            Image(systemName: "person.crop.circle.badge.clock")
-                                .foregroundStyle(DesignSystem.Colors.accent)
-                        }
-                        Text("Загрузить профиль из базы")
-                            .foregroundStyle(isRestoringProfile ? DesignSystem.Colors.secondaryText : DesignSystem.Colors.primaryText)
-                    }
-                }
-                .disabled(isRestoringProfile)
-                
-                // Remove duplicates
-                Button {
-                    isDeduplicating = true
-                    Task {
-                        await performDeduplication()
-                    }
-                } label: {
-                    HStack {
-                        if isDeduplicating {
-                            ProgressView()
-                                .scaleEffect(0.7)
-                        } else {
-                            Image(systemName: "trash.slash")
-                                .foregroundStyle(.yellow)
-                        }
-                        Text("Удалить дубликаты из облака")
-                            .foregroundStyle(isDeduplicating ? DesignSystem.Colors.secondaryText : DesignSystem.Colors.primaryText)
-                    }
-                }
-                .disabled(isDeduplicating)
+
                 
                 // Force Upload (Local -> Cloud)
                 Button {
@@ -159,7 +110,7 @@ struct DataManagementView: View {
                 .disabled(isDeletingWorkouts)
                 
             } footer: {
-                Text("🧹 'Удалить дубликаты' чистит копии в облаке.\n⬆️ 'Выгрузить в облако' ЗАМЕНИТ всё в облаке вашими текущими локальными тренировками.\n⚠️ Красная кнопка удалит вообще ВСЁ.")
+                Text("⬆️ 'Выгрузить в облако' ЗАМЕНИТ всё в облаке вашими текущими локальными тренировками.\n⚠️ Красная кнопка удалит вообще ВСЁ.")
                     .font(.caption2)
             }
         }
@@ -170,16 +121,7 @@ struct DataManagementView: View {
         } message: {
             Text(restoreMessage)
         }
-        .alert("Профиль восстановлен", isPresented: $showingProfileRestoreAlert) {
-            Button("ok_button", role: .cancel) { }
-        } message: {
-            Text(profileRestoreMessage)
-        }
-        .alert("Очистка завершена", isPresented: $showingDedupAlert) {
-            Button("ok_button", role: .cancel) { }
-        } message: {
-            Text(dedupMessage)
-        }
+
         .alert("Выгрузить в облако?", isPresented: $showingUploadConfirm) {
             Button("Отмена", role: .cancel) { }
             Button("Заменить облако", role: .destructive) {
@@ -256,30 +198,7 @@ struct DataManagementView: View {
         }
     }
     
-    private func performDeduplication() async {
-        do {
-            // First remove duplicates from Firestore
-            let firestoreResult = try await FirestoreManager.shared.removeDuplicateWorkoutsFromFirestore()
-            
-            // Then remove local duplicates
-            await SyncManager.shared.removeDuplicateWorkouts(container: modelContext.container)
-            
-            await MainActor.run {
-                isDeduplicating = false
-                dedupMessage = """
-                Firestore: \(firestoreResult.removed) дубликатов удалено (\(firestoreResult.kept) уникальных сохранено)
-                Локальная база: очищена
-                """
-                showingDedupAlert = true
-            }
-        } catch {
-            await MainActor.run {
-                isDeduplicating = false
-                dedupMessage = "Ошибка: \(error.localizedDescription)"
-                showingDedupAlert = true
-            }
-        }
-    }
+
 }
 
 #Preview {

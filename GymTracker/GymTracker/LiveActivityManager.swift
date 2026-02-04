@@ -100,17 +100,15 @@ class LiveActivityManager: ActivityProvider {
         
         // 2. End activity with proper dismissal
         Task {
-            // First, update to final state
-            await currentActivity.update(.init(state: finalState, staleDate: nil))
+            // Updated state isn't strictly necessary for immediate dismissal but good practice 
+            // await currentActivity.update(.init(state: finalState, staleDate: nil))
             
-            // Small delay to ensure state is updated before ending
-            try? await Task.sleep(nanoseconds: Constants.dismissalDelay)
-            
-            // Then end with immediate dismissal policy to clear it from lock screen
+            // End with immediate dismissal policy to clear it from lock screen INSTANTLY
+            // No sleep delay - this prevents "zombie" activities if app is killed/suspended quickly
             await currentActivity.end(.init(state: finalState, staleDate: nil), dismissalPolicy: .immediate)
             
             #if DEBUG
-            print("✅ Live Activity ended and dismissed")
+            print("✅ Live Activity ended and dismissed immediately")
             #endif
         }
     }

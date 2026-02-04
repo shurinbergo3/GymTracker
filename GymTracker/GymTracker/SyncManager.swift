@@ -5,28 +5,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import Combine
 
-// MARK: - DTO Structs (outside @MainActor for Codable compatibility)
-
-struct WeightRecordDTO: Codable, Sendable {
-    let weight: Double
-    let date: Date
-}
-
-struct BodyMeasurementDTO: Codable, Sendable {
-    let date: Date
-    let type: String // MeasurementType raw value
-    let value: Double
-}
-
-struct UserProfileData: Codable, Sendable {
-    let height: Double
-    let weight: Double
-    let age: Int
-    let activeProgramName: String?
-    let lastUpdated: Date
-    let weightHistory: [WeightRecordDTO]?
-    let bodyMeasurements: [BodyMeasurementDTO]?
-}
+// MARK: - DTO Structs (Moved to Models/SyncModels.swift)
 
 /// Manages automatic Firestore synchronization with offline support
 @MainActor
@@ -256,7 +235,12 @@ class SyncManager: ObservableObject {
     
     /// Restore User Profile from Firestore (Pull)
     nonisolated func restoreUserProfileFromFirestore(container: ModelContainer) async {
-        guard let profileData = await fetchUserProfile() else { return }
+        guard let profileData = await fetchUserProfile() else { 
+            #if DEBUG
+            print("📭 No profile data found in Firestore")
+            #endif
+            return 
+        }
         
         // Use a background context to avoid blocking the Main Actor
         let context = ModelContext(container)
@@ -283,6 +267,9 @@ class SyncManager: ObservableObject {
             profile.age = profileData.age
             profile.updatedAt = profileData.lastUpdated
             
+            // Yield before heavy operations
+            await Task.yield()
+            
             // Restore weight history
             if let weightHistory = profileData.weightHistory, !weightHistory.isEmpty {
                 // Clear existing weight history
@@ -292,13 +279,21 @@ class SyncManager: ObservableObject {
                 profile.weightHistory.removeAll()
                 
                 // Add restored weight history
-                for weightDTO in weightHistory {
+                for (index, weightDTO) in weightHistory.enumerated() {
                     let record = WeightRecord(weight: weightDTO.weight, date: weightDTO.date)
                     record.userProfile = profile
                     profile.weightHistory.append(record)
                     context.insert(record)
+                    
+                    // Yield every 20 records
+                    if index % 20 == 0 {
+                        await Task.yield()
+                    }
                 }
             }
+            
+            // Yield before measurements
+            await Task.yield()
             
             // Restore body measurements
             if let measurements = profileData.bodyMeasurements, !measurements.isEmpty {
@@ -310,7 +305,7 @@ class SyncManager: ObservableObject {
                 }
                 
                 // Add restored measurements
-                for measurementDTO in measurements {
+                for (index, measurementDTO) in measurements.enumerated() {
                     if let type = MeasurementType(rawValue: measurementDTO.type) {
                         let measurement = BodyMeasurement(
                             date: measurementDTO.date,
@@ -318,6 +313,11 @@ class SyncManager: ObservableObject {
                             value: measurementDTO.value
                         )
                         context.insert(measurement)
+                    }
+                    
+                    // Yield every 10 measurements
+                    if index % 10 == 0 {
+                        await Task.yield()
                     }
                 }
             }
@@ -359,13 +359,18 @@ class SyncManager: ObservableObject {
     }
     
     /// Restore programs from Firestore (Pull)
-    /// This merges cloud programs into local. Use carefully.
+    /// This merges cloud programs into local and updates existing ones.
     nonisolated func restoreProgramsFromFirestore(container: ModelContainer) async {
         guard Auth.auth().currentUser != nil else { return }
         
         do {
             let cloudPrograms = try await FirestoreManager.shared.fetchPrograms()
-            guard !cloudPrograms.isEmpty else { return }
+            guard !cloudPrograms.isEmpty else { 
+                #if DEBUG
+                print("📭 No programs found in Firestore to restore")
+                #endif
+                return 
+            }
             
             // Create a background context
             let context = ModelContext(container)
@@ -376,14 +381,55 @@ class SyncManager: ObservableObject {
             let localPrograms = try context.fetch(descriptor)
             
             var restoredCount = 0
+            var updatedCount = 0
             
-            for cloudProgram in cloudPrograms {
+            for (index, cloudProgram) in cloudPrograms.enumerated() {
                 // Check if exists by name
-                if localPrograms.first(where: { $0.name == cloudProgram.name }) != nil {
-                    // Skip existing to avoid overwriting user's local edits blindly
-                    continue
+                if let existingProgram = localPrograms.first(where: { $0.name == cloudProgram.name }) {
+                    // Update existing program
+                    existingProgram.desc = cloudProgram.desc
+                    existingProgram.startDate = cloudProgram.startDate
+                    existingProgram.isActive = cloudProgram.isActive
+                    existingProgram.displayOrder = cloudProgram.displayOrder
+                    
+                    // Remove old days
+                    for oldDay in existingProgram.days {
+                        context.delete(oldDay)
+                    }
+                    existingProgram.days.removeAll()
+                    
+                    // Add updated days
+                    for dayDto in cloudProgram.days {
+                        let workoutType = WorkoutType(rawValue: dayDto.workoutType) ?? .strength
+                        let day = WorkoutDay(
+                            name: dayDto.name,
+                            orderIndex: dayDto.orderIndex,
+                            workoutType: workoutType,
+                            defaultRestTime: dayDto.defaultRestTime,
+                            restTimerEnabled: dayDto.restTimerEnabled
+                        )
+                        day.program = existingProgram
+                        
+                        // Add exercises
+                        for exDto in dayDto.exercises {
+                            let type = exDto.customWorkoutType != nil ? WorkoutType(rawValue: exDto.customWorkoutType!) : nil
+                            let ex = ExerciseTemplate(
+                                name: exDto.name,
+                                plannedSets: exDto.plannedSets,
+                                orderIndex: exDto.orderIndex,
+                                type: type
+                            )
+                            ex.workoutDay = day
+                            day.exercises.append(ex)
+                        }
+                        
+                        existingProgram.days.append(day)
+                    }
+                    
+                    updatedCount += 1
+                    
                 } else {
-                    // Create new
+                    // Create new program
                     let newProgram = Program(
                         name: cloudProgram.name,
                         desc: cloudProgram.desc,
@@ -423,17 +469,48 @@ class SyncManager: ObservableObject {
                     context.insert(newProgram)
                     restoredCount += 1
                 }
+                
+                // Yield every 3 programs to prevent UI freezing
+                if index % 3 == 0 {
+                    await Task.yield()
+                }
             }
             
-            if restoredCount > 0 {
+            if restoredCount > 0 || updatedCount > 0 {
                 try context.save()
                 #if DEBUG
-                print("✅ SyncManager: Restored \(restoredCount) programs from cloud")
+                print("✅ SyncManager: Restored \(restoredCount) new programs, updated \(updatedCount) existing programs from cloud")
                 #endif
             }
             
         } catch {
             print("❌ SyncManager: Failed to restore programs: \(error)")
+        }
+    }
+    
+    /// Sync program deletion to Firestore
+    func syncProgramDeletion(program: Program) async {
+        guard Auth.auth().currentUser != nil else { return }
+        
+        // We need the document ID logic to match `saveProgram`.
+        // The safest way is to try deleting both the UUID and the name-based ID to be sure.
+        let uuidId = program.id.uuidString
+        let nameId = program.name.replacingOccurrences(of: "/", with: "_")
+        
+        do {
+            // Try deleting by UUID first (new standard)
+            try await FirestoreManager.shared.deleteProgram(id: uuidId)
+            
+            // Also try deleting by Name (legacy fallback) if they differ
+            if uuidId != nameId {
+                try await FirestoreManager.shared.deleteProgram(id: nameId)
+            }
+            
+            #if DEBUG
+            print("✅ SyncManager: Deleted program '\(program.name)' from cloud")
+            #endif
+        } catch {
+            print("⚠️ SyncManager: Failed to sync program deletion: \(error)")
         }
     }
     
@@ -456,7 +533,7 @@ class SyncManager: ObservableObject {
     /// Restore workout history from Firestore to SwiftData (Pull)
     nonisolated func restoreWorkoutsFromFirestore(container: ModelContainer) async -> Result<Int, Error> {
         // Ensure user is logged in
-        guard Auth.auth().currentUser != nil else {
+        guard Auth.auth().currentUser?.uid != nil else {
             #if DEBUG
             print("⚠️ Cannot restore workouts: User not logged in")
             #endif
@@ -511,16 +588,19 @@ class SyncManager: ObservableObject {
                     
                     restoredCount += 1
                     
-                    // Batch save every 100 items - balanced for memory vs UI locking
-                    if restoredCount % 100 == 0 {
+                    // Batch save every 50 items - more frequent saves for better responsiveness
+                    if restoredCount % 50 == 0 {
                         try bgContext.save()
+                        #if DEBUG
+                        print("📥 Progress: \(restoredCount) workouts restored...")
+                        #endif
                         // Yield to allow other tasks
                         await Task.yield()
                     }
                 }
                 
-                // Yield occasionally (every 20 items) to keep other tasks responsive
-                if index % 20 == 0 {
+                // Yield more frequently (every 10 items) to keep UI responsive
+                if index % 10 == 0 {
                    await Task.yield()
                 }
             }
@@ -544,6 +624,67 @@ class SyncManager: ObservableObject {
             #endif
             return .failure(SyncError.message("Ошибка загрузки: \(error.localizedDescription)"))
         }
+    }
+    
+    /// Restore ALL data (Workouts, Profile, Programs) from Firestore
+    /// Use this for the main "Sync" button in UI
+    nonisolated func restoreAllData(container: ModelContainer) async -> String {
+        var statusMessages: [String] = []
+        
+        #if DEBUG
+        print("🔄 Starting full data restore...")
+        #endif
+        
+        // 1. Restore Workouts (most time-consuming)
+        #if DEBUG
+        print("📥 Step 1/4: Restoring workouts...")
+        #endif
+        let workoutsResult = await restoreWorkoutsFromFirestore(container: container)
+        switch workoutsResult {
+        case .success(let count):
+            if count > 0 {
+                statusMessages.append("✅ Тренировки: восстановлено \(count)")
+            } else {
+                statusMessages.append("ℹ️ Тренировки: новых не найдено")
+            }
+        case .failure(let error):
+            statusMessages.append("❌ Тренировки: ошибка (\(error.localizedDescription))")
+        }
+        
+        // Yield between major operations
+        await Task.yield()
+        
+        // 2. Restore Profile (Height, Weight, Measurements)
+        #if DEBUG
+        print("📥 Step 2/4: Restoring profile...")
+        #endif
+        await restoreUserProfileFromFirestore(container: container)
+        statusMessages.append("✅ Профиль: обновлен")
+        
+        // Yield between major operations
+        await Task.yield()
+        
+        // 3. Restore Programs
+        #if DEBUG
+        print("📥 Step 3/4: Restoring programs...")
+        #endif
+        await restoreProgramsFromFirestore(container: container)
+        statusMessages.append("✅ Программы: синхронизированы")
+        
+        // Yield between major operations
+        await Task.yield()
+        
+        // 4. Clean up duplicates if any were created
+        #if DEBUG
+        print("🧹 Step 4/4: Cleaning up duplicates...")
+        #endif
+        await removeDuplicateWorkouts(container: container)
+        
+        #if DEBUG
+        print("✅ Full data restore completed!")
+        #endif
+        
+        return statusMessages.joined(separator: "\n")
     }
     
     /// Convert Firestore Workout to SwiftData WorkoutSession
@@ -597,7 +738,7 @@ class SyncManager: ObservableObject {
     /// Force push local workouts to Firestore (Destructive for Cloud!)
     /// Replaces all cloud data with current local data
     nonisolated func forceUploadToFirestore(container: ModelContainer) async -> Result<Int, Error> {
-        guard Auth.auth().currentUser != nil else {
+        guard let userId = Auth.auth().currentUser?.uid else {
             return .failure(SyncError.unauthorized)
         }
         
@@ -658,7 +799,11 @@ class SyncManager: ObservableObject {
                 try await FirestoreManager.shared.saveAsync(workout: workoutDTO)
                 uploadedCount += 1
                 
-                if index % 10 == 0 {
+                // Show progress and yield more frequently
+                if uploadedCount % 10 == 0 {
+                    #if DEBUG
+                    print("📤 Uploaded \(uploadedCount)/\(localSessions.count) workouts...")
+                    #endif
                     await Task.yield()
                 }
             }
@@ -695,12 +840,24 @@ class SyncManager: ObservableObject {
                 )
                 
                 // Upload directly using Firestore DTO
-                 try await Firestore.firestore()
-                    .collection("users")
-                    .document(Auth.auth().currentUser!.uid)
-                    .collection("profile")
-                    .document("main")
-                    .setData(from: profileData)
+                 try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                     do {
+                         try Firestore.firestore()
+                            .collection("users")
+                            .document(userId) // Use userId here
+                            .collection("profile")
+                            .document("main")
+                            .setData(from: profileData) { error in
+                                if let error = error {
+                                    continuation.resume(throwing: error)
+                                } else {
+                                    continuation.resume()
+                                }
+                            }
+                     } catch {
+                         continuation.resume(throwing: error)
+                     }
+                 }
             }
             
             // 5. Upload Programs (New)
@@ -749,7 +906,7 @@ class SyncManager: ObservableObject {
             var uniqueSessions: [WorkoutSession] = []
             var duplicatesToDelete: [WorkoutSession] = []
             
-            for session in allSessions {
+            for (index, session) in allSessions.enumerated() {
                 // Check if we already have a similar session
                 let isDuplicate = uniqueSessions.contains { existing in
                     // Same workout day name
@@ -769,6 +926,11 @@ class SyncManager: ObservableObject {
                     duplicatesToDelete.append(session)
                 } else {
                     uniqueSessions.append(session)
+                }
+                
+                // Yield every 50 items to prevent UI freezing
+                if index % 50 == 0 {
+                    await Task.yield()
                 }
             }
             

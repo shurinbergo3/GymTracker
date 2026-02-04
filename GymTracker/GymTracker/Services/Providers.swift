@@ -10,7 +10,7 @@ protocol HealthProvider: AnyObject {
     
     func requestAuthorization() async -> Bool
     func startWorkout(workoutType: HKWorkoutActivityType) async
-    func endWorkout(activityType: HKWorkoutActivityType) async
+    func endWorkout(activityType: HKWorkoutActivityType, startDate: Date?, endDate: Date?) async
     func discardWorkout() async
     
     func fetchCaloriesForWorkout(start: Date, end: Date) async -> Double

@@ -102,18 +102,9 @@ struct CountdownView: View {
         }
     }
     
-    /// Main animation sequencer
     private func startSequence() {
-        // Phase 1: "Get Ready..." (Initial pause)
-        withAnimation(.easeOut(duration: 0.5)) {
-            ringProgress = 1.0 // Ring fills up purely for show
-            ringRotation = 360
-        }
-        
-        // Hold "Get Ready" for a moment
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            startCountdown()
-        }
+        // Start countdown immediately without "Get Ready" delay
+        startCountdown()
     }
     
     private func startCountdown() {

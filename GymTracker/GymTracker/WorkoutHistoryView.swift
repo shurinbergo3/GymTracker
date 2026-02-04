@@ -414,7 +414,7 @@ struct WorkoutHistoryCard: View {
     var progressState: ProgressState? = nil
     var onDelete: (() -> Void)? = nil
     
-    @State private var showingMenu = false
+
     
     private var formattedDate: String {
         let formatter = DateFormatter()
@@ -464,22 +464,7 @@ struct WorkoutHistoryCard: View {
                     
                     Spacer()
                     
-                    // Menu Button (if onDelete is provided)
-                    if onDelete != nil {
-                        Button(action: {
-                            showingMenu = true
-                        }) {
-                            Image(systemName: "ellipsis")
-                                .font(.title3)
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                        }
-                        .confirmationDialog("Действия", isPresented: $showingMenu, titleVisibility: .hidden) {
-                            Button("Удалить тренировку", role: .destructive) {
-                                onDelete?()
-                            }
-                            Button("Отмена", role: .cancel) {}
-                        }
-                    }
+
                     
                     // Session Progress Arrow
                     if let state = progressState {

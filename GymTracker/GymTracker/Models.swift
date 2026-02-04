@@ -109,6 +109,7 @@ enum WorkoutType: String, Codable, CaseIterable {
 
 @Model
 final class Program {
+    @Attribute(.unique) var id: UUID = UUID() // Added for robust identification
     var name: String
     var desc: String
     var startDate: Date
@@ -119,6 +120,7 @@ final class Program {
     var days: [WorkoutDay]
     
     init(name: String, desc: String = "", startDate: Date = Date(), isActive: Bool = false, displayOrder: Int = 100) {
+        self.id = UUID()
         self.name = name
         self.desc = desc
         self.startDate = startDate

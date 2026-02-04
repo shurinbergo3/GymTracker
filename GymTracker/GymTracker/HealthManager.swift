@@ -90,18 +90,27 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
         #endif
     }
     
-    func endWorkout(activityType: HKWorkoutActivityType = .functionalStrengthTraining) async {
-        guard isWorkoutActive, let startDate = workoutStartDate else { return }
+    func endWorkout(activityType: HKWorkoutActivityType = .functionalStrengthTraining, startDate: Date? = nil, endDate: Date? = nil) async {
+        // Use provided start date/end date OR fallback to internal state (legacy/safety)
+        // If coming from WorkoutManager restore, 'startDate' will be passed explicitly.
+        // If internal state is lost (app killed), 'workoutStartDate' might be nil, so 'startDate' arg is critical.
+        guard let finalStartDate = startDate ?? workoutStartDate else {
+             #if DEBUG
+             print("❌ endWorkout ignored: No start date available")
+             #endif
+             return 
+        }
         
-        let endDate = Date()
-        let duration = endDate.timeIntervalSince(startDate)
+        // If already stopped internally, just ensure we clean up queries, but proceed with saving if we have dates
         isWorkoutActive = false
         workoutStartDate = nil
-        
         stopLiveQueries()
         
+        let finalEndDate = endDate ?? Date()
+        let duration = finalEndDate.timeIntervalSince(finalStartDate)
+        
         // Fetch actual metrics from HealthKit
-        let calories = await fetchCaloriesForWorkout(start: startDate, end: endDate)
+        let calories = await fetchCaloriesForWorkout(start: finalStartDate, end: finalEndDate)
         
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = activityType
@@ -110,7 +119,7 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
         let builder = HKWorkoutBuilder(healthStore: healthStore, configuration: configuration, device: .local())
         
         do {
-            try await builder.beginCollection(at: startDate)
+            try await builder.beginCollection(at: finalStartDate)
             
             // Add calorie data as sample BEFORE finishing
             if calories > 0 {
@@ -118,21 +127,18 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
                     #if DEBUG
                     print("⚠️ Could not create energy type")
                     #endif
-                    try await builder.endCollection(at: endDate)
+                    try await builder.endCollection(at: finalEndDate)
                     _ = try await builder.finishWorkout()
                     return
                 }
                 
                 let energyQuantity = HKQuantity(unit: .kilocalorie(), doubleValue: calories)
-                let energySample = HKQuantitySample(type: energyType, quantity: energyQuantity, start: startDate, end: endDate)
+                let energySample = HKQuantitySample(type: energyType, quantity: energyQuantity, start: finalStartDate, end: finalEndDate)
                 
                 try await builder.addSamples([energySample])
-                #if DEBUG
-                print("✅ Added \(Int(calories))kcal to workout")
-                #endif
             }
             
-            try await builder.endCollection(at: endDate)
+            try await builder.endCollection(at: finalEndDate)
             _ = try await builder.finishWorkout()
             
             #if DEBUG

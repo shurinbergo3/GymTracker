@@ -21,7 +21,7 @@ struct ProgramDTO: Codable, Identifiable {
     
     // Explicit init for mapping
     init(from program: Program) {
-        self.id = program.name // Use name as ID for simplicity and uniqueness per user
+        self.id = program.id.uuidString // Use improved UUID for robustness
         self.name = program.name
         self.desc = program.desc
         self.startDate = program.startDate

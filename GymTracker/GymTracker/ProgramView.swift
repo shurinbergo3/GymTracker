@@ -413,6 +413,19 @@ struct ProgramCard: View {
             object: nil
         )
         
+        // Trigger Cloud Sync for Active Program (Profile)
+        Task {
+            // Re-fetch profile to ensure we have latest context
+            let profileDescriptor = FetchDescriptor<UserProfile>()
+            if let profile = try? modelContext.fetch(profileDescriptor).first {
+                await SyncManager.shared.syncUserProfile(
+                    profile: profile,
+                    activeProgram: program,
+                    context: modelContext
+                )
+            }
+        }
+        
         // Скролл к активной программе
         onActivate?()
     }

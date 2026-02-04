@@ -14,135 +14,122 @@ struct HormonesView: View {
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: DesignSystem.Spacing.lg) {
-                    // Header
-                    Text("Гормоны и нейромедиаторы")
-                        .font(DesignSystem.Typography.title2())
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                        .padding(.top, DesignSystem.Spacing.md)
+                VStack(spacing: DesignSystem.Spacing.xl) {
+                    // 1. Header & Theory Section
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
+                        Text("Гормонально-нейромедиаторная теория")
+                            .font(DesignSystem.Typography.title2())
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        
+                        Text("Общие законы управления")
+                            .font(DesignSystem.Typography.headline())
+                            .foregroundColor(DesignSystem.Colors.accent)
+                        
+                        TheoryBlock(
+                            title: "Движение — основа всего",
+                            content: "Необходим базовый уровень движения на ногах (6–10 км ходьбы, 50–100 приседаний), чтобы обеспечить логистику (крово- и лимфоток). Без этого гормоны просто не дойдут до рецепторов."
+                        )
+                        
+                        TheoryBlock(
+                            title: "Чувствительность важнее количества",
+                            content: "Выгоднее повышать чувствительность рецепторов, чем наращивать выработку гормонов. Постоянная высокая выработка «выжигает» рецепторы (кроме кортизола)."
+                        )
+                        
+                        TheoryBlock(
+                            title: "Восстановление через воздержание",
+                            content: "Чувствительность рецепторов восстанавливается только при длительном отсутствии взаимодействия с гормоном."
+                        )
+                        
+                        TheoryBlock(
+                            title: "Срок адаптации — 2 недели",
+                            content: "Мозг регистрирует изменения образа жизни и начинает адаптироваться только через 14–16 дней. Всё, что меньше — считается случайной флуктуацией."
+                        )
+                        
+                        TheoryBlock(
+                            title: "Ловушка привыкания",
+                            content: "Организм привыкает к неестественно высоким пикам (наркотики, абуз тела) и начинает воспринимать норму как недостаток. Механизмов быстрого «отвыкания» нет, восстановление может занять годы."
+                        )
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.top, DesignSystem.Spacing.md)
                     
+                    // 2. Hormones List
                     VStack(spacing: DesignSystem.Spacing.md) {
-                        // Тестостерон
-                        HormoneCard(
-                            name: "ТЕСТОСТЕРОН",
-                            subtitle: "Мужитское состояние",
-                            color: .red,
-                            highLevel: "Тестостерон ощущается как уверенность в себе, внушение уважения к себе окружающим.",
-                            lowLevel: "Неуверенность в себе, робость, стеснительность, неверие в позитивный исход жизни, в свои силы. Общая вялость во всем.",
-                            relations: "Обратно связан с кортизолом и пролактином, растет с дофамином, норадреналином и серотонином, снижается с ростом адреналина, и снижается при высоких значениях окситоцина."
-                        )
+                        ForEach(HormoneRepository.hormones) { hormone in
+                            HormoneCard(data: hormone)
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    
+                    // 3. Axiomatics Section
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
+                        Text("Аксиоматика (Базовые принципы)")
+                            .font(DesignSystem.Typography.title2())
+                            .foregroundColor(DesignSystem.Colors.primaryText)
                         
-                        // Кортизол
-                        HormoneCard(
-                            name: "КОРТИЗОЛ",
-                            subtitle: "Стресс",
-                            color: .orange,
-                            highLevel: "Человек нервный, раздражительный, злобный.",
-                            lowLevel: "Человек чувствует себя замечательно, бодро.",
-                            relations: "Рост сопровождается с пролактином и адреналином. Снижается вместе с серотонином, мелатонином, окситоцином и тестостероном."
-                        )
-                        
-                        // Серотонин
-                        HormoneCard(
-                            name: "СЕРОТОНИН",
-                            subtitle: "Оптимизм",
-                            color: .yellow,
-                            highLevel: "Спокойствие, безмятежность, удовлетворение жизнью.",
-                            lowLevel: "Возникает беспокойство, трудно начать активную здоровую деятельность, долго работать над одним проектом, не отвлекаться, не бросать на полпути. Трудно отказаться от искушений.",
-                            relations: "Зависит от окситоцина, немного от кортизола и тестостерона."
-                        )
-                        
-                        // Окситоцин
-                        HormoneCard(
-                            name: "ОКСИТОЦИН",
-                            subtitle: "Привязанность",
-                            color: .pink,
-                            highLevel: "Божественное единение. Единый разум с близкими, понимание с полуслова.",
-                            lowLevel: "Ругаетесь, не понимаете друг друга; небезопасность, угнетенность, недоверчивость, поиск подвоха.",
-                            relations: "Связь с серотонином: при низком окситоцине практически гарантирован низкий серотонин."
-                        )
-                        
-                        // Мелатонин
-                        HormoneCard(
-                            name: "МЕЛАТОНИН",
-                            subtitle: "Отдых, расслабление",
-                            color: .purple,
-                            highLevel: "Глубокий сон, быстрое пробуждение полностью отдохнувшим.",
-                            lowLevel: "Сон поверхностный, не восстанавливающий, разбитость, вечером настроение падает, склонность к бесплодным рефлексиям.",
-                            relations: "Связан с накопленным за день серотонином и окситоцином. Снижается с кортизолом и адреналином."
-                        )
-                        
-                        // Пролактин
-                        HormoneCard(
-                            name: "ПРОЛАКТИН",
-                            subtitle: "Социальное подчинение",
-                            color: .blue,
-                            highLevel: "Беззащитность, состояние «тряпки», рефлексия, самообвинение. Готовность подчиняться без согласия.",
-                            lowLevel: "Бескомпромиссность. Подумал – сделал. Готовность уживаться только с приятными людьми.",
-                            relations: "Обратно связан с тестостероном и дофамином. Растет с кортизолом, коррелирует с эстрадиолом."
-                        )
-                        
-                        // Эстрадиол
-                        HormoneCard(
-                            name: "ЭСТРАДИОЛ",
-                            subtitle: "Эмоции и импульс",
-                            color: .mint,
-                            highLevel: "Психованность, манерность, истероидность, эгоцентризм, вспышки ярости, гнева и обиды.",
-                            lowLevel: "Ровное настроение. Нет лишних мыслей и эмоций, хладнокровие. Отсутствует избыточная мимика.",
-                            relations: "Рост коррелирует с пролактином, меньше проявляется при перекосе в адреналин и глутамат."
-                        )
-                        
-                        // Адреналин
-                        HormoneCard(
-                            name: "АДРЕНАЛИН",
-                            subtitle: "Беги, остановись или бей",
-                            color: .red,
-                            highLevel: "Неспособность сфокусироваться, тревожность, дерганность, мнительность, страх.",
-                            lowLevel: "Полный контроль, эмоциональная собранность, концентрация, бесстрашие, стрессоустойчивость.",
-                            relations: "Меньше вырабатывается при высоком тестостероне и низком кортизоле."
-                        )
-                        
-                        // Норадреналин
-                        HormoneCard(
-                            name: "НОРАДРЕНАЛИН",
-                            subtitle: "Охота и ярость",
-                            color: .green,
-                            highLevel: "Глубокое спокойствие, сфокусированность, состояние потока, азарт. Отсутствие мандража.",
-                            lowLevel: "Дефицит внимания, невозможность сфокусироваться, скука, поиск легкого дофамина.",
-                            relations: "Реализует программу «Бей», ответное наступление на опасность."
-                        )
-                        
-                        // Дофамин
-                        HormoneCard(
-                            name: "ДОФАМИН",
-                            subtitle: "Предвкушение и интерес",
-                            color: .cyan,
-                            highLevel: "Все хочется, все интересно, все любопытно, жизнь играет красками.",
-                            lowLevel: "Жизнь не интересна, ничего не хочется, поиск только привычных стимуляторов.",
-                            relations: "Привязка к предвосхищаемым действиям, поисковый инстинкт."
-                        )
-                        
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                            AxiomBlock(title: "Мозг не отличает реальность от вымысла", content: "Фильм ужасов вызывает реальный гормональный отклик. Этим можно пользоваться для самопрограммирования (аутотренинг).")
+                            AxiomBlock(title: "Понимаемое ≠ Ощущаемое", content: "Знание того, что опасности нет, не останавливает выброс гормонов. Нужно работать с ощущениями, а не словами.")
+                            AxiomBlock(title: "Зеркальные нейроны", content: "Мы становимся теми, за кем наблюдаем.")
+                            AxiomBlock(title: "Гомеостаз", content: "Организм стремится сохранить привычное состояние, даже если оно плохое. Сперва вы работаете на гомеостаз, потом он на вас.")
+                            AxiomBlock(title: "Все элементы связаны", content: "Нельзя починить только один гормон, нужно менять систему целиком.")
+                        }
                     }
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                     .padding(.bottom, DesignSystem.Spacing.xxl)
                 }
             }
         }
-        .navigationTitle("Гормоны")
+        .navigationTitle("Справочник")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-struct HormoneCard: View {
-    let name: String
-    let subtitle: String
-    let color: Color
-    let highLevel: String
-    let lowLevel: String
-    let relations: String
+// MARK: - Components
+
+struct TheoryBlock: View {
+    let title: String
+    let content: String
     
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(DesignSystem.Typography.subheadline())
+                .foregroundColor(DesignSystem.Colors.primaryText)
+                .bold()
+            
+            Text(content)
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(DesignSystem.Colors.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(DesignSystem.Spacing.md)
+        .background(DesignSystem.Colors.cardBackground)
+        .cornerRadius(DesignSystem.CornerRadius.medium)
+    }
+}
+
+struct AxiomBlock: View {
+    let title: String
+    let content: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("• " + title)
+                .font(DesignSystem.Typography.headline())
+                .foregroundColor(DesignSystem.Colors.accent)
+            
+            Text(content)
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(DesignSystem.Colors.secondaryText)
+                .padding(.leading, DesignSystem.Spacing.md)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+struct HormoneCard: View {
+    let data: HormoneData
     @State private var isExpanded: Bool = false
     
     var body: some View {
@@ -151,11 +138,11 @@ struct HormoneCard: View {
             Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(name)
+                        Text(data.name)
                             .font(DesignSystem.Typography.headline())
-                            .foregroundColor(color)
+                            .foregroundColor(data.color)
                         
-                        Text(subtitle)
+                        Text(data.subtitle)
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(.gray)
                     }
@@ -172,38 +159,63 @@ struct HormoneCard: View {
             
             // Content
             if isExpanded {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                     Divider().background(Color.gray.opacity(0.3))
                     
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("Высокий уровень:", systemImage: "arrow.up.circle.fill")
-                            .font(.caption).bold()
-                            .foregroundColor(.green)
-                        Text(highLevel)
-                            .font(DesignSystem.Typography.body())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("Низкий уровень:", systemImage: "arrow.down.circle.fill")
-                            .font(.caption).bold()
-                            .foregroundColor(.red)
-                        Text(lowLevel)
-                            .font(DesignSystem.Typography.body())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                    }
-                    
-                    if !relations.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Label("Связи:", systemImage: "link.circle.fill")
-                                .font(.caption).bold()
-                                .foregroundColor(.blue)
-                            Text(relations)
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.primaryText)
-                                .italic()
+                    // Essence/Metaphysics/Physics
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                        if let meta = data.metaphysics {
+                            DescriptionRow(title: "Метафизика", content: meta, icon: "sparkles")
+                        }
+                        if let phys = data.physics {
+                            DescriptionRow(title: "Физика", content: phys, icon: "atom")
+                        }
+                        if let essence = data.essence {
+                            DescriptionRow(title: "Суть", content: essence, icon: "info.circle")
                         }
                     }
+                    
+                    // Levels
+                    if let high = data.highLevel {
+                        DescriptionRow(title: "Высокий уровень", content: high, icon: "arrow.up.circle.fill", titleColor: .green)
+                    }
+                    
+                    if let low = data.lowLevel {
+                        DescriptionRow(title: "Низкий уровень", content: low, icon: "arrow.down.circle.fill", titleColor: .red)
+                    }
+                    
+                    // Normalization
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                        HStack {
+                            Image(systemName: "slider.horizontal.3")
+                                .foregroundColor(.blue)
+                            Text("Как нормализовать:")
+                                .font(.caption).bold()
+                                .foregroundColor(.blue)
+                        }
+                        
+                        if let normPhys = data.normalizePhysics {
+                            Text("• Физика: \(normPhys)")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                        if let normPsych = data.normalizePsyche {
+                            Text("• Психика: \(normPsych)")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                        if let normSoc = data.normalizeSocial {
+                            Text("• Социум: \(normSoc)")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                        if let normGen = data.generalNormalization {
+                            Text("• \(normGen)")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                    }
+                    .padding(.top, 4)
                 }
                 .padding(DesignSystem.Spacing.md)
                 .background(DesignSystem.Colors.cardBackground.opacity(0.5))
@@ -212,7 +224,160 @@ struct HormoneCard: View {
         .cornerRadius(DesignSystem.CornerRadius.medium)
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                .stroke(isExpanded ? color.opacity(0.5) : Color.white.opacity(0.1), lineWidth: 1)
+                .stroke(isExpanded ? data.color.opacity(0.5) : Color.white.opacity(0.1), lineWidth: 1)
         )
+    }
+}
+
+struct DescriptionRow: View {
+    let title: String
+    let content: String
+    let icon: String
+    var titleColor: Color? = nil
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Label(title, systemImage: icon)
+                .font(.caption).bold()
+                .foregroundColor(titleColor ?? DesignSystem.Colors.primaryText)
+            
+            Text(content)
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(DesignSystem.Colors.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+// MARK: - Data Models
+
+struct HormoneData: Identifiable {
+    let id = UUID()
+    let name: String
+    let subtitle: String
+    let color: Color
+    var metaphysics: String? = nil
+    var physics: String? = nil
+    var essence: String? = nil
+    var highLevel: String? = nil
+    var lowLevel: String? = nil
+    var normalizePhysics: String? = nil
+    var normalizePsyche: String? = nil
+    var normalizeSocial: String? = nil
+    var generalNormalization: String? = nil
+}
+
+struct HormoneRepository {
+    static let hormones: [HormoneData] = [
+        HormoneData(
+            name: "1. ТЕСТОСТЕРОН",
+            subtitle: "Гормон победы и права",
+            color: .red,
+            metaphysics: "Выделяется в ответ на преодоление посильной агрессивной среды. Это коридор, где борьба напряженная, но победа возможна.",
+            physics: "Регулирует интеллект (пространственное мышление), настроение (мужской антидепрессант), крепость костей и мышц.",
+            highLevel: "Спокойная уверенность, фокус на себе и своей территории, антирефлексия, желание действовать.",
+            lowLevel: "Робость, вялость, одутловатость, желание спрятаться от проблем.",
+            normalizePhysics: "Сон (главный сброс стресса), контроль сексуальной энергии (эякуляция снижает тестостерон и повышает пролактин), много движения для разгона лимфы.",
+            normalizePsyche: "Победы. Постоянно ставить планку и брать её. Фокус на том, что можно победить, игнорирование того, что вне контроля (новости).",
+            normalizeSocial: "Вести себя как лидер (расправленные плечи, взгляд вверх). Занимать место в пространстве."
+        ),
+        HormoneData(
+            name: "2. КОРТИЗОЛ",
+            subtitle: "Ресурс выживания",
+            color: .orange,
+            metaphysics: "Саморазрушительный допинг. Выделяется, когда не хватает ресурсов для борьбы, разлагая ткани тела ради энергии.",
+            physics: "Влияет на состояние тканей, молодость. Хронический избыток делает тело дряблым.",
+            highLevel: "Раздражительность, ожидание проблем («ничего не делаю, пока не клюнет»), тревожный сон или сонливость, падение потребностей до уровня выживания.",
+            lowLevel: "Бодрость, здоровье, отсутствие груза прошлых ошибок.",
+            normalizePhysics: "Сон, восстановление сахарного обмена. Холостое жевание (смола, забрус) — организм воспринимает это как гарантию еды и успокаивается.",
+            normalizePsyche: "Аутотренинг («я выжил в худших ситуациях»), вера в судьбу/бога. Исключить поражение из картины мира.",
+            normalizeSocial: "Здоровое окружение, поддержка близких (антистресс-система)."
+        ),
+        HormoneData(
+            name: "3. СЕРОТОНИН",
+            subtitle: "Оптимизм и безопасность",
+            color: .yellow,
+            metaphysics: "Ощущение социальной справедливости, «мир ко мне добр». Тихая радость.",
+            physics: "Регулирует пищеварение, циклы сна.",
+            highLevel: "Безмятежность, «завтра будет лучше, чем вчера», способность к самоограничению ради будущего.",
+            lowLevel: "«Кругом враги», депрессивность, рабство страстей, невозможность отказать себе во вредном.",
+            normalizePhysics: "Солнечный свет, здоровье кишечника (там синтезируется серотонин), отказ от алкоголя/синтетической еды. Контролируемая гипоксия (горы, задержки дыхания).",
+            normalizePsyche: "Принять мир как нейтральный, убрать враждебную реакцию.",
+            normalizeSocial: "Много общения. Каждое удачное взаимодействие подтверждает, что стая вас принимает."
+        ),
+        HormoneData(
+            name: "4. МЕЛАТОНИН",
+            subtitle: "Восстановление",
+            color: .purple,
+            essence: "Гормон молодости и отдыха. Превращает накопленный за день серотонин в восстановление.",
+            generalNormalization: "Полная темнота, отказ от гаджетов и еды после 18:00 (или задолго до сна), прохлада, тяжелое одеяло."
+        ),
+        HormoneData(
+            name: "5. ПРОЛАКТИН",
+            subtitle: "Покорность и жертвенность",
+            color: .blue,
+            metaphysics: "Гормон подчинения и самопожертвования. Снижает тестостерон, чтобы избежать смертельной схватки.",
+            highLevel: "Состояние «тряпки», невозможность отказать, самобичевание, готовность подчиняться ради избегания конфликта.",
+            lowLevel: "Бескомпромиссность, четкость действий («подумал — сделал»).",
+            normalizePhysics: "Воздержание (секс повышает пролактин), качественный сон.",
+            normalizePsyche: "Не вестись на «пожалейку», блокировать попытки вызвать жалость.",
+            normalizeSocial: "Общение с сильными, жесткими мужчинами, избегание нытиков."
+        ),
+        HormoneData(
+            name: "6. ЭСТРАДИОЛ",
+            subtitle: "Эмоции и пластика",
+            color: .mint,
+            metaphysics: "Демонстрация эмоций, артистизм. Нужен для пиковых «взрывных» усилий.",
+            physics: "Женский тип фигуры, отечность при избытке.",
+            highLevel: "Истеричность, манерность, обидчивость, много лишних движений и слов.",
+            lowLevel: "Хладнокровие шахматиста, отсутствие лишнего жира и воды.",
+            normalizePhysics: "Капуста (крестоцветные), цитрусовые (лимонный сок), цинк, снижение процента жира (жир ароматизирует тестостерон в эстрадиол), бритье головы.",
+            normalizePsyche: "Давать выход эмоциям (петь, танцевать, плакать), не запирать их в себе.",
+            normalizeSocial: "Быть там, где можно быть собой и не нужно притворяться."
+        ),
+        HormoneData(
+            name: "7. ОКСИТОЦИН",
+            subtitle: "Свои и чужие",
+            color: .pink,
+            essence: "Инкорпорация в ближний круг. Делит мир на «мы» и «они». Без него — чувство одиночества и гибели.",
+            generalNormalization: "Тактильный контакт, доверительные разговоры, создание глубоких связей (\"своей стаи\")."
+        ),
+        HormoneData(
+            name: "8. АДРЕНАЛИН",
+            subtitle: "Страх и бегство",
+            color: .red,
+            metaphysics: "Реакция «Беги». Страх, тревога, суета.",
+            highLevel: "Тремор, суета, невозможность сфокусироваться, желание убежать «куда глаза глядят».",
+            lowLevel: "Полный контроль, бесстрашие.",
+            normalizePhysics: "Реальное движение с изменением картинки перед глазами (бег, авто, велик). Продрагивание телом (стряхнуть стресс).",
+            normalizePsyche: "Рационализация («Где хищник?»). Разрушение иллюзии опасности.",
+            normalizeSocial: "Отключить уведомления, убрать токсичных паникеров из окружения."
+        ),
+        HormoneData(
+            name: "9. НОРАДРЕНАЛИН",
+            subtitle: "Ярость и охота",
+            color: .green,
+            metaphysics: "Реакция «Бей». Ярость, фокус охотника, состояние потока.",
+            highLevel: "Глубокое спокойствие, азарт, четкость мыслей, отсутствие мандража.",
+            lowLevel: "Дефицит внимания (СДВГ), скука, поиск дешевого дофамина.",
+            normalizePhysics: "L-Тирозин (сырье), отказ от кофеина (он истощает систему). Тренировка концентрации (смотреть в точку).",
+            normalizeSocial: "Утверждения «Я могу, я достоин, я беру». Защита своих границ."
+        ),
+        HormoneData(
+            name: "10. ДОФАМИН",
+            subtitle: "Предвкушение",
+            color: .cyan,
+            metaphysics: "Мотивация, поисковый инстинкт. Обещание награды.",
+            highLevel: "Любопытство, драйв, желание исследовать.",
+            lowLevel: "Скука, жизнь от дозы до дозы (игры, соцсети), отсутствие интереса.",
+            normalizePhysics: "Микродвижения (разминка пальцев) для запуска. Тирозин.",
+            normalizePsyche: "Отказ от пассивного потребления контента. Развлекать себя самому активными действиями."
+        )
+    ]
+}
+
+#Preview {
+    NavigationView {
+        HormonesView()
     }
 }

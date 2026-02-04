@@ -429,7 +429,8 @@ class WorkoutManager: ObservableObject {
         if currentHeartRate > 0 { session.averageHeartRate = currentHeartRate }
         
         // 3. Complete HealthKit session and fetch accurate data
-        await healthProvider.endWorkout(activityType: selectedActivityType)
+        // Explicitly pass start and end dates to ensure robust saving even if app was restarted
+        await healthProvider.endWorkout(activityType: selectedActivityType, startDate: session.date, endDate: endDate)
         
         if healthProvider.isAuthorized {
             let calories = await healthProvider.fetchCaloriesForWorkout(start: session.date, end: endDate)
@@ -625,13 +626,36 @@ class WorkoutManager: ObservableObject {
         
         // Live Estimate Fallback
         var displayCalories = Int(calValue)
-        if displayCalories < 5 { // If nearly 0, try to estimate live
-             let durationMinutes = Date().timeIntervalSince(startDate) / 60.0
-             if durationMinutes > 1 && hrValue > 80 {
-                 // Try to estimate relative
-                 // Simple approximation: ~5-6 cals/min for active lifting
-                 displayCalories = Int(durationMinutes * 5.5) 
-             }
+        
+        // If HealthKit returns 0 or surprisingly low values (e.g. < 0.1 kcal/min), try to estimate
+        // This fixes the "0 kcal" issue in the Live Activity bar
+        let durationMinutes = now.timeIntervalSince(startDate) / 60.0
+        
+        if durationMinutes > 0.5 && displayCalories < Int(durationMinutes * 1.5) {
+            // Fetch profile for accurate calculation
+            let descriptor = FetchDescriptor<UserProfile>()
+            if let profile = try? modelContext.fetch(descriptor).last {
+                let weight = profile.currentWeight
+                let age = Double(profile.age)
+                
+                // Use current heart rate if available, otherwise assume a resting/light base if we have no data
+                // If we have a live heart rate, use it.
+                // If HR is 0 (sensor disconnect), maybe use last known or a default?
+                // For now, only calculate if we have a valid HR > 0
+                if hrValue > 0 {
+                    let estimatedTotal = CalorieCalculator.calculate(
+                        heartRate: hrValue,
+                        weightKg: weight,
+                        age: age,
+                        durationMinutes: durationMinutes
+                    )
+                    
+                    // Update if estimate is more plausible
+                    if estimatedTotal > Double(displayCalories) {
+                        displayCalories = Int(estimatedTotal)
+                    }
+                }
+            }
         }
         
         activityProvider.update(heartRate: Int(hrValue), calories: displayCalories)
