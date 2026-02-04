@@ -185,7 +185,7 @@ struct WorkoutCompletionView: View {
                                 CompletionBentoCard {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 4) {
-                                            Text(item.exerciseName)
+                                            Text(LocalizedStringKey(item.exerciseName))
                                                 .font(DesignSystem.Typography.body())
                                                 .foregroundColor(DesignSystem.Colors.primaryText)
                                             

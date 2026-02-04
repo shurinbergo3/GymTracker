@@ -289,17 +289,17 @@ struct SupplementCard: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(supplement.name)
+                    Text(LocalizedStringKey(supplement.name))
                         .font(DesignSystem.Typography.headline())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     
                     if let subtitle = supplement.subtitle {
-                        Text(subtitle)
+                        Text(LocalizedStringKey(subtitle))
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.neonGreen)
                     }
                     
-                    Text(supplement.description)
+                    Text(LocalizedStringKey(supplement.description))
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .lineLimit(2)

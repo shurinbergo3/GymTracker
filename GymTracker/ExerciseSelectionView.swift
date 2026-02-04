@@ -103,7 +103,7 @@ struct ExerciseSelectionView: View {
                                 }
                             }) {
                                 HStack {
-                                    Label(category.rawValue, systemImage: category.icon)
+                                    Label(LocalizedStringKey(category.rawValue), systemImage: category.icon)
                                         .font(DesignSystem.Typography.headline())
                                         .foregroundColor(DesignSystem.Colors.accent)
                                     
@@ -158,12 +158,12 @@ struct SelectionRow: View {
         HStack {
             Button(action: onSelect) {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    Text(exercise.name)
+                    Text(LocalizedStringKey(exercise.name))
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .multilineTextAlignment(.leading)
                     
-                    Text(exercise.muscleGroup.rawValue)
+                    Text(LocalizedStringKey(exercise.muscleGroup.rawValue))
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 }

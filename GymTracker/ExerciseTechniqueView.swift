@@ -53,7 +53,7 @@ struct ExerciseTechniqueDetailView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         // 1. Title & Type
                         VStack(alignment: .leading, spacing: 12) {
-                            Text(exerciseName)
+                            Text(LocalizedStringKey(exerciseName))
                                 .font(.system(size: 28, weight: .bold)) // Slightly smaller for small screens
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.leading)
@@ -65,7 +65,7 @@ struct ExerciseTechniqueDetailView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: exercise.category.icon)
                                         .foregroundColor(DesignSystem.Colors.neonGreen)
-                                    Text(exercise.category.rawValue)
+                                    Text(LocalizedStringKey(exercise.category.rawValue))
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(DesignSystem.Colors.neonGreen)
@@ -73,7 +73,7 @@ struct ExerciseTechniqueDetailView: View {
                                     Text("•")
                                         .foregroundColor(.gray)
                                     
-                                    Text(exercise.muscleGroup.rawValue)
+                                    Text(LocalizedStringKey(exercise.muscleGroup.rawValue))
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
                                 }
@@ -99,7 +99,7 @@ struct ExerciseTechniqueDetailView: View {
                             }
                             
                             if let text = exercise?.technique {
-                                Text(text)
+                                Text(LocalizedStringKey(text))
                                     .font(.body)
                                     .foregroundColor(Color.white.opacity(0.85))
                                     .lineSpacing(6)

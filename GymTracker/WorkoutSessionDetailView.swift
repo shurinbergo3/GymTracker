@@ -28,7 +28,7 @@ struct WorkoutSessionDetailView: View {
                 .padding(.bottom, 40)
             }
             .background(Color.black)
-            .navigationTitle(session.workoutDayName)
+            .navigationTitle(LocalizedStringKey(session.workoutDayName))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -136,7 +136,7 @@ struct WorkoutSessionDetailView: View {
     private func exerciseCard(name: String, sets: [WorkoutSet]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             // Exercise Name
-            Text(name)
+            Text(LocalizedStringKey(name))
                 .font(.headline)
                 .foregroundColor(.white)
             

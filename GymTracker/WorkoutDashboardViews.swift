@@ -130,7 +130,7 @@ struct TodayWorkoutCard: View {
                         .tracking(1.2)
                     
                     if let day = workoutManager.selectedDay {
-                        Text(day.name)
+                        Text(LocalizedStringKey(day.name))
                             .font(DesignSystem.Typography.title2())
                             .foregroundStyle(DesignSystem.Colors.primaryText)
                     } else {
@@ -192,7 +192,7 @@ struct TodayWorkoutCard: View {
                             .tracking(1.2)
                         
                         if let day = workoutManager.selectedDay {
-                            Text(day.name)
+                            Text(LocalizedStringKey(day.name))
                                 .font(DesignSystem.Typography.title2())
                                 .foregroundStyle(DesignSystem.Colors.primaryText)
                         }

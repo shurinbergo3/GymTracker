@@ -88,7 +88,7 @@ struct ExerciseCard: View {
             // MARK: - Header (Title + Icons)
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text(exercise.name)
+                    Text(LocalizedStringKey(exercise.name))
                         .font(DesignSystem.Typography.title3())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     

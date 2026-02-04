@@ -132,7 +132,7 @@ struct DayRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text(day.name)
+                Text(LocalizedStringKey(day.name))
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 

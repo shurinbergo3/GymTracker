@@ -26,7 +26,7 @@ struct ProgramDetailView: View {
             Section {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                     if !program.desc.isEmpty {
-                        Text(program.desc)
+                        Text(LocalizedStringKey(program.desc))
                             .font(DesignSystem.Typography.body())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -57,7 +57,7 @@ struct ProgramDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle(program.name)
+        .navigationTitle(LocalizedStringKey(program.name))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -83,7 +83,7 @@ struct ProgramDetailView: View {
                 deleteProgram()
             }
         } message: {
-            Text("Программа \"\(program.name)\" будет удалена без возможности восстановления.")
+            Text("Программа \"\(LocalizedStringKey(program.name))\" будет удалена без возможности восстановления.")
         }
     }
     
@@ -110,7 +110,7 @@ struct WorkoutDayRow: View {
             Button(action: { withAnimation { isExpanded.toggle() } }) {
                 HStack {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text(day.name)
+                        Text(LocalizedStringKey(day.name))
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
@@ -137,7 +137,7 @@ struct WorkoutDayRow: View {
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                 .frame(width: 25, alignment: .leading)
                             
-                            Text(exercise.name)
+                            Text(LocalizedStringKey(exercise.name))
                                 .font(DesignSystem.Typography.body())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             

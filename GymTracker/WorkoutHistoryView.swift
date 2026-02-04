@@ -447,13 +447,13 @@ struct WorkoutHistoryCard: View {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         // Program Name Label
                         if let programName = session.programName {
-                             Text(programName.uppercased())
+                             Text(LocalizedStringKey(programName.uppercased()))
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(DesignSystem.Colors.neonGreen)
                                 .tracking(1)
                         }
                         
-                        Text(session.workoutDayName)
+                        Text(LocalizedStringKey(session.workoutDayName))
                             .font(DesignSystem.Typography.title3())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
@@ -581,7 +581,7 @@ struct WorkoutHistoryDetailView: View {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
                     // Заголовок с датой
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        Text(session.workoutDayName)
+                        Text(LocalizedStringKey(session.workoutDayName))
                             .font(DesignSystem.Typography.title())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
@@ -692,7 +692,7 @@ struct ExerciseHistoryCard: View {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                 // Название упражнения
                 HStack {
-                    Text(exerciseName)
+                    Text(LocalizedStringKey(exerciseName))
                         .font(DesignSystem.Typography.title3())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     

@@ -85,7 +85,7 @@ struct WorkoutProgressBanner: View {
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)
                         
-                        Text(programName)
+                        Text(LocalizedStringKey(programName))
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                             .lineLimit(1)

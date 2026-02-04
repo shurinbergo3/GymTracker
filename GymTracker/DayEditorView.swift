@@ -140,7 +140,7 @@ struct ExerciseEditRow: View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
             // Название и инфо
             HStack(spacing: DesignSystem.Spacing.sm) {
-                Text(exercise.name)
+                Text(LocalizedStringKey(exercise.name))
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 

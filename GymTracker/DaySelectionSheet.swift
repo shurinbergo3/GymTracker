@@ -100,7 +100,7 @@ struct DaySelectionCard: View {
                     
                     // Day info
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text(day.name)
+                        Text(LocalizedStringKey(day.name))
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         

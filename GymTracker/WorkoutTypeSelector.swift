@@ -31,11 +31,11 @@ struct WorkoutTypeSelectorView: View {
                                     .foregroundColor(selectedType == type ? DesignSystem.Colors.neonGreen : DesignSystem.Colors.primaryText)
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(type.displayName)
+                                    Text(LocalizedStringKey(type.displayName))
                                         .font(DesignSystem.Typography.headline())
                                         .foregroundColor(DesignSystem.Colors.primaryText)
                                     
-                                    Text(type.description)
+                                    Text(LocalizedStringKey(type.description))
                                         .font(DesignSystem.Typography.caption())
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                 }

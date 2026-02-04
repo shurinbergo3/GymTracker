@@ -213,12 +213,12 @@ struct ActiveProgramCard: View {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                            Text(program.name)
+                            Text(LocalizedStringKey(program.name))
                                 .font(DesignSystem.Typography.title())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
                             if !program.desc.isEmpty {
-                                Text(program.desc)
+                                Text(LocalizedStringKey(program.desc))
                                     .font(DesignSystem.Typography.body())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .lineLimit(2)
@@ -320,12 +320,12 @@ struct ProgramCard: View {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                             // Крупное название программы
-                            Text(program.name)
+                            Text(LocalizedStringKey(program.name))
                                 .font(DesignSystem.Typography.title())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
                             if !program.desc.isEmpty {
-                                Text(program.desc)
+                                Text(LocalizedStringKey(program.desc))
                                     .font(DesignSystem.Typography.body())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .lineLimit(2)
