@@ -5,12 +5,21 @@ import SwiftUI
 // MARK: - Sleep Structures
 
 enum SleepTimeRange: String, CaseIterable, Identifiable {
-    case day = "День"
-    case week = "Неделя"
-    case month = "Месяц"
-    case sixMonths = "6 Мес."
+    case day = "Day"
+    case week = "Week"
+    case month = "Month"
+    case sixMonths = "6 Months"
     
     var id: String { rawValue }
+    
+    var localizedName: String {
+        switch self {
+        case .day: return "День".localized()
+        case .week: return "Неделя".localized()
+        case .month: return "Месяц".localized()
+        case .sixMonths: return "6 Мес.".localized()
+        }
+    }
 }
 
 struct DailySleepData: Identifiable {
@@ -42,12 +51,12 @@ struct SleepData: Identifiable {
     
     var label: String {
         switch type {
-        case .asleepDeep: return String(localized: "sleep_deep")
-        case .asleepCore: return String(localized: "sleep_core")
-        case .asleepREM: return String(localized: "sleep_rem")
-        case .awake: return String(localized: "sleep_awake")
-        case .inBed: return String(localized: "sleep_in_bed")
-        default: return String(localized: "sleep_unknown")
+        case .asleepDeep: return "sleep_deep".localized()
+        case .asleepCore: return "sleep_core".localized()
+        case .asleepREM: return "sleep_rem".localized()
+        case .awake: return "sleep_awake".localized()
+        case .inBed: return "sleep_in_bed".localized()
+        default: return "sleep_unknown".localized()
         }
     }
 }

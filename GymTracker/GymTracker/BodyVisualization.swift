@@ -185,7 +185,7 @@ struct WeightChartView: View {
                         .font(.system(size: 40))
                         .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
                     
-                    Text("Добавьте больше записей\nдля отображения графика")
+                    Text("Добавьте больше записей\nдля отображения графика".localized())
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .multilineTextAlignment(.center)

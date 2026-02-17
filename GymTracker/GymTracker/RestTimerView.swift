@@ -36,7 +36,7 @@ struct RestTimerView: View {
                     .font(.system(size: 14))
                     .foregroundColor(DesignSystem.Colors.neonGreen)
                 
-                Text("Отдых")
+                Text("Отдых".localized())
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .fixedSize()
@@ -71,7 +71,7 @@ struct RestTimerView: View {
             // Control Buttons
             if !isRunning {
                 Button(action: startTimer) {
-                    Text("СТАРТ")
+                    Text("СТАРТ".localized())
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.black)
                         .padding(.horizontal, 20)
@@ -261,8 +261,8 @@ struct RestTimerView: View {
     // MARK: - Notification Helpers
     private func scheduleNotification() {
         let content = UNMutableNotificationContent()
-        content.title = "Время отдыха вышло!"
-        content.body = "Пора приступать к следующему подходу"
+        content.title = "Время отдыха вышло!".localized()
+        content.body = "Пора приступать к следующему подходу".localized()
         content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "beep.mp3")) // Fallback to default if custom missing
         if content.sound == nil { content.sound = .default }
         

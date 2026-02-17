@@ -57,6 +57,16 @@ struct ProgramSeeder {
     nonisolated static func seedProgramsIfNeeded(context: ModelContext) {
         let descriptor = FetchDescriptor<Program>()
         
+        // MIGRATION: Delete all programs once to switch to key-based localization
+        let migrationKey = "DidMigrateProgramsToKeys_v2"
+        if !UserDefaults.standard.bool(forKey: migrationKey) {
+            deleteAllPrograms(context: context)
+            UserDefaults.standard.set(true, forKey: migrationKey)
+            #if DEBUG
+            print("🔄 Migration: Deleted all programs to switch to key-based localization")
+            #endif
+        }
+        
         // Programs to REMOVE (Unpopular)
         let deprecatedPrograms = [
             "Продвинутый DUP",
@@ -70,31 +80,81 @@ struct ProgramSeeder {
         
         do {
             let existingPrograms = try context.fetch(descriptor)
-            let existingNames = Set(existingPrograms.map { $0.name })
+            
+            // 0. Remove Duplicates — keep only the first occurrence of each name
+            var seenNames = Set<String>()
+            var duplicatesToDelete: [Program] = []
+            
+            for prog in existingPrograms {
+                if seenNames.contains(prog.name) {
+                    duplicatesToDelete.append(prog)
+                } else {
+                    seenNames.insert(prog.name)
+                }
+            }
+            
+            // Delete all duplicates
+            for prog in duplicatesToDelete {
+                context.delete(prog)
+            }
+            
+            // ВАЖНО: Сохранить изменения сразу после удаления дублей
+            if !duplicatesToDelete.isEmpty {
+                try context.save()
+                #if DEBUG
+                print("Removed \(duplicatesToDelete.count) duplicate programs")
+                #endif
+            }
+            
+            // Refresh after dedup - get fresh list from DB
+            let refreshedPrograms = try context.fetch(descriptor)
+            let existingNames = Set(refreshedPrograms.map { $0.name })
             
             // 1. Remove Deprecated
-            for prog in existingPrograms {
+            var deprecatedToDelete: [Program] = []
+            for prog in refreshedPrograms {
                 if deprecatedPrograms.contains(prog.name) {
-                    context.delete(prog)
-                    #if DEBUG
-                    print("Deleted deprecated program: \(prog.name)")
-                    #endif
+                    deprecatedToDelete.append(prog)
                 }
+            }
+            
+            for prog in deprecatedToDelete {
+                context.delete(prog)
+            }
+            
+            if !deprecatedToDelete.isEmpty {
+                try context.save()
+                #if DEBUG
+                print("Deleted \(deprecatedToDelete.count) deprecated programs")
+                #endif
             }
             
             // 2. Add Missing
             let programsToCreate = generateDefaultPrograms(context: context)
             
+            // Refresh names again after deprecated removal
+            let finalPrograms = try context.fetch(descriptor)
+            let finalExistingNames = Set(finalPrograms.map { $0.name })
+            
             for program in programsToCreate {
-                if !existingNames.contains(program.name) {
+                if !finalExistingNames.contains(program.name) {
                     context.insert(program)
                     #if DEBUG
                     print("Seeded program: \(program.name)")
                     #endif
                 } else {
-                    // Update order of existing
-                    if let existing = existingPrograms.first(where: { $0.name == program.name }) {
-                        existing.displayOrder = program.displayOrder
+                    // Update order of existing ONLY if NOT user-modified
+                    if let existing = finalPrograms.first(where: { $0.name == program.name }) {
+                        if !existing.isUserModified {
+                            existing.displayOrder = program.displayOrder
+                            #if DEBUG
+                            print("Updated displayOrder for default program: \(program.name)")
+                            #endif
+                        } else {
+                            #if DEBUG
+                            print("Skipped updating '\(program.name)' - user-modified program")
+                            #endif
+                        }
                     }
                 }
             }
@@ -110,12 +170,26 @@ struct ProgramSeeder {
         }
     }
     
+    /// Удаляет ВСЕ программы (для миграции)
+    nonisolated static func deleteAllPrograms(context: ModelContext) {
+        let descriptor = FetchDescriptor<Program>()
+        if let allPrograms = try? context.fetch(descriptor) {
+            for program in allPrograms {
+                context.delete(program)
+            }
+            try? context.save()
+            #if DEBUG
+            print("Deleted all \(allPrograms.count) programs for migration")
+            #endif
+        }
+    }
+    
     // MARK: - Category I: Full Body (Силовая)
     
     private nonisolated static func createFundamental2Day() -> Program {
         let program = Program(
-            name: "Фулбади: Фундаментальная",
-            desc: "Базовая программа full body для начинающих. 2 тренировки в неделю с акцентом на основные движения."
+            name: "Full Body: Fundamental",
+            desc: "Basic full body program for beginners. 2 workouts per week focusing on fundamental movements."
         )
         
         // День A
@@ -145,8 +219,8 @@ struct ProgramSeeder {
     
     private nonisolated static func createHighFrequency3Day() -> Program {
         let program = Program(
-            name: "Высокочастотная Гипертрофия",
-            desc: "Тренировка всего тела 3 раза в неделю. Высокая частота для максимальной гипертрофии."
+            name: "High Frequency Full Body",
+            desc: "Full body workout 3 times per week. High frequency for maximum hypertrophy."
         )
         
         // День A
@@ -165,7 +239,7 @@ struct ProgramSeeder {
         addExercise(to: dayB, name: "Армейский жим", sets: 4, order: 1)
         addExercise(to: dayB, name: "Подтягивания", sets: 4, order: 2, type: .repsOnly)
         addExercise(to: dayB, name: "Сгибание ног сидя", sets: 3, order: 3)
-        addExercise(to: dayB, name: "Bayesian Curl", sets: 3, order: 4)
+        addExercise(to: dayB, name: "Байезианские сгибания", sets: 3, order: 4)
         dayB.program = program
         program.days.append(dayB)
         
@@ -221,8 +295,8 @@ struct ProgramSeeder {
     
     private nonisolated static func createAestheticsBalance() -> Program {
         let program = Program(
-            name: "Эстетика и Баланс",
-            desc: "2-дневный сплит. Фокус на гармоничное развитие всех мышечных групп."
+            name: "Aesthetics & Balance",
+            desc: "2-day split. Focus on balanced development of all muscle groups."
         )
         
         // День A: Ноги + Плечи
@@ -366,8 +440,8 @@ struct ProgramSeeder {
     
     private nonisolated static func create531Beginner() -> Program {
         let program = Program(
-            name: "5/3/1 Новичок",
-            desc: "Классическая программа Джима Вендлера для новичков. 2 дня в неделю."
+            name: "5/3/1 for Beginners",
+            desc: "Classic Jim Wendler program for beginners. 2 days per week."
         )
         
         // День A
@@ -391,8 +465,8 @@ struct ProgramSeeder {
     
     private nonisolated static func createGZCLP() -> Program {
         let program = Program(
-            name: "GZCLP Линейная",
-            desc: "GZCL Linear Progression. Три уровня интенсивности: T1, T2, T3."
+            name: "GZCLP Linear Progression",
+            desc: "GZCL Linear Progression. Three intensity tiers: T1, T2, T3."
         )
         
         // День 1
@@ -416,11 +490,11 @@ struct ProgramSeeder {
     
     private nonisolated static func createUpperLowerStrength() -> Program {
         let program = Program(
-            name: "Верх/Низ Силовой",
-            desc: "Сплит верх/низ для максимальной силы. Тяжелые базовые движения."
+            name: "Upper/Lower Strength",
+            desc: "Upper/lower split for maximum strength. Heavy compound movements."
         )
         // День Верх
-        let dayUpper = WorkoutDay(name: "Day Upper", orderIndex: 0, workoutType: .strength)
+        let dayUpper = WorkoutDay(name: "День Верх", orderIndex: 0, workoutType: .strength)
         addExercise(to: dayUpper, name: "Жим лежа", sets: 5, order: 0)
         addExercise(to: dayUpper, name: "Тяга штанги в наклоне", sets: 5, order: 1)
         addExercise(to: dayUpper, name: "Жим стоя", sets: 4, order: 2)
@@ -429,7 +503,7 @@ struct ProgramSeeder {
         program.days.append(dayUpper)
         
         // День Низ
-        let dayLower = WorkoutDay(name: "Day Lower", orderIndex: 1, workoutType: .strength)
+        let dayLower = WorkoutDay(name: "День Низ", orderIndex: 1, workoutType: .strength)
         addExercise(to: dayLower, name: "Приседания", sets: 5, order: 0)
         addExercise(to: dayLower, name: "Становая тяга", sets: 5, order: 1)
         addExercise(to: dayLower, name: "Ягодичный мост (Hip Thrust)", sets: 4, order: 2)
@@ -443,8 +517,8 @@ struct ProgramSeeder {
     
     private nonisolated static func createHIITPyramid() -> Program {
         let program = Program(
-            name: "HIIT Пирамида",
-            desc: "Высокоинтенсивные интервалы на беговой дорожке. 30/30, 45/45, 60/60."
+            name: "HIIT Pyramid",
+            desc: "High-intensity intervals on treadmill. 30/30, 45/45, 60/60."
         )
         
         let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .duration)
@@ -471,8 +545,8 @@ struct ProgramSeeder {
     
     private nonisolated static func createLISSElliptical() -> Program {
         let program = Program(
-            name: "LISS Эллипс",
-            desc: "40-60 минут в зоне 2 пульса. Активно работать руками (push-pull)."
+            name: "LISS Elliptical",
+            desc: "40-60 minutes in heart rate zone 2. Actively engage arms (push-pull)."
         )
         
         let day1 = WorkoutDay(name: "Workout", orderIndex: 0, workoutType: .duration)
@@ -487,8 +561,8 @@ struct ProgramSeeder {
     
     private nonisolated static func createStreetWorkoutBeginner() -> Program {
         let program = Program(
-            name: "Воркаут: Старт",
-            desc: "Программа для начинающих на турниках и брусьях. Базовые движения."
+            name: "Street Workout: Beginner",
+            desc: "Beginner program for pull-up bars and parallel bars. Basic movements."
         )
         
         let day1 = WorkoutDay(name: "Фулбади Воркаут", orderIndex: 0, workoutType: .strength)
@@ -506,8 +580,8 @@ struct ProgramSeeder {
     
     private nonisolated static func createStreetWorkoutIntermediate() -> Program {
         let program = Program(
-            name: "Воркаут: Прогресс",
-            desc: "Продвинутая программа для уличной площадки. Изучение элементов."
+            name: "Street Workout: Intermediate",
+            desc: "Advanced program for outdoor training. Learning skills and elements."
         )
         
         // День А: Тяни (Pull)

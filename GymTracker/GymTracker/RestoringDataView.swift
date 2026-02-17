@@ -45,11 +45,11 @@ struct RestoringDataView: View {
                 }
                 
                 VStack(spacing: 12) {
-                    Text("Восстанавливаем данные...")
+                    Text("Восстанавливаем данные...".localized())
                         .font(DesignSystem.Typography.title3())
                         .foregroundStyle(DesignSystem.Colors.primaryText)
                     
-                    Text("Мы нашли вашу историю тренировок в облаке.\nПожалуйста, подождите.")
+                    Text("Мы нашли вашу историю тренировок в облаке.\nПожалуйста, подождите.".localized())
                         .font(DesignSystem.Typography.body())
                         .foregroundStyle(DesignSystem.Colors.secondaryText)
                         .multilineTextAlignment(.center)
@@ -92,7 +92,7 @@ struct RestoringDataView: View {
                     await SyncManager.shared.restoreUserProfileFromFirestore(container: container)
                     
                     // Restore Programs
-                    await SyncManager.shared.restoreProgramsFromFirestore(container: container)
+                    _ = await SyncManager.shared.restoreProgramsFromFirestore(container: container)
                     
                     // Remove any duplicates that might have been created
                     await SyncManager.shared.removeDuplicateWorkouts(container: container)

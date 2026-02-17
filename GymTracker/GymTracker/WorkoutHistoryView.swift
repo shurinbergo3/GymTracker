@@ -21,6 +21,13 @@ struct WorkoutHistoryView: View {
     enum HistoryMode: String, CaseIterable {
         case sessions = "Тренировки"
         case exercises = "Упражнения"
+        
+        var title: String {
+            switch self {
+            case .sessions: return "Тренировки".localized()
+            case .exercises: return "Упражнения".localized()
+            }
+        }
     }
     
     // Calculates progress for a specific past session compared to the one before it
@@ -79,12 +86,12 @@ struct WorkoutHistoryView: View {
                     
                     // Text
                     VStack(spacing: 8) {
-                        Text("Нет завершенных тренировок")
+                        Text("Нет завершенных тренировок".localized())
                             .font(DesignSystem.Typography.title3())
                             .foregroundColor(.white)
                             .fontWeight(.semibold)
                         
-                        Text("История ваших тренировок появится здесь.\nНачните свой путь прямо сейчас!")
+                        Text("История ваших тренировок появится здесь.\nНачните свой путь прямо сейчас!".localized())
                             .font(DesignSystem.Typography.body())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .multilineTextAlignment(.center)
@@ -105,7 +112,7 @@ struct WorkoutHistoryView: View {
                         }
                         dismiss()
                     }) {
-                        Text("Начать тренировку")
+                        Text("Начать тренировку".localized())
                             .font(.system(size: 17, weight: .bold))
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)
@@ -120,9 +127,9 @@ struct WorkoutHistoryView: View {
             } else {
                 VStack(spacing: 0) {
                     // Mode Picker
-                    Picker("Режим", selection: $historyMode) {
+                    Picker("Режим".localized(), selection: $historyMode) {
                         ForEach(HistoryMode.allCases, id: \.self) { mode in
-                            Text(mode.rawValue).tag(mode)
+                            Text(mode.title).tag(mode)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -142,7 +149,7 @@ struct WorkoutHistoryView: View {
                 }
             }
         }
-        .navigationTitle("История")
+        .navigationTitle("История".localized())
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -179,7 +186,7 @@ struct SessionHistoryView: View {
                                 sessionToDelete = session
                                 showingDeleteConfirmation = true
                             } label: {
-                                Label("Удалить", systemImage: "trash")
+                                Label("Удалить".localized(), systemImage: "trash")
                             }
                         }
                         .onTapGesture {
@@ -193,11 +200,11 @@ struct SessionHistoryView: View {
         .navigationDestination(item: $selectedSession) { session in
             WorkoutHistoryDetailView(session: session)
         }
-        .alert("Удалить тренировку?", isPresented: $showingDeleteConfirmation) {
-            Button("Отмена", role: .cancel) {
+        .alert(Text("Удалить тренировку?".localized()), isPresented: $showingDeleteConfirmation) {
+            Button("Отмена".localized(), role: .cancel) {
                 sessionToDelete = nil
             }
-            Button("Удалить", role: .destructive) {
+            Button("Удалить".localized(), role: .destructive) {
                 if let session = sessionToDelete {
                     deleteWorkout(session)
                     sessionToDelete = nil
@@ -219,8 +226,8 @@ struct SessionHistoryView: View {
     
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
-        formatter.dateFormat = "d MMMM yyyy"
+        // formatter.locale = Locale(identifier: "ru_RU")
+        formatter.setLocalizedDateFormatFromTemplate("dMMMMyyyy")
         return formatter.string(from: date)
     }
     
@@ -250,30 +257,76 @@ struct ExerciseHistoryListView: View {
         return dict
     }
     
-    private var sortedExerciseNames: [String] {
-        exercises.keys.sorted()
+    // Group exercises by their category
+    private var groupedExercises: [(category: ExerciseCategory, exercises: [(name: String, sets: [WorkoutSet])])] {
+        var categoryDict: [ExerciseCategory: [(name: String, sets: [WorkoutSet])]] = [:]
+        
+        // Group each exercise by its category from the library
+        for (name, sets) in exercises {
+            // Find the exercise in the library to get its category
+            if let libraryExercise = ExerciseLibrary.allExercises.first(where: { $0.name == name }) {
+                let category = libraryExercise.category
+                if categoryDict[category] == nil {
+                    categoryDict[category] = []
+                }
+                categoryDict[category]?.append((name: name, sets: sets))
+            } else {
+                // If not found in library, put in "complex" category as fallback
+                if categoryDict[.complex] == nil {
+                    categoryDict[.complex] = []
+                }
+                categoryDict[.complex]?.append((name: name, sets: sets))
+            }
+        }
+        
+        // Sort exercises within each category alphabetically
+        for category in categoryDict.keys {
+            categoryDict[category]?.sort { $0.name < $1.name }
+        }
+        
+        // Sort categories in a specific order and filter out empty ones
+        let categoryOrder: [ExerciseCategory] = [.chest, .back, .legs, .shoulders, .arms, .core, .cardio, .complex]
+        return categoryOrder.compactMap { category in
+            guard let exercises = categoryDict[category], !exercises.isEmpty else { return nil }
+            return (category: category, exercises: exercises)
+        }
     }
     
     var body: some View {
         LazyVStack(spacing: DesignSystem.Spacing.md) {
-            ForEach(sortedExerciseNames, id: \.self) { name in
-                ExerciseHistoryRow(
-                    name: name,
-                    sets: exercises[name] ?? [],
-                    isExpanded: expandedExercise == name,
-                    onTap: {
-                        withAnimation {
-                            if expandedExercise == name {
-                                expandedExercise = nil
-                            } else {
-                                expandedExercise = name
+            ForEach(groupedExercises, id: \.category) { group in
+                // Category Header
+                HStack {
+                    Text(group.category.rawValue)
+                        .font(DesignSystem.Typography.headline())
+                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                        .textCase(.uppercase)
+                        .tracking(1.2)
+                    Spacer()
+                }
+                .padding(.horizontal, DesignSystem.Spacing.lg)
+                .padding(.top, DesignSystem.Spacing.md)
+                
+                // Exercises in this category
+                ForEach(group.exercises, id: \.name) { exercise in
+                    ExerciseHistoryRow(
+                        name: exercise.name,
+                        sets: exercise.sets,
+                        isExpanded: expandedExercise == exercise.name,
+                        onTap: {
+                            withAnimation {
+                                if expandedExercise == exercise.name {
+                                    expandedExercise = nil
+                                } else {
+                                    expandedExercise = exercise.name
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                }
             }
         }
-        .padding(.horizontal, DesignSystem.Spacing.lg)
     }
 }
 
@@ -286,7 +339,9 @@ struct ExerciseHistoryRow: View {
     // Group sets by Date (Session)
     private var historyByDate: [(Date, [WorkoutSet])] {
         let grouped = Dictionary(grouping: sets) { $0.session?.date ?? Date.distantPast }
-        return grouped.sorted { $0.key > $1.key }
+        return grouped.sorted { $0.key > $1.key }.map { (date, sets) in
+            (date, sets.sorted { $0.setNumber < $1.setNumber })
+        }
     }
     
     var body: some View {
@@ -295,7 +350,7 @@ struct ExerciseHistoryRow: View {
                 // Header
                 Button(action: onTap) {
                     HStack {
-                        Text(name)
+                        Text(name.localized())
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
@@ -331,8 +386,8 @@ struct ExerciseHistoryRow: View {
     
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
-        formatter.dateFormat = "d MMMM yyyy"
+        // formatter.locale = Locale(identifier: "ru_RU")
+        formatter.setLocalizedDateFormatFromTemplate("dMMMMyyyy")
         return formatter.string(from: date)
     }
 }
@@ -360,8 +415,8 @@ private struct ExerciseHistoryDayView: View {
     
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
-        formatter.dateFormat = "d MMMM yyyy"
+        // formatter.locale = Locale(identifier: "ru_RU")
+        formatter.setLocalizedDateFormatFromTemplate("dMMMMyyyy")
         return formatter.string(from: date)
     }
 }
@@ -371,7 +426,7 @@ private struct ExerciseHistorySetRow: View {
     
     var body: some View {
         HStack {
-            Text("Подход \(set.setNumber)")
+            Text("\("Подход".localized()) \(set.setNumber)")
                 .font(DesignSystem.Typography.body())
                 .foregroundColor(DesignSystem.Colors.secondaryText)
                 .frame(width: 80, alignment: .leading)
@@ -379,9 +434,9 @@ private struct ExerciseHistorySetRow: View {
             // Display based on logic
             Group {
                 if set.weight > 0 || set.reps > 0 {
-                    Text("\(Int(set.weight)) кг × \(set.reps)")
+                    Text("\(Int(set.weight)) \("кг".localized()) × \(set.reps)")
                 } else {
-                    Text((set.duration ?? 0) > 0 ? formatDuration(set.duration ?? 0) : "Завершено")
+                    Text((set.duration ?? 0) > 0 ? formatDuration(set.duration ?? 0) : "Завершено".localized())
                 }
             }
             .font(DesignSystem.Typography.body())
@@ -418,8 +473,8 @@ struct WorkoutHistoryCard: View {
     
     private var formattedDate: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
-        formatter.dateFormat = "d MMMM yyyy"
+        // formatter.locale = Locale(identifier: "ru_RU")
+        formatter.setLocalizedDateFormatFromTemplate("dMMMMyyyy")
         return formatter.string(from: session.date).capitalized
     }
     
@@ -453,7 +508,7 @@ struct WorkoutHistoryCard: View {
                                 .tracking(1)
                         }
                         
-                        Text(session.workoutDayName)
+                        Text(session.workoutDayName.localized())
                             .font(DesignSystem.Typography.title3())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
@@ -466,10 +521,9 @@ struct WorkoutHistoryCard: View {
                     
 
                     
-                    // Session Progress Arrow
-                    if let state = progressState {
+                        if let state = progressState {
                         HStack(spacing: 4) {
-                            Text(state == .improved ? "Рост" : (state == .declined ? "Спад" : "Стабильно"))
+                            Text(state == .improved ? "Рост".localized() : (state == .declined ? "Спад".localized() : "Стабильно".localized()))
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(state.color)
                             
@@ -490,7 +544,7 @@ struct WorkoutHistoryCard: View {
                 HStack(spacing: DesignSystem.Spacing.xl) {
                     // Подходы
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("ПОДХОДЫ")
+                        Text("ПОДХОДЫ".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)
@@ -508,7 +562,7 @@ struct WorkoutHistoryCard: View {
                                  .multilineTextAlignment(.leading)
                                  .fixedSize(horizontal: false, vertical: true)
                         } else {
-                            Text("Нет данных для сравнения")
+                            Text("Нет данных для сравнения".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
@@ -522,7 +576,7 @@ struct WorkoutHistoryCard: View {
                 // Комментарий (если есть)
                 if let notes = session.notes, !notes.isEmpty {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("ОТЗЫВ")
+                        Text("ОТЗЫВ".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)
@@ -546,15 +600,21 @@ struct WorkoutHistoryDetailView: View {
     
     private var formattedDate: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
-        formatter.dateFormat = "d MMMM yyyy 'в' HH:mm"
+        // formatter.locale = Locale(identifier: "ru_RU")
+        formatter.setLocalizedDateFormatFromTemplate("dMMMMyyyyHHmm")
         return formatter.string(from: session.date).capitalized
     }
     
     // Группировка подходов по упражнениям
     private var exerciseGroups: [(name: String, sets: [WorkoutSet])] {
-        let grouped = Dictionary(grouping: session.sets.sorted { $0.setNumber < $1.setNumber }, by: { $0.exerciseName })
-        return grouped.map { (name: $0.key, sets: $0.value) }.sorted { $0.name < $1.name }
+        let grouped = Dictionary(grouping: session.sets, by: { $0.exerciseName })
+        return grouped.map { (name: $0.key, sets: $0.value.sorted { 
+            // Сортируем по времени создания, потом по номеру подхода
+            if $0.date != $1.date {
+                return $0.date < $1.date
+            }
+            return $0.setNumber < $1.setNumber
+        }) }.sorted { $0.name < $1.name }
     }
     
     var body: some View {
@@ -566,7 +626,7 @@ struct WorkoutHistoryDetailView: View {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
                     // Заголовок с датой
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        Text(session.workoutDayName)
+                        Text(session.workoutDayName.localized())
                             .font(DesignSystem.Typography.title())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
@@ -580,7 +640,7 @@ struct WorkoutHistoryDetailView: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DesignSystem.Spacing.md) {
                         // Time
                         StatCard(
-                            title: "Время",
+                            title: "Время".localized(),
                             value: formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0),
                             icon: "clock.fill",
                             color: .blue
@@ -588,7 +648,7 @@ struct WorkoutHistoryDetailView: View {
                         
                         // Calories
                         StatCard(
-                            title: "Калории",
+                            title: "Калории".localized(),
                             value: session.calories != nil ? "\(session.calories!)" : "--",
                             icon: "flame.fill",
                             color: .orange
@@ -596,7 +656,7 @@ struct WorkoutHistoryDetailView: View {
                         
                         // Heart Rate
                         StatCard(
-                            title: "Средний пульс",
+                            title: "Средний пульс".localized(),
                             value: session.averageHeartRate != nil ? "\(session.averageHeartRate!) bpm" : "--",
                             icon: "heart.fill",
                             color: .red
@@ -604,7 +664,7 @@ struct WorkoutHistoryDetailView: View {
                         
                         // Sets Count (As a filler for 4th slot if needed, or remove)
                          StatCard(
-                            title: "Подходов",
+                            title: "Подходов".localized(),
                             value: "\(session.sets.count)",
                             icon: "dumbbell.fill",
                             color: DesignSystem.Colors.neonGreen
@@ -616,7 +676,7 @@ struct WorkoutHistoryDetailView: View {
                     if let notes = session.notes, !notes.isEmpty {
                         CardView {
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                Text("ОТЗЫВ О ТРЕНИРОВКЕ")
+                                Text("ОТЗЫВ О ТРЕНИРОВКЕ".localized())
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .tracking(1.2)
@@ -641,7 +701,7 @@ struct WorkoutHistoryDetailView: View {
                 .padding(.vertical, DesignSystem.Spacing.xl)
             }
         }
-        .navigationTitle("Детали тренировки")
+        .navigationTitle("Детали тренировки".localized())
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -649,8 +709,8 @@ struct WorkoutHistoryDetailView: View {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.hour, .minute]
         formatter.unitsStyle = .abbreviated
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.locale = Locale(identifier: "ru_RU")
+        let calendar = Calendar(identifier: .gregorian)
+        // calendar.locale = Locale(identifier: "ru_RU")
         formatter.calendar = calendar
         
         return formatter.string(from: duration) ?? "0 мин"
@@ -677,7 +737,7 @@ struct ExerciseHistoryCard: View {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                 // Название упражнения
                 HStack {
-                    Text(exerciseName)
+                    Text(exerciseName.localized())
                         .font(DesignSystem.Typography.title3())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     
@@ -685,7 +745,7 @@ struct ExerciseHistoryCard: View {
                     
                     // Show arrow if we can calculate progress (need logic or pass it in)
                     // For now, removing volume as requested. Can add simple text if needed.
-                    Text(sets.count > 0 ? "\(sets.count) подх." : "")
+                    Text(sets.count > 0 ? "\(sets.count) \("подх.".localized())" : "")
                         .font(DesignSystem.Typography.callout())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
@@ -711,13 +771,13 @@ struct ExerciseHistoryCard: View {
                 VStack(spacing: DesignSystem.Spacing.sm) {
                     ForEach(Array(sets.enumerated()), id: \.element.id) { index, set in
                         HStack {
-                            Text("Подход \(index + 1)")
+                            Text("\("Подход".localized()) \(index + 1)")
                                 .font(DesignSystem.Typography.callout())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             
                             Spacer()
                             
-                            Text("\(Int(set.weight)) кг × \(set.reps)")
+                            Text("\(Int(set.weight)) \("кг".localized()) × \(set.reps)")
                                 .font(DesignSystem.Typography.headline())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                         }
@@ -754,9 +814,9 @@ struct WorkoutTypeDistributionChart: View {
         }
         
         return [
-            (type: "Силовые", count: strengthCount, color: .blue),
-            (type: "Кардио", count: cardioCount, color: .red),
-            (type: "Круговые", count: circuitCount, color: .orange)
+            (type: "Силовые".localized(), count: strengthCount, color: .blue),
+            (type: "Кардио".localized(), count: cardioCount, color: .red),
+            (type: "Круговые".localized(), count: circuitCount, color: .orange)
         ].filter { $0.count > 0 }
     }
     
@@ -772,7 +832,7 @@ struct WorkoutTypeDistributionChart: View {
             CardView {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                     HStack {
-                        Text("ТИПЫ ТРЕНИРОВОК")
+                        Text("ТИПЫ ТРЕНИРОВОК".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)
@@ -854,7 +914,7 @@ struct WorkoutTypeDistributionChart: View {
                             }
                         }
                     } else {
-                        Text("Нет данных")
+                        Text("Нет данных".localized())
                             .font(DesignSystem.Typography.body())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -904,7 +964,7 @@ struct WorkoutTypesDetailView: View {
                 .padding(.bottom, 40)
             }
             .background(Color.black)
-            .navigationTitle("Типы тренировок")
+            .navigationTitle("Типы тренировок".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -951,7 +1011,7 @@ struct WorkoutTypesDetailView: View {
                         Text("\(sessions.count)")
                             .font(.system(size: 40, weight: .bold))
                             .foregroundColor(.white)
-                        Text("Всего")
+                        Text("Всего".localized())
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
@@ -994,7 +1054,7 @@ struct WorkoutTypesDetailView: View {
     
     private var barChartSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Распределение")
+            Text("Распределение".localized())
                 .font(.headline)
                 .foregroundColor(.white)
             
@@ -1029,7 +1089,7 @@ struct WorkoutTypesDetailView: View {
     
     private var exerciseTypesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Типы упражнений")
+            Text("Типы упражнений".localized())
                 .font(.headline)
                 .foregroundColor(.white)
             
@@ -1070,7 +1130,7 @@ struct WorkoutTypesDetailView: View {
     
     private var typeDetailsList: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Подробности")
+            Text("Подробности".localized())
                 .font(.headline)
                 .foregroundColor(.white)
             
@@ -1088,7 +1148,7 @@ struct WorkoutTypesDetailView: View {
                             .fontWeight(.medium)
                             .foregroundColor(.white)
                         
-                        Text("\(item.count) тренировок")
+                        Text("\(item.count) \("тренировок".localized())")
                             .font(.caption)
                             .foregroundColor(.gray)
                     }

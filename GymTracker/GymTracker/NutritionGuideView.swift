@@ -32,11 +32,11 @@ struct NutritionGuideView: View {
                             .cornerRadius(DesignSystem.CornerRadius.large)
                         
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Гид по питанию")
+                            Text("Nutrition Guide".localized())
                                 .font(DesignSystem.Typography.title2())
                                 .foregroundColor(.white)
                                 .shadow(radius: 4)
-                            Text("Просто о сложном")
+                            Text("Simply about complex".localized())
                                 .font(DesignSystem.Typography.subheadline())
                                 .foregroundColor(.white.opacity(0.9))
                                 .shadow(radius: 4)
@@ -47,7 +47,7 @@ struct NutritionGuideView: View {
                     .padding(.top, DesignSystem.Spacing.md)
                     
                     // Введение
-                    Text("Правильное питание — это не диета, а топливо для твоих побед. Еда влияет на энергию, настроение и восстановление мышц. Мы не будем считать сложные формулы, а разберем базу, которая работает.")
+                    Text("Proper nutrition isn't a diet, it's fuel for victory. Food affects energy, mood, and recovery. No complex formulas, just basics that work.".localized())
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -58,151 +58,151 @@ struct NutritionGuideView: View {
                         .padding(.bottom, 8)
                     
                     // Глава 1. Энергия
-                    SectionCard(title: "1. Энергия и Калории", icon: "flame.fill", color: .orange) {
-                        Text("Все просто: количество энергии (калорий) определяет твой вес.")
+                    SectionCard(title: "1. Energy and Calories".localized(), icon: "flame.fill", color: .orange) {
+                        Text("Simple: energy (calories) determines your weight.".localized())
                             .font(DesignSystem.Typography.body())
                         
-                        BulletPoint(icon: "scalemass", title: "Баланс", text: "Ешь больше, чем тратишь — набираешь. Тратишь больше — худеешь.")
-                        BulletPoint(icon: "waveform.path.ecg", title: "Базовый обмен", text: "Энергия, которую тело тратит в покое (на дыхание, работу сердца).")
-                        BulletPoint(icon: "figure.walk", title: "Активность", text: "Любое движение (ходьба, уборка, тренировка) сжигает калории.")
+                        BulletPoint(icon: "scalemass", title: "Balance".localized(), text: "Eat more than you burn — gain weight. Burn more — lose weight.".localized())
+                        BulletPoint(icon: "waveform.path.ecg", title: "Basal Metabolism".localized(), text: "Energy your body burns at rest (breathing, heartbeat).".localized())
+                        BulletPoint(icon: "figure.walk", title: "Activity".localized(), text: "Any movement (walking, cleaning, training) burns calories.".localized())
                     }
                     
                     // Глава 2. БЖУ
-                    SectionCard(title: "2. Из чего состоит еда (БЖУ)", icon: "chart.pie.fill", color: .blue) {
-                        Text("Макронутриенты — это кирпичики нашего тела.")
+                    SectionCard(title: "2. What food is made of (Macros)".localized(), icon: "chart.pie.fill", color: .blue) {
+                        Text("Macronutrients are building blocks of our body.".localized())
                              .font(DesignSystem.Typography.body())
                         
                         VStack(alignment: .leading, spacing: 12) {
                             // Protein
                             HStack {
                                 Image(systemName: "circle.fill").foregroundColor(.red).font(.caption)
-                                Text("Белки (Строитель)").bold().foregroundColor(DesignSystem.Colors.primaryText)
+                                Text("Protein (Builder)".localized()).bold().foregroundColor(DesignSystem.Colors.primaryText)
                             }
-                            Text("Главный материал для роста мышц. Есть в мясе, рыбе, яйцах, твороге.")
+                            Text("Main material for muscle growth. Found in meat, fish, eggs, cottage cheese.".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             
                             // Carbs
                             HStack {
                                 Image(systemName: "circle.fill").foregroundColor(.green).font(.caption)
-                                Text("Углеводы (Топливо)").bold().foregroundColor(DesignSystem.Colors.primaryText)
+                                Text("Carbs (Fuel)".localized()).bold().foregroundColor(DesignSystem.Colors.primaryText)
                             }
-                            Text("Энергия для тренировок и мозга. Крупы, макароны, фрукты, овощи.")
+                            Text("Energy for training and brain. Grains, pasta, fruits, vegetables.".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                 
                             // Fats
                             HStack {
                                 Image(systemName: "circle.fill").foregroundColor(.yellow).font(.caption)
-                                Text("Жиры (Защита)").bold().foregroundColor(DesignSystem.Colors.primaryText)
+                                Text("Fats (Protection)".localized()).bold().foregroundColor(DesignSystem.Colors.primaryText)
                             }
-                            Text("Нужны для гормонов и здоровья. Орехи, масла, авокадо, жирная рыба.")
+                            Text("Needed for hormones and health. Nuts, oils, avocado, fatty fish.".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
                     }
                     
                     // Глава 3. Вода
-                    SectionCard(title: "3. Вода", icon: "drop.fill", color: .cyan) {
-                        Text("Вода — это среда для всех процессов.")
+                    SectionCard(title: "3. Water".localized(), icon: "drop.fill", color: .cyan) {
+                        Text("Water is the medium for all processes.".localized())
                              .font(DesignSystem.Typography.body())
-                        BulletPoint(icon: "drop.circle", title: "Пей регулярно", text: "Начинай утро со стакана воды.")
-                        BulletPoint(icon: "bolt.fill", title: "На тренировке", text: "Пей по чуть-чуть между подходами.")
-                        BulletPoint(icon: "arrow.counterclockwise", title: "Обезвоживание", text: "Если хочешь пить — ты уже обезвожен. Не допускай этого.")
+                        BulletPoint(icon: "drop.circle", title: "Drink regularly".localized(), text: "Start your morning with a glass of water.".localized())
+                        BulletPoint(icon: "bolt.fill", title: "During training".localized(), text: "Sip between sets.".localized())
+                        BulletPoint(icon: "arrow.counterclockwise", title: "Dehydration".localized(), text: "If you're thirsty, you're already dehydrated. Don't let it happen.".localized())
                     }
                     
                     // Глава 4. Стратегии
-                    Text("Твоя цель")
+                    Text("Your goal".localized())
                         .font(DesignSystem.Typography.title3())
                         .bold()
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .padding(.top, 8)
                     
                     // Strategy: Fat Loss
-                    SectionCard(title: "Хочу похудеть", icon: "arrow.down.right.circle.fill", color: .green) {
-                         Text("Главное правило: Дефицит калорий.")
+                    SectionCard(title: "Want to lose weight".localized(), icon: "arrow.down.right.circle.fill", color: .green) {
+                         Text("Main rule: Calorie deficit.".localized())
                              .font(DesignSystem.Typography.headline())
                              .foregroundColor(.green)
                         
-                         BulletPoint(icon: "scalemass", title: "Меньше ешь", text: "Урежь порции углеводов и жиров.")
-                         BulletPoint(icon: "shield.fill", title: "Больше белка", text: "Ешь белок, чтобы не терять мышцы вместо жира.")
-                         BulletPoint(icon: "carrot.fill", title: "Овощи", text: "Добавляй овощи в каждый прием пищи — они дают сытость.")
+                         BulletPoint(icon: "scalemass", title: "Eat less".localized(), text: "Cut carbs and fats portions.".localized())
+                         BulletPoint(icon: "shield.fill", title: "More protein".localized(), text: "Eat protein to avoid losing muscle instead of fat.".localized())
+                         BulletPoint(icon: "carrot.fill", title: "Vegetables".localized(), text: "Add vegetables to every meal — they provide satiety.".localized())
                     }
                     
                     // Strategy: Muscle Gain
-                    SectionCard(title: "Хочу набрать массу", icon: "arrow.up.right.circle.fill", color: .red) {
-                        Text("Главное правило: Профицит калорий.")
+                    SectionCard(title: "Want to gain mass".localized(), icon: "arrow.up.right.circle.fill", color: .red) {
+                        Text("Main rule: Calorie surplus.".localized())
                              .font(DesignSystem.Typography.headline())
                              .foregroundColor(.red)
 
-                        BulletPoint(icon: "plus.circle", title: "Больше ешь", text: "Нужно есть чуть больше, чем тратишь.")
-                        BulletPoint(icon: "bolt.fill", title: "Углеводы", text: "Не бойся углеводов — они нужны для тяжелых тренировок.")
-                        BulletPoint(icon: "hare.fill", title: "Не спеши", text: "Быстрый набор веса — это чаще жир, а не мышцы.")
+                        BulletPoint(icon: "plus.circle", title: "Eat more".localized(), text: "Need to eat slightly more than you burn.".localized())
+                        BulletPoint(icon: "bolt.fill", title: "Carbohydrates".localized(), text: "Don't fear carbs — they're needed for heavy training.".localized())
+                        BulletPoint(icon: "hare.fill", title: "Don't rush".localized(), text: "Fast weight gain is usually fat, not muscle.".localized())
                     }
 
                     // Глава 5. Тайминг
-                    SectionCard(title: "5. Когда есть?", icon: "clock.fill", color: .purple) {
-                        ComparisonRow(left: "До тренировки", right: "2-3 часа", text: "Полноценный обед (каша + мясо).")
-                        ComparisonRow(left: "Перед стартом", right: "30 мин", text: "Можно банан или йогурт.")
-                        ComparisonRow(left: "После", right: "1 час", text: "Поешь белок и углеводы для восстановления.")
-                        ComparisonRow(left: "Вечером", right: "Ужин", text: "Белок (творог, рыба) + овощи.")
+                    SectionCard(title: "5. When to eat?".localized(), icon: "clock.fill", color: .purple) {
+                        ComparisonRow(left: "Before training".localized(), right: "2-3 hours".localized(), text: "Full meal (grains + meat).".localized())
+                        ComparisonRow(left: "Before start".localized(), right: "30 min".localized(), text: "Can have banana or yogurt.".localized())
+                        ComparisonRow(left: "After".localized(), right: "1 hour".localized(), text: "Eat protein and carbs for recovery.".localized())
+                        ComparisonRow(left: "Evening".localized(), right: "Dinner".localized(), text: "Protein (cottage cheese, fish) + vegetables.".localized())
                     }
                     
                     // Глава 7. Добавки
-                    SectionCard(title: "6. Спортивные добавки", icon: "pills.circle.fill", color: .indigo) {
-                        Text("Это дополнение к еде, а не замена.")
+                    SectionCard(title: "6. Sports supplements".localized(), icon: "pills.circle.fill", color: .indigo) {
+                        Text("This is a supplement to food, not a replacement.".localized())
                              .font(DesignSystem.Typography.body())
                         
                         VStack(alignment: .leading, spacing: 8) {
-                            Label("Полезно", systemImage: "checkmark.seal.fill").foregroundColor(.green).bold()
+                            Label("Useful".localized(), systemImage: "checkmark.seal.fill").foregroundColor(.green).bold()
                             Group {
-                                Text("• Креатин: Дает силу и объем мышцам.")
-                                Text("• Протеин: Удобный способ добрать белок, если не успел поесть.")
-                                Text("• Витамины: Помогают организму работать без сбоев.")
+                                Text("• Creatine: Gives strength and volume to muscles.".localized())
+                                Text("• Protein: Convenient way to get protein if you didn't have time to eat.".localized())
+                                Text("• Vitamins: Help the body function without failures.".localized())
                             }
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             
                             Divider().background(Color.white.opacity(0.1))
                             
-                            Label("Не трать деньги", systemImage: "xmark.bin.fill").foregroundColor(.red).bold()
-                            Text("• Жиросжигатели: Не работают без диеты и спорта.")
+                            Label("Don't waste money".localized(), systemImage: "xmark.bin.fill").foregroundColor(.red).bold()
+                            Text("• Fat burners: Don't work without diet and exercise.".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
                     }
                     
                     // Глава 8. Метод Ладони
-                    SectionCard(title: "7. Как измерять порции", icon: "hand.raised.fill", color: .orange) {
-                        Text("Не обязательно все взвешивать. Используй руки:")
+                    SectionCard(title: "7. How to measure portions".localized(), icon: "hand.raised.fill", color: .orange) {
+                        Text("No need to weigh everything. Use your hands:".localized())
                             .font(DesignSystem.Typography.body())
                         
                         HStack(alignment: .top, spacing: 20) {
                             VStack {
                                 Image(systemName: "hand.raised.fill").font(.largeTitle).foregroundColor(.red)
-                                Text("Белок").font(.caption).bold()
-                                Text("Ладонь").font(.caption2).foregroundColor(.gray)
+                                Text("Protein".localized()).font(.caption).bold()
+                                Text("Palm".localized()).font(.caption2).foregroundColor(.gray)
                             }
                             VStack {
                                 Image(systemName: "circle.grid.cross.fill").font(.largeTitle).foregroundColor(.green)
-                                Text("Овощи").font(.caption).bold()
-                                Text("Кулак").font(.caption2).foregroundColor(.gray)
+                                Text("Veggies".localized()).font(.caption).bold()
+                                Text("Fist".localized()).font(.caption2).foregroundColor(.gray)
                             }
                             VStack {
                                 Image(systemName: "hand.cup.fill").font(.largeTitle).foregroundColor(.blue)
-                                Text("Угли").font(.caption).bold()
-                                Text("Горсть").font(.caption2).foregroundColor(.gray)
+                                Text("Carbs".localized()).font(.caption).bold()
+                                Text("Handful".localized()).font(.caption2).foregroundColor(.gray)
                             }
                             VStack {
                                 Image(systemName: "hand.thumbsup.fill").font(.largeTitle).foregroundColor(.yellow)
-                                Text("Жиры").font(.caption).bold()
-                                Text("Палец").font(.caption2).foregroundColor(.gray)
+                                Text("Fats".localized()).font(.caption).bold()
+                                Text("Thumb".localized()).font(.caption2).foregroundColor(.gray)
                             }
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                         
-                        Text("Мужчинам: 2 порции. Женщинам: 1 порция.")
+                        Text("Men: 2 portions. Women: 1 portion.".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(.gray)
                     }
@@ -211,7 +211,7 @@ struct NutritionGuideView: View {
                 }
             }
         }
-        .navigationTitle("Питание")
+        .navigationTitle("Nutrition".localized())
         .navigationBarTitleDisplayMode(.inline)
     }
 }

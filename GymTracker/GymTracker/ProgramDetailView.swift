@@ -26,16 +26,16 @@ struct ProgramDetailView: View {
             Section {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                     if !program.desc.isEmpty {
-                        Text(program.desc)
+                        Text(program.desc.localized())
                             .font(DesignSystem.Typography.body())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
                     
                     HStack {
-                        Label("\(program.days.count) дней", systemImage: "calendar")
+                        Label("\(program.days.count) дней".localized(), systemImage: "calendar")
                         Spacer()
                         if program.isActive {
-                            Text("Активная")
+                            Text("Активная".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .padding(.horizontal, DesignSystem.Spacing.sm)
                                 .padding(.vertical, DesignSystem.Spacing.xs)
@@ -50,24 +50,24 @@ struct ProgramDetailView: View {
             }
             
             // Дни тренировок
-            Section("Дни тренировок") {
+            Section("Дни тренировок".localized()) {
                 ForEach(sortedDays, id: \.self) { day in
                     WorkoutDayRow(day: day)
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle(program.name)
+        .navigationTitle(Text(program.name.localized()))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button(action: { showingEditProgram = true }) {
-                        Label("Редактировать", systemImage: "pencil")
+                        Label("Редактировать".localized(), systemImage: "pencil")
                     }
                     
                     Button(role: .destructive, action: { showingDeleteAlert = true }) {
-                        Label("Удалить", systemImage: "trash")
+                        Label("Удалить".localized(), systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -77,13 +77,13 @@ struct ProgramDetailView: View {
         .sheet(isPresented: $showingEditProgram) {
             ProgramEditorView(existingProgram: program)
         }
-        .alert("Удалить программу?", isPresented: $showingDeleteAlert) {
-            Button("Отмена", role: .cancel) { }
-            Button("Удалить", role: .destructive) {
+        .alert(Text("Удалить программу?".localized()), isPresented: $showingDeleteAlert) {
+            Button("Отмена".localized(), role: .cancel) { }
+            Button("Удалить".localized(), role: .destructive) {
                 deleteProgram()
             }
         } message: {
-            Text("Программа \"\(program.name)\" будет удалена без возможности восстановления.")
+            Text("Программа \"\(program.name.localized())\" будет удалена без возможности восстановления.".localized())
         }
     }
     
@@ -119,11 +119,11 @@ struct WorkoutDayRow: View {
             Button(action: { withAnimation { isExpanded.toggle() } }) {
                 HStack {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text(day.name)
+                        Text(day.name.localized())
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
-                        Text("\(day.exercises.count) упражнений")
+                        Text("\(day.exercises.count) упражнений".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -146,7 +146,7 @@ struct WorkoutDayRow: View {
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                 .frame(width: 25, alignment: .leading)
                             
-                            Text(exercise.name)
+                            Text(exercise.name.localized())
                                 .font(DesignSystem.Typography.body())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
@@ -154,7 +154,7 @@ struct WorkoutDayRow: View {
                             
                             Spacer()
                             
-                            Text("\(exercise.plannedSets) × подходов")
+                            Text("\(exercise.plannedSets) × подходов".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }

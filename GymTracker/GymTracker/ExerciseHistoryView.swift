@@ -26,8 +26,9 @@ struct ExerciseHistoryView: View {
             Calendar.current.startOfDay(for: session.date)
         }
         
-        // Сортируем по дате (новые сверху)
+        // Сортируем по дате (новые сверху) и подходы по номерам
         return grouped.map { date, sessions in
+            // Собираем все подходы для этого упражнения в этот день
             let sets = sessions.flatMap { $0.sets }
                 .filter { $0.exerciseName == exerciseName }
                 .sorted { $0.setNumber < $1.setNumber }
@@ -41,24 +42,24 @@ struct ExerciseHistoryView: View {
             List {
                 if exerciseSessions.isEmpty {
                     ContentUnavailableView {
-                        Label("Нет истории", systemImage: "clock.arrow.circlepath")
+                        Label("Нет истории".localized(), systemImage: "clock.arrow.circlepath")
                             .font(DesignSystem.Typography.body())
                     } description: {
-                        Text("Вы еще не выполняли это упражнение")
+                        Text("Вы еще не выполняли это упражнение".localized())
                             .font(DesignSystem.Typography.callout())
                     }
                 } else {
                     ForEach(exerciseSessions, id: \.date) { sessionData in
                         Section {
-                            ForEach(sessionData.sets.sorted(by: { $0.setNumber < $1.setNumber }), id: \.self) { set in
+                            ForEach(sessionData.sets, id: \.self) { set in
                                 HStack {
-                                    Text("Подход \(set.setNumber)")
+                                    Text("Подход \(set.setNumber)".localized())
                                         .font(DesignSystem.Typography.callout())
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                     
                                     Spacer()
                                     
-                                    Text("\(Int(set.weight)) кг × \(set.reps)")
+                                    Text("\(Int(set.weight)) кг × \(set.reps)".localized())
                                         .font(DesignSystem.Typography.body())
                                         .foregroundColor(DesignSystem.Colors.primaryText)
                                 }
@@ -71,11 +72,11 @@ struct ExerciseHistoryView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle(exerciseName)
+            .navigationTitle(exerciseName.localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Закрыть") {
+                    Button("Закрыть".localized()) {
                         dismiss()
                     }
                 }

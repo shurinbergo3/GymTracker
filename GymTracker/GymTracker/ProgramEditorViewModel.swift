@@ -68,7 +68,7 @@ class ProgramEditorViewModel: ObservableObject {
     func addDay() {
         let dayNumber = workoutDays.count + 1
         let newDay = WorkoutDayDraft(
-            name: "День \(dayNumber)",
+            name: "День \(dayNumber)".localized(),
             orderIndex: workoutDays.count
         )
         workoutDays.append(newDay)
@@ -156,6 +156,7 @@ class ProgramEditorViewModel: ObservableObject {
             program = existing
             program.name = programName.trimmingCharacters(in: .whitespaces)
             program.desc = programDescription.trimmingCharacters(in: .whitespaces)
+            program.isUserModified = true // Mark as user-modified
             
             // Capture IDs of days currently in the database to identify deletions later
             // We use PersistentIdentifier which is stable for saved objects
@@ -215,6 +216,7 @@ class ProgramEditorViewModel: ObservableObject {
                 name: programName.trimmingCharacters(in: .whitespaces),
                 desc: programDescription.trimmingCharacters(in: .whitespaces)
             )
+            program.isUserModified = true // New programs are user-created
             context.insert(program)
             
             // Just add everything new

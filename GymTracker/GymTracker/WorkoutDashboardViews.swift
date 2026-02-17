@@ -27,7 +27,7 @@ struct SleepCard: View {
                     HStack {
                         Image(systemName: "bed.double.fill")
                             .foregroundStyle(Color.purple)
-                        Text("sleep_title")
+                        Text("sleep_title".localized())
                             .font(.headline)
                             .foregroundStyle(.white)
                         
@@ -39,7 +39,7 @@ struct SleepCard: View {
                     }
                     
                     if sleepData.isEmpty {
-                        Text("no_data")
+                        Text("no_data".localized())
                             .font(.caption)
                             .foregroundStyle(.gray)
                     } else {
@@ -47,7 +47,7 @@ struct SleepCard: View {
                             Text(formatDuration(totalSleep))
                                 .font(.system(size: 32, weight: .bold))
                                 .foregroundStyle(.white)
-                            Text("sleep_total_label")
+                            Text("sleep_total_label".localized())
                                 .font(.caption)
                                 .foregroundStyle(.gray)
                                 .padding(.bottom, 4)
@@ -96,7 +96,7 @@ struct SleepCard: View {
     private func formatDuration(_ duration: TimeInterval) -> String {
         let hours = Int(duration) / 3600
         let minutes = (Int(duration) % 3600) / 60
-        return "\(hours)ч \(minutes)м"
+        return "\(hours)\("ч".localized()) \(minutes)\("м".localized())"
     }
 }
 
@@ -124,17 +124,17 @@ struct TodayWorkoutCard: View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
             HStack {
                 VStack(alignment: .leading) {
-                    Text("План на сегодня".localizedUppercase)
+                    Text("План на сегодня".localized().localizedUppercase)
                         .font(DesignSystem.Typography.sectionHeader())
                         .foregroundStyle(DesignSystem.Colors.secondaryText)
                         .tracking(1.2)
                     
                     if let day = workoutManager.selectedDay {
-                        Text(day.name)
+                        Text(day.name.localized())
                             .font(DesignSystem.Typography.title2())
                             .foregroundStyle(DesignSystem.Colors.primaryText)
                     } else {
-                        Text("rest_day_title")
+                        Text("rest_day_title".localized())
                             .font(DesignSystem.Typography.title2())
                             .foregroundStyle(DesignSystem.Colors.primaryText)
                     }
@@ -160,7 +160,7 @@ struct TodayWorkoutCard: View {
             Button(action: { workoutManager.startWorkout() }) {
                 HStack {
                     Spacer()
-                    Text(workoutManager.selectedDay == nil ? String(localized: "select_program_button") : String(localized: "start_workout_button"))
+                    Text(workoutManager.selectedDay == nil ? "select_program_button".localized() : "start_workout_button".localized())
                         .font(DesignSystem.Typography.headline())
                         .fontWeight(.bold)
                     Image(systemName: "play.fill")
@@ -187,13 +187,13 @@ struct TodayWorkoutCard: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("workout_active_label".localizedUppercase)
+                        Text("workout_active_label".localized().localizedUppercase)
                             .font(DesignSystem.Typography.sectionHeader())
                             .foregroundStyle(DesignSystem.Colors.neonGreen)
                             .tracking(1.2)
                         
                         if let day = workoutManager.selectedDay {
-                            Text(day.name)
+                            Text(day.name.localized())
                                 .font(DesignSystem.Typography.title2())
                                 .foregroundStyle(DesignSystem.Colors.primaryText)
                         }
@@ -217,7 +217,7 @@ struct TodayWorkoutCard: View {
                 HStack(spacing: 20) {
                     // Timer
                     VStack(alignment: .leading, spacing: 2) {
-                        Label("time_label", systemImage: "timer")
+                        Label("time_label".localized(), systemImage: "timer")
                             .font(DesignSystem.Typography.caption())
                             .foregroundStyle(DesignSystem.Colors.secondaryText)
                         Text(formatElapsedTime(context.date))
@@ -229,7 +229,7 @@ struct TodayWorkoutCard: View {
                     
                     // Exercises Progress
                     VStack(alignment: .trailing, spacing: 2) {
-                        Label("progress_label", systemImage: "checkmark.circle")
+                        Label("progress_label".localized(), systemImage: "checkmark.circle")
                             .font(DesignSystem.Typography.caption())
                             .foregroundStyle(DesignSystem.Colors.secondaryText)
                         Text(progressText)
@@ -239,7 +239,7 @@ struct TodayWorkoutCard: View {
                     
                     // Calories
                     VStack(alignment: .trailing, spacing: 2) {
-                        Label("calories_label", systemImage: "flame.fill")
+                        Label("calories_label".localized(), systemImage: "flame.fill")
                             .font(DesignSystem.Typography.caption())
                             .foregroundStyle(DesignSystem.Colors.secondaryText)
                         Text("\(workoutManager.currentActiveCalories)")
@@ -269,7 +269,7 @@ struct TodayWorkoutCard: View {
                 Button(action: onOpenWorkout) {
                     HStack {
                         Spacer()
-                        Text("open_workout_button")
+                        Text("open_workout_button".localized())
                             .font(DesignSystem.Typography.headline())
                         Image(systemName: "arrow.right")
                         Spacer()
@@ -338,9 +338,9 @@ struct SleepDetailView: View {
                 VStack(spacing: 24) {
                     
                     // Range Picker
-                    Picker("period_picker_label", selection: $selectedRange) {
+                    Picker("period_picker_label".localized(), selection: $selectedRange) {
                         ForEach(SleepTimeRange.allCases) { range in
-                            Text(range.rawValue).tag(range)
+                            Text(range.localizedName).tag(range)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -357,11 +357,11 @@ struct SleepDetailView: View {
                 .padding(.vertical)
             }
             .background(DesignSystem.Colors.background.ignoresSafeArea())
-            .navigationTitle("sleep_title")
+            .navigationTitle("sleep_title".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("done_button") { dismiss() }
+                    Button("done_button".localized()) { dismiss() }
                         .foregroundStyle(DesignSystem.Colors.neonGreen)
                 }
             }
@@ -383,14 +383,14 @@ struct SleepDetailView: View {
         VStack(spacing: 24) {
             // Header Stats
             HStack(spacing: 20) {
-                SleepStatBox(title: String(localized: "total_sleep_stat"), value: formatDuration(totalSleep), color: .white)
-                SleepStatBox(title: String(localized: "in_bed_stat"), value: formatDuration(totalInBed), color: .gray)
+                SleepStatBox(title: "total_sleep_stat".localized(), value: formatDuration(totalSleep), color: .white)
+                SleepStatBox(title: "in_bed_stat".localized(), value: formatDuration(totalInBed), color: .gray)
             }
             .padding(.horizontal)
             
             // Main Graph
             VStack(alignment: .leading, spacing: 16) {
-                Text("sleep_stages_today")
+                Text("sleep_stages_today".localized())
                     .font(.headline)
                     .foregroundStyle(.white)
                 
@@ -425,18 +425,18 @@ struct SleepDetailView: View {
             
             // Legend / Breakdown
             VStack(alignment: .leading, spacing: 12) {
-                Text("details_section")
+                Text("details_section".localized())
                     .font(.headline)
                     .foregroundStyle(.white)
                     .padding(.bottom, 4)
                 
-                SleepLegendRow(color: .purple, label: String(localized: "deep_sleep_legend"), duration: duration(for: .asleepDeep))
+                SleepLegendRow(color: .purple, label: "deep_sleep_legend".localized(), duration: duration(for: .asleepDeep))
                 Divider().background(Color.gray.opacity(0.3))
-                SleepLegendRow(color: .blue, label: String(localized: "core_sleep_legend"), duration: duration(for: .asleepCore))
+                SleepLegendRow(color: .blue, label: "core_sleep_legend".localized(), duration: duration(for: .asleepCore))
                 Divider().background(Color.gray.opacity(0.3))
-                SleepLegendRow(color: .cyan, label: String(localized: "rem_sleep_legend"), duration: duration(for: .asleepREM))
+                SleepLegendRow(color: .cyan, label: "rem_sleep_legend".localized(), duration: duration(for: .asleepREM))
                 Divider().background(Color.gray.opacity(0.3))
-                SleepLegendRow(color: .orange, label: String(localized: "awake_sleep_legend"), duration: duration(for: .awake))
+                SleepLegendRow(color: .orange, label: "awake_sleep_legend".localized(), duration: duration(for: .awake))
             }
             .padding()
             .background(DesignSystem.Colors.cardBackground)
@@ -452,7 +452,7 @@ struct SleepDetailView: View {
             let avgSleep = historyData.isEmpty ? 0 : historyData.reduce(0) { $0 + $1.totalDuration } / Double(historyData.count)
             
             HStack(spacing: 20) {
-                SleepStatBox(title: String(localized: "avg_sleep_stat"), value: formatDuration(avgSleep), color: .white)
+                SleepStatBox(title: "avg_sleep_stat".localized(), value: formatDuration(avgSleep), color: .white)
                 // Placeholder for second stat or remove
                 Spacer()
             }
@@ -460,12 +460,12 @@ struct SleepDetailView: View {
             
             // History Graph
             VStack(alignment: .leading, spacing: 16) {
-                Text("\(String(localized: "history_title")) (\(selectedRange.rawValue))")
+                Text("\("history_title".localized()) (\(selectedRange.rawValue))")
                     .font(.headline)
                     .foregroundStyle(.white)
                 
                 if historyData.isEmpty {
-                    Text("no_data_period")
+                    Text("no_data_period".localized())
                         .foregroundStyle(.gray)
                         .frame(maxWidth: .infinity, minHeight: 200)
                 } else {
@@ -483,7 +483,7 @@ struct SleepDetailView: View {
                             .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
                             .foregroundStyle(.purple.opacity(0.5))
                             .annotation(position: .leading) {
-                                Text("8ч")
+                                Text("8ч".localized())
                                     .font(.caption)
                                     .foregroundStyle(.purple)
                             }
@@ -542,7 +542,7 @@ struct SleepDetailView: View {
     private func formatDuration(_ duration: TimeInterval) -> String {
         let hours = Int(duration) / 3600
         let minutes = (Int(duration) % 3600) / 60
-        return "\(hours)ч \(minutes)м"
+        return "\(hours)\("ч".localized()) \(minutes)\("м".localized())"
     }
 }
 
@@ -591,7 +591,7 @@ struct SleepLegendRow: View {
     private func formatDuration(_ duration: TimeInterval) -> String {
         let hours = Int(duration) / 3600
         let minutes = (Int(duration) % 3600) / 60
-        return "\(hours)ч \(minutes)м"
+        return "\(hours)\("ч".localized()) \(minutes)\("м".localized())"
     }
 }
 
@@ -625,13 +625,10 @@ struct DashboardView: View {
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 
-                // MARK: - Today's Plan (Action Hero Card)
-                TodayWorkoutCard(
-                    workoutManager: workoutManager,
-                    showingDaySelection: $showingDaySelection,
-                    onOpenWorkout: { }
-                )
-                .padding(.horizontal, DesignSystem.Spacing.lg)
+                // Activity Rings (Hero Health Section)
+                ActivityRingsCard()
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .transition(.move(edge: .top).combined(with: .opacity))
                 
                 // Full Width Chart (Show only if data exists)
                 if !history.isEmpty {
@@ -639,6 +636,14 @@ struct DashboardView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, DesignSystem.Spacing.lg)
                 }
+                
+                // MARK: - Today's Plan (Action Hero Card)
+                TodayWorkoutCard(
+                    workoutManager: workoutManager,
+                    showingDaySelection: $showingDaySelection,
+                    onOpenWorkout: { }
+                )
+                .padding(.horizontal, DesignSystem.Spacing.lg)
                 
                 // Last Workout Preview (moved to main column)
                 if let lastSession = recentHistory.first {
@@ -681,7 +686,7 @@ struct DashboardView: View {
     // Helpers
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = Locale.current
         formatter.dateStyle = .medium
         return formatter.string(from: date)
     }
@@ -734,14 +739,14 @@ struct HistoryCardView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 // Day Name (Big)
-                Text(session.workoutDayName)
+                Text(session.workoutDayName.localized())
                     .font(.headline)
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(.white)
                 
                 // Program Name (Small)
                 if let programName = session.programName {
-                    Text(programName)
+                    Text(programName.localized())
                         .font(.caption)
                         .foregroundStyle(DesignSystem.Colors.primaryText.opacity(0.7))
                 }
@@ -757,7 +762,7 @@ struct HistoryCardView: View {
             // Stats + Arrow
             VStack(alignment: .trailing, spacing: 4) {
                 if let calories = session.calories {
-                    Text("\(calories) ккал")
+                    Text("\(calories) \("ккал".localized())")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(DesignSystem.Colors.neonGreen)
@@ -785,7 +790,7 @@ struct HistoryCardView: View {
     
     private func formatDateFull(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = Locale.current
         formatter.dateFormat = "d MMM, EEEEE" // 16 янв, П
         return formatter.string(from: date).capitalized
     }
@@ -832,7 +837,7 @@ struct TodaysPlanCard: View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
                 // Header
-                Text("План на сегодня")
+                Text("План на сегодня".localized())
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .tracking(1.2)
@@ -841,11 +846,11 @@ struct TodaysPlanCard: View {
                 if let selectedDay = workoutManager.selectedDay {
                     HStack {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                            Text(selectedDay.name)
+                            Text(selectedDay.name.localized())
                                 .font(DesignSystem.Typography.title())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
-                            Text("\(selectedDay.exercises.count) упражнений")
+                            Text("\(selectedDay.exercises.count) \("упражнений".localized())")
                                 .font(DesignSystem.Typography.callout())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
@@ -859,13 +864,13 @@ struct TodaysPlanCard: View {
                         }
                     }
                 } else {
-                    Text("Выберите тренировку")
+                    Text("Выберите тренировку".localized())
                         .font(DesignSystem.Typography.title3())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
                 
                 // Start button
-                GradientButton(title: "Начать тренировку", icon: "play.fill") {
+                GradientButton(title: "Начать тренировку".localized(), icon: "play.fill") {
                     workoutManager.startWorkout()
                 }
             }
@@ -891,7 +896,7 @@ struct PreviousProgressCard: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                Text("Прошлые успехи")
+                Text("Прошлые успехи".localized())
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .tracking(1.2)
@@ -904,11 +909,11 @@ struct PreviousProgressCard: View {
                             .font(.system(size: 40))
                             .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
                         
-                        Text("Нет данных")
+                        Text("Нет данных".localized())
                             .font(DesignSystem.Typography.callout())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                         
-                        Text("Выполните первую тренировку, чтобы отслеживать прогресс")
+                        Text("Выполните первую тренировку, чтобы отслеживать прогресс".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .multilineTextAlignment(.center)
@@ -973,16 +978,16 @@ struct ActiveWorkoutView: View {
                 }
             }
             .confirmationDialog(
-                "Отменить тренировку?",
+                "Отменить тренировку?".localized(),
                 isPresented: $showingCancelConfirmation,
                 titleVisibility: .visible
             ) {
-                Button("Отменить тренировку", role: .destructive) {
+                Button("Отменить тренировку".localized(), role: .destructive) {
                     workoutManager.cancelWorkout()
                 }
-                Button("Продолжить", role: .cancel) { }
+                Button("Продолжить".localized(), role: .cancel) { }
             } message: {
-                Text("Данные текущей тренировки не будут сохранены.")
+                Text("Данные текущей тренировки не будут сохранены.".localized())
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -1037,7 +1042,7 @@ struct SummaryOverlay: View {
                     .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 20, x: 0, y: 0)
                     
                     // Title
-                    Text("Тренировка завершена!")
+                    Text("Тренировка завершена!".localized())
                         .font(DesignSystem.Typography.title())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .multilineTextAlignment(.center)
@@ -1054,9 +1059,9 @@ struct SummaryOverlay: View {
                             HStack(spacing: DesignSystem.Spacing.md) {
                                 // Records / Best (Green) -> Full Width now since others are gone
                                 StatBentoCard(
-                                    title: "Рекорды",
+                                    title: "Рекорды".localized(),
                                     value: "\(countImprovements())",
-                                    subValue: "новых",
+                                    subValue: "новых".localized(),
                                     icon: "trophy.fill",
                                     color: DesignSystem.Colors.neonGreen
                                 )
@@ -1072,7 +1077,7 @@ struct SummaryOverlay: View {
                         
                         // MARK: - Exercise Breakdown
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            Text("ДЕТАЛИЗАЦИЯ")
+                            Text("ДЕТАЛИЗАЦИЯ".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                 .tracking(1.2)
@@ -1082,7 +1087,7 @@ struct SummaryOverlay: View {
                                 CardView {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 4) {
-                                            Text(item.exerciseName)
+                                            Text(item.exerciseName.localized())
                                                 .font(DesignSystem.Typography.body())
                                                 .foregroundColor(DesignSystem.Colors.primaryText)
                                             
@@ -1115,7 +1120,7 @@ struct SummaryOverlay: View {
                     // Notes field
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         HStack(spacing: 6) {
-                            Text("комментарий о тренировке".uppercased())
+                            Text("комментарий о тренировке".localized().uppercased())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                 .tracking(1.2)
@@ -1127,7 +1132,7 @@ struct SummaryOverlay: View {
                         
                         ZStack(alignment: .topLeading) {
                             if notes.isEmpty {
-                                Text("Расскажите как прошла ваша тренировка")
+                                Text("Расскажите как прошла ваша тренировка".localized())
                                     .font(DesignSystem.Typography.body())
                                     .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
                                     .padding(.top, 12)
@@ -1152,7 +1157,7 @@ struct SummaryOverlay: View {
                     .padding(.horizontal, DesignSystem.Spacing.xl)
                     
                     // Close button
-                    GradientButton(title: "Закрыть и сохранить", icon: "checkmark.circle.fill") {
+                    GradientButton(title: "Закрыть и сохранить".localized(), icon: "checkmark.circle.fill") {
                         if !notes.isEmpty {
                             workoutManager.currentSession?.notes = notes
                         }
@@ -1214,7 +1219,7 @@ struct ProgressSummaryCard: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                Text("Ваш прогресс")
+                Text("Ваш прогресс".localized())
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .tracking(1.2)
@@ -1322,7 +1327,7 @@ struct ActiveWorkoutContent: View {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
                         .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 5)
-                    Text("Добавить упражнение")
+                    Text("Добавить упражнение".localized())
                         .font(DesignSystem.Typography.headline())
                 }
                 .foregroundColor(DesignSystem.Colors.neonGreen)
@@ -1337,7 +1342,7 @@ struct ActiveWorkoutContent: View {
             
             // Finish workout button
             if let session = workoutManager.currentSession, !session.sets.isEmpty {
-                GradientButton(title: "Закончить тренировку", icon: "checkmark.circle.fill") {
+                GradientButton(title: "Закончить тренировку".localized(), icon: "checkmark.circle.fill") {
                     UINotificationFeedbackGenerator().notificationOccurred(.success)
                     Task {
                         await workoutManager.finishWorkout()
@@ -1450,7 +1455,7 @@ struct LastWorkoutBento: View {
                 HStack {
                     Image(systemName: "clock.arrow.circlepath")
                         .foregroundStyle(DesignSystem.Colors.neonGreen)
-                    Text("Последняя тренировка")
+                    Text("Последняя тренировка".localized())
                         .font(.headline)
                         .foregroundStyle(.white)
                     Spacer()
@@ -1459,7 +1464,7 @@ struct LastWorkoutBento: View {
                         .foregroundStyle(.gray)
                 }
                 
-                Text(session.workoutDayName)
+                Text(session.workoutDayName.localized())
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.8))
                     .lineLimit(1)
@@ -1490,7 +1495,7 @@ struct LastWorkoutBento: View {
     
     func formatDuration(_ duration: TimeInterval) -> String {
         let minutes = Int(duration) / 60
-        return "\(minutes) мин"
+        return "\(minutes) \("мин".localized())"
     }
 }
 
@@ -1526,7 +1531,7 @@ struct WorkoutSummaryStats: View {
         HStack(spacing: 12) {
             // 1. Duration (Blue)
             SummaryStatBox(
-                title: "ВРЕМЯ",
+                title: "ВРЕМЯ".localized(),
                 value: formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0),
                 unit: nil,
                 icon: "timer",
@@ -1535,18 +1540,18 @@ struct WorkoutSummaryStats: View {
             
             // 2. Calories (Orange)
             SummaryStatBox(
-                title: "ККАЛ",
+                title: "ККАЛ".localized(),
                 value: "\(session.calories ?? 0)",
-                unit: "ккал",
+                unit: "ккал".localized(),
                 icon: "flame.fill",
                 color: .orange
             )
             
             // 3. Heart Rate (Red)
             SummaryStatBox(
-                title: "ПУЛЬС",
+                title: "ПУЛЬС".localized(),
                 value: "\(session.averageHeartRate ?? 0)",
-                unit: "уд/мин",
+                unit: "уд/мин".localized(),
                 icon: "heart.fill",
                 color: .red
             )

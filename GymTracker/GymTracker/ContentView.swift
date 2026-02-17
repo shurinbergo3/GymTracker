@@ -18,7 +18,7 @@ struct ContentView: View {
             // Tab 1: Тренировка
             WorkoutView(modelContext: modelContext, selectedTab: $selectedTab)
                 .tabItem {
-                    Label("Тренировка", systemImage: "figure.strengthtraining.traditional")
+                    Label("Тренировка".localized(), systemImage: "figure.strengthtraining.traditional")
                 }
                 .tag(0)
                 .accessibilityIdentifier("tab_workout")
@@ -26,7 +26,7 @@ struct ContentView: View {
             // Tab 2: Программа
             ProgramView()
                 .tabItem {
-                    Label("Программа", systemImage: "list.bullet.clipboard.fill")
+                    Label("Программа".localized(), systemImage: "list.bullet.clipboard.fill")
                 }
                 .tag(1)
                 .accessibilityIdentifier("tab_program")
@@ -34,7 +34,7 @@ struct ContentView: View {
             // Tab 3: Справочник
             ReferenceView()
                 .tabItem {
-                    Label("Справочник", systemImage: "book.fill")
+                    Label("Справочник".localized(), systemImage: "book.fill")
                 }
                 .tag(2)
                 .accessibilityIdentifier("tab_reference")
@@ -42,7 +42,7 @@ struct ContentView: View {
             // Tab 4: Параметры
             MeasurementsView(selectedTab: $selectedTab)
                 .tabItem {
-                    Label("Статистика", systemImage: "chart.line.uptrend.xyaxis")
+                    Label("Статистика".localized(), systemImage: "chart.line.uptrend.xyaxis")
                 }
                 .tag(3)
                 .accessibilityIdentifier("tab_stats")

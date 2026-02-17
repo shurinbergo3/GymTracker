@@ -53,7 +53,7 @@ struct ExerciseTechniqueDetailView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         // 1. Title & Type
                         VStack(alignment: .leading, spacing: 12) {
-                            Text(exerciseName)
+                            Text(exerciseName.localized())
                                 .font(.system(size: 28, weight: .bold)) // Slightly smaller for small screens
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.leading)
@@ -92,20 +92,20 @@ struct ExerciseTechniqueDetailView: View {
                                 Image(systemName: "lightbulb.fill")
                                     .font(.title3)
                                     .foregroundColor(DesignSystem.Colors.neonGreen)
-                                Text("Техника выполнения")
+                                Text("Техника выполнения".localized())
                                     .font(.headline)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                             }
                             
                             if let text = exercise?.technique {
-                                Text(text)
+                                Text(text.localized())
                                     .font(.body)
                                     .foregroundColor(Color.white.opacity(0.85))
                                     .lineSpacing(6)
                                     .lineLimit(nil) // Allow unlimited lines
                             } else {
-                                Text("Описание техники пока недоступно для этого упражнения.")
+                                Text("Описание техники пока недоступно для этого упражнения.".localized())
                                     .font(.body)
                                     .italic()
                                     .foregroundColor(.gray)
@@ -126,7 +126,7 @@ struct ExerciseTechniqueDetailView: View {
                             HStack {
                                 Image(systemName: "play.circle.fill")
                                     .font(.title2)
-                                Text("Смотреть на YouTube")
+                                Text("Смотреть на YouTube".localized())
                                     .fontWeight(.bold)
                                 Spacer()
                                 Image(systemName: "arrow.up.right")
@@ -150,7 +150,7 @@ struct ExerciseTechniqueDetailView: View {
                     .padding(.top, 20)
                 }
             }
-            .navigationTitle("Гайд упражнения")
+            .navigationTitle("Гайд упражнения".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

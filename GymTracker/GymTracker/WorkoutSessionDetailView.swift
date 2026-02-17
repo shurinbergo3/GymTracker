@@ -28,7 +28,7 @@ struct WorkoutSessionDetailView: View {
                 .padding(.bottom, 40)
             }
             .background(Color.black)
-            .navigationTitle(session.workoutDayName)
+            .navigationTitle(session.workoutDayName.localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -110,12 +110,12 @@ struct WorkoutSessionDetailView: View {
     // MARK: - Exercises Section
     private var exercisesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Упражнения")
+            Text("Упражнения".localized())
                 .font(.headline)
                 .foregroundColor(.white)
             
             if exercisesByName.isEmpty {
-                Text("Нет записанных упражнений")
+                Text("Нет записанных упражнений".localized())
                     .font(.caption)
                     .foregroundColor(.gray)
                     .padding()
@@ -141,9 +141,15 @@ struct WorkoutSessionDetailView: View {
                 .foregroundColor(.white)
             
             // Sets
-            ForEach(Array(sets.sorted(by: { $0.setNumber < $1.setNumber }).enumerated()), id: \.offset) { index, set in
+            ForEach(Array(sets.sorted(by: { 
+                // Сортируем по времени создания, потом по номеру подхода
+                if $0.date != $1.date {
+                    return $0.date < $1.date
+                }
+                return $0.setNumber < $1.setNumber
+            }).enumerated()), id: \.offset) { index, set in
                 HStack {
-                    Text("Подход \(set.setNumber)")
+                    Text("Подход \(set.setNumber)".localized())
                         .font(.caption)
                         .foregroundColor(.gray)
                         .frame(width: 70, alignment: .leading)
@@ -152,7 +158,7 @@ struct WorkoutSessionDetailView: View {
                     
                     // Show based on workout type
                     if set.weight > 0 {
-                        Text("\(Int(set.weight)) кг")
+                        Text("\(Int(set.weight)) кг".localized())
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.white)
@@ -170,7 +176,7 @@ struct WorkoutSessionDetailView: View {
                             .fontWeight(.medium)
                             .foregroundColor(DesignSystem.Colors.neonGreen)
                     } else {
-                        Text("\(set.reps) раз")
+                        Text("\(set.reps) раз".localized())
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(DesignSystem.Colors.neonGreen)
@@ -187,10 +193,10 @@ struct WorkoutSessionDetailView: View {
             let volume = sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
             if volume > 0 {
                 HStack {
-                    Text("Объём:")
+                    Text("Объём:".localized())
                         .font(.caption)
                         .foregroundColor(.gray)
-                    Text("\(Int(volume)) кг")
+                    Text("\(Int(volume)) кг".localized())
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundColor(DesignSystem.Colors.neonGreen)
@@ -206,7 +212,7 @@ struct WorkoutSessionDetailView: View {
     // MARK: - Summary Section
     private var summarySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Итого за тренировку")
+            Text("Итого за тренировку".localized())
                 .font(.headline)
                 .foregroundColor(.white)
             

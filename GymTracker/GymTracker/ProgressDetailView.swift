@@ -17,10 +17,19 @@ struct ProgressDetailView: View {
     @State private var selectedPeriod: StatsPeriod = .month
     
     enum StatsPeriod: String, CaseIterable {
-        case week = "Неделя"
-        case month = "Месяц"
-        case quarter = "3 месяца"
-        case year = "Год"
+        case week = "Week"
+        case month = "Month"
+        case quarter = "3 Months"
+        case year = "Year"
+        
+        var title: String {
+            switch self {
+            case .week: return "Неделя".localized()
+            case .month: return "Месяц".localized()
+            case .quarter: return "3 месяца".localized()
+            case .year: return "Год".localized()
+            }
+        }
         
         var days: Int {
             switch self {
@@ -70,7 +79,7 @@ struct ProgressDetailView: View {
                 .padding(.bottom, 40)
             }
             .background(Color.black)
-            .navigationTitle("Статистика прогресса")
+            .navigationTitle("Статистика прогресса".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -85,7 +94,7 @@ struct ProgressDetailView: View {
         HStack(spacing: 8) {
             ForEach(StatsPeriod.allCases, id: \.self) { period in
                 Button(action: { withAnimation { selectedPeriod = period } }) {
-                    Text(period.rawValue)
+                    Text(period.title)
                         .font(.caption)
                         .fontWeight(selectedPeriod == period ? .bold : .medium)
                         .foregroundColor(selectedPeriod == period ? .black : .white)
@@ -150,13 +159,13 @@ struct ProgressDetailView: View {
             HStack {
                 Image(systemName: "chart.bar.fill")
                     .foregroundColor(DesignSystem.Colors.neonGreen)
-                Text("Объём тренировок")
+                Text("Объём тренировок".localized())
                     .font(.headline)
                     .foregroundColor(.white)
             }
             
             if chartData.isEmpty {
-                Text("Недостаточно данных за этот период")
+                Text("Недостаточно данных за этот период".localized())
                     .font(.caption)
                     .foregroundColor(.gray)
                     .frame(maxWidth: .infinity, minHeight: 120)
@@ -166,8 +175,8 @@ struct ProgressDetailView: View {
                 Chart {
                     ForEach(Array(chartData.enumerated()), id: \.offset) { index, data in
                         AreaMark(
-                            x: .value("Тренировка", index),
-                            y: .value("Объём", data.volume)
+                            x: .value("Тренировка".localized(), index),
+                            y: .value("Объём".localized(), data.volume)
                         )
                         .foregroundStyle(
                             LinearGradient(
@@ -179,8 +188,8 @@ struct ProgressDetailView: View {
                         .interpolationMethod(.catmullRom)
                         
                         LineMark(
-                            x: .value("Тренировка", index),
-                            y: .value("Объём", data.volume)
+                            x: .value("Тренировка".localized(), index),
+                            y: .value("Объём".localized(), data.volume)
                         )
                         .foregroundStyle(progressTrend.color)
                         .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
@@ -204,14 +213,14 @@ struct ProgressDetailView: View {
             // First Row: Count and Progress
             HStack(spacing: 12) {
                 statCard(
-                    title: "Тренировок",
+                    title: "Тренировок".localized(),
                     value: "\(filteredSessions.count)",
                     icon: "figure.strengthtraining.traditional",
                     color: .blue
                 )
                 
                 statCard(
-                    title: "Прогресс",
+                    title: "Прогресс".localized(),
                     value: "\(progressSessionsCount)",
                     icon: "chart.line.uptrend.xyaxis",
                     color: DesignSystem.Colors.neonGreen
@@ -224,7 +233,7 @@ struct ProgressDetailView: View {
                     Image(systemName: "calendar")
                         .font(.title3)
                         .foregroundColor(.purple)
-                    Text("Активность (7 дней)")
+                    Text("Активность (7 дней)".localized())
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
@@ -248,7 +257,7 @@ struct ProgressDetailView: View {
             // Third Row: Calories (Wide for balance)
             HStack {
                 statCard(
-                    title: "Ср. калории / мес",
+                    title: "Ср. калории / мес".localized(),
                     value: "\(avgCalories)",
                     icon: "flame.fill",
                     color: .orange
@@ -344,7 +353,7 @@ struct ProgressDetailView: View {
     
     private func formatVolume(_ volume: Double) -> String {
         if volume >= 1000 {
-            return String(format: "%.1fк", volume / 1000)
+            return String(format: "%.1f%@", volume / 1000, "к".localized())
         }
         return String(format: "%.0f", volume)
     }

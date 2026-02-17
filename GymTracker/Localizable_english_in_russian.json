@@ -1,0 +1,67 @@
+[
+  {
+    "key": "(%lld)",
+    "en": "(%lld)",
+    "ru": "(%lld)"
+  },
+  {
+    "key": "%lld",
+    "en": "%lld",
+    "ru": "%lld"
+  },
+  {
+    "key": "%lld %@",
+    "en": "%1$lld %2$@",
+    "ru": "%1$lld %2$@"
+  },
+  {
+    "key": "%lld %@ × %lld",
+    "en": "%1$lld %2$@ × %3$lld",
+    "ru": "%1$lld %2$@ × %3$lld"
+  },
+  {
+    "key": "%lld kcal",
+    "en": "%lld kcal",
+    "ru": "%lld kcal"
+  },
+  {
+    "key": "%lld.",
+    "en": "%lld.",
+    "ru": "%lld."
+  },
+  {
+    "key": "%lld/%lld",
+    "en": "%1$lld/%2$lld",
+    "ru": "%1$lld/%2$lld"
+  },
+  {
+    "key": "%lld%%",
+    "en": "%lld%%",
+    "ru": "%lld%%"
+  },
+  {
+    "key": "app_title",
+    "en": "Body Forge",
+    "ru": "Body Forge"
+  },
+  {
+    "key": "BODY FORGE",
+    "en": "BODY FORGE",
+    "ru": "BODY FORGE"
+  },
+  {
+    "key": "Main material for muscle growth. Found in meat, fish, eggs, cottage cheese.",
+    "en": "Main material for muscle growth. Found in meat, fish, eggs, cottage cheese.",
+    "ru": "Main material for muscle growth. Found in meat, fish, eggs, cottage cheese."
+  },
+  {
+    "key": "Proper nutrition isn't a diet, it's fuel for victory. Food affects energy, mood, and recovery. No complex formulas, just basics that work.",
+    "en": "Proper nutrition isn't a diet, it's fuel for victory. Food affects energy, mood, and recovery. No complex formulas, just basics that work.",
+    "ru": "Proper nutrition isn't a diet, it's fuel for victory. Food affects energy, mood, and recovery. No complex formulas, just basics that work."
+  },
+  {
+    "key": "telegram_contact_footer",
+    "en": "Telegram: @sumotry",
+    "ru": "Telegram: @sumotry"
+  }
+]

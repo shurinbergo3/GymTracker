@@ -99,7 +99,6 @@ struct MonthHeaderView: View {
     
     private var monthYearText: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
         formatter.dateFormat = "LLLL yyyy"
         return formatter.string(from: month).capitalized
     }
@@ -261,7 +260,6 @@ struct DayCell: View {
     private var dayName: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "E"
-        formatter.locale = Locale(identifier: "ru_RU")
         return formatter.string(from: date).prefix(1).uppercased()
     }
     

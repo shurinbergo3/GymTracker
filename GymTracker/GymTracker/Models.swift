@@ -65,6 +65,19 @@ enum MeasurementType: String, Codable, CaseIterable {
     case forearm = "Предплечье"
     case neck = "Шея"
     case shoulders = "Плечи"
+    
+    var localizedName: String {
+        switch self {
+        case .biceps: return "Бицепс".localized()
+        case .chest: return "Грудь".localized()
+        case .waist: return "Талия".localized()
+        case .thigh: return "Бедро".localized()
+        case .calf: return "Икра".localized()
+        case .forearm: return "Предплечье".localized()
+        case .neck: return "Шея".localized()
+        case .shoulders: return "Плечи".localized()
+        }
+    }
 }
 
 @Model
@@ -89,9 +102,9 @@ enum WorkoutType: String, Codable, CaseIterable {
     
     var displayName: String {
         switch self {
-        case .strength: return "Силовая"
-        case .repsOnly: return "Свой вес"
-        case .duration: return "На время / Кардио"
+        case .strength: return "Силовая".localized()
+        case .repsOnly: return "Свой вес".localized()
+        case .duration: return "На время / Кардио".localized()
         }
     }
     
@@ -105,6 +118,45 @@ enum WorkoutType: String, Codable, CaseIterable {
     
 }
 
+// MARK: - Custom Exercise (User-Created)
+
+@Model
+final class CustomExercise {
+    @Attribute(.unique) var id: UUID
+    var name: String
+    var category: String // raw value of ExerciseCategory
+    var muscleGroup: String // raw value of MuscleGroup
+    var defaultType: String // raw value of WorkoutType
+    var technique: String?
+    var videoUrl: String?
+    var createdAt: Date
+    
+    init(id: UUID = UUID(), name: String, category: String, muscleGroup: String, defaultType: String, technique: String? = nil, videoUrl: String? = nil, createdAt: Date = Date()) {
+        self.id = id
+        self.name = name
+        self.category = category
+        self.muscleGroup = muscleGroup
+        self.defaultType = defaultType
+        self.technique = technique
+        self.videoUrl = videoUrl
+        self.createdAt = createdAt
+    }
+    
+    /// Initialize from LibraryExercise
+    convenience init(from libraryExercise: LibraryExercise) {
+        self.init(
+            id: libraryExercise.id,
+            name: libraryExercise.name,
+            category: libraryExercise.category.rawValue,
+            muscleGroup: libraryExercise.muscleGroup.rawValue,
+            defaultType: libraryExercise.defaultType.rawValue,
+            technique: libraryExercise.technique,
+            videoUrl: libraryExercise.videoUrl,
+            createdAt: Date()
+        )
+    }
+}
+
 // MARK: - Program
 
 @Model
@@ -115,6 +167,7 @@ final class Program {
     var startDate: Date
     var isActive: Bool
     var displayOrder: Int = 100 // Default to 100 (low priority)
+    var isUserModified: Bool = false // Track if user edited this program
     
     @Relationship(deleteRule: .cascade, inverse: \WorkoutDay.program)
     var days: [WorkoutDay]
@@ -126,6 +179,7 @@ final class Program {
         self.startDate = startDate
         self.isActive = isActive
         self.displayOrder = displayOrder
+        self.isUserModified = false
         self.days = []
     }
     

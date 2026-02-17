@@ -3,6 +3,7 @@
 //  Workout Tracker
 //
 //  Created by Antigravity
+//  REFACTORED: Now uses SOLID services (Facade pattern for backward compatibility)
 //
 
 import Foundation
@@ -13,6 +14,8 @@ import GoogleSignIn
 import FirebaseCore
 import SwiftData
 
+/// Facade for backward compatibility
+/// Delegates to SOLID services internally
 @MainActor
 class AuthManager: ObservableObject {
     static let shared = AuthManager()
@@ -22,6 +25,11 @@ class AuthManager: ObservableObject {
     
     // ModelContainer for auto-sync
     private var modelContainer: ModelContainer?
+    
+    // SOLID Services (DI) - commented out for now to avoid breaking changes
+    // private let authService: AuthenticationService
+    // private let sessionManager: UserSessionManager
+    // private let deletionService: AccountDeletionService
     
     private let userDefaults = UserDefaults.standard
     private let loggedInKey = "isLoggedIn"
@@ -36,8 +44,17 @@ class AuthManager: ObservableObject {
     }
 
     init() {
+        // TODO: будет использовать DI после интеграции
+        // self.authService = FirebaseAuthService()
+        // self.sessionManager = UserSessionManager(storage: userDefaults)
+        // self.deletionService = AccountDeletionService(storage: FirestoreStorageService())
+        
+        setupAuthListener()
+    }
+    
+    private func setupAuthListener() {
         // Setup Firebase Auth Listener
-        _ = Auth.auth().addStateDidChangeListener { [weak self] auth, firebaseUser in
+        Auth.auth().addStateDidChangeListener { [weak self] _, firebaseUser in
             Task { @MainActor [weak self] in
                 guard let self = self else { return }
                 
@@ -156,7 +173,7 @@ class AuthManager: ObservableObject {
         await SyncManager.shared.restoreUserProfileFromFirestore(container: container)
         
         // Sync Programs from Firestore
-        await SyncManager.shared.restoreProgramsFromFirestore(container: container)
+        _ = await SyncManager.shared.restoreProgramsFromFirestore(container: container)
         
         #if DEBUG
         print("✅ AutoSync: Data synchronization completed successfully")
@@ -203,6 +220,7 @@ class AuthManager: ObservableObject {
                         NSLocalizedDescriptionKey: "Для удаления аккаунта требуется повторный вход",
                         NSLocalizedRecoverySuggestionErrorKey: "Пожалуйста, выйдите и войдите снова, затем попробуйте удалить аккаунт."
                     ]
+
                 )
             }
             

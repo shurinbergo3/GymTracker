@@ -67,3 +67,7 @@ DerivedData/
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+# Logs and backups
+*.log
+*.backup

@@ -21,25 +21,25 @@ struct EditHeightView: View {
             Form {
                 Section {
                     HStack {
-                        Text("Рост (см)")
+                        Text("Рост (см)".localized())
                         Spacer()
                         TextField("См", text: $heightString)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                     }
                 } footer: {
-                    Text("Используется для расчёта расхода калорий.")
+                    Text("Используется для расчёта расхода калорий.".localized())
                 }
             }
-            .navigationTitle("Изменить рост")
+            .navigationTitle("Изменить рост".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Отмена") { dismiss() }
+                    Button("Отмена".localized()) { dismiss() }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Сохранить") {
+                    Button("Сохранить".localized()) {
                         saveHeight()
                     }
                     .disabled(heightString.isEmpty)

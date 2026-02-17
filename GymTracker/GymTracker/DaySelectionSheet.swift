@@ -53,7 +53,7 @@ struct DaySelectionSheet: View {
                     .padding(DesignSystem.Spacing.lg)
                 }
             }
-            .navigationTitle("Выбор тренировки")
+            .navigationTitle("Выбор тренировки".localized())
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -100,12 +100,12 @@ struct DaySelectionCard: View {
                     
                     // Day info
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text(day.name)
+                        Text(day.name.localized())
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
                         HStack(spacing: DesignSystem.Spacing.sm) {
-                            Text("\(day.exercises.count) упражнений")
+                            Text("\(day.exercises.count) упражнений".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             

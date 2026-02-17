@@ -27,12 +27,12 @@ enum ProgressState {
         }
     }
 
-    var description: String {
+        var description: String {
         switch self {
-        case .improved: return "Ты растёшь! Только вперёд!"
-        case .declined: return "Ты недостаточно усердно тренируешься"
-        case .same: return "Ты в режиме поддержания формы"
-        case .new: return "Первая тренировка"
+        case .improved: return "Ты растёшь! Только вперёд!".localized()
+        case .declined: return "Ты недостаточно усердно тренируешься".localized()
+        case .same: return "Ты в режиме поддержания формы".localized()
+        case .new: return "Первая тренировка".localized()
         }
     }
 }
@@ -72,9 +72,9 @@ struct GrowthTrend {
         
         var description: String {
             switch self {
-            case .up: return "Рост показателей"
-            case .flat: return "Стабильность"
-            case .down: return "Спад активности"
+            case .up: return "Рост показателей".localized()
+            case .flat: return "Стабильность".localized()
+            case .down: return "Спад активности".localized()
             }
         }
     }

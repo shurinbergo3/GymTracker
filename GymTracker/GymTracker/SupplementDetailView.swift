@@ -40,13 +40,13 @@ struct SupplementDetailView: View {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
                         // Title Section
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                            Text(supplement.name)
+                            Text(supplement.name.localized())
                                 .font(DesignSystem.Typography.largeTitle())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                                 .multilineTextAlignment(.leading)
                             
                             if let subtitle = supplement.subtitle {
-                                Text(subtitle)
+                                Text(subtitle.localized())
                                     .font(DesignSystem.Typography.headline())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
@@ -54,23 +54,23 @@ struct SupplementDetailView: View {
                         
                         // Main Description ("Deep Analytics")
                         if let deepAnalysis = supplement.detailedDescription {
-                            detailSection(title: "АНАЛИТИКА", icon: "doc.text.magnifyingglass", content: deepAnalysis)
+                            detailSection(title: "АНАЛИТИКА".localized(), icon: "doc.text.magnifyingglass", content: deepAnalysis.localized())
                         } else {
-                             detailSection(title: "ОПИСАНИЕ", icon: "doc.text", content: supplement.description)
+                             detailSection(title: "ОПИСАНИЕ".localized(), icon: "doc.text", content: supplement.description.localized())
                         }
                         
                         // Mechanism of Action
                         if let mechanism = supplement.mechanism {
-                            detailSection(title: "МЕХАНИЗМ ДЕЙСТВИЯ", icon: "gearshape.2.fill", content: mechanism)
+                            detailSection(title: "МЕХАНИЗМ ДЕЙСТВИЯ".localized(), icon: "gearshape.2.fill", content: mechanism.localized())
                         }
                         
                         // Benefits Grid
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            sectionHeader(title: "ОСНОВНЫЕ ЭФФЕКТЫ", icon: "star.fill")
+                            sectionHeader(title: "ОСНОВНЫЕ ЭФФЕКТЫ".localized(), icon: "star.fill")
                             
                             FlowLayout(spacing: 12) {
                                 ForEach(supplement.benefits, id: \.self) { benefit in
-                                    Text(benefit)
+                                    Text(benefit.localized())
                                         .font(DesignSystem.Typography.subheadline())
                                         .foregroundColor(DesignSystem.Colors.primaryText)
                                         .padding(.vertical, 8)
@@ -88,7 +88,7 @@ struct SupplementDetailView: View {
                         // Forms (if applicable)
                         if let forms = supplement.forms, !forms.isEmpty {
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                sectionHeader(title: "ФОРМЫ И ОТЛИЧИЯ", icon: "flask.fill")
+                                sectionHeader(title: "ФОРМЫ И ОТЛИЧИЯ".localized(), icon: "flask.fill")
                                 
                                 ForEach(forms, id: \.self) { form in
                                     HStack(alignment: .top, spacing: 12) {
@@ -97,7 +97,7 @@ struct SupplementDetailView: View {
                                             .foregroundColor(DesignSystem.Colors.accent)
                                             .padding(.top, 8)
                                         
-                                        Text(form)
+                                        Text(form.localized())
                                             .font(DesignSystem.Typography.body())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                             .fixedSize(horizontal: false, vertical: true)
@@ -111,9 +111,9 @@ struct SupplementDetailView: View {
                         
                         // Usage / Dosage
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            sectionHeader(title: "КАК ПРИНИМАТЬ", icon: "clock.fill")
+                            sectionHeader(title: "КАК ПРИНИМАТЬ".localized(), icon: "clock.fill")
                             
-                            Text(supplement.usage)
+                            Text(supplement.usage.localized())
                                 .font(DesignSystem.Typography.body())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                                 .padding()
@@ -129,7 +129,7 @@ struct SupplementDetailView: View {
                                     .foregroundColor(.orange)
                                     .font(.title3)
                                 
-                                Text(warning)
+                                Text(warning.localized())
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }

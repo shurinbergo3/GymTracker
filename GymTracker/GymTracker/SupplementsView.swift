@@ -23,9 +23,13 @@ struct Supplement: Identifiable {
 
 struct SupplementsView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var languageManager: LanguageManager
     
-    // Data source for supplements
-    private let supplements = [
+    // Data source for supplements - computed property to react to language changes
+    private var supplements: [Supplement] {
+        // Access languageManager to create dependency
+        let _ = languageManager.appLanguage
+        return [
         // 1. Креатин
         Supplement(
             name: "Креатин Моногидрат",
@@ -65,7 +69,7 @@ struct SupplementsView: View {
             name: "Витамин D3 + K2",
             subtitle: "Гормон солнца",
             description: "Стероидный гормон, управляющий иммунитетом и тестостероном. K2 обязателен для правильного распределения кальция.",
-            detailedDescription: "Витамин D по своей структуре является стероидным прогормоном. Практически каждая клетка тела имеет рецепторы к нему. Дефицит D3 — это гарантированное падение тестостерона и иммунитета. Витамин K2 (форма MK-7) направляет кальций в кости, не давая ему откладываться в артериях.",
+            detailedDescription: "Витамин D по своей структуре является стероидным прогормоном. Практически каждая клетка тела имеет рецепторы к нему. Дефицит D3 — это гарантированное падение тестостерона и иммунитет. Витамин K2 (форма MK-7) направляет кальций в кости, не давая ему откладываться в артериях.",
             mechanism: "Регулирует экспрессию более 1000 генов. Усиливает всасывание кальция. Стимулирует выработку тестостерона клетками Лейдига.",
             benefits: ["Мощная поддержка иммунитета", "Повышение уровня тестостерона", "Укрепление костей и суставов", "Улучшение настроения (дофамин)"],
             forms: nil,
@@ -232,6 +236,7 @@ struct SupplementsView: View {
             warning: nil
         )
     ]
+    }
     
     var body: some View {
         ZStack {
@@ -242,11 +247,11 @@ struct SupplementsView: View {
                 VStack(spacing: DesignSystem.Spacing.xl) {
                     // Header
                     VStack(spacing: DesignSystem.Spacing.sm) {
-                        Text("Топ Бадов")
+                        Text("Топ Бадов".localized())
                             .font(DesignSystem.Typography.largeTitle())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
-                        Text("Биохакинг и Спорт")
+                        Text("Биохакинг и Спорт".localized())
                             .font(DesignSystem.Typography.body())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -265,7 +270,7 @@ struct SupplementsView: View {
                 .padding(.bottom, DesignSystem.Spacing.xl)
             }
         }
-        .navigationTitle("Справочник")
+        .navigationTitle("Справочник".localized())
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -289,17 +294,17 @@ struct SupplementCard: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(supplement.name)
+                    Text(supplement.name.localized())
                         .font(DesignSystem.Typography.headline())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     
                     if let subtitle = supplement.subtitle {
-                        Text(subtitle)
+                        Text(subtitle.localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.neonGreen)
                     }
                     
-                    Text(supplement.description)
+                    Text(supplement.description.localized())
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .lineLimit(2)

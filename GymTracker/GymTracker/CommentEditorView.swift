@@ -17,7 +17,7 @@ struct CommentEditorView: View {
             VStack(spacing: DesignSystem.Spacing.md) {
                 // Compact text field
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                    Text("Комментарий к упражнению")
+                    Text("Комментарий к упражнению".localized())
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                     
@@ -35,7 +35,7 @@ struct CommentEditorView: View {
                 
                 // Save button
                 Button(action: { dismiss() }) {
-                    Text("Сохранить")
+                    Text("Сохранить".localized())
                         .font(DesignSystem.Typography.headline())
                         .foregroundColor(DesignSystem.Colors.neonGreen)
                         .frame(maxWidth: .infinity)

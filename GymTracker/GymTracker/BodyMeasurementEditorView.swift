@@ -48,7 +48,7 @@ struct BodyMeasurementEditorView: View {
                         // Заполненные замеры
                         if !filledTypes.isEmpty {
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                Text("ВАШИ ЗАМЕРЫ")
+                                Text("ВАШИ ЗАМЕРЫ".localized())
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .tracking(1.2)
@@ -67,7 +67,7 @@ struct BodyMeasurementEditorView: View {
                         // Пустые замеры
                         if !emptyTypes.isEmpty {
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                Text("ДОБАВИТЬ ЗАМЕР")
+                                Text("ДОБАВИТЬ ЗАМЕР".localized())
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .tracking(1.2)
@@ -90,7 +90,7 @@ struct BodyMeasurementEditorView: View {
                             HStack {
                                 Image(systemName: "plus.circle.fill")
                                     .font(.title2)
-                                Text("Создать новый параметр")
+                                Text("Создать новый параметр".localized())
                                     .font(DesignSystem.Typography.headline())
                             }
                             .foregroundColor(DesignSystem.Colors.accent)
@@ -104,7 +104,7 @@ struct BodyMeasurementEditorView: View {
                     .padding(.vertical, DesignSystem.Spacing.lg)
                 }
             }
-            .navigationTitle("Замеры тела")
+            .navigationTitle("Замеры тела".localized())
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -132,7 +132,7 @@ struct MeasurementEditCard: View {
         CardView {
             HStack(alignment: .top, spacing: DesignSystem.Spacing.lg) {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                    Text(type.rawValue)
+                    Text(type.localizedName)
                         .font(DesignSystem.Typography.callout())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .textCase(.uppercase)

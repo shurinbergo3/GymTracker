@@ -17,6 +17,7 @@ struct ProgramDTO: Codable, Identifiable {
     var startDate: Date
     var isActive: Bool
     var displayOrder: Int
+    var isUserModified: Bool
     var days: [WorkoutDayDTO]
     
     // Explicit init for mapping
@@ -27,6 +28,7 @@ struct ProgramDTO: Codable, Identifiable {
         self.startDate = program.startDate
         self.isActive = program.isActive
         self.displayOrder = program.displayOrder
+        self.isUserModified = program.isUserModified
         self.days = program.days.sorted { $0.orderIndex < $1.orderIndex }.map { WorkoutDayDTO(from: $0) }
     }
 }
@@ -62,5 +64,29 @@ struct ExerciseTemplateDTO: Codable {
         self.plannedSets = template.plannedSets
         self.orderIndex = template.orderIndex
         self.customWorkoutType = template._customWorkoutType?.rawValue
+    }
+}
+
+// MARK: - Custom Exercise DTO (Firestore)
+
+struct CustomExerciseDTO: Codable, Identifiable {
+    @DocumentID var id: String?
+    var name: String
+    var category: String
+    var muscleGroup: String
+    var defaultType: String
+    var technique: String?
+    var videoUrl: String?
+    var createdAt: Date
+    
+    init(from exercise: CustomExercise) {
+        self.id = exercise.id.uuidString
+        self.name = exercise.name
+        self.category = exercise.category
+        self.muscleGroup = exercise.muscleGroup
+        self.defaultType = exercise.defaultType
+        self.technique = exercise.technique
+        self.videoUrl = exercise.videoUrl
+        self.createdAt = exercise.createdAt
     }
 }

@@ -27,18 +27,18 @@ struct DayEditorView: View {
                 // Rest Time Picker (only if enabled)
                 if day.restTimerEnabled {
                     Picker("Время отдыха", selection: $day.defaultRestTime) {
-                        Text("30 сек").tag(30)
-                        Text("60 сек").tag(60)
-                        Text("90 сек").tag(90)
-                        Text("2 мин").tag(120)
-                        Text("3 мин").tag(180)
-                        Text("5 мин").tag(300)
+                        Text("30 сек".localized()).tag(30)
+                        Text("60 сек".localized()).tag(60)
+                        Text("90 сек".localized()).tag(90)
+                        Text("2 мин".localized()).tag(120)
+                        Text("3 мин".localized()).tag(180)
+                        Text("5 мин".localized()).tag(300)
                     }
                     .pickerStyle(.menu)
                     .font(DesignSystem.Typography.body())
                 }
             } header: {
-                Text("Основная информация")
+                Text("Основная информация".localized())
                     .font(DesignSystem.Typography.headline())
             }
             
@@ -46,10 +46,10 @@ struct DayEditorView: View {
             Section {
                 if day.exercises.isEmpty {
                     ContentUnavailableView {
-                        Label("Нет упражнений", systemImage: "figure.strengthtraining.traditional")
+                        Label("Нет упражнений".localized(), systemImage: "figure.strengthtraining.traditional")
                             .font(DesignSystem.Typography.body())
                     } description: {
-                        Text("Добавьте упражнения в этот день")
+                        Text("Добавьте упражнения в этот день".localized())
                             .font(DesignSystem.Typography.callout())
                     }
                 } else {
@@ -79,21 +79,21 @@ struct DayEditorView: View {
                 }
                 
                 Button(action: { showingExerciseSelection = true }) {
-                    Label("Добавить упражнение", systemImage: "plus.circle.fill")
+                    Label("Добавить упражнение".localized(), systemImage: "plus.circle.fill")
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(DesignSystem.Colors.accent)
                 }
             } header: {
-                Text("Упражнения (\(day.exercises.count))")
+                Text("Упражнения (\(day.exercises.count))".localized())
                     .font(DesignSystem.Typography.headline())
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle(day.name)
+        .navigationTitle(day.name.localized())
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Готово") {
+                Button("Готово".localized()) {
                     dismiss()
                 }
                 .fontWeight(.semibold)
@@ -140,7 +140,7 @@ struct ExerciseEditRow: View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
             // Название и инфо
             HStack(spacing: DesignSystem.Spacing.sm) {
-                Text(exercise.name)
+                Text(exercise.name.localized())
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 
@@ -176,7 +176,7 @@ struct ExerciseEditRow: View {
                 
                 // Подходы
                 HStack(spacing: DesignSystem.Spacing.xs) {
-                    Text("\(exercise.plannedSets) подх.")
+                    Text("\(exercise.plannedSets) подх.".localized())
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                     

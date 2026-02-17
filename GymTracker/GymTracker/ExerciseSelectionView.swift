@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ExerciseSelectionView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext  // Added for SwiftData
     @State private var searchText = ""
     @State private var showingCustomExercise = false
     @State private var customExerciseName = ""
@@ -36,7 +38,7 @@ struct ExerciseSelectionView: View {
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: "search_exercises_placeholder"
                 )
-                .navigationTitle("exercise_selection_title")
+                .navigationTitle("exercise_selection_title".localized())
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -138,9 +140,29 @@ struct ExerciseSelectionView: View {
         
         let customExercise = LibraryExercise(
             name: customExerciseName,
-            category: .arms,
-            muscleGroup: .biceps
+            category: .custom,     // User-created exercises go to custom category
+            muscleGroup: .fullBody // Default muscle group for custom exercises
         )
+        
+        // Save to SwiftData
+        let customExerciseModel = CustomExercise(from: customExercise)
+        modelContext.insert(customExerciseModel)
+        
+        // Trigger async sync to Firestore
+        Task {
+            do {
+                let dto = CustomExerciseDTO(from: customExerciseModel)
+                try await FirestoreManager.shared.saveCustomExercise(dto)
+                #if DEBUG
+                print("✅ Custom exercise '\(customExercise.name)' saved and synced")
+                #endif
+            } catch {
+                #if DEBUG
+                print("⚠️ Failed to sync custom exercise: \(error)")
+                #endif
+            }
+        }
+        
         onExerciseSelected(customExercise)
         customExerciseName = ""
         dismiss()
@@ -158,7 +180,7 @@ struct SelectionRow: View {
         HStack {
             Button(action: onSelect) {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    Text(exercise.name)
+                    Text(exercise.name.localized())
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .multilineTextAlignment(.leading)

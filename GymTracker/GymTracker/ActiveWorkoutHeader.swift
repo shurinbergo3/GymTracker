@@ -58,7 +58,7 @@ struct ActiveWorkoutHeader: View {
                         Text("\(workoutManager.currentHeartRate)")
                             .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                             .foregroundColor(DesignSystem.Colors.primaryText)
-                        Text("BPM")
+                        Text("BPM".localized())
                             .font(DesignSystem.Typography.sectionHeader())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.0)
@@ -78,7 +78,7 @@ struct ActiveWorkoutHeader: View {
                         Text("\(workoutManager.currentActiveCalories)")
                             .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                             .foregroundColor(DesignSystem.Colors.primaryText)
-                        Text("KCAL")
+                        Text("KCAL".localized())
                             .font(DesignSystem.Typography.sectionHeader())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.0)
@@ -151,3 +151,4 @@ struct HeaderBentoCard<Content: View>: View {
         )
     }
 }
+ 

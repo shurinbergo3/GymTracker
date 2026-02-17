@@ -68,13 +68,13 @@ struct AnalyticsService {
             
             // Format current stats
             let maxWeight = currentSets.map { $0.weight }.max() ?? 0
-            let currentStats = String(format: "%.0f кг", maxWeight)
+            let currentStats = String(format: "%.0f %@", maxWeight, "кг".localized())
             
             // Format previous stats
             var previousStats: String?
             if !previousSets.isEmpty {
                 let prevMaxWeight = previousSets.map { $0.weight }.max() ?? 0
-                previousStats = String(format: "%.0f кг", prevMaxWeight)
+                previousStats = String(format: "%.0f %@", prevMaxWeight, "кг".localized())
             }
             
             return ExerciseProgress(
@@ -101,7 +101,7 @@ struct AnalyticsService {
             guard !previousSets.isEmpty else { return nil }
             
             let maxWeight = previousSets.map { $0.weight }.max() ?? 0
-            let stats = String(format: "%.0f кг", maxWeight)
+            let stats = String(format: "%.0f %@", maxWeight, "кг".localized())
             
             return ExerciseProgress(
                 exerciseName: exercise.name,

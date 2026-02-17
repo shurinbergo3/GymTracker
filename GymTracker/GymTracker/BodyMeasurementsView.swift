@@ -47,7 +47,7 @@ struct BodyMeasurementsView: View {
                         ForEach(MeasurementType.allCases, id: \.self) { type in
                             NavigationLink(destination: MeasurementDetailView(measurementType: type)) {
                                 StatCard(
-                                    title: type.rawValue,
+                                    title: type.localizedName,
                                     value: latestValueString(for: type),
                                     icon: iconForMeasurement(type),
                                     color: DesignSystem.Colors.secondaryText
@@ -60,7 +60,7 @@ struct BodyMeasurementsView: View {
                 .padding(.vertical, DesignSystem.Spacing.lg)
             }
         }
-        .navigationTitle("Замеры тела")
+        .navigationTitle("Замеры тела".localized())
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddProfile) {
             CreateProfileView()

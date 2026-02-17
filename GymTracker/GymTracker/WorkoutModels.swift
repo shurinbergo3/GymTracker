@@ -62,7 +62,13 @@ extension Workout {
         
         let groupedSets = Dictionary(grouping: session.sets) { $0.exerciseName }
         self.exercises = groupedSets.map { (name, sets) in
-            let exerciseSets = sets.sorted { $0.setNumber < $1.setNumber }.map { set in
+            let exerciseSets = sets.sorted { 
+                // Сортируем по времени создания, потом по номеру подхода
+                if $0.date != $1.date {
+                    return $0.date < $1.date
+                }
+                return $0.setNumber < $1.setNumber
+            }.map { set in
                 ExerciseSet(
                     weight: set.weight,
                     reps: set.reps,

@@ -28,14 +28,14 @@ struct ProgramEditorView: View {
             Form {
                 // Секция 1: Основная информация
                 Section {
-                    TextField("Название программы", text: $viewModel.programName)
+                    TextField("Название программы".localized(), text: $viewModel.programName)
                         .font(DesignSystem.Typography.body())
                     
-                    TextField("Описание (опционально)", text: $viewModel.programDescription, axis: .vertical)
+                    TextField("Описание (опционально)".localized(), text: $viewModel.programDescription, axis: .vertical)
                         .font(DesignSystem.Typography.body())
                         .lineLimit(3...6)
                 } header: {
-                    Text("Основная информация")
+                    Text("Основная информация".localized())
                         .font(DesignSystem.Typography.headline())
                 }
                 
@@ -43,10 +43,10 @@ struct ProgramEditorView: View {
                 Section {
                     if viewModel.workoutDays.isEmpty {
                         ContentUnavailableView {
-                            Label("Нет тренировочных дней", systemImage: "calendar.badge.plus")
+                            Label("Нет тренировочных дней".localized(), systemImage: "calendar.badge.plus")
                                 .font(DesignSystem.Typography.body())
                         } description: {
-                            Text("Добавьте хотя бы один день")
+                            Text("Добавьте хотя бы один день".localized())
                                 .font(DesignSystem.Typography.callout())
                         }
                     } else {
@@ -70,27 +70,27 @@ struct ProgramEditorView: View {
                             viewModel.addDay()
                         }
                     }) {
-                        Label("Добавить тренировочный день", systemImage: "plus.circle.fill")
+                        Label("Добавить тренировочный день".localized(), systemImage: "plus.circle.fill")
                             .font(DesignSystem.Typography.body())
                             .foregroundColor(DesignSystem.Colors.accent)
                     }
                 } header: {
-                    Text("Расписание дней (\(viewModel.workoutDays.count))")
+                    Text("Расписание дней (\(viewModel.workoutDays.count))".localized())
                         .font(DesignSystem.Typography.headline())
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("Новая программа")
+            .navigationTitle(Text("Новая программа".localized()))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Отмена") {
+                    Button("Отмена".localized()) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Сохранить") {
+                    Button("Сохранить".localized()) {
                         saveProgram()
                     }
                     .disabled(!viewModel.isValid)
@@ -99,8 +99,8 @@ struct ProgramEditorView: View {
                 
                 
             }
-            .alert("Ошибка сохранения", isPresented: $showingSaveError) {
-                Button("OK", role: .cancel) { }
+            .alert(Text("Ошибка сохранения".localized()), isPresented: $showingSaveError) {
+                Button("OK".localized(), role: .cancel) { }
             } message: {
                 Text(saveErrorMessage)
             }
@@ -132,16 +132,16 @@ struct DayRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text(day.name)
+                Text(day.name.localized())
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 
                 if day.exercises.isEmpty {
-                    Text("Упражнений нет")
+                    Text("Упражнений нет".localized())
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 } else {
-                    Text("\(day.exercises.count) упражнений")
+                    Text("\(day.exercises.count) упражнений".localized())
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.accent)
                 }

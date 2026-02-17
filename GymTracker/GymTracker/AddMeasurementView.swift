@@ -17,19 +17,19 @@ struct AddMeasurementView: View {
             Form {
                 Section("Новый замер") {
                     HStack {
-                        Text(measurementType.rawValue)
+                        Text(measurementType.localizedName)
                         Spacer()
                         TextField("0.0", text: $value)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
-                        Text("см")
+                        Text("см".localized())
                             .foregroundColor(.secondary)
                     }
                     
                     DatePicker("Дата", selection: $date, displayedComponents: [.date])
                 }
             }
-            .navigationTitle("Добавить замер")
+            .navigationTitle("Добавить замер".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -37,7 +37,7 @@ struct AddMeasurementView: View {
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Сохранить") {
+                    Button("Сохранить".localized()) {
                         saveMeasurement()
                         dismiss()
                     }

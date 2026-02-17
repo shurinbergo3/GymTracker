@@ -21,7 +21,7 @@ struct CreateProfileView: View {
             Form {
                 Section("Параметры") {
                     HStack {
-                        Text("Рост (см)")
+                        Text("Рост (см)".localized())
                         Spacer()
                         TextField("170", text: $height)
                             .keyboardType(.decimalPad)
@@ -29,7 +29,7 @@ struct CreateProfileView: View {
                     }
                     
                     HStack {
-                        Text("Вес (кг)")
+                        Text("Вес (кг)".localized())
                         Spacer()
                         TextField("70", text: $weight)
                             .keyboardType(.decimalPad)
@@ -37,7 +37,7 @@ struct CreateProfileView: View {
                     }
                     
                     HStack {
-                        Text("Возраст")
+                        Text("Возраст".localized())
                         Spacer()
                         TextField("30", text: $age)
                             .keyboardType(.numberPad)
@@ -45,7 +45,7 @@ struct CreateProfileView: View {
                     }
                 }
             }
-            .navigationTitle("Создать профиль")
+            .navigationTitle("Создать профиль".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -53,7 +53,7 @@ struct CreateProfileView: View {
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Создать") {
+                    Button("Создать".localized()) {
                         createProfile()
                         dismiss()
                     }

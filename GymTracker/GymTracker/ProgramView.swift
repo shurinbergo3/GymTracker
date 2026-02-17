@@ -43,18 +43,18 @@ struct ProgramView: View {
                                         .font(.system(size: 60))
                                         .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
                                     
-                                    Text("Нет программ")
+                                    Text("Нет программ".localized())
                                         .font(DesignSystem.Typography.title2())
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                     
-                                    Text("Создайте свою первую программу тренировок")
+                                    Text("Создайте свою первую программу тренировок".localized())
                                         .font(DesignSystem.Typography.body())
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                         .multilineTextAlignment(.center)
                                         .padding(.horizontal)
                                     
                                     Button(action: { loadDefaultPrograms() }) {
-                                        Text("Загрузить стандартные")
+                                        Text("Загрузить стандартные".localized())
                                             .font(DesignSystem.Typography.headline())
                                             .foregroundColor(DesignSystem.Colors.neonGreen)
                                             .padding()
@@ -72,7 +72,7 @@ struct ProgramView: View {
                                     // Active Program Section
                                     if let active = activeProgram {
                                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                            Label("АКТИВНАЯ ПРОГРАММА", systemImage: "bolt.fill")
+                                            Label("АКТИВНАЯ ПРОГРАММА".localized(), systemImage: "bolt.fill")
                                                 .font(DesignSystem.Typography.caption())
                                                 .foregroundColor(DesignSystem.Colors.neonGreen)
                                                 .tracking(2)
@@ -87,7 +87,7 @@ struct ProgramView: View {
                                     // All Programs Section
                                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
                                         HStack {
-                                            Label("ВСЕ ПРОГРАММЫ", systemImage: "list.bullet.clipboard")
+                                            Label("ВСЕ ПРОГРАММЫ".localized(), systemImage: "list.bullet.clipboard")
                                                 .font(DesignSystem.Typography.caption())
                                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                                 .tracking(2)
@@ -141,15 +141,9 @@ struct ProgramView: View {
                     }
                 }
             }
-            .onAppear {
-                // Ensure default programs are loaded (once per app session/install)
-                if !UserDefaults.standard.bool(forKey: "ProgramsSeeded_v3") {
-                    loadDefaultPrograms()
-                    UserDefaults.standard.set(true, forKey: "ProgramsSeeded_v3")
-                }
-            }
+            // Seeding removed — handled exclusively by ContentViewWrapper.task to prevent race-condition duplicates
 
-            .navigationTitle("Программы")
+            .navigationTitle(Text("Программы".localized()))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -213,12 +207,12 @@ struct ActiveProgramCard: View {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                            Text(program.name)
+                            Text(program.name.localized())
                                 .font(DesignSystem.Typography.title())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
                             if !program.desc.isEmpty {
-                                Text(program.desc)
+                                Text(program.desc.localized())
                                     .font(DesignSystem.Typography.body())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .lineLimit(2)
@@ -251,7 +245,7 @@ struct ActiveProgramCard: View {
                         
                         Spacer()
                         
-                        Label("\(program.days.count) дней", systemImage: "calendar.badge.clock")
+                        Label("\(program.days.count) дней".localized(), systemImage: "calendar.badge.clock")
                             .font(DesignSystem.Typography.callout())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -260,7 +254,7 @@ struct ActiveProgramCard: View {
                     Button(action: { showingEditor = true }) {
                         HStack(spacing: DesignSystem.Spacing.sm) {
                             Image(systemName: "pencil")
-                            Text("Редактировать программу")
+                            Text("Редактировать программу".localized())
                         }
                         .font(DesignSystem.Typography.headline())
                         .foregroundColor(DesignSystem.Colors.neonGreen)
@@ -320,12 +314,12 @@ struct ProgramCard: View {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                             // Крупное название программы
-                            Text(program.name)
+                            Text(program.name.localized())
                                 .font(DesignSystem.Typography.title())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
                             if !program.desc.isEmpty {
-                                Text(program.desc)
+                                Text(program.desc.localized())
                                     .font(DesignSystem.Typography.body())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .lineLimit(2)
@@ -361,7 +355,7 @@ struct ProgramCard: View {
                         
                         Spacer()
                         
-                        Label("\(program.days.count) дней", systemImage: "calendar.badge.clock")
+                        Label("\(program.days.count) дней".localized(), systemImage: "calendar.badge.clock")
                             .font(DesignSystem.Typography.callout())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -373,7 +367,7 @@ struct ProgramCard: View {
                             Button(action: { activateProgram() }) {
                                 HStack(spacing: DesignSystem.Spacing.sm) {
                                     Image(systemName: "play.fill")
-                                    Text("Активировать")
+                                    Text("Активировать".localized())
                                 }
                                 .font(DesignSystem.Typography.headline())
                                 .foregroundColor(DesignSystem.Colors.neonGreen)

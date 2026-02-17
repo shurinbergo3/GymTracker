@@ -60,14 +60,26 @@ struct ExerciseCard: View {
         guard let lastSessionWithExercise = sessionsWithExercise.first else { return [] }
         return lastSessionWithExercise.sets
             .filter { $0.exerciseName == exercise.name }
-            .sorted { $0.setNumber < $1.setNumber }
+            .sorted { 
+                // Сортируем сначала по времени создания, потом по номеру подхода
+                if $0.date != $1.date {
+                    return $0.date < $1.date
+                }
+                return $0.setNumber < $1.setNumber
+            }
     }
     
     private var completedSets: [WorkoutSet] {
         guard let session = session else { return [] }
         return session.sets
             .filter { $0.exerciseName == exercise.name }
-            .sorted { $0.setNumber < $1.setNumber }
+            .sorted { 
+                // Сортируем сначала по времени создания, потом по номеру подхода
+                if $0.date != $1.date {
+                    return $0.date < $1.date
+                }
+                return $0.setNumber < $1.setNumber
+            }
     }
     
     private var currentSetNumber: Int {
@@ -99,7 +111,7 @@ struct ExerciseCard: View {
             // MARK: - Header (Title + Icons)
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text(exercise.name)
+                    Text(exercise.name.localized())
                         .font(DesignSystem.Typography.title3())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     
@@ -166,7 +178,7 @@ struct ExerciseCard: View {
                             }
                         } label: {
                             Label(
-                                isTimerEnabledForExercise ? "Выключить таймер" : "Включить таймер",
+                                isTimerEnabledForExercise ? "Выключить таймер" : "Включить таймер".localized(),
                                 systemImage: isTimerEnabledForExercise ? "timer.circle.fill" : "timer.circle"
                             )
                         }
@@ -174,10 +186,10 @@ struct ExerciseCard: View {
                         Divider()
                         
                         Button(action: { showingReplacement = true }) {
-                            Label("Заменить упражнение", systemImage: "arrow.triangle.2.circlepath")
+                            Label("Заменить упражнение".localized(), systemImage: "arrow.triangle.2.circlepath")
                         }
                         Button(action: { showingWorkoutTypeChange = true }) {
-                            Label("Изменить тип", systemImage: "gearshape")
+                            Label("Изменить тип".localized(), systemImage: "gearshape")
                         }
                     } label: {
                         Image(systemName: "ellipsis")
@@ -193,13 +205,13 @@ struct ExerciseCard: View {
             // MARK: - History Block
             if isHistoryExpanded {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Прошлая тренировка:")
+                    Text("Прошлая тренировка:".localized())
                         .font(.caption)
                         .foregroundColor(.gray)
                     
                     ForEach(previousSets, id: \.self) { set in
                         HStack {
-                            Text("Сет \(set.setNumber):")
+                            Text("\("Подход".localized()) \(set.setNumber):")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                             if (set.duration ?? 0) > 0 {
@@ -207,7 +219,7 @@ struct ExerciseCard: View {
                                     .font(.caption)
                                     .foregroundColor(.white)
                             } else {
-                                Text("\(set.weight.formatted())кг x \(set.reps)")
+                                Text("\(set.weight.formatted())кг x \(set.reps)".localized())
                                     .font(.caption)
                                     .foregroundColor(.white)
                             }
@@ -222,7 +234,7 @@ struct ExerciseCard: View {
             // MARK: - Current Session Sets (NEW)
             if !completedSets.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Завершено:")
+                    Text("Завершено:".localized())
                         .font(.caption)
                         .foregroundColor(.gray)
                     
@@ -234,7 +246,7 @@ struct ExerciseCard: View {
                                         Button(role: .destructive) {
                                             deleteSet(set)
                                         } label: {
-                                            Label("Удалить", systemImage: "trash")
+                                            Label("Удалить".localized(), systemImage: "trash")
                                         }
                                     }
                             }
@@ -274,7 +286,7 @@ struct ExerciseCard: View {
                         HStack(spacing: 12) {
                             // Weight Input
                             VStack(spacing: 6) {
-                                Text("ВЕС (КГ)")
+                                Text("ВЕС (КГ)".localized())
                                     .font(DesignSystem.Typography.sectionHeader())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .tracking(1.0)
@@ -295,7 +307,7 @@ struct ExerciseCard: View {
                             
                             // Reps Input
                             VStack(spacing: 6) {
-                                Text("ПОВТОРЫ")
+                                Text("ПОВТОРЫ".localized())
                                     .font(DesignSystem.Typography.sectionHeader())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .tracking(1.0)
@@ -319,7 +331,7 @@ struct ExerciseCard: View {
                         VStack(spacing: 12) {
                             // Single Large Reps Input
                             VStack(spacing: 6) {
-                                Text("ПОВТОРЫ")
+                                Text("ПОВТОРЫ".localized())
                                     .font(DesignSystem.Typography.sectionHeader())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .tracking(1.0)
@@ -357,7 +369,7 @@ struct ExerciseCard: View {
                                     }
                                 } else {
                                     Button(action: { isWeighted = true }) {
-                                        Text("+ Вес")
+                                        Text("+ Вес".localized())
                                             .font(.system(size: 14, weight: .semibold))
                                             .foregroundColor(DesignSystem.Colors.neonGreen)
                                             .padding(.vertical, 6)
@@ -390,7 +402,7 @@ struct ExerciseCard: View {
                             
                             // Distance Input (Optional)
                             HStack {
-                                Text("КМ")
+                                Text("КМ".localized())
                                     .font(.caption)
                                     .foregroundColor(.gray)
                                 TextField("--", text: $distance)
@@ -425,7 +437,7 @@ struct ExerciseCard: View {
                     
                     // NOTE & SAVE FOOTER
                     HStack {
-                        Button("Заметка") {
+                        Button("Заметка".localized()) {
                             showingComment = true
                         }
                         .font(.system(size: 14, weight: .medium))
@@ -435,7 +447,7 @@ struct ExerciseCard: View {
                         
                         // Show "Дополнительный подход" Label if we are on the last set or extra set
                         if completedSets.count >= exercise.plannedSets - 1 {
-                             Text("ДОП. ПОДХОД")
+                             Text("ДОП. ПОДХОД".localized())
                                 .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(DesignSystem.Colors.secondaryAccent)
                                 .padding(.trailing, 16)
@@ -461,7 +473,7 @@ struct ExerciseCard: View {
                 // Inactive State Summary
                 if !completedSets.isEmpty {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Выполнено: \(completedSets.count) / \(exercise.plannedSets)")
+                        Text("Выполнено: \(completedSets.count) / \(exercise.plannedSets)".localized())
                             .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .padding(.horizontal, 16)
@@ -618,10 +630,15 @@ struct ExerciseCard: View {
             // Delete from context
             modelContext.delete(set)
             
-            // Re-number remaining sets for this exercise
+            // Re-number remaining sets for this exercise, sorted by creation time and set number
             let exerciseSets = session.sets
                 .filter { $0.exerciseName == exercise.name }
-                .sorted { $0.setNumber < $1.setNumber }
+                .sorted { 
+                    if $0.date != $1.date {
+                        return $0.date < $1.date
+                    }
+                    return $0.setNumber < $1.setNumber
+                }
             
             for (index, s) in exerciseSets.enumerated() {
                 s.setNumber = index + 1
@@ -675,12 +692,12 @@ struct CompletedSetChip: View {
     private var setDetails: String {
         switch workoutType {
         case .strength:
-            return "\(formattedWeight)кг × \(set.reps)"
+            return "\(formattedWeight)\("кг".localized()) × \(set.reps)"
         case .repsOnly:
             if set.weight > 0 {
-                return "\(formattedWeight)кг × \(set.reps)"
+                return "\(formattedWeight)\("кг".localized()) × \(set.reps)"
             } else {
-                return "\(set.reps) повт."
+                return "\(set.reps) \("повт.".localized())"
             }
         case .duration:
             if let duration = set.duration, duration > 0 {
@@ -688,7 +705,7 @@ struct CompletedSetChip: View {
                 let seconds = Int(duration) % 60
                 return String(format: "%02d:%02d", minutes, seconds)
             } else {
-                return "Готово"
+                return "Готово".localized()
             }
             }
         }

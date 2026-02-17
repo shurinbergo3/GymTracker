@@ -38,7 +38,7 @@ struct ActivityRingsCard: View {
                     Text("\(Int(move))/\(Int(moveGoal))")
                         .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                         .foregroundColor(Color(red: 1.0, green: 0.2, blue: 0.4))
-                    + Text(" ККАЛ")
+                    + Text(" ККАЛ".localized())
                         .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
                         .foregroundColor(Color(red: 1.0, green: 0.2, blue: 0.4).opacity(0.7))
                 }
@@ -52,7 +52,7 @@ struct ActivityRingsCard: View {
                     Text("\(Int(exercise))/\(Int(exerciseGoal))")
                         .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                         .foregroundColor(Color(red: 0.4, green: 1.0, blue: 0.2))
-                    + Text(" МИН")
+                    + Text(" МИН".localized())
                         .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
                         .foregroundColor(Color(red: 0.4, green: 1.0, blue: 0.2).opacity(0.7))
                 }
@@ -66,7 +66,7 @@ struct ActivityRingsCard: View {
                     Text("\(Int(stand))/\(Int(standGoal))")
                         .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                         .foregroundColor(Color(red: 0.2, green: 0.8, blue: 1.0))
-                    + Text(" Ч")
+                    + Text(" Ч".localized())
                         .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
                         .foregroundColor(Color(red: 0.2, green: 0.8, blue: 1.0).opacity(0.7))
                 }

@@ -72,10 +72,10 @@ struct CalorieCalculatorView: View {
                         .clipShape(Circle())
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Калькулятор калорий")
+                        Text("Калькулятор калорий".localized())
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
-                        Text("Рассчитать свою норму")
+                        Text("Рассчитать свою норму".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -104,19 +104,19 @@ struct CalorieCalculatorView: View {
                     
                     // Inputs
                     HStack(spacing: 12) {
-                        TextField("", text: $age, prompt: Text("Возраст").foregroundColor(.gray))
+                        TextField("", text: $age, prompt: Text("Возраст".localized()).foregroundColor(.gray))
                             .keyboardType(.numberPad)
                             .foregroundColor(DesignSystem.Colors.primaryText)
                             .padding(12)
                             .background(Color.white.opacity(0.05))
                             .cornerRadius(8)
-                        TextField("", text: $height, prompt: Text("Рост (см)").foregroundColor(.gray))
+                        TextField("", text: $height, prompt: Text("Рост (см)".localized()).foregroundColor(.gray))
                             .keyboardType(.numberPad)
                             .foregroundColor(DesignSystem.Colors.primaryText)
                             .padding(12)
                             .background(Color.white.opacity(0.05))
                             .cornerRadius(8)
-                        TextField("", text: $weight, prompt: Text("Вес (кг)").foregroundColor(.gray))
+                        TextField("", text: $weight, prompt: Text("Вес (кг)".localized()).foregroundColor(.gray))
                             .keyboardType(.decimalPad)
                             .foregroundColor(DesignSystem.Colors.primaryText)
                             .padding(12)
@@ -126,7 +126,7 @@ struct CalorieCalculatorView: View {
                     
                     // Activity Picker
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Активность")
+                        Text("Активность".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                         
@@ -156,7 +156,7 @@ struct CalorieCalculatorView: View {
                     
                     // Goal Picker
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Цель")
+                        Text("Цель".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                         
@@ -170,7 +170,7 @@ struct CalorieCalculatorView: View {
                     
                     // Calculate Button
                     Button(action: calculateCalories) {
-                        Text("Рассчитать")
+                        Text("Рассчитать".localized())
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)
@@ -182,10 +182,10 @@ struct CalorieCalculatorView: View {
                     // Result
                     if let calories = resultCalories {
                         VStack(spacing: 4) {
-                            Text("Ваша норма:")
+                            Text("Ваша норма:".localized())
                                 .font(DesignSystem.Typography.subheadline())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
-                            Text("\(calories) ккал")
+                            Text("\(calories) ккал".localized())
                                 .font(.system(size: 32, weight: .bold, design: .rounded))
                                 .foregroundColor(DesignSystem.Colors.accent)
                                 .transition(.scale)

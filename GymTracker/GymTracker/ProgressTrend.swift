@@ -51,21 +51,21 @@ enum ProgressTrend {
     
     var title: String {
         switch self {
-        case .surge: return "Мощный рост!"
-        case .growth: return "Стабильный прогресс"
-        case .maintenance: return "Удержание формы"
-        case .decline: return "Снижение тонуса"
-        case .loss: return "Критический спад"
+        case .surge: return "Мощный рост!".localized()
+        case .growth: return "Стабильный прогресс".localized()
+        case .maintenance: return "Удержание формы".localized()
+        case .decline: return "Снижение тонуса".localized()
+        case .loss: return "Критический спад".localized()
         }
     }
     
     var subtitle: String {
         switch self {
-        case .surge: return "Вы превосходите себя"
-        case .growth: return "Веса или повторения растут"
-        case .maintenance: return "Для роста повысьте нагрузку"
-        case .decline: return "Пора возвращаться в ритм"
-        case .loss: return "Начните с восстановления"
+        case .surge: return "Вы превосходите себя".localized()
+        case .growth: return "Веса или повторения растут".localized()
+        case .maintenance: return "Для роста повысьте нагрузку".localized()
+        case .decline: return "Пора возвращаться в ритм".localized()
+        case .loss: return "Начните с восстановления".localized()
         }
     }
     

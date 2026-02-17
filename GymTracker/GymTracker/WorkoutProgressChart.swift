@@ -80,7 +80,7 @@ struct WorkoutProgressBanner: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("ПРОГРАММА")
+                        Text("ПРОГРАММА".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)
@@ -91,7 +91,7 @@ struct WorkoutProgressBanner: View {
                             .lineLimit(1)
                         
                         HStack(spacing: DesignSystem.Spacing.sm) {
-                            Text("\(totalWorkouts) тренировок")
+                            Text("\(totalWorkouts) \("тренировок".localized())")
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             
@@ -187,7 +187,7 @@ struct WorkoutProgressBanner: View {
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
                             .fill(DesignSystem.Colors.cardBackground.opacity(0.5))
                         
-                        Text("Начни тренироваться")
+                        Text("Начни тренироваться".localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -200,10 +200,10 @@ struct WorkoutProgressBanner: View {
     
     private var progressText: String {
         switch progressState {
-        case .improved: return "Прогресс"
-        case .declined: return "Снижение"
-        case .same: return "Стабильно"
-        case .new: return "Первая"
+        case .improved: return "Прогресс".localized()
+        case .declined: return "Снижение".localized()
+        case .same: return "Стабильно".localized()
+        case .new: return "Первая".localized()
         }
     }
     
@@ -253,7 +253,7 @@ struct WorkoutProgressChart: View {
                              HStack {
                                  Image(systemName: "chart.line.uptrend.xyaxis")
                                      .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
-                                 Text("Показатель роста")
+                                 Text("Показатель роста".localized())
                                      .font(.headline)
                                      .foregroundStyle(.white)
                                  
@@ -296,13 +296,13 @@ struct WorkoutProgressChart: View {
                                  
                                  // Description
                                  VStack(alignment: .trailing) {
-                                     Text(isGrowing ? "Рост\nпоказателей" : "Снижение\nпоказателей")
+                                     Text(isGrowing ? "Рост\nпоказателей".localized() : "Снижение\nпоказателей".localized())
                                          .font(.caption)
                                          .fontWeight(.bold)
                                          .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
                                          .multilineTextAlignment(.trailing)
                                      
-                                     Text("\(chartData.count) тренировок")
+                                     Text("\(chartData.count) \("тренировок".localized())")
                                          .font(.caption2)
                                          .foregroundStyle(.gray)
                                  }

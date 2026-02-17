@@ -35,7 +35,7 @@ struct MeasurementDetailView: View {
                 if let latest = latestMeasurement {
                     CardView {
                         VStack(spacing: DesignSystem.Spacing.md) {
-                            Text("Текущее значение")
+                            Text("Текущее значение".localized())
                                 .font(DesignSystem.Typography.callout())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             
@@ -43,7 +43,7 @@ struct MeasurementDetailView: View {
                                 .font(.system(size: 48, weight: .bold, design: .rounded))
                                 .foregroundColor(DesignSystem.Colors.accent)
                             
-                            Text("Обновлено: \(latest.date.formatted(date: .long, time: .omitted))")
+                            Text("Обновлено: \(latest.date.formatted(date: .long, time: .omitted))".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
@@ -58,11 +58,11 @@ struct MeasurementDetailView: View {
                                 .font(.system(size: 48))
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             
-                            Text("Нет данных")
+                            Text("Нет данных".localized())
                                 .font(DesignSystem.Typography.headline())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
-                            Text("Добавьте первое измерение")
+                            Text("Добавьте первое измерение".localized())
                                 .font(DesignSystem.Typography.callout())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
@@ -75,7 +75,7 @@ struct MeasurementDetailView: View {
                 // История
                 if !measurements.isEmpty {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                        Text("История")
+                        Text("История".localized())
                             .font(DesignSystem.Typography.title3())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                             .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -113,7 +113,7 @@ struct MeasurementDetailView: View {
                 }
             }
         }
-        .navigationTitle(measurementType.rawValue)
+        .navigationTitle(Text(measurementType.localizedName.localized()))
         .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showingAddMeasurement) {
             AddMeasurementView(measurementType: measurementType)

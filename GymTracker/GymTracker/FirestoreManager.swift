@@ -365,4 +365,71 @@ class FirestoreManager {
         print("✅ Deleted program '\(id)' from Firestore")
         #endif
     }
+    
+    // MARK: - Custom Exercises Sync
+    
+    func saveCustomExercise(_ exercise: CustomExerciseDTO) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "FirestoreManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+        }
+        
+        let collectionPath = "users/\(userId)/customExercises"
+        let docId = exercise.id ?? UUID().uuidString
+        
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            do {
+                try db.collection(collectionPath).document(docId).setData(from: exercise) { error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
+        
+        #if DEBUG
+        print("✅ Saved custom exercise '\(exercise.name)' to Firestore")
+        #endif
+    }
+    
+    func fetchCustomExercises() async throws -> [CustomExerciseDTO] {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            #if DEBUG
+            print("⚠️ Cannot fetch custom exercises: User not logged in")
+            #endif
+            return []
+        }
+        
+        let collectionPath = "users/\(userId)/customExercises"
+        
+        #if DEBUG
+        print("📥 Fetching custom exercises from Firestore...")
+        #endif
+        
+        let snapshot = try await db.collection(collectionPath).getDocuments()
+        
+        #if DEBUG
+        print("📥 Found \(snapshot.documents.count) custom exercise documents in Firestore")
+        #endif
+        
+        let exercises = snapshot.documents.compactMap { document -> CustomExerciseDTO? in
+            do {
+                return try document.data(as: CustomExerciseDTO.self)
+            } catch {
+                #if DEBUG
+                print("⚠️ Failed to parse custom exercise document: \(error)")
+                #endif
+                return nil
+            }
+        }
+        
+        #if DEBUG
+        print("✅ Successfully parsed \(exercises.count) custom exercises")
+        #endif
+        
+        return exercises
+    }
 }

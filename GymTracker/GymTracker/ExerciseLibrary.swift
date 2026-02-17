@@ -10,17 +10,32 @@ import SwiftData
 
 // MARK: - Exercise Categories
 
-enum ExerciseCategory: String, CaseIterable, Identifiable {
-    case chest = "Грудь"
-    case back = "Спина"
-    case legs = "Ноги"
-    case shoulders = "Плечи"
-    case arms = "Руки"
-    case core = "Кор"
-    case cardio = "Кардио"
-    case complex = "Комплексные"
+enum ExerciseCategory: CaseIterable, Identifiable {
+    case chest
+    case back
+    case legs
+    case shoulders
+    case arms
+    case core
+    case cardio
+    case complex
+    case custom
     
     var id: String { rawValue }
+    
+    var rawValue: String {
+        switch self {
+        case .chest: return "Грудь".localized()
+        case .back: return "Спина".localized()
+        case .legs: return "Ноги".localized()
+        case .shoulders: return "Плечи".localized()
+        case .arms: return "Руки".localized()
+        case .core: return "Кор".localized()
+        case .cardio: return "Кардио".localized()
+        case .complex: return "Комплексные".localized()
+        case .custom: return "Пользовательские упражнения".localized()
+        }
+    }
     
     var icon: String {
         switch self {
@@ -32,40 +47,64 @@ enum ExerciseCategory: String, CaseIterable, Identifiable {
         case .core: return "figure.core.training"
         case .cardio: return "heart.fill"
         case .complex: return "figure.mixed.cardio"
+        case .custom: return "person.fill"
         }
     }
 }
 
-enum MuscleGroup: String, CaseIterable {
+enum MuscleGroup: CaseIterable {
     // Грудь
-    case upperChest = "Верх груди"
-    case middleChest = "Середина груди"
-    case lowerChest = "Низ груди"
+    case upperChest
+    case middleChest
+    case lowerChest
     
     // Спина
-    case lats = "Широчайшие"
-    case trapezius = "Трапеции"
-    case lowerBack = "Поясница"
-    case rearDelts = "Задние дельты"
+    case lats
+    case trapezius
+    case lowerBack
+    case rearDelts
     
     // Ноги
-    case quadriceps = "Квадрицепсы"
-    case hamstrings = "Бицепс бедра"
-    case glutes = "Ягодицы"
-    case calves = "Икры"
+    case quadriceps
+    case hamstrings
+    case glutes
+    case calves
     
     // Плечи
-    case frontDelts = "Передние дельты"
-    case sideDelts = "Средние дельты"
+    case frontDelts
+    case sideDelts
     
     // Руки
-    case biceps = "Бицепс"
-    case triceps = "Трицепс"
-    case forearms = "Предплечья"
+    case biceps
+    case triceps
+    case forearms
     
     // Кор и полное тело
-    case core = "Кор"
-    case fullBody = "Все тело"
+    case core
+    case fullBody
+    
+    var rawValue: String {
+        switch self {
+        case .upperChest: return "Верх груди".localized()
+        case .middleChest: return "Середина груди".localized()
+        case .lowerChest: return "Низ груди".localized()
+        case .lats: return "Широчайшие".localized()
+        case .trapezius: return "Трапеции".localized()
+        case .lowerBack: return "Поясница".localized()
+        case .rearDelts: return "Задние дельты".localized()
+        case .quadriceps: return "Квадрицепсы".localized()
+        case .hamstrings: return "Бицепс бедра".localized()
+        case .glutes: return "Ягодицы".localized()
+        case .calves: return "Икры".localized()
+        case .frontDelts: return "Передние дельты".localized()
+        case .sideDelts: return "Средние дельты".localized()
+        case .biceps: return "Бицепс".localized()
+        case .triceps: return "Трицепс".localized()
+        case .forearms: return "Предплечья".localized()
+        case .core: return "Кор".localized()
+        case .fullBody: return "Все тело".localized()
+        }
+    }
 }
 
 // MARK: - Library Exercise
@@ -1920,7 +1959,7 @@ struct ExerciseLibrary {
         
         // Arms - Руки
         LibraryExercise(
-            name: "Bayesian Curl",
+            name: "Байезианские сгибания",
             category: .arms,
             muscleGroup: .biceps,
             defaultType: .strength,

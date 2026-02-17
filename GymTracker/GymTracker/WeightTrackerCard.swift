@@ -37,12 +37,12 @@ struct WeightTrackerCard: View {
                             HStack {
                                 Image(systemName: "scalemass.fill")
                                     .foregroundColor(DesignSystem.Colors.neonGreen)
-                                Text("Вес")
+                                Text("Вес".localized())
                                     .font(DesignSystem.Typography.subheadline())
                                     .foregroundColor(.gray)
                             }
                             
-                            Text(currentWeight > 0 ? String(format: "%.1f кг", currentWeight) : "—")
+                            Text(currentWeight > 0 ? String(format: "%.1f %@", currentWeight, "кг".localized()) : "—")
                                 .font(.system(size: 34, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                             
@@ -50,7 +50,7 @@ struct WeightTrackerCard: View {
                             if weightHistory.count > 1 {
                                 Button(action: { withAnimation { isHistoryExpanded.toggle() } }) {
                                     HStack(spacing: 4) {
-                                        Text("История")
+                                        Text("История".localized())
                                             .font(.caption)
                                             .foregroundColor(.gray)
                                         Image(systemName: "chevron.down")
@@ -76,23 +76,23 @@ struct WeightTrackerCard: View {
                             HStack {
                                 Image(systemName: "lines.measurement.vertical")
                                     .foregroundColor(DesignSystem.Colors.neonGreen)
-                                Text("Рост")
+                                Text("Рост".localized())
                                     .font(DesignSystem.Typography.subheadline())
                                     .foregroundColor(.gray)
                             }
                             
                             if let profile = currentProfile, profile.height > 0 {
-                                Text("\(Int(profile.height)) см")
+                                Text("\(Int(profile.height)) \("см".localized())")
                                     .font(.system(size: 34, weight: .bold, design: .rounded))
                                     .foregroundColor(.white)
                             } else {
-                                Text("Указать")
+                                Text("Указать".localized())
                                     .font(.title3)
                                     .fontWeight(.semibold)
                                     .foregroundColor(DesignSystem.Colors.accent)
                             }
                             
-                            Text("Изменить") // Spacer/Hint
+                            Text("Изменить".localized()) // Spacer/Hint
                                 .font(.caption)
                                 .foregroundColor(.gray.opacity(0.01))
                         }
@@ -116,7 +116,7 @@ struct WeightTrackerCard: View {
                                 
                                 Spacer()
                                 
-                                Text(String(format: "%.1f кг", record.weight))
+                                Text(String(format: "%.1f %@", record.weight, "кг".localized()))
                                     .font(.callout)
                                     .foregroundColor(.gray)
                                     .strikethrough()

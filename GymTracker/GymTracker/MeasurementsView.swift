@@ -54,16 +54,16 @@ struct MeasurementsView: View {
                                         .clipShape(Circle())
                                     
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("История тренировок")
+                                        Text("История тренировок".localized())
                                             .font(DesignSystem.Typography.headline())
                                             .foregroundColor(DesignSystem.Colors.primaryText)
                                         
                                         if let last = completedSessions.first {
-                                            Text("Последняя: \(formattedDate(last.date))")
+                                            Text("Последняя: \(formattedDate(last.date))".localized())
                                                 .font(DesignSystem.Typography.caption())
                                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                         } else {
-                                            Text("Нет записей")
+                                            Text("Нет записей".localized())
                                                 .font(DesignSystem.Typography.caption())
                                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                         }
@@ -103,7 +103,7 @@ struct MeasurementsView: View {
                                         .background(DesignSystem.Colors.neonGreen.opacity(0.1))
                                         .clipShape(Circle())
                                     
-                                    Text("Замеры тела")
+                                    Text("Замеры тела".localized())
                                         .font(DesignSystem.Typography.headline())
                                         .foregroundColor(DesignSystem.Colors.primaryText)
                                     
@@ -125,7 +125,7 @@ struct MeasurementsView: View {
                     }
                 }
             }
-            .navigationTitle("Статистика")
+            .navigationTitle(Text("Статистика".localized()))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -164,7 +164,7 @@ struct HeartRateStatsCard: View {
                 HStack {
                     Image(systemName: "heart.fill")
                         .foregroundStyle(.red)
-                    Text("Пульс")
+                    Text("Пульс".localized())
                         .font(.headline)
                         .foregroundStyle(.white)
                     
@@ -176,7 +176,7 @@ struct HeartRateStatsCard: View {
                 HStack(spacing: 20) {
                     // Resting HR (Weekly Average)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("В покое")
+                        Text("В покое".localized())
                             .font(.caption)
                             .foregroundStyle(.gray)
                         
@@ -184,13 +184,13 @@ struct HeartRateStatsCard: View {
                             Text(restingHR > 0 ? "\(restingHR)" : "--")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundStyle(.white)
-                            Text("уд/мин")
+                            Text("уд/мин".localized())
                                 .font(.caption2)
                                 .foregroundStyle(.gray)
                         }
                         
                         if restingHR > 0 {
-                            Text("среднее за неделю")
+                            Text("среднее за неделю".localized())
                                 .font(.system(size: 9))
                                 .foregroundStyle(.gray.opacity(0.7))
                         }
@@ -202,7 +202,7 @@ struct HeartRateStatsCard: View {
                     
                     // Workout HR
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("На тренировке")
+                        Text("На тренировке".localized())
                             .font(.caption)
                             .foregroundStyle(.gray)
                         
@@ -216,7 +216,7 @@ struct HeartRateStatsCard: View {
                                     .font(.system(size: 24, weight: .bold))
                                     .foregroundStyle(.white)
                             }
-                            Text("уд/мин")
+                            Text("уд/мин".localized())
                                 .font(.caption2)
                                 .foregroundStyle(.gray)
                         }

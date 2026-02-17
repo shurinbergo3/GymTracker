@@ -13,6 +13,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @AppStorage("isHealthSyncEnabled") private var isHealthSyncEnabled = true
+    @AppStorage("appLanguage") private var appLanguage: String = "system"
     
     // Use EnvironmentObject provided by WorkoutTrackerApp
     @EnvironmentObject var authManager: AuthManager
@@ -34,12 +35,13 @@ struct SettingsView: View {
             Form {
                 accountSection
                 integrationsSection
+                languageSection
                 appInfoSection
                 supportSection
                 dataManagementSection
                 dangerZoneSection
             }
-            .navigationTitle("settings_title")
+            .navigationTitle("settings_title".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -87,7 +89,7 @@ struct SettingsView: View {
                     .foregroundStyle(DesignSystem.Colors.primaryText)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(userEmail ?? String(localized: "guest_user"))
+                    Text(userEmail ?? "guest_user".localized())
                         .font(DesignSystem.Typography.headline())
                         .foregroundStyle(DesignSystem.Colors.primaryText)
                     
@@ -127,6 +129,92 @@ struct SettingsView: View {
         } footer: {
             Text("health_sync_footer")
         }
+    }
+    
+    
+    private var languageSection: some View {
+        Section {
+            // Custom language row with flag and checkmark
+            VStack(spacing: 0) {
+                // System Language
+                languageOptionRow(
+                    title: "System".localized(),
+                    subtitle: "Follows system settings".localized(),
+                    flag: "globe",
+                    tag: "system"
+                )
+                
+                Divider().padding(.leading, 52)
+                
+                // Russian
+                languageOptionRow(
+                    title: "Russian".localized(),
+                    subtitle: "Русский язык",
+                    flag: "🇷🇺",
+                    tag: "ru"
+                )
+                
+                Divider().padding(.leading, 52)
+                
+                // English
+                languageOptionRow(
+                    title: "English".localized(),
+                    subtitle: "English language",
+                    flag: "🇬🇧",
+                    tag: "en"
+                )
+            }
+        } header: {
+            Text("language_section_header")
+        } footer: {
+            Text("language_change_footer")
+        }
+    }
+    
+    private func languageOptionRow(title: String, subtitle: String, flag: String, tag: String) -> some View {
+        Button(action: {
+            // Update language
+            appLanguage = tag
+            LanguageManager.shared.appLanguage = tag
+        }) {
+            HStack(spacing: 12) {
+                // Flag or Icon
+                if flag.count <= 2 && flag.unicodeScalars.allSatisfy({ $0.properties.isEmojiPresentation }) {
+                    // Emoji flag
+                    Text(flag)
+                        .font(.system(size: 32))
+                } else {
+                    // SF Symbol
+                    Image(systemName: flag)
+                        .font(.title2)
+                        .foregroundStyle(DesignSystem.Colors.accent)
+                        .frame(width: 32)
+                }
+                
+                // Title and Subtitle
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(DesignSystem.Typography.body())
+                        .foregroundStyle(DesignSystem.Colors.primaryText)
+                    
+                    Text(subtitle)
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                }
+                
+                Spacer()
+                
+                // Checkmark for selected
+                if appLanguage == tag {
+                    Image(systemName: "checkmark")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(DesignSystem.Colors.accent)
+                }
+            }
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
     
     private var appInfoSection: some View {
@@ -169,12 +257,12 @@ struct SettingsView: View {
                 HStack {
                     Image(systemName: "externaldrive.badge.icloud")
                         .foregroundStyle(DesignSystem.Colors.accent)
-                    Text("Управление данными")
+                    Text("Управление данными".localized())
                         .foregroundStyle(DesignSystem.Colors.primaryText)
                 }
             }
         } header: {
-            Text("Облако и Данные")
+            Text("Облако и Данные".localized())
         }
     }
     
@@ -205,10 +293,10 @@ struct SettingsView: View {
                 // Check if reauthentication is required
                 if error.code == AuthErrorCode.requiresRecentLogin.rawValue {
                     requiresReauth = true
-                    deleteErrorMessage = error.localizedRecoverySuggestion ?? String(localized: "relogin_message")
+                    deleteErrorMessage = error.localizedRecoverySuggestion ?? "relogin_message".localized()
                 } else {
                     requiresReauth = false
-                    deleteErrorMessage = "\(String(localized: "delete_failed_prefix")): \(error.localizedDescription)"
+                    deleteErrorMessage = "\("delete_failed_prefix".localized()): \(error.localizedDescription)"
                 }
                 showingDeleteError = true
             }

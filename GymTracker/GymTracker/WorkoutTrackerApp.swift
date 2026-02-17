@@ -14,6 +14,7 @@ struct WorkoutTrackerApp: App {
     
     // Use shared instance to ensure consistent state across the app
     @StateObject private var authManager = AuthManager.shared
+    @StateObject private var languageManager = LanguageManager.shared
     @State private var isCheckingAuth = true
     
     init() {
@@ -29,7 +30,8 @@ struct WorkoutTrackerApp: App {
             WeightRecord.self,
             Program.self,
             WorkoutDay.self,
-            ExerciseTemplate.self
+            ExerciseTemplate.self,
+            CustomExercise.self  // Added for custom exercises sync
         ])
         
         do {
@@ -94,10 +96,13 @@ struct WorkoutTrackerApp: App {
                                 .transition(.opacity)
                         }
                     }
+                    .id(languageManager.appLanguage) // Force recreate views when language changes
                 }
             }
             .preferredColorScheme(.dark)
             .modelContainer(sharedModelContainer)
+            .environment(\.locale, languageManager.currentLocale)
+            .environmentObject(languageManager)
             .onAppear {
                 // Set ModelContainer for AuthManager (must be done here, not in init)
                 authManager.setModelContainer(sharedModelContainer)

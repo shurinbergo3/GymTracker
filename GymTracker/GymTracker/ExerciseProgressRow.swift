@@ -14,7 +14,7 @@ struct ExerciseProgressRow: View {
         HStack(spacing: DesignSystem.Spacing.md) {
             // Exercise name
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text(exerciseProgress.exerciseName)
+                Text(exerciseProgress.exerciseName.localized())
                     .font(DesignSystem.Typography.callout())
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 

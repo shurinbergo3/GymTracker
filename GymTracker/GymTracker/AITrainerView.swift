@@ -54,11 +54,11 @@ struct AITrainerView: View {
                                 .shadow(color: DesignSystem.Colors.neonGreen, radius: 10, x: 0, y: 0)
                         }
                         
-                        Text("AI Coach") // English Match
+                        Text("AI Coach".localized())
                             .font(DesignSystem.Typography.title())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
-                        Text("Your Personal Analyst") // English Match
+                        Text("Your Personal Analyst".localized())
                             .font(DesignSystem.Typography.body())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -106,7 +106,7 @@ struct AITrainerView: View {
                     .padding(.bottom, 20)
                 }
             }
-            .navigationTitle("AI Coach") // English Match
+            .navigationTitle("AI Coach".localized())
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -122,7 +122,7 @@ struct AITrainerView: View {
             .alert("В разработке", isPresented: $showingDevAlert) {
                 Button("OK", role: .cancel) { }
             } message: {
-                Text("Этот функционал еще создается. Скоро будет доступно!")
+                Text("Этот функционал еще создается. Скоро будет доступно!".localized())
             }
         }
     }

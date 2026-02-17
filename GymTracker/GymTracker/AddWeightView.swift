@@ -21,7 +21,7 @@ struct AddWeightView: View {
             Form {
                 Section("Новый вес") {
                     HStack {
-                        Text("Вес (кг)")
+                        Text("Вес (кг)".localized())
                         Spacer()
                         TextField("0.0", text: $weight)
                             .keyboardType(.decimalPad)
@@ -30,7 +30,7 @@ struct AddWeightView: View {
                     }
                     
                     HStack {
-                        Text("Дата")
+                        Text("Дата".localized())
                         Spacer()
                         Text(Date().formatted(date: .long, time: .omitted))
                             .foregroundColor(DesignSystem.Colors.secondaryText)
@@ -38,7 +38,7 @@ struct AddWeightView: View {
                     }
                 }
             }
-            .navigationTitle("Добавить вес")
+            .navigationTitle("Добавить вес".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -46,7 +46,7 @@ struct AddWeightView: View {
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Добавить") {
+                    Button("Добавить".localized()) {
                         addWeight()
                         dismiss()
                     }

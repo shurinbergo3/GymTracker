@@ -17,11 +17,11 @@ struct HormonesView: View {
                 VStack(spacing: DesignSystem.Spacing.xl) {
                     // 1. Header & Theory Section
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                        Text("Гормонально-нейромедиаторная теория")
+                        Text("Гормонально-нейромедиаторная теория".localized())
                             .font(DesignSystem.Typography.title2())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
-                        Text("Общие законы управления")
+                        Text("Общие законы управления".localized())
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.accent)
                         
@@ -63,7 +63,7 @@ struct HormonesView: View {
                     
                     // 3. Axiomatics Section
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                        Text("Аксиоматика (Базовые принципы)")
+                        Text("Аксиоматика (Базовые принципы)".localized())
                             .font(DesignSystem.Typography.title2())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
@@ -80,7 +80,7 @@ struct HormonesView: View {
                 }
             }
         }
-        .navigationTitle("Справочник")
+        .navigationTitle("Справочник".localized())
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -93,12 +93,12 @@ struct TheoryBlock: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title)
+            Text(title.localized())
                 .font(DesignSystem.Typography.subheadline())
                 .foregroundColor(DesignSystem.Colors.primaryText)
                 .bold()
             
-            Text(content)
+            Text(content.localized())
                 .font(DesignSystem.Typography.body())
                 .foregroundColor(DesignSystem.Colors.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
@@ -115,11 +115,16 @@ struct AxiomBlock: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("• " + title)
-                .font(DesignSystem.Typography.headline())
-                .foregroundColor(DesignSystem.Colors.accent)
+            HStack(alignment: .top, spacing: 4) {
+                Text("•")
+                    .font(DesignSystem.Typography.headline())
+                    .foregroundColor(DesignSystem.Colors.accent)
+                Text(title.localized())
+                    .font(DesignSystem.Typography.headline())
+                    .foregroundColor(DesignSystem.Colors.accent)
+            }
             
-            Text(content)
+            Text(content.localized())
                 .font(DesignSystem.Typography.body())
                 .foregroundColor(DesignSystem.Colors.secondaryText)
                 .padding(.leading, DesignSystem.Spacing.md)
@@ -138,11 +143,11 @@ struct HormoneCard: View {
             Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(data.name)
+                        Text(data.name.localized())
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(data.color)
                         
-                        Text(data.subtitle)
+                        Text(data.subtitle.localized())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(.gray)
                     }
@@ -165,23 +170,23 @@ struct HormoneCard: View {
                     // Essence/Metaphysics/Physics
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
                         if let meta = data.metaphysics {
-                            DescriptionRow(title: "Метафизика", content: meta, icon: "sparkles")
+                            DescriptionRow(title: "Метафизика".localized(), content: meta, icon: "sparkles")
                         }
                         if let phys = data.physics {
-                            DescriptionRow(title: "Физика", content: phys, icon: "atom")
+                            DescriptionRow(title: "Физика".localized(), content: phys, icon: "atom")
                         }
                         if let essence = data.essence {
-                            DescriptionRow(title: "Суть", content: essence, icon: "info.circle")
+                            DescriptionRow(title: "Суть".localized(), content: essence, icon: "info.circle")
                         }
                     }
                     
                     // Levels
                     if let high = data.highLevel {
-                        DescriptionRow(title: "Высокий уровень", content: high, icon: "arrow.up.circle.fill", titleColor: .green)
+                        DescriptionRow(title: "Высокий уровень".localized(), content: high, icon: "arrow.up.circle.fill", titleColor: .green)
                     }
                     
                     if let low = data.lowLevel {
-                        DescriptionRow(title: "Низкий уровень", content: low, icon: "arrow.down.circle.fill", titleColor: .red)
+                        DescriptionRow(title: "Низкий уровень".localized(), content: low, icon: "arrow.down.circle.fill", titleColor: .red)
                     }
                     
                     // Normalization
@@ -189,30 +194,50 @@ struct HormoneCard: View {
                         HStack {
                             Image(systemName: "slider.horizontal.3")
                                 .foregroundColor(.blue)
-                            Text("Как нормализовать:")
+                            Text("Как нормализовать:".localized())
                                 .font(.caption).bold()
                                 .foregroundColor(.blue)
                         }
                         
                         if let normPhys = data.normalizePhysics {
-                            Text("• Физика: \(normPhys)")
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            HStack(alignment: .top, spacing: 4) {
+                                Text("•")
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                (Text("Физика".localized()) + Text(": ") + Text(normPhys.localized()))
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
                         }
                         if let normPsych = data.normalizePsyche {
-                            Text("• Психика: \(normPsych)")
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            HStack(alignment: .top, spacing: 4) {
+                                Text("•")
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                (Text("Психика".localized()) + Text(": ") + Text(normPsych.localized()))
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
                         }
                         if let normSoc = data.normalizeSocial {
-                            Text("• Социум: \(normSoc)")
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            HStack(alignment: .top, spacing: 4) {
+                                Text("•")
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                (Text("Социум".localized()) + Text(": ") + Text(normSoc.localized()))
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
                         }
                         if let normGen = data.generalNormalization {
-                            Text("• \(normGen)")
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            HStack(alignment: .top, spacing: 4) {
+                                Text("•")
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                Text(normGen.localized())
+                                    .font(DesignSystem.Typography.caption())
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
                         }
                     }
                     .padding(.top, 4)
@@ -237,11 +262,11 @@ struct DescriptionRow: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Label(title, systemImage: icon)
+            Label(title.localized(), systemImage: icon)
                 .font(.caption).bold()
                 .foregroundColor(titleColor ?? DesignSystem.Colors.primaryText)
             
-            Text(content)
+            Text(content.localized())
                 .font(DesignSystem.Typography.body())
                 .foregroundColor(DesignSystem.Colors.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)

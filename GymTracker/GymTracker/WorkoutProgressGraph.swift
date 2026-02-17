@@ -31,7 +31,7 @@ struct WorkoutProgressGraph: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                Text("ПРОГРЕСС ПО ОБЪЕМУ")
+                Text("ПРОГРЕСС ПО ОБЪЕМУ".localized())
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .tracking(1.2)
@@ -44,7 +44,7 @@ struct WorkoutProgressGraph: View {
                                 .font(.system(size: 40))
                                 .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
                             
-                            Text("Нет данных для графика")
+                            Text("Нет данных для графика".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
@@ -55,8 +55,8 @@ struct WorkoutProgressGraph: View {
                     Chart {
                         ForEach(volumeData, id: \.0) { item in
                             LineMark(
-                                x: .value("Дата", item.0),
-                                y: .value("Объем", item.1)
+                                x: .value("Дата".localized(), item.0),
+                                y: .value("Объем".localized(), item.1)
                             )
                             .foregroundStyle(
                                 LinearGradient(
@@ -68,8 +68,8 @@ struct WorkoutProgressGraph: View {
                             .lineStyle(StrokeStyle(lineWidth: 3))
                             
                             AreaMark(
-                                x: .value("Дата", item.0),
-                                y: .value("Объем", item.1)
+                                x: .value("Дата".localized(), item.0),
+                                y: .value("Объем".localized(), item.1)
                             )
                             .foregroundStyle(
                                 LinearGradient(
@@ -83,8 +83,8 @@ struct WorkoutProgressGraph: View {
                             )
                             
                             PointMark(
-                                x: .value("Дата", item.0),
-                                y: .value("Объем", item.1)
+                                x: .value("Дата".localized(), item.0),
+                                y: .value("Объем".localized(), item.1)
                             )
                             .foregroundStyle(DesignSystem.Colors.neonGreen)
                             .symbolSize(60)
@@ -111,13 +111,13 @@ struct WorkoutProgressGraph: View {
                     // Stats
                     HStack(spacing: DesignSystem.Spacing.lg) {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                            Text("СРЕДНИЙ ОБЪЕМ")
+                            Text("СРЕДНИЙ ОБЪЕМ".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             
                             if !volumeData.isEmpty {
                                 let avg = volumeData.map { $0.1 }.reduce(0, +) / Double(volumeData.count)
-                                Text(String(format: "%.0f кг", avg))
+                                Text(String(format: "%.0f %@", avg, "кг".localized()))
                                     .font(DesignSystem.Typography.title3())
                                     .foregroundColor(DesignSystem.Colors.primaryText)
                             }
@@ -126,7 +126,7 @@ struct WorkoutProgressGraph: View {
                         Spacer()
                         
                         VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
-                            Text("ТРЕНИРОВОК")
+                            Text("ТРЕНИРОВОК".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             

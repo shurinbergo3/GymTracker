@@ -215,7 +215,7 @@ struct ActivityDetailView: View {
     private var stepsAndDistanceSection: some View {
         HStack(spacing: 40) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Шаги")
+                Text("Шаги".localized())
                     .font(.system(size: 16))
                     .foregroundColor(.white)
                 Text("\(steps.formatted())")
@@ -224,7 +224,7 @@ struct ActivityDetailView: View {
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                Text("Дистанция")
+                Text("Дистанция".localized())
                     .font(.system(size: 16))
                     .foregroundColor(.white)
                 Text(String(format: "%.2f КМ", distance))

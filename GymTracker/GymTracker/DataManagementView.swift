@@ -60,7 +60,7 @@ struct DataManagementView: View {
                                 Image(systemName: "icloud.and.arrow.down")
                                     .foregroundStyle(DesignSystem.Colors.accent)
                             }
-                            Text("Полная синхронизация (Всё)")
+                            Text("Полная синхронизация (Всё)".localized())
                                 .foregroundStyle(isRestoring ? DesignSystem.Colors.secondaryText : DesignSystem.Colors.primaryText)
                         }
                         
@@ -87,7 +87,7 @@ struct DataManagementView: View {
                             Image(systemName: "icloud.and.arrow.up")
                                 .foregroundStyle(.orange)
                         }
-                        Text("Выгрузить в облако (Заменить)")
+                        Text("Выгрузить в облако (Заменить)".localized())
                             .foregroundStyle(isUploading ? DesignSystem.Colors.secondaryText : DesignSystem.Colors.primaryText)
                     }
                 }
@@ -104,17 +104,17 @@ struct DataManagementView: View {
                         } else {
                             Image(systemName: "trash")
                         }
-                        Text("Удалить ВСЕ тренировки из облака")
+                        Text("Удалить ВСЕ тренировки из облака".localized())
                     }
                 }
                 .disabled(isDeletingWorkouts)
                 
             } footer: {
-                Text("⬆️ 'Выгрузить в облако' ЗАМЕНИТ всё в облаке вашими текущими локальными тренировками.\n⚠️ Красная кнопка удалит вообще ВСЁ.")
+                Text("⬆️ 'Выгрузить в облако' ЗАМЕНИТ всё в облаке вашими текущими локальными тренировками.\n⚠️ Красная кнопка удалит вообще ВСЁ.".localized())
                     .font(.caption2)
             }
         }
-        .navigationTitle("Управление данными")
+        .navigationTitle("Управление данными".localized())
         .navigationBarTitleDisplayMode(.inline)
         .alert("sync_complete_title", isPresented: $showingRestoreAlert) {
             Button("ok_button", role: .cancel) { }
@@ -128,7 +128,7 @@ struct DataManagementView: View {
                 performForceUpload()
             }
         } message: {
-            Text("ВНИМАНИЕ: Это действие удалит ВСЕ тренировки в облаке и заменит их вашими текущими локальными тренировками.\n\nИспользуйте это, если вы почистили историю на телефоне и хотите, чтобы в облаке стало так же.")
+            Text("ВНИМАНИЕ: Это действие удалит ВСЕ тренировки в облаке и заменит их вашими текущими локальными тренировками.\n\nИспользуйте это, если вы почистили историю на телефоне и хотите, чтобы в облаке стало так же.".localized())
         }
         .alert("Результат выгрузки", isPresented: $showingUploadAlert) {
             Button("OK", role: .cancel) { }
@@ -141,7 +141,7 @@ struct DataManagementView: View {
                 handleDeleteAllWorkouts()
             }
         } message: {
-            Text("Это действие удалит ВСЕ тренировки из Firestore и локальной базы. Это нельзя отменить!")
+            Text("Это действие удалит ВСЕ тренировки из Firestore и локальной базы. Это нельзя отменить!".localized())
         }
         .alert("Результат", isPresented: $showingDeleteWorkoutsAlert) {
             Button("OK", role: .cancel) { }

@@ -18,12 +18,12 @@ struct ExerciseListView: View {
                 .searchable(
                     text: $viewModel.searchText,
                     placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "Поиск упражнений"
+                    prompt: "Поиск упражнений".localized()
                 )
                 .onChange(of: viewModel.searchText) { _, _ in
                     viewModel.search()
                 }
-                .navigationTitle("Упражнения")
+                .navigationTitle("Упражнения".localized())
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar {
                     // Toolbar left empty intentionally to rely on default 'Back' button
@@ -87,7 +87,7 @@ struct ExerciseListRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text(exercise.name)
+                Text(exercise.name.localized())
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 

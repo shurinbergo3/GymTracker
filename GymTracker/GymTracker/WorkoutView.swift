@@ -42,9 +42,9 @@ struct WorkoutView: View {
                     // Empty State
                     EmptyStateView(
                         icon: "figure.strengthtraining.traditional",
-                        title: String(localized: "no_active_program_title"),
-                        message: String(localized: "no_active_program_message"),
-                        buttonTitle: String(localized: "set_program_button")
+                        title: "no_active_program_title".localized(),
+                        message: "no_active_program_message".localized(),
+                        buttonTitle: "set_program_button".localized()
                     ) {
                         selectedTab = 1 // Switch to Program tab
                     }

@@ -31,7 +31,7 @@ struct WorkoutTypeSelectorView: View {
                                     .foregroundColor(selectedType == type ? DesignSystem.Colors.neonGreen : DesignSystem.Colors.primaryText)
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(type.displayName)
+                                    Text(type.displayName.localized())
                                         .font(DesignSystem.Typography.headline())
                                         .foregroundColor(DesignSystem.Colors.primaryText)
                                     
@@ -59,11 +59,11 @@ struct WorkoutTypeSelectorView: View {
                 }
                 .padding(DesignSystem.Spacing.lg)
             }
-            .navigationTitle("Тип тренировки")
+            .navigationTitle("Тип тренировки".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Отмена") {
+                    Button("Отмена".localized()) {
                         dismiss()
                     }
                     .foregroundColor(DesignSystem.Colors.secondaryText)
@@ -77,11 +77,11 @@ extension WorkoutType {
     var description: String {
         switch self {
         case .strength:
-            return "Вес × Повторы"
+            return "Вес × Повторы".localized()
         case .repsOnly:
             return "figure.walk"
         case .duration:
-            return "stopwatch.fill Время и дистанция"
+            return "stopwatch.fill " + "Время и дистанция".localized()
         }
     }
 }

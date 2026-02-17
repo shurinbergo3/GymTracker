@@ -20,7 +20,7 @@ struct ReferenceView: View {
                     VStack(spacing: DesignSystem.Spacing.xl) {
                         // Header
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                            Text("База знаний для твоего прогресса")
+                            Text("База знаний для твоего прогресса".localized())
                                 .font(DesignSystem.Typography.body())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
@@ -34,8 +34,8 @@ struct ReferenceView: View {
                             // 1. Exercises (Large Card - Full Width)
                             NavigationLink(destination: ExerciseListView()) {
                                 ReferenceBentoCard(
-                                    title: "Упражнения",
-                                    subtitle: "Техника и описание",
+                                    title: "Упражнения".localized(),
+                                    subtitle: "Technique and Description".localized(),
                                     icon: "dumbbell.fill",
                                     color: DesignSystem.Colors.neonGreen,
                                     height: 180
@@ -43,21 +43,21 @@ struct ReferenceView: View {
                             }
                             .gridCellColumns(2) // Span across 2 columns
                             
-                            // 2. Supplements (Medium Card)
+                            // 2. Workouts (Medium Card)
                             NavigationLink(destination: WorkoutGuideView()) {
-                    ReferenceBentoCard(
-                        title: "Тренировки",
-                        subtitle: "Гайд по тренингу",
-                        icon: "dumbbell.fill",
-                        color: .purple,
-                        height: 160
-                    )
-                }
-                
-                NavigationLink(destination: SupplementsView()) {
                                 ReferenceBentoCard(
-                                    title: "Бады",
-                                    subtitle: "Топовые добавки",
+                                    title: "Тренировки".localized(),
+                                    subtitle: "Training Guide".localized(),
+                                    icon: "dumbbell.fill",
+                                    color: .purple,
+                                    height: 160
+                                )
+                            }
+                
+                            NavigationLink(destination: SupplementsView()) {
+                                ReferenceBentoCard(
+                                    title: "Бады".localized(),
+                                    subtitle: "Top Supplements".localized(),
                                     icon: "pills.fill",
                                     color: .blue,
                                     height: 160
@@ -67,8 +67,8 @@ struct ReferenceView: View {
                             // 3. Hormones (Medium Card)
                             NavigationLink(destination: HormonesView()) {
                                 ReferenceBentoCard(
-                                    title: "Гормоны",
-                                    subtitle: "Влияние на жизнь",
+                                    title: "Гормоны".localized(),
+                                    subtitle: "Impact on Life".localized(),
                                     icon: "bolt.heart.fill",
                                     color: .purple,
                                     height: 160
@@ -78,8 +78,8 @@ struct ReferenceView: View {
                             // 4. Sleep (Medium Card)
                             NavigationLink(destination: SleepGuideView()) {
                                 ReferenceBentoCard(
-                                    title: "Сон",
-                                    subtitle: "Восстановление",
+                                    title: "Сон".localized(),
+                                    subtitle: "Recovery".localized(),
                                     icon: "moon.stars.fill",
                                     color: .indigo,
                                     height: 160
@@ -89,8 +89,8 @@ struct ReferenceView: View {
                             // 4. Nutrition (Medium Card)
                             NavigationLink(destination: NutritionGuideView()) {
                                 ReferenceBentoCard(
-                                    title: "Питание",
-                                    subtitle: "Топливо для тела",
+                                    title: "Питание".localized(),
+                                    subtitle: "Fuel for the Body".localized(),
                                     icon: "fork.knife",
                                     color: .orange,
                                     height: 160
@@ -101,7 +101,7 @@ struct ReferenceView: View {
                     }
                 }
             }
-            .navigationTitle("Справочник")
+            .navigationTitle("Справочник".localized())
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -148,12 +148,12 @@ struct ReferenceBentoCard: View {
                 
                 // Text Bottom Left
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
+                    Text(title.localized())
                         .font(DesignSystem.Typography.title3())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .multilineTextAlignment(.leading)
                     
-                    Text(subtitle)
+                    Text(subtitle.localized())
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(isDisabled ? DesignSystem.Colors.secondaryText : color)
                         .padding(.horizontal, 8)

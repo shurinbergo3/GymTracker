@@ -39,11 +39,11 @@ struct LoginView: View {
                 
                 // Fields
                 VStack(spacing: DesignSystem.Spacing.lg) {
-                    CustomTextField(icon: "envelope.fill", placeholder: "Email", text: $email)
+                    CustomTextField(icon: "envelope.fill", placeholder: "Email".localized(), text: $email)
                         .textInputAutocapitalization(.never)
                         .keyboardType(.emailAddress)
                     
-                    CustomTextField(icon: "lock.fill", placeholder: "Пароль", text: $password, isSecure: true)
+                    CustomTextField(icon: "lock.fill", placeholder: "Пароль".localized(), text: $password, isSecure: true)
                 }
                 .padding(.horizontal, DesignSystem.Spacing.xl)
                 
@@ -57,7 +57,7 @@ struct LoginView: View {
                 }
                 
                 // Main Button
-                GradientButton(title: isSignUp ? "Создать аккаунт" : "Войти", icon: isSignUp ? "person.badge.plus" : "arrow.right") {
+                GradientButton(title: isSignUp ? "Создать аккаунт".localized() : "Войти".localized(), icon: isSignUp ? "person.badge.plus" : "arrow.right") {
                     handleAuth()
                 }
                 .disabled(isLoading || email.isEmpty || password.isEmpty)
@@ -70,7 +70,7 @@ struct LoginView: View {
                         errorMessage = nil
                     }
                 }) {
-                    Text(isSignUp ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Создать")
+                    Text(isSignUp ? "Уже есть аккаунт? Войти".localized() : "Нет аккаунта? Создать".localized())
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(DesignSystem.Colors.accent)
                 }
@@ -78,7 +78,7 @@ struct LoginView: View {
                 // Divider
                 HStack {
                     Rectangle().frame(height: 1).foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.3))
-                    Text("ИЛИ")
+                    Text("ИЛИ".localized())
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                     Rectangle().frame(height: 1).foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.3))
@@ -93,7 +93,7 @@ struct LoginView: View {
                 }) {
                     HStack {
                         Image(systemName: "globe") // Placeholder for Google Logo
-                        Text("Войти через Google")
+                        Text("Войти через Google".localized())
                     }
                     .font(DesignSystem.Typography.headline())
                     .foregroundColor(DesignSystem.Colors.primaryText)

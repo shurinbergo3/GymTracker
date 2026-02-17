@@ -31,10 +31,10 @@ struct SleepGuideView: View {
                             .cornerRadius(DesignSystem.CornerRadius.large)
                         
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Механика идеального сна")
+                            Text("Механика идеального сна".localized())
                                 .font(DesignSystem.Typography.title2())
                                 .foregroundColor(.white)
-                            Text("От биохимии до привычек")
+                            Text("От биохимии до привычек".localized())
                                 .font(DesignSystem.Typography.subheadline())
                                 .foregroundColor(.white.opacity(0.8))
                         }
@@ -44,86 +44,86 @@ struct SleepGuideView: View {
                     
                     // 1. Почему ломается сон
                     SectionCard(
-                        title: "1. Почему ломается сон?",
+                        title: "1. Почему ломается сон?".localized(),
                         icon: "bolt.slash.fill",
                         color: .red
                     ) {
-                        Text("Наши механизмы саморегуляции сбиваются из-за несоответствия среды потребностям тела.")
+                        Text("Наши механизмы саморегуляции сбиваются из-за несоответствия среды потребностям тела.".localized())
                             .font(DesignSystem.Typography.body())
                         
-                        BulletPoint(icon: "lightbulb.slash", title: "Световое загрязнение", text: "Искусственный холодный свет блокирует мелатонин.")
-                        BulletPoint(icon: "ear.badge.checkmark", title: "Шум", text: "Звуки воспринимаются как опасность (выброс адреналина).")
-                        BulletPoint(icon: "figure.walk", title: "Малоподвижность", text: "Без движения не накапливается аденозин (нейромедиатор усталости).")
+                        BulletPoint(icon: "lightbulb.slash", title: "Световое загрязнение".localized(), text: "Искусственный холодный свет блокирует мелатонин.".localized())
+                        BulletPoint(icon: "ear.badge.checkmark", title: "Шум".localized(), text: "Звуки воспринимаются как опасность (выброс адреналина).".localized())
+                        BulletPoint(icon: "figure.walk", title: "Малоподвижность".localized(), text: "Без движения не накапливается аденозин (нейромедиатор усталости).".localized())
                     }
                     
                     // 2. Биохимия процесса
                     SectionCard(
-                        title: "2. Биохимия процесса",
+                        title: "2. Биохимия процесса".localized(),
                         icon: "atom",
                         color: .blue
                     ) {
-                        Text("Здоровый цикл строится на правильной работе гормональных пар:")
+                        Text("Здоровый цикл строится на правильной работе гормональных пар:".localized())
                             .font(DesignSystem.Typography.body()) // Fixed font call
                         
                         ComparisonRow(
-                            left: "Серотонин", right: "Мелатонин",
-                            text: "Днем на солнце вырабатывается серотонин. Если его мало, ночью не из чего производить мелатонин."
+                            left: "Серотонин".localized(), right: "Мелатонин".localized(),
+                            text: "Днем на солнце вырабатывается серотонин. Если его мало, ночью не из чего производить мелатонин.".localized()
                         )
                         
                         ComparisonRow(
-                            left: "Кортизол", right: "Тестостерон",
-                            text: "Утро: Пик нужен для энергии."
+                            left: "Кортизол".localized(), right: "Тестостерон".localized(),
+                            text: "Утро: Пик нужен для энергии.".localized()
                         )
                         
                         ComparisonRow(
-                            left: "Аденозин", right: "Пролактин",
-                            text: "Вечер: Сигнал отдыха и восстановления."
+                            left: "Аденозин".localized(), right: "Пролактин".localized(),
+                            text: "Вечер: Сигнал отдыха и восстановления.".localized()
                         )
                     }
                     
                     // 3. Утренний протокол
                     SectionCard(
-                        title: "3. Утренний протокол",
+                        title: "3. Утренний протокол".localized(),
                         icon: "sun.max.fill",
                         color: .orange
                     ) {
-                        Text("Цель: включиться в рабочий режим за 15 минут.")
+                        Text("Цель: включиться в рабочий режим за 15 минут.".localized())
                             .font(DesignSystem.Typography.body()) // Fixed font call
                         
-                        BulletPoint(icon: "brain.head.profile", title: "Навигация ума", text: "Настройтесь на благодарность и готовность к хаосу.")
-                        BulletPoint(icon: "gift.fill", title: "Первое действие", text: "Сделайте что-то приятное сразу для контекста удовольствия.")
-                        BulletPoint(icon: "clock.fill", title: "Ранний подъем", text: "Вставайте в 4:30–5:00.")
-                        BulletPoint(icon: "snowflake", title: "Холод", text: "Низкая температура пробуждает.")
-                        BulletPoint(icon: "fork.knife", title: "Голод", text: "Низкий сахар с утра — драйвер кортизола.")
+                        BulletPoint(icon: "brain.head.profile", title: "Навигация ума".localized(), text: "Настройтесь на благодарность и готовность к хаосу.".localized())
+                        BulletPoint(icon: "gift.fill", title: "Первое действие".localized(), text: "Сделайте что-то приятное сразу для контекста удовольствия.".localized())
+                        BulletPoint(icon: "clock.fill", title: "Ранний подъем".localized(), text: "Вставайте в 4:30–5:00.".localized())
+                        BulletPoint(icon: "snowflake", title: "Холод".localized(), text: "Низкая температура пробуждает.".localized())
+                        BulletPoint(icon: "fork.knife", title: "Голод".localized(), text: "Низкий сахар с утра — драйвер кортизола.".localized())
                     }
                     
                     // 4. Вечерний протокол
                     SectionCard(
-                        title: "4. Вечерний протокол",
+                        title: "4. Вечерний протокол".localized(),
                         icon: "moon.stars.fill",
                         color: .purple
                     ) {
-                        Text("Цель: состояние «упал — не помню как заснул».")
+                        Text("Цель: состояние «упал — не помню как заснул».".localized())
                              .font(DesignSystem.Typography.body()) // Fixed font call
                         
-                        BulletPoint(icon: "thermometer.low", title: "Температурный сброс", text: "Горячая ванна -> резкое охлаждение.")
-                        BulletPoint(icon: "leaf.fill", title: "Голод", text: "Низкий сахар помогает уснуть.")
-                        BulletPoint(icon: "wind", title: "Свежий воздух", text: "Доступ к кислороду обязателен.")
-                        BulletPoint(icon: "eye.slash.fill", title: "Свет и звук", text: "Свечи, blue-blocker очки, беруши.")
+                        BulletPoint(icon: "thermometer.low", title: "Температурный сброс".localized(), text: "Горячая ванна -> резкое охлаждение.".localized())
+                        BulletPoint(icon: "leaf.fill", title: "Голод".localized(), text: "Низкий сахар помогает уснуть.".localized())
+                        BulletPoint(icon: "wind", title: "Свежий воздух".localized(), text: "Доступ к кислороду обязателен.".localized())
+                        BulletPoint(icon: "eye.slash.fill", title: "Свет и звук".localized(), text: "Свечи, blue-blocker очки, беруши.".localized())
                     }
                     
                     // 5. Сапплементация
                     SectionCard(
-                        title: "5. БАДы",
+                        title: "5. БАДы".localized(),
                         icon: "pills.fill",
                         color: .green
                     ) {
-                        Text("Важно корректировать химию осторожно.")
+                        Text("Важно корректировать химию осторожно.".localized())
                              .font(DesignSystem.Typography.body()) // Fixed font call
                         
                         VStack(alignment: .leading, spacing: 8) {
-                            Label("Не рекомендуется:", systemImage: "xmark.circle.fill").foregroundColor(.red).bold()
-                            Text("Мелатонин: Блокирует собственную выработку, повышает пролактин.")
+                            Label("Не рекомендуется:".localized(), systemImage: "xmark.circle.fill").foregroundColor(.red).bold()
+                            Text("Мелатонин: Блокирует собственную выработку, повышает пролактин.".localized())
                                  .font(DesignSystem.Typography.caption()) // Fixed font call
                                 .foregroundColor(.gray)
                         }
@@ -131,13 +131,13 @@ struct SleepGuideView: View {
                         Divider().background(Color.white.opacity(0.1))
                         
                         VStack(alignment: .leading, spacing: 8) {
-                            Label("Рекомендуется (за пару часов):", systemImage: "checkmark.circle.fill").foregroundColor(.green).bold()
+                            Label("Рекомендуется (за пару часов):".localized(), systemImage: "checkmark.circle.fill").foregroundColor(.green).bold()
                             Group {
-                                Text("• Глицин: 1–5 г")
-                                Text("• Триптофан: 1–2 г")
-                                Text("• ГАБА (GABA) и L-теанин")
-                                Text("• Магний: Для успокоения")
-                                Text("• Тирозин (1–10 г): Если истощен дофамин")
+                                Text("• Глицин: 1–5 г".localized())
+                                Text("• Триптофан: 1–2 г".localized())
+                                Text("• ГАБА (GABA) и L-теанин".localized())
+                                Text("• Магний: Для успокоения".localized())
+                                Text("• Тирозин (1–10 г): Если истощен дофамин".localized())
                             }
                             .font(DesignSystem.Typography.caption()) // Fixed font call
                             .foregroundColor(.gray)
@@ -147,7 +147,7 @@ struct SleepGuideView: View {
                 }
             }
         }
-        .navigationTitle("Сон")
+        .navigationTitle("Сон".localized())
         .navigationBarTitleDisplayMode(.inline)
     }
 }

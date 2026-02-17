@@ -58,12 +58,12 @@ struct WorkoutCompletionView: View {
                             }
                             .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.3), radius: 20, x: 0, y: 0)
                             
-                            Text("Тренировка завершена!")
+                            Text("Тренировка завершена!".localized())
                                 .font(DesignSystem.Typography.title())
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
                             // Added Duration Display
-                            Text("Время: \(formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0))")
+                            Text("Время: \(formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0))".localized())
                                 .font(DesignSystem.Typography.headline())
                                 .foregroundColor(DesignSystem.Colors.neonGreen)
                                 .padding(.top, -8)
@@ -83,7 +83,7 @@ struct WorkoutCompletionView: View {
                                             .font(.title3)
                                             .padding(.bottom, 2)
                                         
-                                        Text("ВРЕМЯ")
+                                        Text("ВРЕМЯ".localized())
                                             .font(DesignSystem.Typography.caption())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                             .textCase(.uppercase)
@@ -108,7 +108,7 @@ struct WorkoutCompletionView: View {
                                             .font(.title3)
                                             .padding(.bottom, 2)
                                         
-                                        Text("ККАЛ")
+                                        Text("ККАЛ".localized())
                                             .font(DesignSystem.Typography.caption())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                             .textCase(.uppercase)
@@ -133,7 +133,7 @@ struct WorkoutCompletionView: View {
                                                 }
                                             
                                             if calories > 0 {
-                                                Text("ккал")
+                                                Text("ккал".localized())
                                                     .font(.system(size: 10))
                                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                             }
@@ -151,7 +151,7 @@ struct WorkoutCompletionView: View {
                                             .font(.title3)
                                             .padding(.bottom, 2)
                                         
-                                        Text("ПУЛЬС")
+                                        Text("ПУЛЬС".localized())
                                             .font(DesignSystem.Typography.caption())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                             .textCase(.uppercase)
@@ -165,7 +165,7 @@ struct WorkoutCompletionView: View {
                                             .minimumScaleFactor(0.8)
                                         
                                         if heartRate > 0 || heartRate == 0 {
-                                            Text("уд/мин")
+                                            Text("уд/мин".localized())
                                                 .font(.system(size: 10))
                                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                         }
@@ -182,7 +182,7 @@ struct WorkoutCompletionView: View {
                                         HStack {
                                             Image(systemName: "trophy.fill")
                                                 .foregroundColor(DesignSystem.Colors.neonGreen)
-                                            Text("РЕКОРДЫ")
+                                            Text("РЕКОРДЫ".localized())
                                                 .font(DesignSystem.Typography.caption())
                                                 .foregroundColor(DesignSystem.Colors.neonGreen)
                                                 .textCase(.uppercase)
@@ -194,7 +194,10 @@ struct WorkoutCompletionView: View {
                                                 .foregroundColor(DesignSystem.Colors.primaryText)
                                                 .fontWeight(.semibold)
                                             
-                                            Text("новых")
+                                                .foregroundColor(DesignSystem.Colors.primaryText)
+                                                .fontWeight(.semibold)
+                                            
+                                            Text("новых".localized())
                                                 .font(DesignSystem.Typography.caption())
                                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                         }
@@ -213,7 +216,7 @@ struct WorkoutCompletionView: View {
                         
                         // MARK: - Exercise Breakdown
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            Text("ДЕТАЛИЗАЦИЯ")
+                            Text("ДЕТАЛИЗАЦИЯ".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                 .tracking(1.2)
@@ -252,7 +255,7 @@ struct WorkoutCompletionView: View {
                         }
                         
                         // Close Button
-                        GradientButton(title: "Закрыть", icon: "checkmark") {
+                        GradientButton(title: "Закрыть".localized(), icon: "checkmark") {
                             completeWorkout()
                         }
                         .padding(.horizontal, DesignSystem.Spacing.xl)
@@ -289,7 +292,7 @@ struct WorkoutCompletionView: View {
         formatter.allowedUnits = [.hour, .minute]
         formatter.unitsStyle = .abbreviated
         var calendar = Calendar(identifier: .gregorian)
-        calendar.locale = Locale(identifier: "ru_RU")
+        calendar.locale = Locale.current
         formatter.calendar = calendar
         
         return formatter.string(from: duration) ?? "0 мин"

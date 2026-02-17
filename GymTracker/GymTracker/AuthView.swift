@@ -72,7 +72,7 @@ struct AuthView: View {
                         Button(action: {
                             authManager.logout()
                         }) {
-                            Text("Выйти")
+                            Text("Выйти".localized())
                                 .font(DesignSystem.Typography.headline())
                                 .foregroundColor(.red)
                                 .frame(maxWidth: .infinity)
@@ -86,7 +86,7 @@ struct AuthView: View {
                         Button(action: {
                             showDeleteConfirmation = true
                         }) {
-                            Text("Удалить аккаунт из системы")
+                            Text("Удалить аккаунт из системы".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(.red)
                         }
@@ -94,7 +94,7 @@ struct AuthView: View {
                         
                         // Contact Developer Link
                         Link(destination: URL(string: "https://t.me/sumotry")!) {
-                            Text("Связаться с разработчиком")
+                            Text("Связаться с разработчиком".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
@@ -154,7 +154,7 @@ struct AuthView: View {
                         // Divider
                         HStack {
                             Rectangle().frame(height: 1).foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.3))
-                            Text("ИЛИ")
+                            Text("ИЛИ".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             Rectangle().frame(height: 1).foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.3))
@@ -169,7 +169,7 @@ struct AuthView: View {
                         }) {
                             HStack {
                                 Image(systemName: "globe") // Placeholder for Google Logo
-                                Text("Войти через Google")
+                                Text("Войти через Google".localized())
                             }
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
@@ -191,7 +191,7 @@ struct AuthView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Закрыть") {
+                    Button("Закрыть".localized()) {
                         dismiss()
                     }
                 }
@@ -203,7 +203,7 @@ struct AuthView: View {
                 performDeleteAccount()
             }
         } message: {
-            Text("Вы точно хотите удалить аккаунт из приложения и всю историю тренировок?")
+            Text("Вы точно хотите удалить аккаунт из приложения и всю историю тренировок?".localized())
         }
     }
     

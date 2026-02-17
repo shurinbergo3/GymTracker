@@ -360,8 +360,8 @@ class SyncManager: ObservableObject {
     
     /// Restore programs from Firestore (Pull)
     /// This merges cloud programs into local and updates existing ones.
-    nonisolated func restoreProgramsFromFirestore(container: ModelContainer) async {
-        guard Auth.auth().currentUser != nil else { return }
+    nonisolated func restoreProgramsFromFirestore(container: ModelContainer) async -> Result<Int, Error> {
+        guard Auth.auth().currentUser != nil else { return .failure(SyncError.unauthorized) }
         
         do {
             let cloudPrograms = try await FirestoreManager.shared.fetchPrograms()
@@ -369,7 +369,7 @@ class SyncManager: ObservableObject {
                 #if DEBUG
                 print("📭 No programs found in Firestore to restore")
                 #endif
-                return 
+                return .success(0)
             }
             
             // Create a background context
@@ -391,6 +391,7 @@ class SyncManager: ObservableObject {
                     existingProgram.startDate = cloudProgram.startDate
                     existingProgram.isActive = cloudProgram.isActive
                     existingProgram.displayOrder = cloudProgram.displayOrder
+                    existingProgram.isUserModified = cloudProgram.isUserModified
                     
                     // Remove old days
                     for oldDay in existingProgram.days {
@@ -437,6 +438,7 @@ class SyncManager: ObservableObject {
                         isActive: cloudProgram.isActive,
                         displayOrder: cloudProgram.displayOrder
                     )
+                    newProgram.isUserModified = cloudProgram.isUserModified
                     
                     // Add days
                     for dayDto in cloudProgram.days {
@@ -483,8 +485,10 @@ class SyncManager: ObservableObject {
                 #endif
             }
             
+            return .success(restoredCount + updatedCount)
         } catch {
             print("❌ SyncManager: Failed to restore programs: \(error)")
+            return .failure(SyncError.message("Ошибка загрузки: \(error.localizedDescription)"))
         }
     }
     
@@ -514,6 +518,84 @@ class SyncManager: ObservableObject {
         }
     }
     
+    // MARK: - Custom Exercises Sync
+    
+    /// Sync all custom exercises to Firestore (Push)
+    func syncCustomExercises(context: ModelContext) async {
+        guard Auth.auth().currentUser != nil else { return }
+        
+        do {
+            let descriptor = FetchDescriptor<CustomExercise>()
+            let exercises = try context.fetch(descriptor)
+            
+            for exercise in exercises {
+                let dto = CustomExerciseDTO(from: exercise)
+                try await FirestoreManager.shared.saveCustomExercise(dto)
+            }
+            
+            #if DEBUG
+            print("✅ SyncManager: Synced \(exercises.count) custom exercises to cloud")
+            #endif
+        } catch {
+            print("❌ SyncManager: Failed to sync custom exercises: \(error)")
+        }
+    }
+    
+    /// Restore custom exercises from Firestore (Pull)
+    nonisolated func restoreCustomExercises(container: ModelContainer) async -> Result<Int, Error> {
+        do {
+            let cloudExercises = try await FirestoreManager.shared.fetchCustomExercises()
+            guard !cloudExercises.isEmpty else { 
+                #if DEBUG
+                print("📭 No custom exercises found in Firestore to restore")
+                #endif
+                return .success(0)
+            }
+            
+            let context = ModelContext(container)
+            context.autosaveEnabled = false
+            
+            let descriptor = FetchDescriptor<CustomExercise>()
+            let localExercises = try context.fetch(descriptor)
+            
+            var restoredCount = 0
+            
+            for dto in cloudExercises {
+                // Check if exists by ID
+                guard let dtoId = dto.id,
+                      let uuid = UUID(uuidString: dtoId) else {
+                    continue
+                }
+                
+                if !localExercises.contains(where: { $0.id == uuid }) {
+                    let exercise = CustomExercise(
+                        id: uuid,
+                        name: dto.name,
+                        category: dto.category,
+                        muscleGroup: dto.muscleGroup,
+                        defaultType: dto.defaultType,
+                        technique: dto.technique,
+                        videoUrl: dto.videoUrl,
+                        createdAt: dto.createdAt
+                    )
+                    context.insert(exercise)
+                    restoredCount += 1
+                }
+            }
+            
+            if restoredCount > 0 {
+                try context.save()
+                #if DEBUG
+                print("✅ SyncManager: Restored \(restoredCount) custom exercises from cloud")
+                #endif
+            }
+            return .success(restoredCount)
+        } catch {
+            print("❌ SyncManager: Failed to restore custom exercises: \(error)")
+            return .failure(SyncError.message("Ошибка загрузки: \(error.localizedDescription)"))
+        }
+    }
+
     // MARK: - Errors
     
     enum SyncError: LocalizedError {
@@ -668,15 +750,43 @@ class SyncManager: ObservableObject {
         #if DEBUG
         print("📥 Step 3/4: Restoring programs...")
         #endif
-        await restoreProgramsFromFirestore(container: container)
-        statusMessages.append("✅ Программы: синхронизированы")
+        let programsResult = await restoreProgramsFromFirestore(container: container)
+        switch programsResult {
+        case .success(let count):
+            if count > 0 {
+                statusMessages.append("✅ Программы: синхронизировано \(count)")
+            } else {
+                statusMessages.append("✅ Программы: синхронизированы")
+            }
+        case .failure(let error):
+            statusMessages.append("❌ Программы: ошибка (\(error.localizedDescription))")
+        }
         
         // Yield between major operations
         await Task.yield()
         
-        // 4. Clean up duplicates if any were created
+        // 4. Restore Custom Exercises (NEW)
         #if DEBUG
-        print("🧹 Step 4/4: Cleaning up duplicates...")
+        print("📥 Step 4/5: Restoring custom exercises...")
+        #endif
+        let exercisesResult = await restoreCustomExercises(container: container)
+        switch exercisesResult {
+        case .success(let count):
+            if count > 0 {
+                statusMessages.append("✅ Упражнения: синхронизировано \(count)")
+            } else {
+                statusMessages.append("✅ Упражнения: синхронизированы")
+            }
+        case .failure(let error):
+            statusMessages.append("❌ Упражнения: ошибка (\(error.localizedDescription))")
+        }
+        
+        // Yield between major operations
+        await Task.yield()
+        
+        // 5. Clean up duplicates if any were created
+        #if DEBUG
+        print("🧹 Step 5/5: Cleaning up duplicates...")
         #endif
         await removeDuplicateWorkouts(container: container)
         
@@ -775,7 +885,13 @@ class SyncManager: ObservableObject {
                 // Map exercises
                 let groupedSets = Dictionary(grouping: session.sets) { $0.exerciseName }
                 let exercises = groupedSets.map { (name, sets) -> Exercise in
-                    let exerciseSets = sets.sorted { $0.setNumber < $1.setNumber }.map { set in
+                    let exerciseSets = sets.sorted { 
+                        // Сортируем по времени создания, потом по номеру подхода
+                        if $0.date != $1.date {
+                            return $0.date < $1.date
+                        }
+                        return $0.setNumber < $1.setNumber
+                    }.map { set in
                         ExerciseSet(
                             weight: set.weight,
                             reps: set.reps,
