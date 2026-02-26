@@ -14,8 +14,9 @@ struct WorkoutTrackerApp: App {
     
     // Use shared instance to ensure consistent state across the app
     @StateObject private var authManager = AuthManager.shared
-    @StateObject private var languageManager = LanguageManager.shared
     @State private var isCheckingAuth = true
+    @State private var isRestoringData = false
+    @State private var dbError: Error? = nil
     
     init() {
         FirebaseApp.configure()
@@ -30,8 +31,7 @@ struct WorkoutTrackerApp: App {
             WeightRecord.self,
             Program.self,
             WorkoutDay.self,
-            ExerciseTemplate.self,
-            CustomExercise.self  // Added for custom exercises sync
+            ExerciseTemplate.self
         ])
         
         do {
@@ -42,16 +42,16 @@ struct WorkoutTrackerApp: App {
             return container
         } catch {
             #if DEBUG
-            print("⚠️ Error: \(error)")
+            print("⚠️ Error: \(error). Attempting DB reset...")
             #endif
-            
+
             // Reset database on error
             let config = ModelConfiguration(schema: schema)
             try? FileManager.default.removeItem(at: config.url)
             #if DEBUG
             print("🗑️ DB reset")
             #endif
-            
+
             do {
                 let container = try ModelContainer(for: schema)
                 #if DEBUG
@@ -59,7 +59,10 @@ struct WorkoutTrackerApp: App {
                 #endif
                 return container
             } catch {
-                fatalError("❌ Failed: \(error)")
+                // Return a minimal in-memory container so app doesn't crash
+                let memConfig = ModelConfiguration(isStoredInMemoryOnly: true)
+                return (try? ModelContainer(for: schema, configurations: memConfig))
+                    ?? { fatalError("Cannot create even in-memory ModelContainer: \(error)") }()
             }
         }
     }()
@@ -85,9 +88,17 @@ struct WorkoutTrackerApp: App {
                 } else {
                     Group {
                         if authManager.isLoggedIn {
-                            ContentViewWrapper()
-                                .environmentObject(authManager)
+                            if isRestoringData {
+                                RestoringDataView(isRestoring: $isRestoringData, onFinish: {
+                                    // Transition to content
+                                    isRestoringData = false
+                                })
                                 .transition(.opacity)
+                            } else {
+                                ContentViewWrapper()
+                                    .environmentObject(authManager)
+                                    .transition(.opacity)
+                            }
                         } else {
                             LoginView()
                             // Removed environmentObject from here if it was redundant, 
@@ -96,16 +107,11 @@ struct WorkoutTrackerApp: App {
                                 .transition(.opacity)
                         }
                     }
-                    .id(languageManager.appLanguage) // Force recreate views when language changes
                 }
             }
-            .preferredColorScheme(.dark)
+            // .preferredColorScheme(.dark) — removed: respects system appearance per HIG
             .modelContainer(sharedModelContainer)
-            .environment(\.locale, languageManager.currentLocale)
-            .environmentObject(languageManager)
             .onAppear {
-                // Set ModelContainer for AuthManager (must be done here, not in init)
-                authManager.setModelContainer(sharedModelContainer)
                 checkAuthStatus()
             }
             .onChange(of: authManager.isLoggedIn) { _, isLoggedIn in
@@ -139,12 +145,25 @@ struct WorkoutTrackerApp: App {
     
     /// Check if DB is empty on login to trigger auto-restore
     private func checkForFreshInstall() {
-        // Auto-restore disabled - user will manually sync via Settings
-        // This prevents the RestoringDataView from appearing
+        // Only trigger if we are NOT already checking auth (i.e. this is a user-initiated login)
+        // OR if it's auto-login but database is wiped.
         
-        #if DEBUG
-        print("ℹ️ Auto-restore disabled. User will sync manually from Settings.")
-        #endif
+        let context = sharedModelContainer.mainContext
+        let descriptor = FetchDescriptor<WorkoutSession>()
+        
+        do {
+            let count = try context.fetchCount(descriptor)
+            if count == 0 {
+                // Database is empty! Assume fresh install or wipe.
+                // Trigger Restore Flow
+                print("🆕 Fresh install detected. Triggering auto-restore.")
+                withAnimation {
+                    isRestoringData = true
+                }
+            }
+        } catch {
+            print("⚠️ Failed to check DB count: \(error)")
+        }
     }
 }
 
@@ -153,20 +172,28 @@ struct WorkoutTrackerApp: App {
 struct ContentViewWrapper: View {
     @Environment(\.modelContext) private var modelContext
     @State private var hasSeeded = false
+    @State private var hasRestored = false
     
     var body: some View {
         ContentView()
             .task {
                 // Capture needed values
                 let container = modelContext.container
+                let context = modelContext
                 
-                // Fire-and-forget: Launch only seeding in background
+                // Fire-and-forget: Launch all initialization in background
                 // This allows the view to appear immediately without blocking
                 Task.detached(priority: .userInitiated) {
-
-                    // Seeding (Local) - run in background context
-                    let needsSeeding = await MainActor.run { !hasSeeded }
-                    if needsSeeding {
+                    // Determine if this is a "first launch" scenario
+                    let isFirstLaunch = !hasSeeded
+                    
+                    // 1. Critical: Restore Programs (Cloud) - runs in background
+                    if isFirstLaunch {
+                        await SyncManager.shared.restoreProgramsFromFirestore(container: container)
+                    }
+                    
+                    // 2. Seeding (Local) - run in background context
+                    if !hasSeeded {
                         // Create a background context for seeding
                         let bgContext = ModelContext(container)
                         
@@ -182,7 +209,7 @@ struct ContentViewWrapper: View {
                             ProgramSeeder.seedProgramsIfNeeded(context: bgContext)
                         }
                         
-                        // Run exercise migration with safe error handling
+                        // Run exercise migration
                         await ExerciseLibrary.migrateExerciseTypes(container: container)
                         
                         await MainActor.run {
@@ -190,7 +217,15 @@ struct ContentViewWrapper: View {
                         }
                     }
                     
-                    // All cloud restores removed - user will manually sync via Settings
+                    // 3. User Data Restore (Async Parallelizable)
+                    if !hasRestored {
+                        // Run profile restore
+                        await restoreUserProfileFromFirestore()
+                        
+                        await MainActor.run {
+                            hasRestored = true
+                        }
+                    }
                 }
             }
     }
@@ -198,4 +233,61 @@ struct ContentViewWrapper: View {
     // restoreWorkoutsFromFirestore moved to SyncManager
     
     // convertToWorkoutSession moved to SyncManager
+    
+    /// Restore User Profile & Active Program from Firestore
+    private func restoreUserProfileFromFirestore() async {
+        guard let profileData = await SyncManager.shared.fetchUserProfile() else { return }
+        
+        // 1. Update or Create UserProfile
+        let descriptor = FetchDescriptor<UserProfile>()
+        let profiles = (try? modelContext.fetch(descriptor)) ?? []
+        let profile: UserProfile
+        
+        if let existing = profiles.last {
+            profile = existing
+            // Only update if cloud is newer? Or just overwrite?
+            // For now, trust cloud if fetching
+            profile.height = profileData.height
+            profile.age = profileData.age
+            // Weight logic is complex (history), maybe skip or add new record
+        } else {
+            profile = UserProfile(height: profileData.height, initialWeight: profileData.weight, age: profileData.age)
+            modelContext.insert(profile)
+        }
+        
+        // 2. Activate Program
+        if let activeName = profileData.activeProgramName {
+            // Find program by name
+            let progDescriptor = FetchDescriptor<Program>() // Fetch all to be safe
+            if let allPrograms = try? modelContext.fetch(progDescriptor) {
+                
+                var found = false
+                for program in allPrograms {
+                    if program.name == activeName {
+                        program.isActive = true
+                        found = true
+                        #if DEBUG
+                        print("✅ Restored Active Program: \(activeName)")
+                        #endif
+                    } else {
+                        // Deactivate others to ensure single source of truth
+                        program.isActive = false
+                    }
+                }
+                
+                if !found {
+                    #if DEBUG
+                    print("⚠️ Active program '\(activeName)' not found locally")
+                    #endif
+                }
+            }
+        }
+        
+        try? modelContext.save()
+        
+        // Notify app to refresh (WorkoutManager listens to this)
+        await MainActor.run {
+            NotificationCenter.default.post(name: Notification.Name("ActiveProgramChanged"), object: nil)
+        }
+    }
 }

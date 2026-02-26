@@ -12,9 +12,10 @@
 	<key>CFBundleGetInfoString</key>
 	<string></string>
     <key>CFBundleDevelopmentRegion</key>
-    <string>ru</string>
+    <string>en</string>
     <key>CFBundleLocalizations</key>
     <array>
+        <string>en</string>
         <string>ru</string>
     </array>
 	
@@ -41,9 +42,9 @@
 	
 	<!-- HealthKit Privacy Descriptions -->
 	<key>NSHealthShareUsageDescription</key>
-    <string>Body Forge использует данные о тренировках для отслеживания калорий и пульса.</string>
+    <string>Body Forge uses workout data to track calories burned and heart rate during exercise.</string>
     <key>NSHealthUpdateUsageDescription</key>
-    <string>Body Forge сохраняет выполненные тренировки в Apple Health для заполнения колец активности.</string>
+    <string>Body Forge saves completed workouts to Apple Health to close your activity rings.</string>
 
     <!-- App Capabilities -->
     <key>LSApplicationQueriesSchemes</key>
