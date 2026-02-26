@@ -60,21 +60,21 @@ struct WorkoutSessionDetailView: View {
             // Stats Grid
             HStack(spacing: 16) {
                 statBox(
-                    title: "Время",
+                    title: "Время".localized(),
                     value: formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0),
                     icon: "timer",
                     color: .blue
                 )
                 
                 statBox(
-                    title: "Калории",
+                    title: "Калории".localized(),
                     value: "\(session.calories ?? 0)",
                     icon: "flame.fill",
                     color: .orange
                 )
                 
                 statBox(
-                    title: "Подходов",
+                    title: "Подходов".localized(),
                     value: "\(session.sets.count)",
                     icon: "checkmark.circle.fill",
                     color: DesignSystem.Colors.neonGreen
@@ -136,7 +136,7 @@ struct WorkoutSessionDetailView: View {
     private func exerciseCard(name: String, sets: [WorkoutSet]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             // Exercise Name
-            Text(name)
+            Text(name.localized())
                 .font(.headline)
                 .foregroundColor(.white)
             
@@ -193,7 +193,7 @@ struct WorkoutSessionDetailView: View {
             let volume = sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
             if volume > 0 {
                 HStack {
-                    Text("Объём:".localized())
+                    Text("volume_colon".localized())
                         .font(.caption)
                         .foregroundColor(.gray)
                     Text("\(Int(volume)) кг".localized())
@@ -217,13 +217,13 @@ struct WorkoutSessionDetailView: View {
                 .foregroundColor(.white)
             
             VStack(spacing: 8) {
-                summaryRow(title: "Общий объём", value: "\(Int(totalVolume)) кг")
+                summaryRow(title: "Общий объём".localized(), value: "\(Int(totalVolume)) \("кг".localized())")
                 Divider().background(Color.white.opacity(0.1))
-                summaryRow(title: "Упражнений выполнено", value: "\(exercisesByName.count)")
+                summaryRow(title: "Упражнений выполнено".localized(), value: "\(exercisesByName.count)")
                 Divider().background(Color.white.opacity(0.1))
-                summaryRow(title: "Всего подходов", value: "\(session.sets.count)")
+                summaryRow(title: "Всего подходов".localized(), value: "\(session.sets.count)")
                 Divider().background(Color.white.opacity(0.1))
-                summaryRow(title: "Средний вес", value: "\(Int(averageWeight)) кг")
+                summaryRow(title: "Средний вес".localized(), value: "\(Int(averageWeight)) \("кг".localized())")
             }
             .padding()
             .background(Color.white.opacity(0.05))
@@ -258,7 +258,7 @@ struct WorkoutSessionDetailView: View {
     // MARK: - Formatters
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = LanguageManager.shared.currentLocale
         formatter.dateFormat = "d MMMM yyyy, EEEE"
         return formatter.string(from: date).capitalized
     }

@@ -31,7 +31,7 @@ struct WorkoutTypeSelectorView: View {
                                     .foregroundColor(selectedType == type ? DesignSystem.Colors.neonGreen : DesignSystem.Colors.primaryText)
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(type.displayName.localized())
+                                    Text(type.displayName)
                                         .font(DesignSystem.Typography.headline())
                                         .foregroundColor(DesignSystem.Colors.primaryText)
                                     
@@ -79,9 +79,9 @@ extension WorkoutType {
         case .strength:
             return "Вес × Повторы".localized()
         case .repsOnly:
-            return "figure.walk"
+            return "Только повторения".localized()
         case .duration:
-            return "stopwatch.fill " + "Время и дистанция".localized()
+            return "Время и дистанция".localized()
         }
     }
 }

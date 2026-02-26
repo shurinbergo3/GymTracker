@@ -18,6 +18,7 @@ struct ExerciseCard: View {
     let isActive: Bool // Focus Mode
     var allCompletedSessions: [WorkoutSession] = []
     var aiRecommendation: String? = nil
+    var onDelete: (() -> Void)? = nil
     
     @State private var weight: String = ""
     @State private var reps: String = ""
@@ -178,7 +179,7 @@ struct ExerciseCard: View {
                             }
                         } label: {
                             Label(
-                                isTimerEnabledForExercise ? "Выключить таймер" : "Включить таймер".localized(),
+                                (isTimerEnabledForExercise ? "Выключить таймер" : "Включить таймер").localized(),
                                 systemImage: isTimerEnabledForExercise ? "timer.circle.fill" : "timer.circle"
                             )
                         }
@@ -190,6 +191,13 @@ struct ExerciseCard: View {
                         }
                         Button(action: { showingWorkoutTypeChange = true }) {
                             Label("Изменить тип".localized(), systemImage: "gearshape")
+                        }
+                        
+                        if let onDelete {
+                            Divider()
+                            Button(role: .destructive, action: onDelete) {
+                                Label("Удалить упражнение".localized(), systemImage: "trash")
+                            }
                         }
                     } label: {
                         Image(systemName: "ellipsis")
@@ -234,7 +242,7 @@ struct ExerciseCard: View {
             // MARK: - Current Session Sets (NEW)
             if !completedSets.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Завершено:".localized())
+                    Text("completed_colon".localized())
                         .font(.caption)
                         .foregroundColor(.gray)
                     
@@ -286,7 +294,7 @@ struct ExerciseCard: View {
                         HStack(spacing: 12) {
                             // Weight Input
                             VStack(spacing: 6) {
-                                Text("ВЕС (КГ)".localized())
+                                Text("Вес (кг)".localized().uppercased())
                                     .font(DesignSystem.Typography.sectionHeader())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .tracking(1.0)
@@ -369,7 +377,7 @@ struct ExerciseCard: View {
                                     }
                                 } else {
                                     Button(action: { isWeighted = true }) {
-                                        Text("+ Вес".localized())
+                                        Text("add_weight_button".localized())
                                             .font(.system(size: 14, weight: .semibold))
                                             .foregroundColor(DesignSystem.Colors.neonGreen)
                                             .padding(.vertical, 6)

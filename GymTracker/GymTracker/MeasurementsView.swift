@@ -145,7 +145,7 @@ struct MeasurementsView: View {
     // Helper helper
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = LanguageManager.shared.currentLocale
         formatter.dateFormat = "d MMM"
         return formatter.string(from: date)
     }

@@ -213,7 +213,7 @@ struct ProgressDetailView: View {
             // First Row: Count and Progress
             HStack(spacing: 12) {
                 statCard(
-                    title: "Тренировок".localized(),
+                    title: "тренировок".localized().capitalized,
                     value: "\(filteredSessions.count)",
                     icon: "figure.strengthtraining.traditional",
                     color: .blue

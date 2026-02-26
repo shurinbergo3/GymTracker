@@ -83,7 +83,7 @@ struct ProgramDetailView: View {
                 deleteProgram()
             }
         } message: {
-            Text("Программа \"\(program.name.localized())\" будет удалена без возможности восстановления.".localized())
+            Text(String(format: "program_delete_confirmation".localized(), program.name.localized()))
         }
     }
     

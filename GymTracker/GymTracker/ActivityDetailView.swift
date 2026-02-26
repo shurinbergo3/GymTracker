@@ -240,14 +240,14 @@ struct ActivityDetailView: View {
     // MARK: - Helpers
     private func formatDateTitle(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = LanguageManager.shared.currentLocale
         formatter.dateFormat = "'Сегодня,' d MMM yyyy 'г.'"
         return formatter.string(from: date)
     }
     
     private func dayAbbrev(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = LanguageManager.shared.currentLocale
         formatter.dateFormat = "EE"
         return formatter.string(from: date).prefix(2).capitalized
     }

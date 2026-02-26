@@ -80,7 +80,7 @@ struct WorkoutProgressBanner: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("ПРОГРАММА".localized())
+                        Text("Программа".localized().uppercased())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)

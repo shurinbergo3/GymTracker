@@ -832,7 +832,7 @@ struct WorkoutTypeDistributionChart: View {
             CardView {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                     HStack {
-                        Text("ТИПЫ ТРЕНИРОВОК".localized())
+                        Text("Типы тренировок".localized().uppercased())
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.2)

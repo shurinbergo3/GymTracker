@@ -31,42 +31,42 @@ struct ActivityRingsCard: View {
             VStack(alignment: .leading, spacing: 14) {
                 // Move (Red)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Подвижность".localizedUppercase)
+                    Text("Подвижность".localized().uppercased())
                         .font(DesignSystem.Typography.sectionHeader())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .tracking(1.0)
                     Text("\(Int(move))/\(Int(moveGoal))")
                         .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                         .foregroundColor(Color(red: 1.0, green: 0.2, blue: 0.4))
-                    + Text(" ККАЛ".localized())
+                    + Text(" " + "ккал".localized())
                         .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
                         .foregroundColor(Color(red: 1.0, green: 0.2, blue: 0.4).opacity(0.7))
                 }
                 
                 // Exercise (Green)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Упражнения".localizedUppercase)
+                    Text("Упражнения".localized().uppercased())
                         .font(DesignSystem.Typography.sectionHeader())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .tracking(1.0)
                     Text("\(Int(exercise))/\(Int(exerciseGoal))")
                         .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                         .foregroundColor(Color(red: 0.4, green: 1.0, blue: 0.2))
-                    + Text(" МИН".localized())
+                    + Text(" " + "мин".localized())
                         .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
                         .foregroundColor(Color(red: 0.4, green: 1.0, blue: 0.2).opacity(0.7))
                 }
                 
                 // Stand (Blue)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("С разминкой".localizedUppercase)
+                    Text("С разминкой".localized().uppercased())
                         .font(DesignSystem.Typography.sectionHeader())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .tracking(1.0)
                     Text("\(Int(stand))/\(Int(standGoal))")
                         .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                         .foregroundColor(Color(red: 0.2, green: 0.8, blue: 1.0))
-                    + Text(" Ч".localized())
+                    + Text(" " + "ч".localized())
                         .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
                         .foregroundColor(Color(red: 0.2, green: 0.8, blue: 1.0).opacity(0.7))
                 }

@@ -978,7 +978,7 @@ struct ActiveWorkoutView: View {
                 }
             }
             .confirmationDialog(
-                "Отменить тренировку?".localized(),
+                "cancel_workout_confirm".localized(),
                 isPresented: $showingCancelConfirmation,
                 titleVisibility: .visible
             ) {
@@ -1198,7 +1198,7 @@ struct SummaryOverlay: View {
         formatter.allowedUnits = [.hour, .minute]
         formatter.unitsStyle = .abbreviated
         var calendar = Calendar(identifier: .gregorian)
-        calendar.locale = Locale(identifier: "ru_RU")
+        calendar.locale = LanguageManager.shared.currentLocale
         formatter.calendar = calendar
         
         return formatter.string(from: duration) ?? "0 мин"
@@ -1310,7 +1310,8 @@ struct ActiveWorkoutContent: View {
                     workoutType: exercise.resolvedWorkoutType,
                     isActive: exercise.id == activeId,
                     allCompletedSessions: allCompletedSessions,
-                    aiRecommendation: getRecommendation(for: exercise)
+                    aiRecommendation: getRecommendation(for: exercise),
+                    onDelete: { deleteExercise(exercise) }
                 )
                 .id(exercise.id)
                 .onTapGesture {
@@ -1372,6 +1373,27 @@ struct ActiveWorkoutContent: View {
         modelContext.insert(newExercise)
         
         showingAddExercise = false
+    }
+    
+    private func deleteExercise(_ exercise: ExerciseTemplate) {
+        withAnimation {
+            if let session = workoutManager.currentSession {
+                let setsToRemove = session.sets.filter { $0.exerciseName == exercise.name }
+                for set in setsToRemove {
+                    session.sets.removeAll { $0.id == set.id }
+                    modelContext.delete(set)
+                }
+            }
+            
+            workoutDay.exercises.removeAll { $0.id == exercise.id }
+            modelContext.delete(exercise)
+            
+            for (index, ex) in workoutDay.exercises.sorted(by: { $0.orderIndex < $1.orderIndex }).enumerated() {
+                ex.orderIndex = index
+            }
+            
+            try? modelContext.save()
+        }
     }
     
     private func getRecommendation(for exercise: ExerciseTemplate) -> String? {
@@ -1531,7 +1553,7 @@ struct WorkoutSummaryStats: View {
         HStack(spacing: 12) {
             // 1. Duration (Blue)
             SummaryStatBox(
-                title: "ВРЕМЯ".localized(),
+                title: "Время".localized().uppercased(),
                 value: formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0),
                 unit: nil,
                 icon: "timer",
@@ -1540,7 +1562,7 @@ struct WorkoutSummaryStats: View {
             
             // 2. Calories (Orange)
             SummaryStatBox(
-                title: "ККАЛ".localized(),
+                title: "ккал".localized().uppercased(),
                 value: "\(session.calories ?? 0)",
                 unit: "ккал".localized(),
                 icon: "flame.fill",
@@ -1549,7 +1571,7 @@ struct WorkoutSummaryStats: View {
             
             // 3. Heart Rate (Red)
             SummaryStatBox(
-                title: "ПУЛЬС".localized(),
+                title: "Пульс".localized().uppercased(),
                 value: "\(session.averageHeartRate ?? 0)",
                 unit: "уд/мин".localized(),
                 icon: "heart.fill",
@@ -1564,7 +1586,7 @@ struct WorkoutSummaryStats: View {
         formatter.allowedUnits = [.hour, .minute]
         formatter.unitsStyle = .abbreviated
         var calendar = Calendar(identifier: .gregorian)
-        calendar.locale = Locale(identifier: "ru_RU")
+        calendar.locale = LanguageManager.shared.currentLocale
         formatter.calendar = calendar
         return formatter.string(from: duration) ?? "0 мин"
     }

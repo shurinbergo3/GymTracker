@@ -86,7 +86,7 @@ struct ExerciseHistoryView: View {
     
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = LanguageManager.shared.currentLocale
         
         if Calendar.current.isDateInToday(date) {
             return "Сегодня"

@@ -45,7 +45,7 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("done_button") {
+                    Button("done_button".localized()) {
                         dismiss()
                     }
                 }

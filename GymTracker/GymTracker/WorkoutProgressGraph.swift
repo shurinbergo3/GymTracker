@@ -126,7 +126,7 @@ struct WorkoutProgressGraph: View {
                         Spacer()
                         
                         VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
-                            Text("ТРЕНИРОВОК".localized())
+                            Text("тренировок".localized().uppercased())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             

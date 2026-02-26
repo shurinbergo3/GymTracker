@@ -16,17 +16,17 @@ struct DayEditorView: View {
         List {
             // Секция с информацией о дне
             Section {
-                TextField("Название дня", text: $day.name)
+                TextField("Название дня".localized(), text: $day.name)
                     .font(DesignSystem.Typography.body())
                 
                 // Rest Timer Toggle
-                Toggle("Таймер отдыха", isOn: $day.restTimerEnabled)
+                Toggle("Таймер отдыха".localized(), isOn: $day.restTimerEnabled)
                     .font(DesignSystem.Typography.body())
                     .tint(Color.purple.opacity(0.8))
                 
                 // Rest Time Picker (only if enabled)
                 if day.restTimerEnabled {
-                    Picker("Время отдыха", selection: $day.defaultRestTime) {
+                    Picker("Время отдыха".localized(), selection: $day.defaultRestTime) {
                         Text("30 сек".localized()).tag(30)
                         Text("60 сек".localized()).tag(60)
                         Text("90 сек".localized()).tag(90)
@@ -162,7 +162,7 @@ struct ExerciseEditRow: View {
                     HStack(spacing: 4) {
                         Image(systemName: exerciseType.icon)
                             .font(.caption)
-                        Text(exerciseType.rawValue)
+                        Text(exerciseType.displayName)
                             .font(DesignSystem.Typography.caption())
                     }
                     .foregroundColor(DesignSystem.Colors.accent)

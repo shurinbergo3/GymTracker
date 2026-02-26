@@ -155,7 +155,7 @@ struct WeightTrackerCard: View {
     
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = LanguageManager.shared.currentLocale
         formatter.dateFormat = "d MMM yyyy"
         return formatter.string(from: date)
     }

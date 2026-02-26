@@ -83,7 +83,7 @@ struct WorkoutCompletionView: View {
                                             .font(.title3)
                                             .padding(.bottom, 2)
                                         
-                                        Text("ВРЕМЯ".localized())
+                                        Text("Время".localized().uppercased())
                                             .font(DesignSystem.Typography.caption())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                             .textCase(.uppercase)
@@ -108,7 +108,7 @@ struct WorkoutCompletionView: View {
                                             .font(.title3)
                                             .padding(.bottom, 2)
                                         
-                                        Text("ККАЛ".localized())
+                                        Text("ккал".localized().uppercased())
                                             .font(DesignSystem.Typography.caption())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                             .textCase(.uppercase)
@@ -151,7 +151,7 @@ struct WorkoutCompletionView: View {
                                             .font(.title3)
                                             .padding(.bottom, 2)
                                         
-                                        Text("ПУЛЬС".localized())
+                                        Text("Пульс".localized().uppercased())
                                             .font(DesignSystem.Typography.caption())
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                             .textCase(.uppercase)
@@ -182,7 +182,7 @@ struct WorkoutCompletionView: View {
                                         HStack {
                                             Image(systemName: "trophy.fill")
                                                 .foregroundColor(DesignSystem.Colors.neonGreen)
-                                            Text("РЕКОРДЫ".localized())
+                                            Text("Рекорды".localized().uppercased())
                                                 .font(DesignSystem.Typography.caption())
                                                 .foregroundColor(DesignSystem.Colors.neonGreen)
                                                 .textCase(.uppercase)

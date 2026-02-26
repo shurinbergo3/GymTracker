@@ -67,7 +67,7 @@ struct BodyMeasurementEditorView: View {
                         // Пустые замеры
                         if !emptyTypes.isEmpty {
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                Text("ДОБАВИТЬ ЗАМЕР".localized())
+                                Text("Добавить замер".localized().uppercased())
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                     .tracking(1.2)

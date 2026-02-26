@@ -47,7 +47,7 @@ struct NutritionGuideView: View {
                     .padding(.top, DesignSystem.Spacing.md)
                     
                     // Введение
-                    Text("Proper nutrition isn't a diet, it's fuel for victory. Food affects energy, mood, and recovery. No complex formulas, just basics that work.".localized())
+                    Text("nutrition_intro_text".localized())
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .padding(.horizontal, DesignSystem.Spacing.lg)

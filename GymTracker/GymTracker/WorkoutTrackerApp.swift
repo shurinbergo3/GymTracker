@@ -14,6 +14,7 @@ struct WorkoutTrackerApp: App {
     
     // Use shared instance to ensure consistent state across the app
     @StateObject private var authManager = AuthManager.shared
+    @StateObject private var languageManager = LanguageManager.shared
     @State private var isCheckingAuth = true
     @State private var isRestoringData = false
     @State private var dbError: Error? = nil
@@ -110,6 +111,7 @@ struct WorkoutTrackerApp: App {
                 }
             }
             // .preferredColorScheme(.dark) — removed: respects system appearance per HIG
+            .id(languageManager.refreshID)
             .modelContainer(sharedModelContainer)
             .onAppear {
                 checkAuthStatus()

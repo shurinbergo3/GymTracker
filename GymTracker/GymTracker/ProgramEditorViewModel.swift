@@ -297,8 +297,8 @@ class ProgramEditorViewModel: ObservableObject {
     // MARK: - Load Existing Program (для редактирования)
     
     func loadProgram(_ program: Program) {
-        programName = program.name
-        programDescription = program.desc
+        programName = program.name.localized()
+        programDescription = program.desc.localized()
         
         workoutDays = program.days
             .sorted { $0.orderIndex < $1.orderIndex }
@@ -316,7 +316,7 @@ class ProgramEditorViewModel: ObservableObject {
                     }
                 
                 return WorkoutDayDraft(
-                    name: day.name,
+                    name: day.name.localized(),
                     orderIndex: day.orderIndex,
                     workoutType: day.workoutType,
                     defaultRestTime: day.defaultRestTime,

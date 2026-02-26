@@ -15,12 +15,13 @@ class LanguageManager: ObservableObject {
     @AppStorage("appLanguage") var appLanguage: String = "system" {
         didSet {
             updateBundle()
-            objectWillChange.send()
+            refreshID = UUID()
         }
     }
     
-    /// The bundle for the currently selected language
+    @Published var refreshID = UUID()
     private(set) var bundle: Bundle = .main
+    private var stringsDict: [String: String] = [:]
     
     init() {
         updateBundle()
@@ -46,10 +47,21 @@ class LanguageManager: ObservableObject {
         } else {
             self.bundle = .main
         }
+        loadStrings()
+    }
+    
+    private func loadStrings() {
+        stringsDict = [:]
+        let lang = currentLanguageCode
+        guard let lprojPath = Bundle.main.path(forResource: lang, ofType: "lproj") else { return }
+        let stringsPath = (lprojPath as NSString).appendingPathComponent("Localizable.strings")
+        if let dict = NSDictionary(contentsOfFile: stringsPath) as? [String: String] {
+            stringsDict = dict
+        }
     }
     
     func localizedString(_ key: String) -> String {
-        return bundle.localizedString(forKey: key, value: key, table: nil)
+        return stringsDict[key] ?? key
     }
 }
 

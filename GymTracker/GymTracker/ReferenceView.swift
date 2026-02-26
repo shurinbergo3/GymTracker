@@ -148,12 +148,12 @@ struct ReferenceBentoCard: View {
                 
                 // Text Bottom Left
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title.localized())
+                    Text(title)
                         .font(DesignSystem.Typography.title3())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .multilineTextAlignment(.leading)
                     
-                    Text(subtitle.localized())
+                    Text(subtitle)
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(isDisabled ? DesignSystem.Colors.secondaryText : color)
                         .padding(.horizontal, 8)
