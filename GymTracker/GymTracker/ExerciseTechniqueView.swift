@@ -168,7 +168,9 @@ struct ExerciseTechniqueDetailView: View {
             urlString = stored
         } else {
             // Fallback to search
-            let searchQuery = "\(exerciseName) техника выполнения"
+            let localizedName = exerciseName.localized()
+            let suffix = LanguageManager.shared.currentLanguageCode == "en" ? "technique" : "техника выполнения"
+            let searchQuery = "\(localizedName) \(suffix)"
             if let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
                 urlString = "https://www.youtube.com/results?search_query=\(encodedQuery)"
             } else {

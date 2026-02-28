@@ -219,7 +219,9 @@ struct SelectionRow: View {
     }
     
     private func youtubeSearchURL(for exerciseName: String) -> URL? {
-        let searchQuery = "\(exerciseName) техника"
+        let localizedName = exerciseName.localized()
+        let suffix = LanguageManager.shared.currentLanguageCode == "en" ? "technique" : "техника"
+        let searchQuery = "\(localizedName) \(suffix)"
         let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         return URL(string: "https://www.youtube.com/results?search_query=\(encodedQuery)")
     }

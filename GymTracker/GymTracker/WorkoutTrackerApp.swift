@@ -110,7 +110,7 @@ struct WorkoutTrackerApp: App {
                     }
                 }
             }
-            // .preferredColorScheme(.dark) — removed: respects system appearance per HIG
+            .preferredColorScheme(.dark)
             .id(languageManager.refreshID)
             .modelContainer(sharedModelContainer)
             .onAppear {
