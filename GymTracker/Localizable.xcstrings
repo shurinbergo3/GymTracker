@@ -7407,7 +7407,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Божественное единение. Единый разум с близкими, понимание с полуслова."
+            "value" : "Divine unity. Being of one mind with loved ones, catching every meaning instantly."
           }
         },
         "ru" : {
@@ -7765,7 +7765,14 @@
       }
     },
     "В разработке" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In development"
+          }
+        }
+      }
     },
     "В тренажере. Спина прижата. Приседайте глубоко. Отличное упражнение, снимающее нагрузку с поясницы." : {
       "localizations" : {
@@ -8101,7 +8108,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Вес × Повторы"
+            "value" : "Weight × Reps"
           }
         },
         "ru" : {
@@ -8432,7 +8439,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ВНИМАНИЕ: Это действие удалит ВСЕ тренировки в облаке и заменит их вашими текущими локальными тренировками.\n\nИспользуйте это, если вы почистили историю на телефоне и хотите, чтобы в облаке стало так же."
+            "value" : "ATTENTION: This will overwrite ALL cloud data with your current local workouts.\n\nUse this to sync your cloud storage with a cleared phone history."
           }
         },
         "ru" : {
@@ -8498,7 +8505,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Возникает беспокойство, трудно начать активную здоровую деятельность, долго работать над одним проектом, не отвлекаться, не бросать на полпути. Трудно отказаться от искушений."
+            "value" : "Feelings of anxiety make it difficult to kickstart a healthy lifestyle or stay committed to a single project. Maintaining focus and following through to completion is a struggle, as is resisting everyday temptations."
           }
         },
         "ru" : {
@@ -8715,7 +8722,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Время и дистанция"
+            "value" : "Time & Distance"
           }
         },
         "ru" : {
@@ -8749,7 +8756,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Время отдыха вышло!"
+            "value" : "Rest is over!"
           }
         },
         "ru" : {
@@ -8814,7 +8821,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Все хочется, все интересно, все любопытно, жизнь играет красками."
+            "value" : "Curious about everything, eager for it all — life is vibrant and full of color."
           }
         },
         "ru" : {
@@ -9180,7 +9187,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выгрузить в облако?"
+            "value" : "Upload to cloud?"
           }
         },
         "ru" : {
@@ -9406,7 +9413,14 @@
       }
     },
     "Высокий уровень:" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High Level"
+          }
+        }
+      }
     },
     "Высокоинтенсивные интервалы на беговой дорожке. 30/30, 45/45, 60/60." : {
       "localizations" : {
@@ -9822,7 +9836,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Глубокое спокойствие, сфокусированность, состояние потока, азарт. Отсутствие мандража."
+            "value" : "Deep composure, laser focus, and a flow state. High drive with zero jitters."
           }
         },
         "ru" : {
@@ -9901,10 +9915,24 @@
       }
     },
     "Гоблет приседания" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goblet Squat"
+          }
+        }
+      }
     },
     "Гоблет-приседания" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goblet Squat"
+          }
+        }
+      }
     },
     "Год" : {
       "extractionState" : "manual",
@@ -10362,7 +10390,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "День %lld"
+            "value" : "Day %lld"
           }
         },
         "ru" : {
@@ -10736,7 +10764,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Дефицит внимания, невозможность сфокусироваться, скука, поиск легкого дофамина."
+            "value" : "Attention deficit and inability to focus. Persistent boredom and a drive for cheap dopamine."
           }
         },
         "ru" : {
@@ -11138,7 +11166,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ДОФАМИН"
+            "value" : "DOPAMINE"
           }
         },
         "ru" : {
@@ -11287,7 +11315,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Жизнь не интересна, ничего не хочется, поиск только привычных стимуляторов."
+            "value" : "Life feels uninspiring, with a total lack of motivation. A tendency to seek only habitual stimulants."
           }
         },
         "ru" : {
@@ -11319,7 +11347,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Жим Армейский сидя"
+            "value" : "Seated Military Press"
           }
         },
         "ru" : {
@@ -23000,7 +23028,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ср. калории / мес"
+            "value" : "Avg. kcal / month"
           }
         },
         "ru" : {
@@ -23949,14 +23977,21 @@
       }
     },
     "ТЕСТОСТЕРОН" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TESTOSTERONE"
+          }
+        }
+      }
     },
     "Тестостерон ощущается как уверенность в себе, внушение уважения к себе окружающим." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тестостерон ощущается как уверенность в себе, внушение уважения к себе окружающим."
+            "value" : "Testosterone feels like pure self-confidence; it's the kind of inner strength that earns you respect without saying a word."
           }
         },
         "ru" : {
@@ -24630,7 +24665,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ты в режиме поддержания формы"
+            "value" : "You are in maintenance mode."
           }
         },
         "ru" : {
@@ -24647,7 +24682,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ты недостаточно усердно тренируешься"
+            "value" : "You’re not training hard enough."
           }
         },
         "ru" : {
@@ -24664,7 +24699,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ты растёшь! Только вперёд!"
+            "value" : "You’re growing! Keep moving forward!"
           }
         },
         "ru" : {
@@ -26637,7 +26672,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Человек нервный, раздражительный, злобный."
+            "value" : "Feeling on edge, irritable, and resentful."
           }
         },
         "ru" : {
@@ -26653,7 +26688,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Человек чувствует себя замечательно, бодро."
+            "value" : "Feeling wonderful, vigorous, and alert."
           }
         },
         "ru" : {
@@ -27140,7 +27175,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Эмоции и импульс"
+            "value" : "Emotions and Impulse"
           }
         },
         "ru" : {
@@ -27221,7 +27256,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ЭСТРАДИОЛ"
+            "value" : "ESTRADIOL"
           }
         },
         "ru" : {

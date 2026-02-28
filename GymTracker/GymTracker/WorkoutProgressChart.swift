@@ -226,10 +226,9 @@ struct WorkoutProgressChart: View {
     @State private var isLoading = true
     @State private var showingDetail = false
     
-    // Trend Logic
-    private var isGrowing: Bool {
-        guard let first = chartData.first, let last = chartData.last, chartData.count > 1 else { return true }
-        return last.volume >= first.volume
+    // Unified trend — same logic as ProgressDetailView
+    private var trend: ProgressTrend {
+        ProgressTrend.calculate(from: sessions)
     }
 
     var body: some View {
@@ -252,18 +251,19 @@ struct WorkoutProgressChart: View {
                              // Header
                              HStack {
                                  Image(systemName: "chart.line.uptrend.xyaxis")
-                                     .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
+                                     .foregroundStyle(trend.color)
                                  Text("Показатель роста".localized())
                                      .font(.headline)
                                      .foregroundStyle(.white)
                                  
                                  Spacer()
                                  
-                                 // Arrow Indicator
-                                 Image(systemName: isGrowing ? "arrow.up.right" : "arrow.down.right")
+                                 // Arrow Indicator from unified ProgressTrend
+                                 Image(systemName: trend.icon)
                                      .font(.title2)
                                      .bold()
-                                     .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
+                                     .foregroundStyle(trend.color)
+                                     .rotationEffect(.degrees(trend.rotation))
                              }
                              
                              Spacer()
@@ -279,8 +279,8 @@ struct WorkoutProgressChart: View {
                                          .foregroundStyle(
                                              LinearGradient(
                                                  colors: [
-                                                     isGrowing ? DesignSystem.Colors.neonGreen : .red,
-                                                     (isGrowing ? DesignSystem.Colors.neonGreen : .red).opacity(0.3)
+                                                     trend.color,
+                                                     trend.color.opacity(0.3)
                                                  ],
                                                  startPoint: .leading,
                                                  endPoint: .trailing
@@ -294,12 +294,12 @@ struct WorkoutProgressChart: View {
                                  .chartYAxis(.hidden)
                                  .frame(height: 50)
                                  
-                                 // Description
+                                 // Description from unified ProgressTrend
                                  VStack(alignment: .trailing) {
-                                     Text(isGrowing ? "Рост\nпоказателей".localized() : "Снижение\nпоказателей".localized())
+                                     Text(trend.title)
                                          .font(.caption)
                                          .fontWeight(.bold)
-                                         .foregroundStyle(isGrowing ? DesignSystem.Colors.neonGreen : .red)
+                                         .foregroundStyle(trend.color)
                                          .multilineTextAlignment(.trailing)
                                      
                                      Text("\(chartData.count) \("тренировок".localized())")

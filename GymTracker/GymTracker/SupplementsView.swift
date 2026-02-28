@@ -23,7 +23,7 @@ struct Supplement: Identifiable {
 
 struct SupplementsView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var languageManager: LanguageManager
+    @ObservedObject private var languageManager = LanguageManager.shared
     
     // Data source for supplements - computed property to react to language changes
     private var supplements: [Supplement] {
