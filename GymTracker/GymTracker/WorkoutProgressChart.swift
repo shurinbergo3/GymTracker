@@ -225,8 +225,9 @@ struct WorkoutProgressChart: View {
     @State private var chartData: [(date: Date, volume: Double)] = []
     @State private var isLoading = true
     @State private var showingDetail = false
-    
-    // Unified trend — same logic as ProgressDetailView
+
+    // Trend uses full session history — ProgressTrend.calculate queries date windows
+    // spanning up to 4 weeks and needs data beyond the chart's last-20 slice.
     private var trend: ProgressTrend {
         ProgressTrend.calculate(from: sessions)
     }
@@ -334,16 +335,13 @@ struct WorkoutProgressChart: View {
         let relevantSessions = sessions
             // .filter { $0.isCompleted } // <-- REMOVED to show current session
             .sorted { $0.date < $1.date }
-            .suffix(20) // Take last 20
-        
+            .suffix(20)
+
         var results: [(Date, Double)] = []
-        
-        // Process directly (20 items is fast enough for MainActor or simple async)
         for session in relevantSessions {
-            let vol = session.volume
-            results.append((session.date, vol))
+            results.append((session.date, session.volume))
         }
-        
+
         self.chartData = results
         self.isLoading = false
     }
