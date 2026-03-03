@@ -203,9 +203,10 @@ class ProgramEditorViewModel: ObservableObject {
                 }
             }
             
-            // 2. Delete Orphaned Days
+            // 2. Delete Orphaned Days — remove from relationship first to avoid SwiftData crash
             for day in originalDays {
                 if !processedDayIDs.contains(day.persistentModelID) {
+                    program.days.removeAll { $0.persistentModelID == day.persistentModelID }
                     context.delete(day)
                 }
             }
@@ -264,22 +265,23 @@ class ProgramEditorViewModel: ObservableObject {
                 existingEx._customWorkoutType = exDraft.type
                 processedExerciseIDs.insert(originalUUID)
             } else {
-                // INSERT
+                // INSERT — must explicitly insert into context so SwiftData tracks it
                 let newEx = ExerciseTemplate(
                     name: exDraft.name,
                     plannedSets: exDraft.plannedSets,
                     orderIndex: exDraft.orderIndex,
                     type: exDraft.type
                 )
+                context.insert(newEx)
                 day.exercises.append(newEx)
             }
         }
         
-        // Delete orphans
+        // Delete orphans — MUST remove from relationship array first,
+        // otherwise SwiftData save() encounters deleted objects in the array → crash
         for ex in originalExercises {
             if !processedExerciseIDs.contains(ex.id) {
-                // Remove from relationship explicitly if needed (SwiftData usually handles delete via relationship cascade OR explicit delete)
-                // Since 'exercises' is Cascade, deleting object is correct.
+                day.exercises.removeAll { $0.id == ex.id }
                 context.delete(ex)
             }
         }

@@ -39,35 +39,16 @@ struct ExerciseCard: View {
     
     @State private var timer: Timer? = nil
     
+    // Cached expensive computation - computed once in onAppear, not on every render
+    @State private var cachedPreviousSets: [WorkoutSet] = []
+    
     // Derived properties
     private var effectiveWorkoutType: WorkoutType {
         currentWorkoutType ?? workoutType
     }
     
     private var previousSets: [WorkoutSet] {
-        // Find all past sessions that contain THIS SPECIFIC EXERCISE
-        // (regardless of program or workout day)
-        let sessionsWithExercise = allCompletedSessions
-            .filter { session in
-                // Exclude current session
-                guard session.id != self.session?.id else { return false }
-                
-                // Only include sessions that have this exercise
-                return session.sets.contains { $0.exerciseName == exercise.name }
-            }
-            .sorted { $0.date > $1.date } // Most recent first
-        
-        // Get sets from the most recent session that had this exercise
-        guard let lastSessionWithExercise = sessionsWithExercise.first else { return [] }
-        return lastSessionWithExercise.sets
-            .filter { $0.exerciseName == exercise.name }
-            .sorted { 
-                // Сортируем сначала по времени создания, потом по номеру подхода
-                if $0.date != $1.date {
-                    return $0.date < $1.date
-                }
-                return $0.setNumber < $1.setNumber
-            }
+        cachedPreviousSets
     }
     
     private var completedSets: [WorkoutSet] {
@@ -526,19 +507,35 @@ struct ExerciseCard: View {
             )
         }
         .onAppear {
+            // Compute previousSets once (expensive: filters all sessions)
+            // Subsequent renders use cachedPreviousSets instead of recomputing
+            let sessionsWithExercise = allCompletedSessions
+                .filter { session in
+                    guard session.id != self.session?.id else { return false }
+                    return session.sets.contains { $0.exerciseName == exercise.name }
+                }
+                .sorted { $0.date > $1.date }
+            if let lastSession = sessionsWithExercise.first {
+                cachedPreviousSets = lastSession.sets
+                    .filter { $0.exerciseName == exercise.name }
+                    .sorted {
+                        if $0.date != $1.date { return $0.date < $1.date }
+                        return $0.setNumber < $1.setNumber
+                    }
+            }
+            
             if let firstSet = completedSets.first, let comment = firstSet.comment {
                 exerciseComment = comment
             }
             if isActive && weight.isEmpty {
-                 if let lastSet = previousSets.last {
-                     // Smart format: 17.0 -> "17", 17.5 -> "17.5"
-                     let w = lastSet.weight
-                     if w.truncatingRemainder(dividingBy: 1) == 0 {
-                         weight = String(format: "%.0f", w)
-                     } else {
-                         weight = String(format: "%.1f", w) // Supports .5 etc
-                     }
-                 }
+                if let lastSet = cachedPreviousSets.last {
+                    let w = lastSet.weight
+                    if w.truncatingRemainder(dividingBy: 1) == 0 {
+                        weight = String(format: "%.0f", w)
+                    } else {
+                        weight = String(format: "%.1f", w)
+                    }
+                }
             }
         }
         .onChange(of: isActive) { _, newValue in

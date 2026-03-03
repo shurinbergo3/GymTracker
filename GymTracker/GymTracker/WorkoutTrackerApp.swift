@@ -186,44 +186,27 @@ struct ContentViewWrapper: View {
                 // Fire-and-forget: Launch all initialization in background
                 // This allows the view to appear immediately without blocking
                 Task.detached(priority: .userInitiated) {
-                    // Determine if this is a "first launch" scenario
-                    let isFirstLaunch = !hasSeeded
+                    // IMPORTANT ORDER:
+                    // 1. Seeder runs FIRST (includes migration that may deleteAllPrograms on fresh install)
+                    // 2. Cloud restore runs AFTER seeder — applies user edits on top of default programs
+                    // Reversed order would cause: restore → seeder migration deletes restored data → user edits lost
                     
-                    // 1. Critical: Restore Programs (Cloud) - runs in background
-                    if isFirstLaunch {
-                        await SyncManager.shared.restoreProgramsFromFirestore(container: container)
-                    }
-                    
-                    // 2. Seeding (Local) - run in background context
+                    // 1. Seeding (Local) — must run before cloud restore
                     if !hasSeeded {
-                        // Create a background context for seeding
                         let bgContext = ModelContext(container)
-                        
-                        // Check if we actually need to seed (quick read)
-                        let descriptor = FetchDescriptor<Program>()
-                        let count = try? bgContext.fetchCount(descriptor)
-                        
-                        if count == 0 || count == nil {
-                            // DB is empty, seed defaults
-                            ProgramSeeder.seedProgramsIfNeeded(context: bgContext)
-                        } else {
-                            // Run migration/cleanup
-                            ProgramSeeder.seedProgramsIfNeeded(context: bgContext)
-                        }
-                        
-                        // Run exercise migration
+                        ProgramSeeder.seedProgramsIfNeeded(context: bgContext)
                         await ExerciseLibrary.migrateExerciseTypes(container: container)
-                        
                         await MainActor.run {
                             hasSeeded = true
                         }
                     }
                     
-                    // 3. User Data Restore (Async Parallelizable)
+                    // 2. Cloud Restore — runs every launch to pick up edits from other devices
+                    await SyncManager.shared.restoreProgramsFromFirestore(container: container)
+                    
+                    // 3. User Data Restore
                     if !hasRestored {
-                        // Run profile restore
                         await restoreUserProfileFromFirestore()
-                        
                         await MainActor.run {
                             hasRestored = true
                         }

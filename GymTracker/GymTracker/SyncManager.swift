@@ -386,20 +386,24 @@ class SyncManager: ObservableObject {
             for (index, cloudProgram) in cloudPrograms.enumerated() {
                 // Check if exists by name
                 if let existingProgram = localPrograms.first(where: { $0.name == cloudProgram.name }) {
-                    // Update existing program
+                    // Update existing program metadata
                     existingProgram.desc = cloudProgram.desc
                     existingProgram.startDate = cloudProgram.startDate
                     existingProgram.isActive = cloudProgram.isActive
                     existingProgram.displayOrder = cloudProgram.displayOrder
                     existingProgram.isUserModified = cloudProgram.isUserModified
                     
-                    // Remove old days
-                    for oldDay in existingProgram.days {
+                    // Remove from relationship array FIRST, then delete from context
+                    // (inverse order causes SwiftData to encounter deleted objects in array → silent save failure)
+                    let daysToDelete = existingProgram.days
+                    existingProgram.days.removeAll()
+                    for oldDay in daysToDelete {
                         context.delete(oldDay)
                     }
-                    existingProgram.days.removeAll()
                     
-                    // Add updated days
+                    // Add updated days — must explicitly insert into context because
+                    // the parent (existingProgram) is already tracked; SwiftData won't
+                    // auto-cascade insert new children of an already-tracked parent
                     for dayDto in cloudProgram.days {
                         let workoutType = WorkoutType(rawValue: dayDto.workoutType) ?? .strength
                         let day = WorkoutDay(
@@ -409,6 +413,7 @@ class SyncManager: ObservableObject {
                             defaultRestTime: dayDto.defaultRestTime,
                             restTimerEnabled: dayDto.restTimerEnabled
                         )
+                        context.insert(day)
                         day.program = existingProgram
                         
                         // Add exercises
@@ -420,6 +425,7 @@ class SyncManager: ObservableObject {
                                 orderIndex: exDto.orderIndex,
                                 type: type
                             )
+                            context.insert(ex)
                             ex.workoutDay = day
                             day.exercises.append(ex)
                         }
@@ -439,8 +445,9 @@ class SyncManager: ObservableObject {
                         displayOrder: cloudProgram.displayOrder
                     )
                     newProgram.isUserModified = cloudProgram.isUserModified
+                    context.insert(newProgram)
                     
-                    // Add days
+                    // Add days — insert explicitly so exercises are also tracked
                     for dayDto in cloudProgram.days {
                         let workoutType = WorkoutType(rawValue: dayDto.workoutType) ?? .strength
                         let day = WorkoutDay(
@@ -450,6 +457,7 @@ class SyncManager: ObservableObject {
                             defaultRestTime: dayDto.defaultRestTime,
                             restTimerEnabled: dayDto.restTimerEnabled
                         )
+                        context.insert(day)
                         day.program = newProgram
                         
                         // Add exercises
@@ -461,6 +469,7 @@ class SyncManager: ObservableObject {
                                 orderIndex: exDto.orderIndex,
                                 type: type
                             )
+                            context.insert(ex)
                             ex.workoutDay = day
                             day.exercises.append(ex)
                         }
@@ -468,7 +477,6 @@ class SyncManager: ObservableObject {
                         newProgram.days.append(day)
                     }
                     
-                    context.insert(newProgram)
                     restoredCount += 1
                 }
                 
