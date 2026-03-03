@@ -92,7 +92,7 @@ struct RestoringDataView: View {
                     await SyncManager.shared.restoreUserProfileFromFirestore(container: container)
                     
                     // Restore Programs
-                    _ = await SyncManager.shared.restoreProgramsFromFirestore(container: container)
+                    _ = await SyncManager.shared.restoreProgramsFromFirestore(container: container, forceRestore: true)
                     
                     // Remove any duplicates that might have been created
                     await SyncManager.shared.removeDuplicateWorkouts(container: container)

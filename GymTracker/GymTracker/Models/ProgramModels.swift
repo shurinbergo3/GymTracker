@@ -19,6 +19,22 @@ struct ProgramDTO: Codable, Identifiable {
     var displayOrder: Int
     var isUserModified: Bool
     var days: [WorkoutDayDTO]
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, desc, startDate, isActive, displayOrder, isUserModified, days
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        desc = try container.decode(String.self, forKey: .desc)
+        startDate = try container.decode(Date.self, forKey: .startDate)
+        isActive = try container.decode(Bool.self, forKey: .isActive)
+        displayOrder = try container.decodeIfPresent(Int.self, forKey: .displayOrder) ?? 0
+        isUserModified = try container.decodeIfPresent(Bool.self, forKey: .isUserModified) ?? false
+        days = try container.decode([WorkoutDayDTO].self, forKey: .days)
+    }
     
     // Explicit init for mapping
     init(from program: Program) {

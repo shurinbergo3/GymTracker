@@ -493,7 +493,7 @@ struct WorkoutHistoryCard: View {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                 HStack {
                     // App Icon/Logo
-                    Image("launch_logo")
+                    Image("LaunchScreen")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 44, height: 44)

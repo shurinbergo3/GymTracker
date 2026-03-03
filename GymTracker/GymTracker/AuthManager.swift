@@ -173,7 +173,7 @@ class AuthManager: ObservableObject {
         await SyncManager.shared.restoreUserProfileFromFirestore(container: container)
         
         // Sync Programs from Firestore
-        _ = await SyncManager.shared.restoreProgramsFromFirestore(container: container)
+        _ = await SyncManager.shared.restoreProgramsFromFirestore(container: container, forceRestore: true)
         
         #if DEBUG
         print("✅ AutoSync: Data synchronization completed successfully")

@@ -359,8 +359,12 @@ class SyncManager: ObservableObject {
     }
     
     /// Restore programs from Firestore (Pull)
-    /// This merges cloud programs into local and updates existing ones.
-    nonisolated func restoreProgramsFromFirestore(container: ModelContainer) async -> Result<Int, Error> {
+    /// - Parameter forceRestore: If true, fully replaces days/exercises from cloud (manual user action only).
+    ///   If false (default, auto-launch), only syncs metadata (isActive, displayOrder) — days are NOT touched.
+    nonisolated func restoreProgramsFromFirestore(
+        container: ModelContainer,
+        forceRestore: Bool = false
+    ) async -> Result<Int, Error> {
         guard Auth.auth().currentUser != nil else { return .failure(SyncError.unauthorized) }
         
         do {
@@ -386,57 +390,55 @@ class SyncManager: ObservableObject {
             for (index, cloudProgram) in cloudPrograms.enumerated() {
                 // Check if exists by name
                 if let existingProgram = localPrograms.first(where: { $0.name == cloudProgram.name }) {
-                    // Update existing program metadata
+                    // Always update lightweight metadata
                     existingProgram.desc = cloudProgram.desc
                     existingProgram.startDate = cloudProgram.startDate
                     existingProgram.isActive = cloudProgram.isActive
                     existingProgram.displayOrder = cloudProgram.displayOrder
                     existingProgram.isUserModified = cloudProgram.isUserModified
-                    
-                    // Remove from relationship array FIRST, then delete from context
-                    // (inverse order causes SwiftData to encounter deleted objects in array → silent save failure)
-                    let daysToDelete = existingProgram.days
-                    existingProgram.days.removeAll()
-                    for oldDay in daysToDelete {
-                        context.delete(oldDay)
-                    }
-                    
-                    // Add updated days — must explicitly insert into context because
-                    // the parent (existingProgram) is already tracked; SwiftData won't
-                    // auto-cascade insert new children of an already-tracked parent
-                    for dayDto in cloudProgram.days {
-                        let workoutType = WorkoutType(rawValue: dayDto.workoutType) ?? .strength
-                        let day = WorkoutDay(
-                            name: dayDto.name,
-                            orderIndex: dayDto.orderIndex,
-                            workoutType: workoutType,
-                            defaultRestTime: dayDto.defaultRestTime,
-                            restTimerEnabled: dayDto.restTimerEnabled
-                        )
-                        context.insert(day)
-                        day.program = existingProgram
-                        
-                        // Add exercises
-                        for exDto in dayDto.exercises {
-                            let type = exDto.customWorkoutType != nil ? WorkoutType(rawValue: exDto.customWorkoutType!) : nil
-                            let ex = ExerciseTemplate(
-                                name: exDto.name,
-                                plannedSets: exDto.plannedSets,
-                                orderIndex: exDto.orderIndex,
-                                type: type
-                            )
-                            context.insert(ex)
-                            ex.workoutDay = day
-                            day.exercises.append(ex)
+
+                    // Only replace days/exercises on explicit manual restore
+                    if forceRestore {
+                        // Remove from relationship array FIRST, then delete from context
+                        let daysToDelete = existingProgram.days
+                        existingProgram.days.removeAll()
+                        for oldDay in daysToDelete {
+                            context.delete(oldDay)
                         }
                         
-                        existingProgram.days.append(day)
+                        for dayDto in cloudProgram.days {
+                            let workoutType = WorkoutType(rawValue: dayDto.workoutType) ?? .strength
+                            let day = WorkoutDay(
+                                name: dayDto.name,
+                                orderIndex: dayDto.orderIndex,
+                                workoutType: workoutType,
+                                defaultRestTime: dayDto.defaultRestTime,
+                                restTimerEnabled: dayDto.restTimerEnabled
+                            )
+                            context.insert(day)
+                            day.program = existingProgram
+                            
+                            for exDto in dayDto.exercises {
+                                let type = exDto.customWorkoutType != nil ? WorkoutType(rawValue: exDto.customWorkoutType!) : nil
+                                let ex = ExerciseTemplate(
+                                    name: exDto.name,
+                                    plannedSets: exDto.plannedSets,
+                                    orderIndex: exDto.orderIndex,
+                                    type: type
+                                )
+                                context.insert(ex)
+                                ex.workoutDay = day
+                                day.exercises.append(ex)
+                            }
+                            
+                            existingProgram.days.append(day)
+                        }
                     }
                     
                     updatedCount += 1
                     
                 } else {
-                    // Create new program
+                    // Create new program (always, regardless of forceRestore)
                     let newProgram = Program(
                         name: cloudProgram.name,
                         desc: cloudProgram.desc,
@@ -447,7 +449,6 @@ class SyncManager: ObservableObject {
                     newProgram.isUserModified = cloudProgram.isUserModified
                     context.insert(newProgram)
                     
-                    // Add days — insert explicitly so exercises are also tracked
                     for dayDto in cloudProgram.days {
                         let workoutType = WorkoutType(rawValue: dayDto.workoutType) ?? .strength
                         let day = WorkoutDay(
@@ -460,7 +461,6 @@ class SyncManager: ObservableObject {
                         context.insert(day)
                         day.program = newProgram
                         
-                        // Add exercises
                         for exDto in dayDto.exercises {
                             let type = exDto.customWorkoutType != nil ? WorkoutType(rawValue: exDto.customWorkoutType!) : nil
                             let ex = ExerciseTemplate(
@@ -487,9 +487,18 @@ class SyncManager: ObservableObject {
             }
             
             if restoredCount > 0 || updatedCount > 0 {
+                if forceRestore {
+                    // Notify WorkoutManager BEFORE save so it drops invalidated WorkoutDay refs
+                    await MainActor.run {
+                        NotificationCenter.default.post(
+                            name: Notification.Name("ActiveProgramChanged"),
+                            object: nil
+                        )
+                    }
+                }
                 try context.save()
                 #if DEBUG
-                print("✅ SyncManager: Restored \(restoredCount) new programs, updated \(updatedCount) existing programs from cloud")
+                print("✅ SyncManager: Restored \(restoredCount) new programs, updated \(updatedCount) existing programs from cloud (forceRestore=\(forceRestore))")
                 #endif
             }
             
@@ -499,6 +508,9 @@ class SyncManager: ObservableObject {
             return .failure(SyncError.message("Ошибка загрузки: \(error.localizedDescription)"))
         }
     }
+
+
+
     
     /// Sync program deletion to Firestore
     func syncProgramDeletion(program: Program) async {
@@ -758,7 +770,7 @@ class SyncManager: ObservableObject {
         #if DEBUG
         print("📥 Step 3/4: Restoring programs...")
         #endif
-        let programsResult = await restoreProgramsFromFirestore(container: container)
+        let programsResult = await restoreProgramsFromFirestore(container: container, forceRestore: true)
         switch programsResult {
         case .success(let count):
             if count > 0 {

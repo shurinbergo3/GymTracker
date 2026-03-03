@@ -73,18 +73,20 @@ struct WorkoutTrackerApp: App {
             ZStack {
                 if isCheckingAuth {
                     // Loading / Splash Screen
-                    VStack(spacing: 20) {
-                        Image("launch_logo")
+                    ZStack(alignment: .bottom) {
+                        Color.black.ignoresSafeArea()
+
+                        Image("LaunchScreen")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 200, height: 200)
-                        
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
                         ProgressView()
                             .tint(DesignSystem.Colors.neonGreen)
                             .scaleEffect(1.5)
+                            .padding(.bottom, 60)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(DesignSystem.Colors.background)
+                    .ignoresSafeArea()
                     .transition(.opacity)
                 } else {
                     Group {
@@ -201,8 +203,9 @@ struct ContentViewWrapper: View {
                         }
                     }
                     
-                    // 2. Cloud Restore — runs every launch to pick up edits from other devices
-                    await SyncManager.shared.restoreProgramsFromFirestore(container: container)
+                    // 2. Cloud Restore — programs are NOT fetched on every launch.
+                    // They sync to Firestore when user edits/activates them (via ProgramEditorViewModel + WorkoutManager).
+                    // Manual full-restore is available in Settings.
                     
                     // 3. User Data Restore
                     if !hasRestored {

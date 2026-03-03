@@ -98,12 +98,8 @@ struct ProgramSeeder {
                 context.delete(prog)
             }
             
-            // ВАЖНО: Сохранить изменения сразу после удаления дублей
             if !duplicatesToDelete.isEmpty {
                 try context.save()
-                #if DEBUG
-                print("Removed \(duplicatesToDelete.count) duplicate programs")
-                #endif
             }
             
             // Refresh after dedup - get fresh list from DB
@@ -139,22 +135,11 @@ struct ProgramSeeder {
             for program in programsToCreate {
                 if !finalExistingNames.contains(program.name) {
                     context.insert(program)
-                    #if DEBUG
-                    print("Seeded program: \(program.name)")
-                    #endif
                 } else {
                     // Update order of existing ONLY if NOT user-modified
-                    if let existing = finalPrograms.first(where: { $0.name == program.name }) {
-                        if !existing.isUserModified {
-                            existing.displayOrder = program.displayOrder
-                            #if DEBUG
-                            print("Updated displayOrder for default program: \(program.name)")
-                            #endif
-                        } else {
-                            #if DEBUG
-                            print("Skipped updating '\(program.name)' - user-modified program")
-                            #endif
-                        }
+                    if let existing = finalPrograms.first(where: { $0.name == program.name }),
+                       !existing.isUserModified {
+                        existing.displayOrder = program.displayOrder
                     }
                 }
             }
