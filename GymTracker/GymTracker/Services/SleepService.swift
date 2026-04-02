@@ -3,6 +3,7 @@ import HealthKit
 
 /// Service for fetching and calculating sleep data.
 /// Adheres to Single Responsibility Principle (SRP).
+@MainActor
 class SleepService {
     static let shared = SleepService()
     
