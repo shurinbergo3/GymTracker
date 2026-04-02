@@ -2,28 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Force Dark Mode globally -->
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
-	
-	<!-- App Version Info -->
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>CFBundleVersion</key>
 	<string>1</string>
-	
-	<!-- Bundle Info -->
 	<key>CFBundleGetInfoString</key>
 	<string></string>
-    <key>CFBundleDevelopmentRegion</key>
-    <string>en</string>
-    <key>CFBundleLocalizations</key>
-    <array>
-        <string>en</string>
-        <string>ru</string>
-    </array>
-	
-	<!-- Google Sign-In Configuration -->
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ru</string>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -37,25 +32,19 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>1023710839199-2qrb93tbdvrnkkbqkprpg8rpqqq229tt.apps.googleusercontent.com</string>
-	
-	<!-- Background Modes (только processing, location удален) -->
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>processing</string>
 	</array>
-	
-	<!-- HealthKit Privacy Descriptions -->
 	<key>NSHealthShareUsageDescription</key>
-    <string>Body Forge uses workout data to track calories burned and heart rate during exercise.</string>
-    <key>NSHealthUpdateUsageDescription</key>
-    <string>Body Forge saves completed workouts to Apple Health to close your activity rings.</string>
-
-    <!-- App Capabilities -->
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-        <string>youtube</string>
-        <string>instagram</string>
-        <string>tg</string>
-    </array>
+	<string>Body Forge uses workout data to track calories burned and heart rate during exercise.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Body Forge saves completed workouts to Apple Health to close your activity rings.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>youtube</string>
+		<string>instagram</string>
+		<string>tg</string>
+	</array>
 </dict>
 </plist>

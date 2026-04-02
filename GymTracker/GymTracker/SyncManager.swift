@@ -895,8 +895,7 @@ class SyncManager: ObservableObject {
             // 3. Upload Local Sessions
             var uploadedCount = 0
             
-            for (index, session) in localSessions.enumerated() {
-                // Manual mapping to avoid MainActor specific init issues
+            for session in localSessions {
                 var duration: TimeInterval = 0
                 if let endTime = session.endTime {
                     duration = endTime.timeIntervalSince(session.date)

@@ -181,20 +181,12 @@ struct ContentViewWrapper: View {
     var body: some View {
         ContentView()
             .task {
-                // Capture needed values
                 let container = modelContext.container
-                let context = modelContext
+                let needsSeed = !hasSeeded
+                let needsRestore = !hasRestored
                 
-                // Fire-and-forget: Launch all initialization in background
-                // This allows the view to appear immediately without blocking
                 Task.detached(priority: .userInitiated) {
-                    // IMPORTANT ORDER:
-                    // 1. Seeder runs FIRST (includes migration that may deleteAllPrograms on fresh install)
-                    // 2. Cloud restore runs AFTER seeder — applies user edits on top of default programs
-                    // Reversed order would cause: restore → seeder migration deletes restored data → user edits lost
-                    
-                    // 1. Seeding (Local) — must run before cloud restore
-                    if !hasSeeded {
+                    if needsSeed {
                         let bgContext = ModelContext(container)
                         ProgramSeeder.seedProgramsIfNeeded(context: bgContext)
                         await ExerciseLibrary.migrateExerciseTypes(container: container)
@@ -203,12 +195,7 @@ struct ContentViewWrapper: View {
                         }
                     }
                     
-                    // 2. Cloud Restore — programs are NOT fetched on every launch.
-                    // They sync to Firestore when user edits/activates them (via ProgramEditorViewModel + WorkoutManager).
-                    // Manual full-restore is available in Settings.
-                    
-                    // 3. User Data Restore
-                    if !hasRestored {
+                    if needsRestore {
                         await restoreUserProfileFromFirestore()
                         await MainActor.run {
                             hasRestored = true

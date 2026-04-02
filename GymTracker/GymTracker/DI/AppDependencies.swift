@@ -62,13 +62,11 @@ final class AppDependencies {
     
     // MARK: - Factory Methods
     
-    /// Factory method to create WorkoutSessionRepository with context
-    nonisolated func createWorkoutSessionRepository(context: ModelContext) -> WorkoutSessionRepository {
+    func createWorkoutSessionRepository(context: ModelContext) -> WorkoutSessionRepository {
         WorkoutSessionRepository(context: context)
     }
     
-    /// Factory method to create ProgramRepository with context
-    nonisolated func createProgramRepository(context: ModelContext) -> ProgramRepository {
+    func createProgramRepository(context: ModelContext) -> ProgramRepository {
         ProgramRepository(context: context)
     }
 }

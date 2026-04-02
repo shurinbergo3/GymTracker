@@ -34,6 +34,7 @@ class AuthManager: ObservableObject {
     private let userDefaults = UserDefaults.standard
     private let loggedInKey = "isLoggedIn"
     private let usernameKey = "username"
+    private var authStateHandle: AuthStateDidChangeListenerHandle?
     
     struct User {
         let uid: String
@@ -53,8 +54,7 @@ class AuthManager: ObservableObject {
     }
     
     private func setupAuthListener() {
-        // Setup Firebase Auth Listener
-        Auth.auth().addStateDidChangeListener { [weak self] _, firebaseUser in
+        authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, firebaseUser in
             Task { @MainActor [weak self] in
                 guard let self = self else { return }
                 

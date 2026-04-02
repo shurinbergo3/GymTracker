@@ -41,18 +41,14 @@ final class WorkoutTimerService: ObservableObject {
         }
     }
     
-    nonisolated private func stopDurationTimer() {
+    private func stopDurationTimer() {
         durationTimer?.invalidate()
         durationTimer = nil
     }
     
-    nonisolated private func updateDuration() {
+    private func updateDuration() {
         guard let startTime = workoutStartTime else { return }
-        let duration = Date().timeIntervalSince(startTime)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.workoutDuration = duration
-        }
+        workoutDuration = Date().timeIntervalSince(startTime)
     }
     
     // MARK: - Rest Timer
@@ -71,21 +67,16 @@ final class WorkoutTimerService: ObservableObject {
         restTimeRemaining = 0
     }
     
-    nonisolated private func decrementRestTime(_ timer: Timer) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.restTimeRemaining -= 1
-            
-            if self.restTimeRemaining <= 0 {
-                self.stopRestTimer()
-            }
+    private func decrementRestTime(_ timer: Timer) {
+        restTimeRemaining -= 1
+        if restTimeRemaining <= 0 {
+            stopRestTimer()
         }
     }
     
     // MARK: - Cleanup
     
     deinit {
-        stopDurationTimer()
         durationTimer?.invalidate()
         restTimer?.invalidate()
     }

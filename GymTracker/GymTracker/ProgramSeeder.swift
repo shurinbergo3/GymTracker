@@ -104,7 +104,6 @@ struct ProgramSeeder {
             
             // Refresh after dedup - get fresh list from DB
             let refreshedPrograms = try context.fetch(descriptor)
-            let existingNames = Set(refreshedPrograms.map { $0.name })
             
             // 1. Remove Deprecated
             var deprecatedToDelete: [Program] = []

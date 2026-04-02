@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 import FirebaseAuth
 
+@MainActor
 struct DataManagementView: View {
     @Environment(\.modelContext) private var modelContext
     
@@ -39,9 +40,9 @@ struct DataManagementView: View {
                 Button {
                     isRestoring = true
                     restoreProgress = "Загрузка..."
+                    let container = modelContext.container
                     Task.detached(priority: .userInitiated) {
-                        // Run in detached task to avoid blocking
-                        let message = await SyncManager.shared.restoreAllData(container: modelContext.container)
+                        let message = await SyncManager.shared.restoreAllData(container: container)
                         
                         await MainActor.run {
                             isRestoring = false

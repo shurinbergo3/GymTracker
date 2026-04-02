@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct AuthView: View {
     @EnvironmentObject var authManager: AuthManager
