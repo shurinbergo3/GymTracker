@@ -20,6 +20,7 @@ protocol HealthProvider: AnyObject {
 
 // MARK: - Activity Provider Protocol
 
+@MainActor
 protocol ActivityProvider: AnyObject {
     func start(workoutType: String, startDate: Date)
     func update(heartRate: Int, calories: Int)

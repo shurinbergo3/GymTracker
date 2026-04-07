@@ -106,7 +106,7 @@ class SleepService {
     }
     
     // Public helper for robust overlap logic
-    func calculateTotalDuration(from segments: [SleepData]) -> TimeInterval {
+    nonisolated func calculateTotalDuration(from segments: [SleepData]) -> TimeInterval {
         var totalDuration: TimeInterval = 0
         var currentInterval: (start: Date, end: Date)?
         
