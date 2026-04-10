@@ -1,112 +1,96 @@
-# Body Forge (GymTracker)
+# Body Forge
 
-**Body Forge** — это современное iOS-приложение для фитнеса, разработанное для тех, кто хочет серьезно подойти к своим тренировкам. Оно сочетает в себе мощный трекер прогресса, интеграцию с Apple Health и стильный "Bento Grid" интерфейс.
+**Body Forge** is a modern iOS fitness tracking app built for serious athletes. It combines intelligent workout logging, real-time biometric data from Apple Health, and a clean Bento Grid UI to keep you focused on performance.
 
-![App Screenshot Placeholder](https://via.placeholder.com/800x400?text=Body+Forge+App)
+## Features
 
-## ✨ Основные возможности
+### Workout Tracking
+- Create and manage workout programs with custom days and exercise splits
+- Log sets, reps, weight, and rest time with live comparison to your previous session
+- Superset support and multiple workout types: Strength, Cardio, Circuit
+- Built-in exercise technique reference library
 
-*   **Умный Трекинг**:
-    *   Создавайте и редактируйте программы тренировок.
-    *   Фиксируйте вес, повторения и время отдыха.
-    *   Поддержка суперсетов и различных типов упражнений (Силовые, Кардио, Круговые).
-*   **Интеграция с HealthKit** ❤️:
-    *   Отображение пульса и калорий в реальном времени во время тренировки.
-    *   Закрытие колец активности Apple Watch прямо из приложения.
-    *   Синхронизация шагов и сна.
-*   **Аналитика и Прогресс** 📈:
-    *   Детальные графики роста силовых показателей.
-    *   Сравнение текущей тренировки с предыдущей (индикаторы роста/спада).
-    *   Отслеживание замеров тела с визуализацией прогресса.
-*   **Live Activities & Dynamic Island** 🏝️:
-    *   Таймер отдыха и статус тренировки всегда на виду, даже когда приложение свернуто.
-*   **Стильный UI**:
-    *   Темная тема с неоновыми акцентами.
-    *   Интуитивный дизайн в стиле карточек (Bento Grid).
+### HealthKit Integration
+- Real-time heart rate and active calorie display during workouts
+- Activity rings closure synced with Apple Watch
+- Step count and sleep data tracking
 
-## 🛠 Технологии
+### Live Activities & Dynamic Island
+- Rest timer and workout status visible on the Lock Screen and Dynamic Island while the app is backgrounded
 
-Проект написан полностью на **Swift** с использованием передовых фреймворков Apple:
+### Analytics & Progress
+- Strength progress charts per exercise with trend indicators
+- Body measurements tracker with visual progress over time
+- Weight tracking with history graph
+- Workout volume and session comparison
 
-*   **SwiftUI**: Для построения реактивного интерфейса.
-*   **SwiftData**: Для локального хранения данных (Persistency).
-*   **HealthKit**: Для чтения и записи биометрических данных.
-*   **ActivityKit**: Для поддержки Live Activities и Dynamic Island.
-*   **Swift Charts**: Для красивых и интерактивных графиков.
-*   **Combine**: Для реактивной обработки событий.
+### Nutrition & Supplements
+- Calorie calculator with macro guidance
+- Nutrition guide and supplement tracker with detailed views
 
-## 🚀 Установка и запуск
+### AI Trainer
+- In-app AI coaching view for workout advice and guidance
 
-1.  **Клонируйте репозиторий**:
-    ```bash
-    git clone https://github.com/shurinbergo3/GymTracker.git
-    cd GymTracker
-    ```
-2.  **Откройте проект в Xcode**:
-    *   Запустите файл `GymTracker.xcodeproj` (или `.xcworkspace`, если используется).
-3.  **Настройка подписи (Signing)**:
-    *   Выберите вашу команду разработки в настройках таргета `GymTracker` и `GymTrackerWidget`.
-4.  **Соберите и запустите**:
-    *   Выберите симулятор (рекомендуется iPhone 15 Pro/16 Pro для теста Dynamic Island) или реальное устройство.
-    *   Нажмите `Cmd + R`.
+### Authentication & Sync
+- Google Sign-In via Firebase Authentication
+- Cloud sync with Firestore
+- Local persistence with SwiftData
 
-## 📱 Требования
+## Tech Stack
 
-*   iOS 17.0+
-*   Xcode 15.0+
+| Layer | Technology |
+|---|---|
+| Language | Swift 5.9+ |
+| UI | SwiftUI |
+| Architecture | MVVM |
+| Local Storage | SwiftData |
+| Health Data | HealthKit |
+| Live Activities | ActivityKit |
+| Charts | Swift Charts |
+| Backend | Firebase Firestore + Auth |
+| Async | Swift Concurrency (`async/await`, `@MainActor`) |
+| Localization | String Catalogs (`.xcstrings`) |
 
-## 📄 Лицензия
+## Project Structure
 
-Этот проект распространяется под лицензией MIT. Подробности см. в файле [LICENSE](LICENSE).
-
-
----
-*Developed with ❤️ by Antigravity*
-
-## 🤖 AI Context
-
-> *Этот раздел предназначен для AI-ассистентов, чтобы ускорить погружение в архитектуру проекта.*
-
-### 📂 Структура Проекта
-
-Проект имеет относительно плоскую структуру внутри основной папки таргета.
-
-```text
+```
 GymTracker/
-├── GymTracker/                  # Ядро приложения (Source Code)
-│   ├── Models/                  # Выделенные модели данных
-│   ├── Services/                # Сервисные классы (Analytics, Sleep, etc.)
-│   ├── [Root]                   # ~70 файлов в корне: Views, ViewModels, Managers
-│   │   ├── *View.swift          # SwiftUI представления (Screens & Components)
-│   │   ├── *ViewModel.swift     # Логика представлений
-│   │   ├── *Manager.swift       # Singleton-менеджеры (Health, Sync, LiveActivity)
-│   │   └── DesignSystem.swift   # Система стилей (цвета, шрифты)
-│   └── Assets.xcassets          # Ресурсы (иконки, цвета)
-├── GymTrackerWidget/            # Target виджетов и Live Activities
-├── GymTrackerTests/             # Unit Tests
-├── GymTrackerUITests/           # UI Tests
-└── Localizable.xcstrings        # Локализация
+├── GymTracker/
+│   ├── Models/               # SwiftData & domain models
+│   ├── Services/             # AnalyticsService, SleepService, CalorieCalculator
+│   ├── Protocols/            # Shared protocols
+│   ├── DI/                   # Dependency injection
+│   ├── *View.swift           # SwiftUI screens and components
+│   ├── *ViewModel.swift      # View-specific logic
+│   ├── *Manager.swift        # Singletons: HealthManager, WorkoutManager, LiveActivityManager, SyncManager, AuthManager
+│   └── DesignSystem.swift    # Colors, fonts, reusable modifiers
+├── GymTrackerWidget/         # Widget + Live Activity target
+├── GymTrackerTests/
+└── GymTrackerUITests/
 ```
 
-### 🛠 Технический Стек
+## Requirements
 
-*   **Язык**: Swift 5.9+
-*   **UI**: SwiftUI (основной), UIKit (минимум/отсутствует).
-*   **Архитектура**: MVVM (Model-View-ViewModel).
-*   **База Данных**: SwiftData (Persistence).
-*   **Асинхронность**: Swift Concurrency (`async/await`, `Task`, `@MainActor`), Combine (частично).
+- iOS 17.0+
+- Xcode 15.0+
 
-### 🧩 Ключевые Фреймворки & Компоненты
+## Getting Started
 
-*   **HealthKit**: `HealthManager.swift` — чтение/запись тренировок, пульса, калорий, колец активности.
-*   **ActivityKit**: `LiveActivityManager.swift` и `GymTrackerWidget` — поддержка Live Activities и Dynamic Island.
-*   **Swift Charts**: Испольуется для визуализации прогресса (`WorkoutProgressChart.swift`).
-*   **Cloud & Sync**:
-    *   `SyncManager.swift`: Синхронизация данных (включая CloudKit/Firestore аспекты если есть).
-    *   `FirestoreManager.swift`: Интеграция с Firebase Firestore.
-    *   `AuthManager.swift`: Аутентификация (Google Sign-In).
+```bash
+git clone https://github.com/shurinbergo3/GymTracker.git
+cd GymTracker
+open "Body Forge.xcodeproj"
+```
 
-### 🎨 Design System
+1. Select your development team in the **GymTracker** and **GymTrackerWidget** target signing settings.
+2. Add your own `GoogleService-Info.plist` from the Firebase console.
+3. Run on an iPhone 15 Pro / 16 Pro simulator or a real device to test Dynamic Island.
+4. Press `Cmd + R`.
 
-Все основные UI-константы, цвета и модификаторы вынесены в `DesignSystem.swift`. Приложение использует "Bento Grid" стиль с темной темой и неоновыми акцентами.
+## License
 
+MIT — see [LICENSE](LICENSE).
+
+---
+
+*Developed by Antigravity*
