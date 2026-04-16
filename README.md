@@ -178,7 +178,3 @@ Cmd + R
 ## License
 
 MIT
-
----
-
-*Developed by Antigravity*
