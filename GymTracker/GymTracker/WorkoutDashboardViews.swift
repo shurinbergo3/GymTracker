@@ -87,7 +87,7 @@ struct SleepCard: View {
                     let filteredSegments = data.filter { $0.type != .inBed }
                     let sortedSegments = filteredSegments.sorted { $0.startDate < $1.startDate }
                     
-                    self.totalSleep = SleepService.shared.calculateTotalDuration(from: sortedSegments)
+                    self.totalSleep = SleepService.calculateTotalDuration(from: sortedSegments)
                 }
             }
         }
@@ -520,21 +520,21 @@ struct SleepDetailView: View {
             $0.type == .asleepUnspecified
         }.sorted { $0.startDate < $1.startDate }
         
-        return SleepService.shared.calculateTotalDuration(from: filtered)
+        return SleepService.calculateTotalDuration(from: filtered)
     }
     
     private var totalInBed: TimeInterval {
         let filtered = sleepData.filter { $0.type == .inBed }
             .sorted { $0.startDate < $1.startDate }
         
-        return SleepService.shared.calculateTotalDuration(from: filtered)
+        return SleepService.calculateTotalDuration(from: filtered)
     }
     
     private func duration(for type: HKCategoryValueSleepAnalysis) -> TimeInterval {
         let filtered = sleepData.filter { $0.type == type }
             .sorted { $0.startDate < $1.startDate }
         
-        return SleepService.shared.calculateTotalDuration(from: filtered)
+        return SleepService.calculateTotalDuration(from: filtered)
     }
     
 

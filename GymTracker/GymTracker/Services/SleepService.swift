@@ -65,7 +65,7 @@ class SleepService {
                     }.sorted { $0.startDate < $1.startDate }
                     
                     // Use the robust calculation logic
-                    dailyTotals[day] = self.calculateTotalDuration(from: data)
+                    dailyTotals[day] = SleepService.calculateTotalDuration(from: data)
                 }
                 
                 let result = dailyTotals.map { DailySleepData(date: $0.key, totalDuration: $0.value) }
@@ -106,7 +106,7 @@ class SleepService {
     }
     
     // Public helper for robust overlap logic
-    nonisolated func calculateTotalDuration(from segments: [SleepData]) -> TimeInterval {
+    nonisolated static func calculateTotalDuration(from segments: [SleepData]) -> TimeInterval {
         var totalDuration: TimeInterval = 0
         var currentInterval: (start: Date, end: Date)?
         
