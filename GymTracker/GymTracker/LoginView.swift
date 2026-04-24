@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
     @StateObject private var authManager = AuthManager.shared
-    
+
     @State private var email = ""
     @State private var password = ""
     @State private var isSignUp = false
@@ -85,6 +85,30 @@ struct LoginView: View {
                 }
                 .padding(.horizontal, DesignSystem.Spacing.xl)
                 
+                // Apple Button
+                Button(action: {
+                    Task {
+                        await signInWithApple()
+                    }
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "applelogo")
+                            .font(.headline)
+                        Text("Войти через Apple".localized())
+                    }
+                    .font(DesignSystem.Typography.headline())
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(Color.black)
+                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+                }
+                .padding(.horizontal, DesignSystem.Spacing.xl)
+
                 // Google Button
                 Button(action: {
                     Task {
@@ -107,7 +131,7 @@ struct LoginView: View {
                     )
                 }
                 .padding(.horizontal, DesignSystem.Spacing.xl)
-                
+
                 Spacer()
             }
             
@@ -142,9 +166,21 @@ struct LoginView: View {
     private func signInWithGoogle() async {
         isLoading = true
         errorMessage = nil
-        
+
         do {
             try await authManager.signInWithGoogle()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
+
+    private func signInWithApple() async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            try await authManager.signInWithApple()
         } catch {
             errorMessage = error.localizedDescription
         }

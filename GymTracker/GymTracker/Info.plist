@@ -33,9 +33,9 @@
 	<key>GIDClientID</key>
 	<string>1023710839199-2qrb93tbdvrnkkbqkprpg8rpqqq229tt.apps.googleusercontent.com</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Body Forge uses workout data to track calories burned and heart rate during exercise.</string>
+	<string>Body Forge reads your heart rate, active and resting heart rate, active energy, step count, and sleep analysis from Apple Health to display accurate training statistics, recovery insights, and progress charts inside the app.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>Body Forge saves completed workouts to Apple Health to close your activity rings.</string>
+	<string>Body Forge saves completed workouts and active energy burned to Apple Health so your activity rings close and your training history stays consistent across Apple devices.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>youtube</string>
