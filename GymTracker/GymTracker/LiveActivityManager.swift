@@ -3,7 +3,7 @@ import ActivityKit
 import SwiftUI
 
 @MainActor
-class LiveActivityManager: @preconcurrency ActivityProvider {
+class LiveActivityManager: ActivityProvider {
     static let shared = LiveActivityManager()
     
     private var activity: Activity<WorkoutAttributes>?

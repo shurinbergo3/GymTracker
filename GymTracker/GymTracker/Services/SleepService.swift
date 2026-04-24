@@ -33,12 +33,7 @@ class SleepService {
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
         
         return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(sampleType: sleepType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { [weak self] _, samples, error in
-                guard let self = self else {
-                     continuation.resume(returning: [])
-                     return
-                }
-                
+            let query = HKSampleQuery(sampleType: sleepType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
                 guard let samples = samples as? [HKCategorySample], error == nil else {
                     continuation.resume(returning: [])
                     return
