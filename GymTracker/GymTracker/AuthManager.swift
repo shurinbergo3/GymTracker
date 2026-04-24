@@ -106,6 +106,12 @@ class AuthManager: ObservableObject {
         updateUserState(with: authResult.user)
     }
     
+    func signInWithApple() async throws {
+        let coordinator = SignInWithAppleCoordinator()
+        try await coordinator.signIn()
+        // State listener will update UI
+    }
+
     func signInWithGoogle() async throws {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
         

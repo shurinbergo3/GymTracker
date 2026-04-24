@@ -162,6 +162,29 @@ struct AuthView: View {
                         }
                         .padding(.horizontal, DesignSystem.Spacing.xl)
                         
+                        // Apple Button
+                        Button(action: {
+                            Task {
+                                await signInWithApple()
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "applelogo")
+                                Text("Войти через Apple".localized())
+                            }
+                            .font(DesignSystem.Typography.headline())
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color.black)
+                            .cornerRadius(DesignSystem.CornerRadius.medium)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.xl)
+
                         // Google Button
                         Button(action: {
                             Task {
@@ -184,7 +207,7 @@ struct AuthView: View {
                             )
                         }
                         .padding(.horizontal, DesignSystem.Spacing.xl)
-                        
+
                         Spacer()
                     }
                 }
@@ -243,12 +266,24 @@ struct AuthView: View {
     private func signInWithGoogle() async {
         isLoading = true
         // errorMessage = nil // If you had an error message state
-        
+
         do {
             try await authManager.signInWithGoogle()
         } catch {
             #if DEBUG
             print("Google Auth Error: \(error.localizedDescription)")
+            #endif
+        }
+        isLoading = false
+    }
+
+    private func signInWithApple() async {
+        isLoading = true
+        do {
+            try await authManager.signInWithApple()
+        } catch {
+            #if DEBUG
+            print("Apple Auth Error: \(error.localizedDescription)")
             #endif
         }
         isLoading = false
