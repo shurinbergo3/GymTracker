@@ -32,10 +32,6 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>1023710839199-2qrb93tbdvrnkkbqkprpg8rpqqq229tt.apps.googleusercontent.com</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>processing</string>
-	</array>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Body Forge uses workout data to track calories burned and heart rate during exercise.</string>
 	<key>NSHealthUpdateUsageDescription</key>
