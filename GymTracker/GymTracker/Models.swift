@@ -21,10 +21,9 @@ final class UserProfile {
     var weightHistory: [WeightRecord]
     
     // Computed property для текущего веса
+    // Использует max(by:) — O(n) вместо O(n log n) у sorted+first
     var currentWeight: Double {
-        weightHistory
-            .sorted { $0.date > $1.date }
-            .first?.weight ?? 0
+        weightHistory.max(by: { $0.date < $1.date })?.weight ?? 0
     }
     
     init(height: Double, initialWeight: Double, age: Int = 30) {
@@ -173,7 +172,7 @@ final class Program {
     var days: [WorkoutDay]
     
     init(name: String, desc: String = "", startDate: Date = Date(), isActive: Bool = false, displayOrder: Int = 100) {
-        self.id = UUID()
+        // id uses default value (UUID()) declared at property level
         self.name = name
         self.desc = desc
         self.startDate = startDate

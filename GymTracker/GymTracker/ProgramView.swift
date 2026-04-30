@@ -105,11 +105,9 @@ struct ProgramView: View {
                                         .padding(.horizontal, DesignSystem.Spacing.lg)
                                         
                                         LazyVStack(spacing: DesignSystem.Spacing.lg) {
-                                            ForEach(programs) { program in
-                                                if program.id != activeProgram?.id {
-                                                    ProgramCard(program: program) {
-                                                        scrollToTop(proxy: proxy)
-                                                    }
+                                            ForEach(programs.filter { $0.id != activeProgram?.id }) { program in
+                                                ProgramCard(program: program) {
+                                                    scrollToTop(proxy: proxy)
                                                 }
                                             }
                                         }

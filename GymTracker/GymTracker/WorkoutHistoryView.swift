@@ -232,10 +232,19 @@ struct SessionHistoryView: View {
     }
     
     private func calculateProgress(for session: WorkoutSession) -> ProgressState? {
-        // Logic similar to parent, but we can't easily access allSessions here unless passed down.
-        // For simplicity, we might just pass nil or refactor.
-        // Ideally logic should be in a view model or manager.
-        return nil // Placeholder, logic is complex to duplicate without context
+        // Найти ближайшую предыдущую сессию того же типа дня
+        let previousSession = completedSessions
+            .filter { $0.workoutDayName == session.workoutDayName && $0.date < session.date }
+            .max(by: { $0.date < $1.date })
+
+        guard let previous = previousSession else { return nil }
+
+        let currentVolume = session.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+        let previousVolume = previous.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+
+        if currentVolume > previousVolume { return .improved }
+        if currentVolume >= previousVolume * 0.9 { return .same }
+        return .declined
     }
 }
 

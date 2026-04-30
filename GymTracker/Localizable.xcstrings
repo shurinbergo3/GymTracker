@@ -3505,6 +3505,7 @@
       }
     },
     "Email" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8550,6 +8551,7 @@
       }
     },
     "Войти" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8998,6 +9000,7 @@
       }
     },
     "Вход" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12185,6 +12188,7 @@
       }
     },
     "Зарегистрироваться" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16052,6 +16056,7 @@
       }
     },
     "Нет аккаунта? Зарегистрироваться" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17787,6 +17792,7 @@
       }
     },
     "Пароль" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20524,6 +20530,7 @@
       }
     },
     "Регистрация" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25277,6 +25284,7 @@
       }
     },
     "Удаление аккаунта" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25460,6 +25468,7 @@
       }
     },
     "Уже есть аккаунт? Войти" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

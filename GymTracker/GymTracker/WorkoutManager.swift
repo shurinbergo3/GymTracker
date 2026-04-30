@@ -160,36 +160,38 @@ class WorkoutManager: ObservableObject {
     func cleanupDuplicateSessions() {
         let migrationKey = "hasPerformedOneTimeDeduplication_v6" // Bumped to v6
         if UserDefaults.standard.bool(forKey: migrationKey) { return }
-        
-        // Run in background to verify duplicates without blocking UI
+
+        // Используем существующий ModelContainer (через modelContext.container),
+        // а не создаём новый — два контейнера на одну SQLite-базу могут привести
+        // к рассинхронизации кэша SwiftData.
+        let container = modelContext.container
         Task.detached(priority: .background) {
             do {
                 print("🧹 Starting duplicate cleanup (v6) - Aggressive Mode...")
-                let container = try ModelContainer(for: WorkoutSession.self, UserProfile.self, Program.self, WorkoutDay.self, ExerciseTemplate.self)
                 let context = ModelContext(container)
                 context.autosaveEnabled = false
-                
+
                 // Fetch ALL sessions
                 let descriptor = FetchDescriptor<WorkoutSession>(
                      sortBy: [SortDescriptor(\.date, order: .reverse)]
                 )
-                
+
                 let sessions = try context.fetch(descriptor)
-                
+
                 if sessions.isEmpty {
                      await MainActor.run { UserDefaults.standard.set(true, forKey: migrationKey) }
                      return
                 }
-                
+
                 var uniqueKeys = Set<String>()
                 var sessionsToDelete: [PersistentIdentifier] = []
-                
+
                 // Keep only ONE session per (Type + Date-Minute)
                 // Filter duplicates by checking a "signature"
                 for session in sessions {
                     let dateKey = Int(session.date.timeIntervalSince1970 / 60) // Down to minute resolution
                     let key = "\(session.workoutDayName)-\(dateKey)"
-                    
+
                     if uniqueKeys.contains(key) {
                         // Already saw one like this? Delete this one.
                         sessionsToDelete.append(session.persistentModelID)
@@ -197,10 +199,10 @@ class WorkoutManager: ObservableObject {
                         uniqueKeys.insert(key)
                     }
                 }
-                
+
                 if !sessionsToDelete.isEmpty {
                     print("🗑️ Found \(sessionsToDelete.count) duplicates (Aggressive v6). Deleting...")
-                    
+
                     // Batch delete
                     for id in sessionsToDelete {
                         if let model = context.model(for: id) as? WorkoutSession {
@@ -212,11 +214,11 @@ class WorkoutManager: ObservableObject {
                 } else {
                     print("✅ No duplicates found (v6).")
                 }
-                
+
                 await MainActor.run {
                      UserDefaults.standard.set(true, forKey: migrationKey)
                 }
-                
+
             } catch {
                 print("❌ Cleanup error: \(error)")
             }

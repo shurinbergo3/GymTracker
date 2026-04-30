@@ -86,16 +86,17 @@ class ProgramEditorViewModel: ObservableObject {
     }
     
     func moveDay(from source: IndexSet, to destination: Int) {
+        guard let firstSource = source.first else { return }
         // Перемещаем элементы
         let movedDays = source.map { workoutDays[$0] }
         var newDays = workoutDays
         for index in source.sorted(by: >) {
             newDays.remove(at: index)
         }
-        let adjustedDestination = destination > source.first! ? destination - source.count : destination
+        let adjustedDestination = destination > firstSource ? destination - source.count : destination
         newDays.insert(contentsOf: movedDays, at: adjustedDestination)
         workoutDays = newDays
-        
+
         // Пересчитываем orderIndex
         for (index, day) in workoutDays.enumerated() {
             day.orderIndex = index
@@ -126,14 +127,15 @@ class ProgramEditorViewModel: ObservableObject {
     }
     
     func moveExercise(in day: WorkoutDayDraft, from source: IndexSet, to destination: Int) {
+        guard let firstSource = source.first else { return }
         // Перемещаем элементы
         let movedExercises = source.map { day.exercises[$0] }
         for index in source.sorted(by: >) {
             day.exercises.remove(at: index)
         }
-        let adjustedDestination = destination > source.first! ? destination - source.count : destination
+        let adjustedDestination = destination > firstSource ? destination - source.count : destination
         day.exercises.insert(contentsOf: movedExercises, at: adjustedDestination)
-        
+
         // Пересчитываем orderIndex
         for index in day.exercises.indices {
             day.exercises[index].orderIndex = index

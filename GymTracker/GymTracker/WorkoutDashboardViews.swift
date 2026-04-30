@@ -17,6 +17,7 @@ import HealthKit
 
 struct SleepCard: View {
     @State private var sleepData: [SleepData] = []
+    @State private var sortedSleepData: [SleepData] = [] // Кэш отсортированных данных, чтобы не пересчитывать в body
     @State private var totalSleep: TimeInterval = 0
     @State private var showingDetail = false
     
@@ -56,7 +57,7 @@ struct SleepCard: View {
                         // Mini Sleep Graph Bar
                         GeometryReader { geo in
                             HStack(spacing: 0) {
-                                ForEach(sleepData.sorted(by: { $0.startDate < $1.startDate })) { segment in
+                                ForEach(sortedSleepData) { segment in
                                     if segment.type != .inBed { // Hide "In Bed" for cleaner graph
                                         Rectangle()
                                             .fill(segment.color)
@@ -82,11 +83,13 @@ struct SleepCard: View {
                 let data = await SleepService.shared.fetchSleepData()
                 await MainActor.run {
                     self.sleepData = data
-                    
+                    // Сортируем один раз и кэшируем — раньше делалось на каждый рендер ForEach
+                    self.sortedSleepData = data.sorted { $0.startDate < $1.startDate }
+
                     // Use SleepService logic
                     let filteredSegments = data.filter { $0.type != .inBed }
                     let sortedSegments = filteredSegments.sorted { $0.startDate < $1.startDate }
-                    
+
                     self.totalSleep = SleepService.calculateTotalDuration(from: sortedSegments)
                 }
             }

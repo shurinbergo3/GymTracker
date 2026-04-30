@@ -49,10 +49,16 @@ class AuthManager: ObservableObject {
         // self.authService = FirebaseAuthService()
         // self.sessionManager = UserSessionManager(storage: userDefaults)
         // self.deletionService = AccountDeletionService(storage: FirestoreStorageService())
-        
+
         setupAuthListener()
     }
-    
+
+    deinit {
+        if let handle = authStateHandle {
+            Auth.auth().removeStateDidChangeListener(handle)
+        }
+    }
+
     private func setupAuthListener() {
         authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, firebaseUser in
             Task { @MainActor [weak self] in

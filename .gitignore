@@ -64,6 +64,8 @@ iOSInjectionProject/
 # Agent
 .agent/
 .cursor/
+.mcp.json
+.serena/
 
 # Temporary
 .tmp/

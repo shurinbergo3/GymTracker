@@ -100,8 +100,8 @@ struct ExerciseCard: View {
                     // Progress Pills / Boxes
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            let totalCount = max(exercise.plannedSets, completedSets.count)
-                            
+                            let totalCount = max(1, max(exercise.plannedSets, completedSets.count)) // Защита от диапазона 1...0 при plannedSets=0
+
                             ForEach(1...totalCount, id: \.self) { setNum in
                                 let isCompleted = setNum <= completedSets.count
                                 let isExtra = setNum > exercise.plannedSets
@@ -542,6 +542,10 @@ struct ExerciseCard: View {
              if newValue {
                  // Auto-expand history if active? Maybe just keep user choice.
              }
+        }
+        .onDisappear {
+            timer?.invalidate()
+            timer = nil
         }
     }
     
