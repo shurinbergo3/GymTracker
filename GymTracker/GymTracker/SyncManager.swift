@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-import Network
 import FirebaseAuth
 import FirebaseFirestore
 import Combine
@@ -15,30 +14,12 @@ class SyncManager: ObservableObject {
     @Published var isSyncing = false
     @Published var hasUnsyncedWorkouts = false
     
-    private var monitor: NWPathMonitor?
     private var syncTask: Task<Void, Never>?
-    
+
     private init() {
-        startNetworkMonitoring()
-    }
-    
-    /// Start monitoring network connectivity
-    private func startNetworkMonitoring() {
-        monitor = NWPathMonitor()
-        let queue = DispatchQueue(label: "NetworkMonitor")
-        
-        monitor?.pathUpdateHandler = { path in
-            if path.status == .satisfied {
-                // Network is available
-                // Note: Auto-sync will be triggered from WorkoutTrackerApp with proper context
-                Task { @MainActor in
-                    // Notify that network is available
-                    // Actual sync happens in WorkoutTrackerApp.onAppear
-                }
-            }
-        }
-        
-        monitor?.start(queue: queue)
+        // NWPathMonitor был удалён — он только просыпался на каждом изменении сети
+        // и тратил батарею, при этом обработчик был пустой. Авто-синк триггерится
+        // из WorkoutTrackerApp.onAppear с правильным ModelContext.
     }
     
     /// Sync all unsynced workouts to Firestore
@@ -1094,7 +1075,6 @@ class SyncManager: ObservableObject {
     }
     
     deinit {
-        monitor?.cancel()
         syncTask?.cancel()
     }
 }

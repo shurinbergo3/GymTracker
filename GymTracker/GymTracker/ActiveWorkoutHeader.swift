@@ -15,7 +15,11 @@ struct ActiveWorkoutHeader: View {
     @State private var progress: CGFloat = 0.0
     
     var body: some View {
-        TimelineView(.periodic(from: Date(), by: 0.1)) { context in
+        // Раньше было 0.1с (10 Hz) — это перерисовывало весь header 10 раз в секунду
+        // и было главным источником разряда батареи во время активной тренировки.
+        // 1.0с достаточно для таймера MM:SS, а кольцо прогресса плавно интерполируется
+        // через .animation(.linear(duration: 1.0)).
+        TimelineView(.periodic(from: Date(), by: 1.0)) { context in
             HStack(spacing: 20) {
                 // 1. Digital Time (Left)
                 HStack(spacing: 12) {
@@ -33,7 +37,7 @@ struct ActiveWorkoutHeader: View {
                             .rotationEffect(.degrees(-90))
                             .frame(width: 44, height: 44)
                             .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 4)
-                            .animation(.linear(duration: 0.1), value: context.date)
+                            .animation(.linear(duration: 1.0), value: context.date)
                         
                         Image(systemName: "timer")
                             .font(.system(size: 14))

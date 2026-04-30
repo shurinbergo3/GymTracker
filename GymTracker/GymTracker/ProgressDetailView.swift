@@ -54,9 +54,12 @@ struct ProgressDetailView: View {
     }
     
     
+    private var breakdown: ProgressTrend.Breakdown {
+        ProgressTrend.analyze(from: Array(allSessions))
+    }
+
     private var progressTrend: ProgressTrend {
-        // Use the scientific Volume Load-based calculation
-        ProgressTrend.calculate(from: Array(allSessions))
+        breakdown.trend
     }
     
     var body: some View {
@@ -68,6 +71,9 @@ struct ProgressDetailView: View {
                     
                     // Main Trend Indicator
                     trendIndicatorCard
+                    
+                    // Per-exercise progression breakdown
+                    exerciseBreakdownSection
                     
                     // Volume Chart
                     volumeChartSection
@@ -151,6 +157,112 @@ struct ProgressDetailView: View {
         .padding(.vertical, 24)
         .background(Color(white: 0.1))
         .clipShape(RoundedRectangle(cornerRadius: 20))
+    }
+
+    // MARK: - Per-Exercise Breakdown
+    private var exerciseBreakdownSection: some View {
+        let bd = breakdown
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "list.bullet.rectangle.portrait")
+                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                Text("Прогресс по упражнениям".localized())
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Spacer()
+                if !bd.isInsufficientData && bd.totalTracked > 0 {
+                    Text("\(bd.growing)/\(bd.totalTracked)")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                }
+            }
+
+            if bd.isInsufficientData {
+                Text("Соберём данные ещё за пару тренировок — и покажем прогресс по каждому упражнению.".localized())
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 8)
+            } else {
+                // Summary chips
+                HStack(spacing: 8) {
+                    summaryChip(count: bd.growing, label: "растут".localized(), color: DesignSystem.Colors.neonGreen)
+                    summaryChip(count: bd.stable, label: "стабильно".localized(), color: Color.white.opacity(0.5))
+                    summaryChip(count: bd.declining, label: "снижение".localized(), color: Color.orange)
+                }
+                .padding(.bottom, 4)
+
+                VStack(spacing: 8) {
+                    ForEach(bd.exercises) { progress in
+                        exerciseRow(progress)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(white: 0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private func summaryChip(count: Int, label: String, color: Color) -> some View {
+        HStack(spacing: 4) {
+            Text("\(count)")
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundColor(color)
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(.gray)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(color.opacity(0.12))
+        .clipShape(Capsule())
+    }
+
+    private func exerciseRow(_ p: ProgressTrend.ExerciseProgress) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: p.direction.icon)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(p.direction.color)
+                .frame(width: 24, height: 24)
+                .background(p.direction.color.opacity(0.15))
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(p.exerciseName.localized())
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                Text("\(formatScore(p.priorBest)) → \(formatScore(p.recentBest)) \(p.unit.localizedSuffix)")
+                    .font(.system(size: 11, weight: .regular, design: .monospaced))
+                    .foregroundColor(.gray)
+            }
+
+            Spacer()
+
+            Text(formatPercent(p.percentChange))
+                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .foregroundColor(p.direction.color)
+        }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(Color.white.opacity(0.03))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func formatScore(_ value: Double) -> String {
+        if value >= 100 {
+            return String(format: "%.0f", value)
+        }
+        if value.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f", value)
+        }
+        return String(format: "%.1f", value)
+    }
+
+    private func formatPercent(_ pct: Double) -> String {
+        let sign = pct > 0 ? "+" : ""
+        return "\(sign)\(String(format: "%.1f", pct))%"
     }
     
     // MARK: - Volume Chart

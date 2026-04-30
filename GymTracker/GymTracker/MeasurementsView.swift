@@ -24,6 +24,16 @@ struct MeasurementsView: View {
     
     @State private var showingSettings = false
 
+    private var workoutsThisWeekCount: Int {
+        var cal = Calendar(identifier: .gregorian)
+        cal.firstWeekday = 2
+        let today = cal.startOfDay(for: Date())
+        let weekday = cal.component(.weekday, from: today)
+        let daysFromMonday = (weekday + 5) % 7
+        guard let monday = cal.date(byAdding: .day, value: -daysFromMonday, to: today) else { return 0 }
+        return completedSessions.filter { $0.date >= monday }.count
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -80,10 +90,17 @@ struct MeasurementsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.horizontal, DesignSystem.Spacing.lg)
 
-                        // Активность (Activity Rings)
-                        ActivityRingsCard()
+                        // Активность — кольца Apple Watch ИЛИ ачивки (если часов нет)
+                        ActivityHeroSection(
+                            totalWorkouts: completedSessions.count,
+                            workoutsThisWeek: workoutsThisWeekCount
+                        )
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                        // Apple Health сводка (Шаги, Кардио, Упражнения, Тренировки/нед, Энергия покоя)
+                        HealthStatsCard()
                             .padding(.horizontal, DesignSystem.Spacing.lg)
-                        
+
                         // Пульс
                         HeartRateStatsCard(lastWorkoutSession: completedSessions.first)
                             .padding(.horizontal, DesignSystem.Spacing.lg)

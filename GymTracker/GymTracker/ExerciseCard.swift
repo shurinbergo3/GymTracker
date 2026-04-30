@@ -41,6 +41,12 @@ struct ExerciseCard: View {
     
     // Cached expensive computation - computed once in onAppear, not on every render
     @State private var cachedPreviousSets: [WorkoutSet] = []
+    // Sets from the workout BEFORE the previous one (used to label per-set progression
+    // shown in the "Прошлая тренировка" block). Nil for first / second occurrence.
+    @State private var cachedPenultimateSets: [WorkoutSet] = []
+    // All-time best estimated 1RM for this exercise across completed sessions.
+    // 0 when there is no data or the exercise isn't a strength exercise.
+    @State private var personalBestE1RM: Double = 0
     
     // Derived properties
     private var effectiveWorkoutType: WorkoutType {
@@ -194,12 +200,27 @@ struct ExerciseCard: View {
             // MARK: - History Block
             if isHistoryExpanded {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Прошлая тренировка:".localized())
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    
+                    HStack {
+                        Text("Прошлая тренировка:".localized())
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        Spacer()
+                        if personalBestE1RM > 0 {
+                            HStack(spacing: 4) {
+                                Image(systemName: "trophy.fill")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                                Text("\("Макс.".localized()) \(formatBest(personalBestE1RM)) \("кг".localized()) e1RM")
+                                    .font(.caption2)
+                                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                            }
+                        }
+                    }
+
                     ForEach(previousSets, id: \.self) { set in
-                        HStack {
+                        let priorPeer = cachedPenultimateSets.first { $0.setNumber == set.setNumber }
+                        let progression = SetProgression.compare(current: set, prior: priorPeer)
+                        HStack(spacing: 8) {
                             Text("\("Подход".localized()) \(set.setNumber):")
                                 .font(.caption)
                                 .foregroundColor(.gray)
@@ -212,6 +233,12 @@ struct ExerciseCard: View {
                                     .font(.caption)
                                     .foregroundColor(.white)
                             }
+                            if progression != .noBaseline {
+                                Image(systemName: progression.icon)
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(progression.color)
+                            }
+                            Spacer()
                         }
                     }
                 }
@@ -230,7 +257,13 @@ struct ExerciseCard: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(completedSets, id: \.self) { set in
-                                CompletedSetChip(set: set, workoutType: effectiveWorkoutType)
+                                let priorPeer = cachedPreviousSets.first { $0.setNumber == set.setNumber }
+                                let progression = SetProgression.compare(current: set, prior: priorPeer)
+                                CompletedSetChip(
+                                    set: set,
+                                    workoutType: effectiveWorkoutType,
+                                    progression: progression
+                                )
                                     .contextMenu {
                                         Button(role: .destructive) {
                                             deleteSet(set)
@@ -523,6 +556,25 @@ struct ExerciseCard: View {
                         return $0.setNumber < $1.setNumber
                     }
             }
+            if sessionsWithExercise.count >= 2 {
+                let penultimate = sessionsWithExercise[1]
+                cachedPenultimateSets = penultimate.sets
+                    .filter { $0.exerciseName == exercise.name }
+                    .sorted {
+                        if $0.date != $1.date { return $0.date < $1.date }
+                        return $0.setNumber < $1.setNumber
+                    }
+            }
+            // All-time best estimated 1RM across every prior session.
+            var best: Double = 0
+            for session in sessionsWithExercise {
+                for set in session.sets where set.exerciseName == exercise.name {
+                    guard set.weight > 0, set.reps > 0 else { continue }
+                    let e1RM = set.weight * (1.0 + Double(set.reps) / 30.0)
+                    if e1RM > best { best = e1RM }
+                }
+            }
+            personalBestE1RM = best
             
             if let firstSet = completedSets.first, let comment = firstSet.comment {
                 exerciseComment = comment
@@ -663,6 +715,16 @@ struct ExerciseCard: View {
         let seconds = Int(timeInterval) % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
+
+    private func formatBest(_ value: Double) -> String {
+        if value >= 100 {
+            return String(format: "%.0f", value)
+        }
+        if value.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f", value)
+        }
+        return String(format: "%.1f", value)
+    }
 }
 
 // MARK: - Completed Set Chip Component
@@ -670,7 +732,8 @@ struct ExerciseCard: View {
 struct CompletedSetChip: View {
     let set: WorkoutSet
     let workoutType: WorkoutType
-    
+    var progression: SetProgression = .noBaseline
+
     var body: some View {
         HStack(spacing: 6) {
             // Set number badge
@@ -685,6 +748,12 @@ struct CompletedSetChip: View {
             Text(setDetails)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white)
+
+            if progression != .noBaseline {
+                Image(systemName: progression.icon)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(progression.color)
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -716,10 +785,9 @@ struct CompletedSetChip: View {
             } else {
                 return "Готово".localized()
             }
-            }
         }
+    }
 
-    
     private var formattedWeight: String {
         let w = set.weight
         if w.truncatingRemainder(dividingBy: 1) == 0 {

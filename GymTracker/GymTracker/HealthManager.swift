@@ -46,7 +46,12 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
             workoutType,
             activitySummaryType,
             HKObjectType.quantityType(forIdentifier: .restingHeartRate)!,
-            HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
+            HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
+            HKObjectType.quantityType(forIdentifier: .stepCount)!,
+            HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+            HKObjectType.quantityType(forIdentifier: .vo2Max)!,
+            HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!,
+            HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!
         ]
         let writeTypes: Set<HKSampleType> = [energyType, workoutType]
         
@@ -383,6 +388,161 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
     private func itemValue(_ sample: HKQuantitySample, unit: HKUnit) -> Double {
         return sample.quantity.doubleValue(for: unit)
     }
+
+    // MARK: - Health Stats Helpers (Steps / VO2 / Exercise minutes / Basal energy / Weekly workouts)
+
+    /// Returns daily step counts for the last `days` days (oldest first), aligned to local-day boundaries.
+    func fetchDailySteps(days: Int = 7) async -> [DailyHealthValue] {
+        guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return [] }
+        return await fetchDailySumStatistics(type: stepType, unit: .count(), days: days)
+    }
+
+    /// Total steps for the current week (Monday-based locale aware).
+    func fetchWeeklyStepsTotal() async -> Int {
+        let values = await fetchDailySteps(days: 7)
+        return Int(values.reduce(0) { $0 + $1.value })
+    }
+
+    /// Average VO2 Max over the last 30 days (ml/kg·min). Returns 0 if no data.
+    func fetchVO2Max() async -> Double {
+        let store = self.healthStore
+        return await Task.detached(priority: .userInitiated) {
+            guard let vo2Type = HKQuantityType.quantityType(forIdentifier: .vo2Max) else { return 0.0 }
+            let endDate = Date()
+            guard let startDate = Calendar.current.date(byAdding: .day, value: -30, to: endDate) else { return 0.0 }
+            let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+            let unit = HKUnit(from: "ml/kg*min")
+
+            return await withCheckedContinuation { continuation in
+                let query = HKStatisticsQuery(quantityType: vo2Type, quantitySamplePredicate: predicate, options: .discreteAverage) { _, result, _ in
+                    guard let avg = result?.averageQuantity() else {
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    continuation.resume(returning: avg.doubleValue(for: unit))
+                }
+                store.execute(query)
+            }
+        }.value
+    }
+
+    /// Daily exercise minutes for the last `days` days (oldest first).
+    func fetchDailyExerciseMinutes(days: Int = 7) async -> [DailyHealthValue] {
+        guard let exType = HKQuantityType.quantityType(forIdentifier: .appleExerciseTime) else { return [] }
+        return await fetchDailySumStatistics(type: exType, unit: .minute(), days: days)
+    }
+
+    /// Total exercise minutes for the last 7 days.
+    func fetchWeeklyExerciseMinutesTotal() async -> Int {
+        let values = await fetchDailyExerciseMinutes(days: 7)
+        return Int(values.reduce(0) { $0 + $1.value })
+    }
+
+    /// Resting (basal) energy burned today in kcal.
+    func fetchTodayBasalEnergy() async -> Double {
+        guard let basalType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned) else { return 0 }
+        let store = self.healthStore
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: Date(), options: .strictStartDate)
+
+        return await withCheckedContinuation { continuation in
+            let query = HKStatisticsQuery(quantityType: basalType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, _ in
+                continuation.resume(returning: result?.sumQuantity()?.doubleValue(for: .kilocalorie()) ?? 0)
+            }
+            store.execute(query)
+        }
+    }
+
+    /// Daily basal energy for the last `days` days.
+    func fetchDailyBasalEnergy(days: Int = 7) async -> [DailyHealthValue] {
+        guard let basalType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned) else { return [] }
+        return await fetchDailySumStatistics(type: basalType, unit: .kilocalorie(), days: days)
+    }
+
+    /// HKWorkout count for the last 7 days.
+    func fetchWorkoutsThisWeek() async -> Int {
+        let store = self.healthStore
+        let endDate = Date()
+        guard let startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate) else { return 0 }
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: HKObjectType.workoutType(), predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
+                continuation.resume(returning: samples?.count ?? 0)
+            }
+            store.execute(query)
+        }
+    }
+
+    /// Daily workout counts for the last `days` days.
+    func fetchDailyWorkoutCounts(days: Int = 7) async -> [DailyHealthValue] {
+        let store = self.healthStore
+        let calendar = Calendar.current
+        let endDate = calendar.startOfDay(for: Date()).addingTimeInterval(86400) // tomorrow midnight
+        guard let startDate = calendar.date(byAdding: .day, value: -days, to: endDate) else { return [] }
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+
+        let samples: [HKWorkout] = await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: HKObjectType.workoutType(), predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
+                continuation.resume(returning: (samples as? [HKWorkout]) ?? [])
+            }
+            store.execute(query)
+        }
+
+        var buckets: [Date: Int] = [:]
+        for sample in samples {
+            let day = calendar.startOfDay(for: sample.startDate)
+            buckets[day, default: 0] += 1
+        }
+
+        var result: [DailyHealthValue] = []
+        for offset in (1...days).reversed() {
+            if let day = calendar.date(byAdding: .day, value: -offset + 1, to: calendar.startOfDay(for: Date())) {
+                result.append(DailyHealthValue(date: day, value: Double(buckets[day] ?? 0)))
+            }
+        }
+        return result
+    }
+
+    // MARK: - Private statistics-collection helper
+
+    private func fetchDailySumStatistics(type: HKQuantityType, unit: HKUnit, days: Int) async -> [DailyHealthValue] {
+        let store = self.healthStore
+        let calendar = Calendar.current
+        let endDate = calendar.startOfDay(for: Date()).addingTimeInterval(86400) // tomorrow start
+        guard let startDate = calendar.date(byAdding: .day, value: -days, to: endDate) else { return [] }
+
+        let interval = DateComponents(day: 1)
+        let anchorComponents = calendar.dateComponents([.day, .month, .year], from: calendar.startOfDay(for: Date()))
+        guard let anchorDate = calendar.date(from: anchorComponents) else { return [] }
+
+        return await withCheckedContinuation { continuation in
+            let query = HKStatisticsCollectionQuery(
+                quantityType: type,
+                quantitySamplePredicate: HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate),
+                options: .cumulativeSum,
+                anchorDate: anchorDate,
+                intervalComponents: interval
+            )
+            query.initialResultsHandler = { _, results, _ in
+                var output: [DailyHealthValue] = []
+                results?.enumerateStatistics(from: startDate, to: endDate) { stat, _ in
+                    let value = stat.sumQuantity()?.doubleValue(for: unit) ?? 0
+                    output.append(DailyHealthValue(date: stat.startDate, value: value))
+                }
+                continuation.resume(returning: output)
+            }
+            store.execute(query)
+        }
+    }
+}
+
+// MARK: - Daily value model
+struct DailyHealthValue: Identifiable, Hashable {
+    let id = UUID()
+    let date: Date
+    let value: Double
 }
 
 // MARK: - Sleep Structures

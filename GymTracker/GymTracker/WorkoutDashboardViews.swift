@@ -124,63 +124,170 @@ struct TodayWorkoutCard: View {
     
     // MARK: - Idle State (Start Workout)
     private var idleContent: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("План на сегодня".localized().localizedUppercase)
-                        .font(DesignSystem.Typography.sectionHeader())
-                        .foregroundStyle(DesignSystem.Colors.secondaryText)
-                        .tracking(1.2)
-                    
-                    if let day = workoutManager.selectedDay {
-                        Text(day.name.localized())
-                            .font(DesignSystem.Typography.title2())
-                            .foregroundStyle(DesignSystem.Colors.primaryText)
-                    } else {
-                        Text("rest_day_title".localized())
-                            .font(DesignSystem.Typography.title2())
-                            .foregroundStyle(DesignSystem.Colors.primaryText)
+        ZStack(alignment: .topTrailing) {
+            // Subtle neon mesh accents
+            RadialGradient(
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.20), .clear],
+                center: .topTrailing,
+                startRadius: 4,
+                endRadius: 220
+            )
+            .allowsHitTesting(false)
+
+            RadialGradient(
+                colors: [DesignSystem.Colors.accentPurple.opacity(0.14), .clear],
+                center: .bottomLeading,
+                startRadius: 4,
+                endRadius: 200
+            )
+            .allowsHitTesting(false)
+
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
+                // Header row with bright "TODAY" tag + day selector
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(DesignSystem.Colors.neonGreen)
+                                .frame(width: 6, height: 6)
+                                .shadow(color: DesignSystem.Colors.neonGreen, radius: 4)
+                            Text("План на сегодня".localized().localizedUppercase)
+                                .font(DesignSystem.Typography.sectionHeader())
+                                .foregroundStyle(DesignSystem.Colors.neonGreen)
+                                .tracking(1.4)
+                        }
+
+                        if let day = workoutManager.selectedDay {
+                            Text(day.name.localized())
+                                .font(DesignSystem.Typography.title())
+                                .foregroundStyle(DesignSystem.Colors.primaryText)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.8)
+                        } else {
+                            Text("rest_day_title".localized())
+                                .font(DesignSystem.Typography.title())
+                                .foregroundStyle(DesignSystem.Colors.primaryText)
+                        }
+                    }
+
+                    Spacer()
+
+                    Button(action: { showingDaySelection = true }) {
+                        Image(systemName: "list.dash")
+                            .font(.title3)
+                            .foregroundStyle(DesignSystem.Colors.neonGreen)
+                            .padding(12)
+                            .background(
+                                Circle()
+                                    .fill(DesignSystem.Colors.neonGreen.opacity(0.12))
+                            )
+                            .overlay(
+                                Circle().stroke(DesignSystem.Colors.neonGreen.opacity(0.4), lineWidth: 1)
+                            )
+                            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.45), radius: 12)
                     }
                 }
-                
-                Spacer()
-                
-                // Day Selector
-                Button(action: { showingDaySelection = true }) {
-                    Image(systemName: "list.dash")
-                        .font(.title2)
-                        .foregroundStyle(DesignSystem.Colors.neonGreen)
-                        .padding(10)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.3), radius: 10)
+
+                // Stats chips row
+                if let day = workoutManager.selectedDay {
+                    HStack(spacing: 10) {
+                        statChip(
+                            icon: "dumbbell.fill",
+                            value: "\(day.exercises.count)",
+                            label: "упр.".localized(),
+                            tint: DesignSystem.Colors.neonGreen
+                        )
+                        statChip(
+                            icon: "list.number",
+                            value: "\(estimatedSets(for: day))",
+                            label: "подходов".localized(),
+                            tint: Color(red: 0.45, green: 0.85, blue: 1.0)
+                        )
+                        statChip(
+                            icon: "clock.fill",
+                            value: "~\(estimatedMinutes(for: day))",
+                            label: "мин".localized(),
+                            tint: Color(red: 1.0, green: 0.7, blue: 0.2)
+                        )
+                    }
                 }
-            }
-            
-            Divider().background(Color.white.opacity(0.1))
-            
-            // Start Button
-            Button(action: { workoutManager.startWorkout() }) {
-                HStack {
-                    Spacer()
-                    Text(workoutManager.selectedDay == nil ? "select_program_button".localized() : "start_workout_button".localized())
-                        .font(DesignSystem.Typography.headline())
-                        .fontWeight(.bold)
-                    Image(systemName: "play.fill")
-                    Spacer()
+
+                // Start Button
+                Button(action: { workoutManager.startWorkout() }) {
+                    HStack(spacing: 12) {
+                        Spacer()
+                        ZStack {
+                            Circle()
+                                .fill(.black.opacity(0.18))
+                                .frame(width: 32, height: 32)
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 14, weight: .heavy))
+                                .foregroundStyle(.black)
+                        }
+                        Text(workoutManager.selectedDay == nil ? "select_program_button".localized() : "start_workout_button".localized())
+                            .font(DesignSystem.Typography.title3())
+                            .fontWeight(.heavy)
+                        Spacer()
+                    }
+                    .padding(.vertical, 14)
+                    .background(
+                        ZStack {
+                            LinearGradient(
+                                colors: [
+                                    DesignSystem.Colors.neonGreen,
+                                    Color(red: 0.6, green: 0.9, blue: 0.15)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                            // Inner sheen
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.25), .clear],
+                                startPoint: .top,
+                                endPoint: .center
+                            )
+                        }
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+                    .foregroundStyle(.black)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 18, x: 0, y: 10)
                 }
-                .padding()
-                .background(
-                    LinearGradient(colors: [DesignSystem.Colors.neonGreen, Color(red: 0.6, green: 0.9, blue: 0.15)], startPoint: .leading, endPoint: .trailing)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small))
-                .foregroundStyle(.black)
-                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 15, x: 0, y: 8)
+                .disabled(workoutManager.selectedDay == nil)
+                .opacity(workoutManager.selectedDay == nil ? 0.6 : 1)
+                .accessibilityIdentifier("btn_start_workout")
             }
-            .disabled(workoutManager.selectedDay == nil)
-            .opacity(workoutManager.selectedDay == nil ? 0.6 : 1)
-            .accessibilityIdentifier("btn_start_workout")
         }
+    }
+
+    @ViewBuilder
+    private func statChip(icon: String, value: String, label: String, tint: Color) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(tint)
+            Text(value)
+                .font(DesignSystem.Typography.monospaced(.subheadline, weight: .bold))
+                .foregroundStyle(DesignSystem.Colors.primaryText)
+            Text(label)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(tint.opacity(0.10))
+        .overlay(
+            Capsule().stroke(tint.opacity(0.25), lineWidth: 0.5)
+        )
+        .clipShape(Capsule())
+    }
+
+    private func estimatedSets(for day: WorkoutDay) -> Int {
+        day.exercises.reduce(0) { $0 + max(1, $1.plannedSets) }
+    }
+
+    private func estimatedMinutes(for day: WorkoutDay) -> Int {
+        // Rough heuristic: 4 min per set including rest
+        max(15, estimatedSets(for: day) * 4)
     }
     
     // MARK: - Active State (Workout In Progress)
@@ -608,18 +715,31 @@ struct DashboardView: View {
     // CRITICAL FIX: Limit query to prevent freeze with large datasets
     // Only fetch last 100 workouts instead of ALL workouts
     @State private var history: [WorkoutSession] = []
+    @State private var totalCompletedCount: Int = 0
     
     private var recentHistory: [WorkoutSession] {
         Array(history.prefix(1))
+    }
+
+    private var previousSession: WorkoutSession? {
+        history.dropFirst().first
     }
     
     private var daysSinceLastWorkout: Int {
         guard let lastDate = history.first?.date else { return 0 }
         return Calendar.current.dateComponents([.day], from: lastDate, to: Date()).day ?? 0
     }
-    
 
-    
+    private var workoutsThisWeek: Int {
+        var cal = Calendar(identifier: .gregorian)
+        cal.firstWeekday = 2
+        let today = cal.startOfDay(for: Date())
+        let weekday = cal.component(.weekday, from: today)
+        let daysFromMonday = (weekday + 5) % 7
+        guard let monday = cal.date(byAdding: .day, value: -daysFromMonday, to: today) else { return 0 }
+        return history.filter { $0.date >= monday }.count
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: DesignSystem.Spacing.xl) {
@@ -627,19 +747,11 @@ struct DashboardView: View {
                 ExpandableCalendarView()
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                     .transition(.move(edge: .top).combined(with: .opacity))
-                
-                // Activity Rings (Hero Health Section)
-                ActivityRingsCard()
+
+                // NEW: Weekly streak strip (bright, always visible)
+                WeeklyStreakStrip(sessions: history)
                     .padding(.horizontal, DesignSystem.Spacing.lg)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                
-                // Full Width Chart (Show only if data exists)
-                if !history.isEmpty {
-                    WorkoutProgressChart(sessions: history)
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                }
-                
+
                 // MARK: - Today's Plan (Action Hero Card)
                 TodayWorkoutCard(
                     workoutManager: workoutManager,
@@ -647,6 +759,28 @@ struct DashboardView: View {
                     onOpenWorkout: { }
                 )
                 .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                // NEW: AI Coach widget (post-workout recommendations)
+                AICoachWidget(
+                    lastSession: recentHistory.first,
+                    previousSession: previousSession
+                )
+                .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                // Activity / Achievements (smart: rings if Apple Watch, achievements otherwise)
+                ActivityHeroSection(
+                    totalWorkouts: totalCompletedCount,
+                    workoutsThisWeek: workoutsThisWeek
+                )
+                .padding(.horizontal, DesignSystem.Spacing.lg)
+                .transition(.move(edge: .top).combined(with: .opacity))
+
+                // Full Width Chart (Show only if data exists)
+                if !history.isEmpty {
+                    WorkoutProgressChart(sessions: history)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                }
                 
                 // Last Workout Preview (moved to main column)
                 if let lastSession = recentHistory.first {
@@ -667,10 +801,21 @@ struct DashboardView: View {
             )
             // CRITICAL: Limit to 100 most recent to prevent freeze with thousands of workouts
             descriptor.fetchLimit = 100
-            
+
             if let fetchedHistory = try? modelContext.fetch(descriptor) {
                 await MainActor.run {
                     self.history = fetchedHistory
+                }
+            }
+
+            // Total count without loading all entities
+            var countDescriptor = FetchDescriptor<WorkoutSession>(
+                predicate: #Predicate { $0.isCompleted == true }
+            )
+            countDescriptor.fetchLimit = 0
+            if let total = try? modelContext.fetchCount(countDescriptor) {
+                await MainActor.run {
+                    self.totalCompletedCount = total
                 }
             }
         }
