@@ -68,11 +68,12 @@ struct DayEditorView: View {
                         }
                     }
                     .onMove { source, destination in
+                        guard let firstSource = source.first else { return }
                         let movedExercises = source.map { day.exercises[$0] }
                         for index in source.sorted(by: >) {
                             day.exercises.remove(at: index)
                         }
-                        let adjustedDestination = destination > source.first! ? destination - source.count : destination
+                        let adjustedDestination = destination > firstSource ? destination - source.count : destination
                         day.exercises.insert(contentsOf: movedExercises, at: adjustedDestination)
                         reindexExercises()
                     }

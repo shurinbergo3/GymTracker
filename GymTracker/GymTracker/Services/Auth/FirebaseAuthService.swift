@@ -44,7 +44,7 @@ final class FirebaseAuthService: AuthenticationService {
             withPresenting: rootViewController
         )
         
-        let credential = createGoogleCredential(from: signInResult.user)
+        let credential = try createGoogleCredential(from: signInResult.user)
         _ = try await Auth.auth().signIn(with: credential)
     }
     
@@ -80,11 +80,13 @@ final class FirebaseAuthService: AuthenticationService {
         return window.rootViewController
     }
     
-    private func createGoogleCredential(from user: GIDGoogleUser) -> AuthCredential {
+    private func createGoogleCredential(from user: GIDGoogleUser) throws -> AuthCredential {
+        // SECURITY/STABILITY: раньше тут был fatalError(), что роняло приложение,
+        // если Google вернул пользователя без idToken. Теперь возвращаем typed error.
         guard let idToken = user.idToken?.tokenString else {
-            fatalError("Missing ID token")
+            throw AuthError.missingIDToken
         }
-        
+
         return GoogleAuthProvider.credential(
             withIDToken: idToken,
             accessToken: user.accessToken.tokenString
@@ -97,4 +99,5 @@ final class FirebaseAuthService: AuthenticationService {
 enum AuthError: Error {
     case missingClientID
     case noRootViewController
+    case missingIDToken
 }

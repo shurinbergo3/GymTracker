@@ -45,7 +45,7 @@ final class SignInWithAppleCoordinator: NSObject {
     private static func randomNonceString(length: Int = 32) -> String {
         precondition(length > 0)
         let charset: [Character] =
-            Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+            Array("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._")
         var result = ""
         var remaining = length
         while remaining > 0 {

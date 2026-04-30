@@ -177,30 +177,37 @@ struct ExerciseTechniqueDetailView: View {
                 return
             }
         }
-        
+
+        // SECURITY: разрешаем только http(s) и youtube://. Без allowlist хранимый
+        // в БД videoUrl мог содержать tel://, sms://, mailto:// или сторонние схемы,
+        // а UIApplication.shared.open мог бы их сработать.
+        guard let parsed = URL(string: urlString),
+              let scheme = parsed.scheme?.lowercased(),
+              ["http", "https"].contains(scheme),
+              let host = parsed.host?.lowercased(),
+              host == "youtube.com" || host == "www.youtube.com" || host == "m.youtube.com" || host == "youtu.be" else {
+            #if DEBUG
+            print("⚠️ openVideo: rejected non-YouTube URL \(urlString)")
+            #endif
+            return
+        }
+
         // 2. Try to open in YouTube App (youtube:// scheme)
-        // Standard YouTube links: https://www.youtube.com/watch?v=... -> youtube://watch?v=...
-        // Search links: https://www.youtube.com/results?... -> youtube://results?...
-        // Short links: https://youtu.be/ID -> need expansion, but keeping simple for now.
-        // Simple heuristic: replace scheme.
-        
         let appUrlString = urlString
             .replacingOccurrences(of: "https://", with: "youtube://")
             .replacingOccurrences(of: "http://", with: "youtube://")
-            
+
         if let appUrl = URL(string: appUrlString), UIApplication.shared.canOpenURL(appUrl) {
             UIApplication.shared.open(appUrl)
             return
         }
-        
-        // 3. Fallback to Browser (Prioritize Mobile)
-        // Ensure we force mobile site if it's a generic www link, though modern iOS usually handles this well.
-        // But for explicit mobile preference:
+
+        // 3. Fallback to mobile browser
         var webUrlString = urlString
         if webUrlString.contains("www.youtube.com") {
              webUrlString = webUrlString.replacingOccurrences(of: "www.youtube.com", with: "m.youtube.com")
         }
-        
+
         if let webUrl = URL(string: webUrlString) {
             UIApplication.shared.open(webUrl)
         }
