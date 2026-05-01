@@ -14,6 +14,13 @@ struct ActiveWorkoutHeader: View {
     // Timer properties
     @State private var progress: CGFloat = 0.0
     
+    private var totalTonnage: Int {
+        guard let session = workoutManager.currentSession else { return 0 }
+        return session.sets
+            .filter { $0.isCompleted && $0.isWeighted }
+            .reduce(0) { $0 + Int($1.weight * Double($1.reps)) }
+    }
+    
     var body: some View {
         // Раньше было 0.1с (10 Hz) — это перерисовывало весь header 10 раз в секунду
         // и было главным источником разряда батареи во время активной тренировки.
@@ -71,18 +78,20 @@ struct ActiveWorkoutHeader: View {
                 
                 Spacer()
                 
-                // 3. Calories (Right)
+                // 3. Tonnage (Right) — личная история «сколько я поднял»
                 HStack(spacing: 8) {
-                    Image(systemName: "flame.fill")
+                    Image(systemName: "scalemass.fill")
                         .font(.system(size: 16))
-                        .foregroundColor(.orange)
-                        .shadow(color: .orange.opacity(0.5), radius: 5)
+                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 5)
                     
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("\(workoutManager.currentActiveCalories)")
+                        Text("\(totalTonnage)")
                             .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                             .foregroundColor(DesignSystem.Colors.primaryText)
-                        Text("KCAL".localized())
+                            .contentTransition(.numericText())
+                            .animation(.easeOut(duration: 0.35), value: totalTonnage)
+                        Text("KG".localized())
                             .font(DesignSystem.Typography.sectionHeader())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .tracking(1.0)

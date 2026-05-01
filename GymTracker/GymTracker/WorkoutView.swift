@@ -55,7 +55,7 @@ struct WorkoutView: View {
                         DashboardView() // settings handled by parent toolbar now
                             .environmentObject(workoutManager)
                     case .countdown:
-                        CountdownView {
+                        CountdownView(dayName: workoutManager.selectedDay?.name) {
                             workoutManager.beginActiveSession()
                         }
                     case .active:

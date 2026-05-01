@@ -32,6 +32,17 @@ class WorkoutManager: ObservableObject {
     // Live Stats
     @Published var currentHeartRate: Int = 0
     @Published var currentActiveCalories: Int = 0
+
+    // Real-time gamification triggers (driven by ExerciseCard.saveCurrentSet)
+    @Published var setCompletionTick: Int = 0
+    @Published var prFlashTrigger: Int = 0
+
+    func notifySetCompleted(isPR: Bool) {
+        setCompletionTick &+= 1
+        if isPR {
+            prFlashTrigger &+= 1
+        }
+    }
     
     // HealthKit workout type selection
     private var selectedActivityType: HKWorkoutActivityType = .functionalStrengthTraining

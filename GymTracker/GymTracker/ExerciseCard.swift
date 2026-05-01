@@ -11,6 +11,7 @@ import Combine
 
 struct ExerciseCard: View {
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var workoutManager: WorkoutManager
     let exercise: ExerciseTemplate
     let programName: String
     let session: WorkoutSession?
@@ -624,8 +625,27 @@ struct ExerciseCard: View {
             set.duration = elapsedTime > 0 ? elapsedTime : (Double(duration) ?? 0)
             set.distance = Double(distance)
         }
-        
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+
+        // PR detection (Epley 1RM): compare to all-time best for this exercise.
+        // Only meaningful for strength sets with weight > 0 and reps > 0.
+        var isPR = false
+        if effectiveWorkoutType == .strength,
+           weightVal > 0, repsVal > 0,
+           personalBestE1RM > 0 {
+            let newE1RM = weightVal * (1.0 + Double(repsVal) / 30.0)
+            // 0.5 kg buffer to avoid noise from rounding
+            if newE1RM > personalBestE1RM + 0.5 {
+                isPR = true
+            }
+        }
+
+        if isPR {
+            // Heavier haptic for personal record — feels different from a normal set.
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        } else {
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        }
         
         if !exerciseComment.isEmpty {
             set.comment = exerciseComment
@@ -638,6 +658,9 @@ struct ExerciseCard: View {
         modelContext.insert(set)
         session.sets.append(set)
         try? modelContext.save()
+
+        // Notify the gamification strip so it can pulse / flash for a PR.
+        workoutManager.notifySetCompleted(isPR: isPR)
         
         // Start rest timer only if NOT the last planned set
         // Don't start timer if user just completed their last planned set

@@ -24730,7 +24730,7 @@
         }
       }
     },
-    "Тренировок": {
+    "calendar_workouts_count_label": {
       "extractionState": "manual",
       "localizations": {
         "en": {

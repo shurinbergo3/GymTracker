@@ -213,24 +213,29 @@ struct CalorieCalculatorView: View {
               let weightDouble = Double(weight) else {
             return
         }
-        
+        // Защита от нулевых/отрицательных значений: иначе Mifflin-St Jeor выдаёт
+        // отрицательные/нулевые калории (например 5 ккал для мужчины с весом 0).
+        guard ageDouble > 0, heightDouble > 0, weightDouble > 0 else {
+            return
+        }
+
         // Mifflin-St Jeor Equation
         // Men: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) + 5
         // Women: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) - 161
-        
+
         var bmr: Double = (10 * weightDouble) + (6.25 * heightDouble) - (5 * ageDouble)
-        
+
         if gender == .male {
             bmr += 5
         } else {
             bmr -= 161
         }
-        
+
         let tdee = bmr * activityLevel.rawValue
         let targetCalories = tdee * goal.rawValue
-        
-        resultCalories = Int(targetCalories)
-        
+
+        resultCalories = max(0, Int(targetCalories))
+
         // Hide keyboard
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }

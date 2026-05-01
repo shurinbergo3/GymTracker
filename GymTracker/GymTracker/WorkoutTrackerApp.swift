@@ -76,22 +76,8 @@ struct WorkoutTrackerApp: App {
         WindowGroup {
             ZStack {
                 if isCheckingAuth {
-                    // Loading / Splash Screen
-                    ZStack(alignment: .bottom) {
-                        Color.black.ignoresSafeArea()
-
-                        Image("LaunchScreen")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                        ProgressView()
-                            .tint(DesignSystem.Colors.neonGreen)
-                            .scaleEffect(1.5)
-                            .padding(.bottom, 60)
-                    }
-                    .ignoresSafeArea()
-                    .transition(.opacity)
+                    LaunchScreenView()
+                        .transition(.opacity)
                 } else {
                     Group {
                         if authManager.isLoggedIn {

@@ -93,7 +93,7 @@ struct CalendarSheet: View {
             statTile(
                 icon: "dumbbell.fill",
                 value: "\(workoutsThisMonth)",
-                label: String(localized: "Тренировок"),
+                label: String(localized: "calendar_workouts_count_label"),
                 tint: DesignSystem.Colors.neonGreen
             )
             statTile(
