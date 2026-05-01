@@ -59,6 +59,9 @@
         }
       }
     },
+    "· %@" : {
+
+    },
     "«Кругом враги», депрессивность, рабство страстей, невозможность отказать себе во вредном." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -118,34 +121,64 @@
         }
       }
     },
+    "%@ %@ %@ e1RM" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@ %3$@ e1RM"
+          }
+        }
+      }
+    },
     "%@ %lld" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %lld"
+          }
+        },
         "ru" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ %2$lld"
           }
-        },
-        "en" : {
+        }
+      }
+    },
+    "%@ %lld → %@" : {
+      "localizations" : {
+        "ru" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ %lld"
+            "state" : "new",
+            "value" : "%1$@ %2$lld → %3$@"
           }
         }
       }
     },
     "%@ %lld:" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %lld:"
+          }
+        },
         "ru" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ %2$lld:"
           }
-        },
-        "en" : {
+        }
+      }
+    },
+    "%@ → %@ %@" : {
+      "localizations" : {
+        "ru" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ %lld:"
+            "state" : "new",
+            "value" : "%1$@ → %2$@ %3$@"
           }
         }
       }
@@ -189,32 +222,32 @@
     },
     "%lld %@" : {
       "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld %2$@"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@"
           }
         }
       }
     },
     "%lld %@ × %lld" : {
       "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld %2$@ × %3$lld"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld %@ × %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@ × %3$lld"
           }
         }
       }
@@ -417,16 +450,16 @@
     },
     "%lld/%lld" : {
       "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld/%2$lld"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld/%lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld"
           }
         }
       }
@@ -481,6 +514,12 @@
           }
         }
       }
+    },
+    "%lld/5" : {
+
+    },
+    "%lld/7" : {
+
     },
     "%lld%%" : {
       "localizations" : {
@@ -3018,6 +3057,9 @@
         }
       }
     },
+    "d" : {
+
+    },
     "data_management_section" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3067,6 +3109,9 @@
           }
         }
       }
+    },
+    "Day" : {
+
     },
     "Day Lower" : {
       "localizations" : {
@@ -6201,6 +6246,12 @@
           }
         }
       }
+    },
+    "v" : {
+
+    },
+    "Value" : {
+
     },
     "Vegetables" : {
       "extractionState" : "manual",
