@@ -5,7 +5,7 @@
 //  Bright, motivating hub used when the user has no Apple Watch /
 //  Activity Rings data. Shows level, XP progress, weekly goal,
 //  total workouts and next milestone — so progress feels rewarding
-//  even without ring data.
+//  even without ring data. Tappable: opens AchievementsDetailView.
 //
 
 import SwiftUI
@@ -34,6 +34,8 @@ struct AchievementsHubCard: View {
     let totalWorkouts: Int
     let workoutsThisWeek: Int
     let weeklyGoal: Int
+    /// Set of normalized days (startOfDay) on which the user trained — used for streak.
+    var trainedDays: Set<Date> = []
 
     private var level: Int { max(1, totalWorkouts / 5 + 1) }
     private var xpInLevel: Int { totalWorkouts % 5 }
@@ -43,8 +45,30 @@ struct AchievementsHubCard: View {
         milestones.first { $0.workouts > totalWorkouts }
     }
 
-    private var unlockedCount: Int {
-        milestones.filter { $0.workouts <= totalWorkouts }.count
+    /// Current streak counted from today/yesterday backwards.
+    private var currentStreak: Int {
+        let cal = Calendar.current
+        var current = cal.startOfDay(for: Date())
+        var count = 0
+        if !trainedDays.contains(current) {
+            guard let y = cal.date(byAdding: .day, value: -1, to: current) else { return 0 }
+            current = y
+        }
+        while trainedDays.contains(current) {
+            count += 1
+            guard let prev = cal.date(byAdding: .day, value: -1, to: current) else { break }
+            current = prev
+        }
+        return count
+    }
+
+    /// True when the user trained yesterday but not today and the streak is at risk.
+    private var streakInDanger: Bool {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        guard !trainedDays.contains(today) else { return false }
+        guard let yesterday = cal.date(byAdding: .day, value: -1, to: today) else { return false }
+        return trainedDays.contains(yesterday)
     }
 
     var body: some View {
@@ -53,6 +77,7 @@ struct AchievementsHubCard: View {
             xpBar
             milestonesRow
             footerRow
+            tapHint
         }
         .padding(DesignSystem.Spacing.lg)
         .background(background)
@@ -78,25 +103,8 @@ struct AchievementsHubCard: View {
     // MARK: - Header
     private var header: some View {
         HStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color(red: 1.0, green: 0.7, blue: 0.2),
-                                Color(red: 1.0, green: 0.4, blue: 0.55)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 50, height: 50)
-                    .shadow(color: Color(red: 1.0, green: 0.55, blue: 0.2).opacity(0.6), radius: 12)
-
-                Image(systemName: "bolt.fill")
-                    .font(.system(size: 22, weight: .heavy))
-                    .foregroundStyle(.black)
-            }
+            // Avatar (uses the actual user photo / initials when signed in)
+            AvatarView(size: 50)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Уровень \(level)".localized().localizedUppercase)
@@ -165,7 +173,7 @@ struct AchievementsHubCard: View {
     // MARK: - Milestones row
     private var milestonesRow: some View {
         HStack(spacing: 8) {
-            ForEach(Array(milestones.enumerated()), id: \.offset) { idx, milestone in
+            ForEach(Array(milestones.enumerated()), id: \.offset) { _, milestone in
                 let unlocked = milestone.workouts <= totalWorkouts
                 VStack(spacing: 4) {
                     ZStack {
@@ -222,7 +230,7 @@ struct AchievementsHubCard: View {
                     Image(systemName: next.icon)
                         .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(next.tint)
-                    Text("\("ещё".localized()) \(remaining) → \(next.title)")
+                    Text("\("ещё".localized()) \(remaining) → \(next.title.localized())")
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(DesignSystem.Colors.primaryText)
                 }
@@ -234,7 +242,77 @@ struct AchievementsHubCard: View {
         }
     }
 
+    // MARK: - Tap hint / motivation message
+
+    @ViewBuilder
+    private var tapHint: some View {
+        let message = motivationalMessage()
+        HStack(spacing: 8) {
+            Image(systemName: message.icon)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(message.tint)
+            Text(message.text)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(DesignSystem.Colors.primaryText)
+                .lineLimit(2)
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(DesignSystem.Colors.tertiaryText)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(message.tint.opacity(0.10))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(message.tint.opacity(0.20), lineWidth: 0.5)
+        )
+    }
+
     // MARK: - Helpers
+    private struct MotivationMessage {
+        let text: String
+        let icon: String
+        let tint: Color
+    }
+
+    private func motivationalMessage() -> MotivationMessage {
+        if streakInDanger {
+            return MotivationMessage(
+                text: "Серия в опасности — тренируйся сегодня".localized(),
+                icon: "exclamationmark.triangle.fill",
+                tint: .orange
+            )
+        }
+        if currentStreak >= 3 {
+            return MotivationMessage(
+                text: "\(currentStreak) дней подряд! Не останавливайся.".localized(),
+                icon: "flame.fill",
+                tint: .red
+            )
+        }
+        if workoutsThisWeek >= weeklyGoal {
+            return MotivationMessage(
+                text: "Недельная цель выполнена 🔥".localized(),
+                icon: "checkmark.seal.fill",
+                tint: DesignSystem.Colors.neonGreen
+            )
+        }
+        if totalWorkouts == 0 {
+            return MotivationMessage(
+                text: "Начни первую тренировку — XP начнут расти".localized(),
+                icon: "sparkles",
+                tint: Color(red: 1.0, green: 0.7, blue: 0.2)
+            )
+        }
+        return MotivationMessage(
+            text: "Подробнее: статистика, награды, серия".localized(),
+            icon: "chart.bar.fill",
+            tint: DesignSystem.Colors.accentPurple
+        )
+    }
+
     private func athleteTitle(for level: Int) -> String {
         switch level {
         case 1...2:   return "Новичок".localized()
@@ -277,40 +355,57 @@ struct ActivityHeroSection: View {
     let totalWorkouts: Int
     let workoutsThisWeek: Int
     var weeklyGoal: Int = 4
+    /// Pass workout history so the card can compute streaks / motivation.
+    var history: [WorkoutSession] = []
+    /// Tap handler — opens detailed achievements view when the card is tapped.
+    var onTap: (() -> Void)? = nil
 
+    @AppStorage("isAppleWatchEnabled") private var isAppleWatchEnabled = true
     @State private var hasActivityRingsData: Bool? = nil  // nil = not yet checked
+
+    private var trainedDays: Set<Date> {
+        Set(history.map { Calendar.current.startOfDay(for: $0.date) })
+    }
 
     var body: some View {
         Group {
-            switch hasActivityRingsData {
-            case .some(true):
+            // Show rings only if user explicitly enabled Apple Watch and HealthKit has data.
+            if isAppleWatchEnabled, hasActivityRingsData == true {
                 ActivityRingsCard()
-            case .some(false):
-                AchievementsHubCard(
-                    totalWorkouts: totalWorkouts,
-                    workoutsThisWeek: workoutsThisWeek,
-                    weeklyGoal: weeklyGoal
-                )
-            case .none:
-                // Skeleton placeholder while we figure out which one to show
-                AchievementsHubCard(
-                    totalWorkouts: totalWorkouts,
-                    workoutsThisWeek: workoutsThisWeek,
-                    weeklyGoal: weeklyGoal
-                )
-                .opacity(0.001) // invisible until we decide
+            } else {
+                hubCard
             }
         }
         .task {
             await detectActivityRings()
         }
+        .onChange(of: isAppleWatchEnabled) { _, _ in
+            Task { await detectActivityRings(force: true) }
+        }
     }
 
-    private func detectActivityRings() async {
-        // Avoid re-detecting on every appear
-        guard hasActivityRingsData == nil else { return }
+    private var hubCard: some View {
+        Button {
+            onTap?()
+        } label: {
+            AchievementsHubCard(
+                totalWorkouts: totalWorkouts,
+                workoutsThisWeek: workoutsThisWeek,
+                weeklyGoal: weeklyGoal,
+                trainedDays: trainedDays
+            )
+        }
+        .buttonStyle(.plain)
+    }
 
-        // If HealthKit not authorized at all, definitely no rings
+    private func detectActivityRings(force: Bool = false) async {
+        if !force, hasActivityRingsData != nil { return }
+
+        guard isAppleWatchEnabled else {
+            await MainActor.run { self.hasActivityRingsData = false }
+            return
+        }
+
         if !HealthManager.shared.isAuthorized {
             await MainActor.run { self.hasActivityRingsData = false }
             return
@@ -322,7 +417,6 @@ struct ActivityHeroSection: View {
             let move = s.activeEnergyBurned.doubleValue(for: .kilocalorie())
             let stand = s.appleStandHours.doubleValue(for: .count())
             let exercise = s.appleExerciseTime.doubleValue(for: .minute())
-            // Rings only meaningful if there is any input
             return move > 1 || stand > 0 || exercise > 0
         }()
 
@@ -341,4 +435,5 @@ struct ActivityHeroSection: View {
         }
         .padding()
     }
+    .environmentObject(AuthManager.shared)
 }

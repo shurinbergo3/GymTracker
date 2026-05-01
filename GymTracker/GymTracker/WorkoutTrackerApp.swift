@@ -18,6 +18,7 @@ struct WorkoutTrackerApp: App {
     @State private var isCheckingAuth = true
     @State private var isRestoringData = false
     @State private var dbError: Error? = nil
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
     
     init() {
         FirebaseApp.configure()
@@ -32,7 +33,9 @@ struct WorkoutTrackerApp: App {
             WeightRecord.self,
             Program.self,
             WorkoutDay.self,
-            ExerciseTemplate.self
+            ExerciseTemplate.self,
+            AICoachMessage.self,
+            AICoachWeeklySummary.self
         ])
         
         do {
@@ -103,11 +106,16 @@ struct WorkoutTrackerApp: App {
                                     .transition(.opacity)
                             }
                         } else {
-                            LoginView()
-                            // Removed environmentObject from here if it was redundant, 
-                            // but LoginView uses Singleton AuthManager.shared internally so it's fine.
-                            // Keeping it clean.
+                            if !hasSeenOnboarding {
+                                OnboardingView(hasSeenOnboarding: Binding(
+                                    get: { hasSeenOnboarding },
+                                    set: { hasSeenOnboarding = $0 }
+                                ))
                                 .transition(.opacity)
+                            } else {
+                                LoginView()
+                                    .transition(.opacity)
+                            }
                         }
                     }
                 }

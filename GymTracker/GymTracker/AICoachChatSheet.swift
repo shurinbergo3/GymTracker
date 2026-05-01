@@ -2,23 +2,43 @@
 //  AICoachChatSheet.swift
 //  GymTracker
 //
-//  Full-screen chat with the AI coach. Shows the post-workout analysis,
-//  the running conversation, and a rate-limited input bar (max 15
-//  follow-up questions per cycle, 30 s between questions).
+//  AI Coach modal: tab 1 = current cycle's chat (post-workout analysis +
+//  follow-up Q/A with rate limit), tab 2 = the full per-day history.
 //
 
 import SwiftUI
 import SwiftData
 
+// MARK: - Sheet
+
 struct AICoachChatSheet: View {
+
+    enum Tab: Hashable { case chat, history }
 
     @ObservedObject private var store = AICoachStore.shared
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var workoutManager: WorkoutManager
 
+    @State private var tab: Tab = .chat
     @State private var draft: String = ""
     @FocusState private var inputFocused: Bool
+
+    /// Messages for the **current** cycle only — drives the chat tab.
+    @Query private var cycleMessages: [AICoachMessage]
+
+    init() {
+        // Bind the @Query to the active cycle signature persisted in UserDefaults
+        // (so it survives app relaunch).
+        let sig = AICoachStore.shared.lastWorkoutSignature
+        let predicate = #Predicate<AICoachMessage> {
+            $0.workoutSignature != nil && $0.workoutSignature == sig
+        }
+        _cycleMessages = Query(
+            filter: predicate,
+            sort: [SortDescriptor(\AICoachMessage.timestamp, order: .forward)]
+        )
+    }
 
     var body: some View {
         NavigationStack {
@@ -38,9 +58,16 @@ struct AICoachChatSheet: View {
                 .frame(maxHeight: .infinity, alignment: .top)
 
                 VStack(spacing: 0) {
-                    messagesScroll
-                    Divider().background(Color.white.opacity(0.05))
-                    inputBar
+                    tabSwitcher
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        .padding(.top, 6)
+
+                    Group {
+                        switch tab {
+                        case .chat:    chatPane
+                        case .history: AICoachHistoryView()
+                        }
+                    }
                 }
             }
             .navigationTitle("AI Coach")
@@ -60,11 +87,52 @@ struct AICoachChatSheet: View {
                         .foregroundStyle(DesignSystem.Colors.neonGreen)
                 }
             }
+            .onAppear { store.attach(modelContext) }
         }
         .presentationDetents([.large])
     }
 
-    // MARK: - Messages
+    // MARK: - Tab switcher
+
+    private var tabSwitcher: some View {
+        HStack(spacing: 6) {
+            tabButton("Сейчас".localized(), .chat, icon: "sparkles")
+            tabButton("История".localized(), .history, icon: "clock.arrow.circlepath")
+        }
+        .padding(4)
+        .background(Color.white.opacity(0.05))
+        .clipShape(Capsule())
+        .overlay(Capsule().stroke(Color.white.opacity(0.06), lineWidth: 0.5))
+    }
+
+    private func tabButton(_ title: String, _ value: Tab, icon: String) -> some View {
+        let active = tab == value
+        return Button {
+            withAnimation(.easeInOut(duration: 0.18)) { tab = value }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: icon).font(.system(size: 11, weight: .bold))
+                Text(title).font(.system(size: 12, weight: .semibold))
+            }
+            .foregroundStyle(active ? .black : DesignSystem.Colors.primaryText)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(active ? DesignSystem.Colors.neonGreen : Color.clear)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Chat pane
+
+    private var chatPane: some View {
+        VStack(spacing: 0) {
+            messagesScroll
+            Divider().background(Color.white.opacity(0.05))
+            inputBar
+        }
+    }
 
     private var messagesScroll: some View {
         ScrollViewReader { proxy in
@@ -72,11 +140,11 @@ struct AICoachChatSheet: View {
                 VStack(alignment: .leading, spacing: 14) {
                     heroBanner
 
-                    if store.messages.isEmpty && !store.isAnalyzing {
+                    if cycleMessages.isEmpty && !store.isAnalyzing {
                         emptyHint
                     }
 
-                    ForEach(store.messages) { msg in
+                    ForEach(cycleMessages) { msg in
                         MessageBubble(message: msg)
                             .id(msg.id)
                     }
@@ -97,9 +165,9 @@ struct AICoachChatSheet: View {
                 .padding(.top, DesignSystem.Spacing.md)
                 .padding(.bottom, 12)
             }
-            .onChange(of: store.messages.count) { _, _ in
+            .onChange(of: cycleMessages.count) { _, _ in
                 withAnimation(.easeOut(duration: 0.25)) {
-                    if let last = store.messages.last {
+                    if let last = cycleMessages.last {
                         proxy.scrollTo(last.id, anchor: .bottom)
                     }
                 }
@@ -189,7 +257,7 @@ struct AICoachChatSheet: View {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    // MARK: - Input
+    // MARK: - Input bar
 
     private var inputBar: some View {
         VStack(spacing: 6) {
@@ -243,7 +311,7 @@ struct AICoachChatSheet: View {
     }
 
     private var placeholderText: String {
-        if !store.hasInsight {
+        if !store.hasInsightForCurrentCycle {
             return "Дождись разбора, потом задавай вопросы…".localized()
         }
         if store.questionsRemaining == 0 {
@@ -298,12 +366,12 @@ struct AICoachChatSheet: View {
 
 // MARK: - Message bubble
 
-private struct MessageBubble: View {
-    let message: AICoachChatMessage
+struct MessageBubble: View {
+    let message: AICoachMessage
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
-            if message.kind == .assistant {
+            if message.isAssistant {
                 avatar
             } else {
                 Spacer(minLength: 40)
@@ -321,9 +389,9 @@ private struct MessageBubble: View {
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .stroke(strokeColor, lineWidth: 0.5)
                 )
-                .frame(maxWidth: .infinity, alignment: message.kind == .assistant ? .leading : .trailing)
+                .frame(maxWidth: .infinity, alignment: message.isAssistant ? .leading : .trailing)
 
-            if message.kind == .user {
+            if message.isUser {
                 Image(systemName: "person.fill")
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(DesignSystem.Colors.tertiaryText)
@@ -355,7 +423,7 @@ private struct MessageBubble: View {
 
     private var bubbleBg: some View {
         Group {
-            if message.kind == .assistant {
+            if message.isAssistant {
                 LinearGradient(
                     colors: [Color.white.opacity(0.07), Color.white.opacity(0.03)],
                     startPoint: .topLeading,
@@ -375,7 +443,7 @@ private struct MessageBubble: View {
     }
 
     private var strokeColor: Color {
-        message.kind == .assistant
+        message.isAssistant
             ? Color.white.opacity(0.06)
             : DesignSystem.Colors.neonGreen.opacity(0.25)
     }
@@ -383,7 +451,7 @@ private struct MessageBubble: View {
 
 // MARK: - Typing indicator
 
-private struct TypingIndicator: View {
+struct TypingIndicator: View {
     @State private var phase: Double = 0
 
     var body: some View {

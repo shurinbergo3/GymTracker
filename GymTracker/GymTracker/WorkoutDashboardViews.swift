@@ -15,93 +15,7 @@ import HealthKit
 
 // MARK: - Sleep Analysis UI
 
-struct SleepCard: View {
-    @State private var sleepData: [SleepData] = []
-    @State private var sortedSleepData: [SleepData] = [] // Кэш отсортированных данных, чтобы не пересчитывать в body
-    @State private var totalSleep: TimeInterval = 0
-    @State private var showingDetail = false
-    
-    var body: some View {
-        Button(action: { showingDetail = true }) {
-            BentoCard {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Image(systemName: "bed.double.fill")
-                            .foregroundStyle(Color.purple)
-                        Text("sleep_title".localized())
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                    }
-                    
-                    if sleepData.isEmpty {
-                        Text("no_data".localized())
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                    } else {
-                        HStack(alignment: .lastTextBaseline, spacing: 4) {
-                            Text(formatDuration(totalSleep))
-                                .font(.system(size: 32, weight: .bold))
-                                .foregroundStyle(.white)
-                            Text("sleep_total_label".localized())
-                                .font(.caption)
-                                .foregroundStyle(.gray)
-                                .padding(.bottom, 4)
-                        }
-                        
-                        // Mini Sleep Graph Bar
-                        GeometryReader { geo in
-                            HStack(spacing: 0) {
-                                ForEach(sortedSleepData) { segment in
-                                    if segment.type != .inBed { // Hide "In Bed" for cleaner graph
-                                        Rectangle()
-                                            .fill(segment.color)
-                                            .frame(width: max(1, geo.size.width * (segment.duration / max(1, totalSleep))))
-                                    }
-                                }
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                        }
-                        .frame(height: 8)
-                    }
-                }
-            }
-        }
-        .frame(height: 120) // Adjust height as needed
-        .sheet(isPresented: $showingDetail) {
-            SleepDetailView(sleepData: sleepData)
-        }
-        .task {
-            // Fetch logic
-            if HealthManager.shared.isAuthorized {
-                // Use SleepService for fetching (SRP)
-                let data = await SleepService.shared.fetchSleepData()
-                await MainActor.run {
-                    self.sleepData = data
-                    // Сортируем один раз и кэшируем — раньше делалось на каждый рендер ForEach
-                    self.sortedSleepData = data.sorted { $0.startDate < $1.startDate }
 
-                    // Use SleepService logic
-                    let filteredSegments = data.filter { $0.type != .inBed }
-                    let sortedSegments = filteredSegments.sorted { $0.startDate < $1.startDate }
-
-                    self.totalSleep = SleepService.calculateTotalDuration(from: sortedSegments)
-                }
-            }
-        }
-    }
-    
-    private func formatDuration(_ duration: TimeInterval) -> String {
-        let hours = Int(duration) / 3600
-        let minutes = (Int(duration) % 3600) / 60
-        return "\(hours)\("ч".localized()) \(minutes)\("м".localized())"
-    }
-}
 
 // MARK: - Today's Workout Card (Dynamic State)
 
@@ -710,13 +624,14 @@ struct SleepLegendRow: View {
 struct DashboardView: View {
     @EnvironmentObject var workoutManager: WorkoutManager
     @State private var showingDaySelection = false
+    @State private var showingCalendarSheet = false
+    @State private var showingAchievementsSheet = false
     @Environment(\.modelContext) private var modelContext
-    
+
     // CRITICAL FIX: Limit query to prevent freeze with large datasets
-    // Only fetch last 100 workouts instead of ALL workouts
     @State private var history: [WorkoutSession] = []
     @State private var totalCompletedCount: Int = 0
-    
+
     private var recentHistory: [WorkoutSession] {
         Array(history.prefix(1))
     }
@@ -724,7 +639,7 @@ struct DashboardView: View {
     private var previousSession: WorkoutSession? {
         history.dropFirst().first
     }
-    
+
     private var daysSinceLastWorkout: Int {
         guard let lastDate = history.first?.date else { return 0 }
         return Calendar.current.dateComponents([.day], from: lastDate, to: Date()).day ?? 0
@@ -743,14 +658,14 @@ struct DashboardView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: DesignSystem.Spacing.xl) {
-                // Calendar (Hero Section)
-                ExpandableCalendarView()
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-
-                // NEW: Weekly streak strip (bright, always visible)
-                WeeklyStreakStrip(sessions: history)
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                // Weekly streak strip — tap to open full calendar
+                Button {
+                    showingCalendarSheet = true
+                } label: {
+                    WeeklyStreakStrip(sessions: history)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, DesignSystem.Spacing.lg)
 
                 // MARK: - Today's Plan (Action Hero Card)
                 TodayWorkoutCard(
@@ -770,7 +685,9 @@ struct DashboardView: View {
                 // Activity / Achievements (smart: rings if Apple Watch, achievements otherwise)
                 ActivityHeroSection(
                     totalWorkouts: totalCompletedCount,
-                    workoutsThisWeek: workoutsThisWeek
+                    workoutsThisWeek: workoutsThisWeek,
+                    history: history,
+                    onTap: { showingAchievementsSheet = true }
                 )
                 .padding(.horizontal, DesignSystem.Spacing.lg)
                 .transition(.move(edge: .top).combined(with: .opacity))
@@ -781,7 +698,7 @@ struct DashboardView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, DesignSystem.Spacing.lg)
                 }
-                
+
                 // Last Workout Preview (moved to main column)
                 if let lastSession = recentHistory.first {
                     NavigationLink(destination: WorkoutHistoryDetailView(session: lastSession)) {
@@ -789,7 +706,7 @@ struct DashboardView: View {
                     }
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                 }
-                
+
                 Spacer().frame(height: 100)
             }
         }
@@ -799,7 +716,6 @@ struct DashboardView: View {
                 predicate: #Predicate { $0.isCompleted == true },
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
-            // CRITICAL: Limit to 100 most recent to prevent freeze with thousands of workouts
             descriptor.fetchLimit = 100
 
             if let fetchedHistory = try? modelContext.fetch(descriptor) {
@@ -808,7 +724,6 @@ struct DashboardView: View {
                 }
             }
 
-            // Total count without loading all entities
             var countDescriptor = FetchDescriptor<WorkoutSession>(
                 predicate: #Predicate { $0.isCompleted == true }
             )
@@ -828,9 +743,15 @@ struct DashboardView: View {
                 .environmentObject(workoutManager)
             }
         }
+        .sheet(isPresented: $showingCalendarSheet) {
+            CalendarSheet()
+        }
+        .sheet(isPresented: $showingAchievementsSheet) {
+            ProgressHubView()
+        }
         .background(DesignSystem.Colors.background.ignoresSafeArea())
     }
-    
+
     // Helpers
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()

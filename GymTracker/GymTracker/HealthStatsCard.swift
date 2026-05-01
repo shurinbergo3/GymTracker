@@ -2,8 +2,11 @@
 //  HealthStatsCard.swift
 //  GymTracker
 //
-//  Apple Health summary card: steps, cardio fitness (VO2 Max),
-//  exercise minutes, weekly workouts and resting energy.
+//  Unified Apple Health hub:
+//   • Активность   — Шаги, Кардио (VO₂), Упражнения, Тренировки/нед
+//   • Восстановление — Сон, Пульс покоя, Пульс на тренировке, Энергия покоя
+//
+//  Each tile opens a detail sheet with a 7-day chart and breakdown.
 //
 
 import SwiftUI
@@ -17,37 +20,49 @@ private enum HealthStatKind: String, CaseIterable, Identifiable {
     case cardio
     case exercise
     case workouts
+    case sleep
+    case restingHR
+    case workoutHR
     case resting
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
-        case .steps:    return "Шаги".localized()
-        case .cardio:   return "Кардио".localized()
-        case .exercise: return "Упражнения".localized()
-        case .workouts: return "Тренировки".localized()
-        case .resting:  return "Энергия покоя".localized()
+        case .steps:     return "Шаги".localized()
+        case .cardio:    return "Кардио".localized()
+        case .exercise:  return "Упражнения".localized()
+        case .workouts:  return "Тренировки".localized()
+        case .sleep:     return "Сон".localized()
+        case .restingHR: return "Пульс покоя".localized()
+        case .workoutHR: return "Пульс трен.".localized()
+        case .resting:   return "Энергия покоя".localized()
         }
     }
 
     var icon: String {
         switch self {
-        case .steps:    return "figure.walk"
-        case .cardio:   return "heart.text.square.fill"
-        case .exercise: return "flame.fill"
-        case .workouts: return "dumbbell.fill"
-        case .resting:  return "bed.double.fill"
+        case .steps:     return "figure.walk"
+        case .cardio:    return "heart.text.square.fill"
+        case .exercise:  return "flame.fill"
+        case .workouts:  return "dumbbell.fill"
+        case .sleep:     return "bed.double.fill"
+        case .restingHR: return "heart.fill"
+        case .workoutHR: return "waveform.path.ecg"
+        case .resting:   return "leaf.fill"
         }
     }
 
     var accent: Color {
         switch self {
-        case .steps:    return Color(red: 0.45, green: 0.85, blue: 1.0)   // sky
-        case .cardio:   return Color(red: 1.0,  green: 0.35, blue: 0.45)  // red
-        case .exercise: return DesignSystem.Colors.neonGreen              // neon
-        case .workouts: return Color(red: 1.0,  green: 0.65, blue: 0.0)   // amber
-        case .resting:  return Color(red: 0.6,  green: 0.4,  blue: 1.0)   // purple
+        case .steps:     return Color(red: 0.45, green: 0.85, blue: 1.0)   // sky
+        case .cardio:    return Color(red: 1.0,  green: 0.35, blue: 0.45)  // red
+        case .exercise:  return DesignSystem.Colors.neonGreen              // neon
+        case .workouts:  return Color(red: 1.0,  green: 0.65, blue: 0.0)   // amber
+        case .sleep:     return Color(red: 0.6,  green: 0.4,  blue: 1.0)   // purple
+        case .restingHR: return Color(red: 1.0,  green: 0.45, blue: 0.55)  // pink
+        case .workoutHR: return Color(red: 0.35, green: 0.95, blue: 0.7)   // mint
+        case .resting:   return Color(red: 0.7,  green: 0.85, blue: 0.4)   // lime
         }
     }
 }
@@ -56,6 +71,7 @@ private enum HealthStatKind: String, CaseIterable, Identifiable {
 
 @MainActor
 private final class HealthStatsViewModel: ObservableObject {
+    // Activity
     @Published var stepsToday: Int = 0
     @Published var stepsWeek: Int = 0
     @Published var dailySteps: [DailyHealthValue] = []
@@ -68,21 +84,26 @@ private final class HealthStatsViewModel: ObservableObject {
     @Published var workoutsThisWeek: Int = 0
     @Published var dailyWorkoutCounts: [DailyHealthValue] = []
 
+    // Recovery
+    @Published var sleepLastNight: TimeInterval = 0   // seconds
+    @Published var restingHR: Int = 0
+    @Published var workoutHR: Int = 0
     @Published var restingEnergyToday: Int = 0
     @Published var dailyResting: [DailyHealthValue] = []
 
     @Published var isLoading: Bool = false
+    @Published var isAuthorized: Bool = false
 
-    func load() async {
+    func load(lastWorkoutHR: Int = 0) async {
         guard !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
 
-        // Make sure we have authorization before issuing queries.
         if !HealthManager.shared.isAuthorized {
             _ = await HealthManager.shared.requestAuthorization()
         }
-        guard HealthManager.shared.isAuthorized else { return }
+        self.isAuthorized = HealthManager.shared.isAuthorized
+        guard isAuthorized else { return }
 
         async let steps7 = HealthManager.shared.fetchDailySteps(days: 7)
         async let exercise7 = HealthManager.shared.fetchDailyExerciseMinutes(days: 7)
@@ -91,6 +112,8 @@ private final class HealthStatsViewModel: ObservableObject {
         async let vo2 = HealthManager.shared.fetchVO2Max()
         async let basalToday = HealthManager.shared.fetchTodayBasalEnergy()
         async let workoutsTotal = HealthManager.shared.fetchWorkoutsThisWeek()
+        async let restingHRValue = HealthManager.shared.fetchRestingHeartRate()
+        async let sleepData = SleepService.shared.fetchSleepData()
 
         let stepsValues = await steps7
         let exerciseValues = await exercise7
@@ -99,6 +122,8 @@ private final class HealthStatsViewModel: ObservableObject {
         let vo2Value = await vo2
         let basalTodayValue = await basalToday
         let workoutsTotalValue = await workoutsTotal
+        let restingHRRaw = await restingHRValue
+        let sleep = await sleepData
 
         self.dailySteps = stepsValues
         self.stepsWeek = Int(stepsValues.reduce(0) { $0 + $1.value })
@@ -115,39 +140,68 @@ private final class HealthStatsViewModel: ObservableObject {
         self.workoutsThisWeek = workoutsTotalValue
 
         self.vo2Max = vo2Value
+        self.restingHR = Int(restingHRRaw)
+        self.workoutHR = lastWorkoutHR
+
+        // Compute total sleep duration (excluding inBed)
+        let asleepSegments = sleep
+            .filter { $0.type != .inBed }
+            .sorted { $0.startDate < $1.startDate }
+        self.sleepLastNight = SleepService.calculateTotalDuration(from: asleepSegments)
     }
 }
 
 // MARK: - Main Card
 
 struct HealthStatsCard: View {
+    /// Optional last workout to surface the workout heart-rate stat.
+    let lastWorkoutSession: WorkoutSession?
+
     @StateObject private var vm = HealthStatsViewModel()
     @State private var selectedStat: HealthStatKind?
 
     private let columns: [GridItem] = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10)
     ]
 
+    init(lastWorkoutSession: WorkoutSession? = nil) {
+        self.lastWorkoutSession = lastWorkoutSession
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             header
 
-            LazyVGrid(columns: columns, spacing: 12) {
-                tile(.steps, value: formatNumber(vm.stepsToday), subtitle: weekSubtitle(total: vm.stepsWeek, suffix: "шагов".localized()))
-                tile(.cardio, value: vm.vo2Max > 0 ? String(format: "%.1f", vm.vo2Max) : "—", subtitle: "VO₂ \("за 30 дней".localized())")
-                tile(.exercise, value: "\(vm.exerciseMinutesToday)", subtitle: "\(vm.exerciseMinutesWeek) \("мин/нед".localized())")
-                tile(.workouts, value: "\(vm.workoutsThisWeek)", subtitle: "за неделю".localized())
+            // Section 1: Activity
+            sectionHeader("Активность".localized())
+            LazyVGrid(columns: columns, spacing: 10) {
+                tile(.steps,    value: formatNumber(vm.stepsToday),
+                     subtitle: "\(formatNumber(vm.stepsWeek)) " + "за неделю".localized())
+                tile(.cardio,   value: vm.vo2Max > 0 ? String(format: "%.1f", vm.vo2Max) : "—",
+                     subtitle: "VO₂ · " + "30 дней".localized())
+                tile(.exercise, value: "\(vm.exerciseMinutesToday)",
+                     subtitle: "\(vm.exerciseMinutesWeek) " + "мин/нед".localized())
+                tile(.workouts, value: "\(vm.workoutsThisWeek)",
+                     subtitle: "за неделю".localized())
             }
 
-            // Wide tile for Resting Energy
-            wideTile(
-                .resting,
-                value: "\(vm.restingEnergyToday)",
-                unit: "ккал".localized(),
-                subtitle: "сегодня".localized(),
-                weekTotal: Int(vm.dailyResting.reduce(0) { $0 + $1.value })
-            )
+            // Section 2: Recovery
+            sectionHeader("Восстановление".localized())
+            LazyVGrid(columns: columns, spacing: 10) {
+                tile(.sleep,
+                     value: vm.sleepLastNight > 0 ? formatSleep(vm.sleepLastNight) : "—",
+                     subtitle: "за ночь".localized())
+                tile(.restingHR,
+                     value: vm.restingHR > 0 ? "\(vm.restingHR)" : "—",
+                     subtitle: "уд/мин · 7 дн".localized())
+                tile(.workoutHR,
+                     value: vm.workoutHR > 0 ? "\(vm.workoutHR)" : "—",
+                     subtitle: "посл. тренировка".localized())
+                tile(.resting,
+                     value: "\(vm.restingEnergyToday)",
+                     subtitle: "ккал · сегодня".localized())
+            }
         }
         .padding(DesignSystem.Spacing.lg)
         .background(
@@ -167,7 +221,8 @@ struct HealthStatsCard: View {
         )
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
         .task {
-            await vm.load()
+            let lastHR = lastWorkoutSession?.averageHeartRate ?? 0
+            await vm.load(lastWorkoutHR: lastHR)
         }
         .sheet(item: $selectedStat) { stat in
             HealthStatDetailView(stat: stat, vm: vm)
@@ -193,13 +248,34 @@ struct HealthStatsCard: View {
                 ProgressView()
                     .scaleEffect(0.7)
                     .tint(DesignSystem.Colors.secondaryText)
+            } else if !vm.isAuthorized {
+                HStack(spacing: 4) {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 9, weight: .bold))
+                    Text("нет доступа".localized().uppercased())
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .tracking(1.0)
+                }
+                .foregroundStyle(.orange)
             } else {
-                Text("за неделю".localized().uppercased())
-                    .font(DesignSystem.Typography.sectionHeader())
-                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
-                    .tracking(1.2)
+                HStack(spacing: 4) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 9, weight: .bold))
+                    Text("синхронизировано".localized().uppercased())
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .tracking(1.0)
+                }
+                .foregroundStyle(DesignSystem.Colors.tertiaryText)
             }
         }
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title.uppercased())
+            .font(DesignSystem.Typography.sectionHeader())
+            .tracking(1.4)
+            .foregroundStyle(DesignSystem.Colors.secondaryText)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
@@ -207,17 +283,17 @@ struct HealthStatsCard: View {
         Button {
             selectedStat = kind
         } label: {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Image(systemName: kind.icon)
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(kind.accent)
-                        .frame(width: 28, height: 28)
+                        .frame(width: 26, height: 26)
                         .background(kind.accent.opacity(0.15))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(DesignSystem.Colors.tertiaryText)
                 }
 
@@ -228,99 +304,26 @@ struct HealthStatsCard: View {
                     .lineLimit(1)
 
                 Text(value)
-                    .font(DesignSystem.Typography.monospaced(.title2, weight: .bold))
+                    .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
                     .foregroundStyle(DesignSystem.Colors.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
 
                 Text(subtitle)
-                    .font(.system(size: 11))
+                    .font(.system(size: 10))
                     .foregroundStyle(DesignSystem.Colors.tertiaryText)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12)
+            .padding(10)
             .background(Color.white.opacity(0.04))
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 12)
                     .stroke(kind.accent.opacity(0.18), lineWidth: 0.5)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(PlainButtonStyle())
-    }
-
-    @ViewBuilder
-    private func wideTile(_ kind: HealthStatKind, value: String, unit: String, subtitle: String, weekTotal: Int) -> some View {
-        Button {
-            selectedStat = kind
-        } label: {
-            HStack(alignment: .center, spacing: 14) {
-                Image(systemName: kind.icon)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(kind.accent)
-                    .frame(width: 38, height: 38)
-                    .background(kind.accent.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(kind.title.uppercased())
-                        .font(DesignSystem.Typography.sectionHeader())
-                        .tracking(1.0)
-                        .foregroundStyle(DesignSystem.Colors.secondaryText)
-
-                    HStack(alignment: .lastTextBaseline, spacing: 4) {
-                        Text(value)
-                            .font(DesignSystem.Typography.monospaced(.title2, weight: .bold))
-                            .foregroundStyle(DesignSystem.Colors.primaryText)
-                        Text(unit)
-                            .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
-                            .foregroundStyle(kind.accent)
-                        Text("· \(subtitle)")
-                            .font(.system(size: 11))
-                            .foregroundStyle(DesignSystem.Colors.tertiaryText)
-                    }
-                }
-
-                Spacer()
-
-                // Sparkline mini-graph
-                miniSparkline(values: vm.dailyResting.map { $0.value }, color: kind.accent)
-                    .frame(width: 70, height: 30)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
-            }
-            .padding(12)
-            .background(Color.white.opacity(0.04))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(kind.accent.opacity(0.18), lineWidth: 0.5)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-
-    @ViewBuilder
-    private func miniSparkline(values: [Double], color: Color) -> some View {
-        if values.contains(where: { $0 > 0 }) {
-            Chart {
-                ForEach(Array(values.enumerated()), id: \.offset) { idx, v in
-                    BarMark(
-                        x: .value("d", idx),
-                        y: .value("v", v)
-                    )
-                    .foregroundStyle(color.gradient)
-                    .cornerRadius(2)
-                }
-            }
-            .chartXAxis(.hidden)
-            .chartYAxis(.hidden)
-        } else {
-            EmptyView()
-        }
     }
 
     // MARK: - Helpers
@@ -331,8 +334,10 @@ struct HealthStatsCard: View {
         return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 
-    private func weekSubtitle(total: Int, suffix: String) -> String {
-        "\(formatNumber(total)) \(suffix)"
+    private func formatSleep(_ duration: TimeInterval) -> String {
+        let h = Int(duration) / 3600
+        let m = (Int(duration) % 3600) / 60
+        return "\(h)\("ч".localized()) \(m)\("м".localized())"
     }
 }
 
@@ -348,7 +353,9 @@ private struct HealthStatDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     heroBlock
-                    chartBlock
+                    if hasChart {
+                        chartBlock
+                    }
                     breakdownBlock
                 }
                 .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -484,7 +491,7 @@ private struct HealthStatDetailView: View {
                 Divider().background(Color.white.opacity(0.06))
             }
 
-            Text(footerHint)
+            Text("Данные синхронизируются из Apple Health".localized())
                 .font(.caption2)
                 .foregroundStyle(DesignSystem.Colors.tertiaryText)
                 .padding(.top, 4)
@@ -498,21 +505,27 @@ private struct HealthStatDetailView: View {
 
     private var primaryValue: String {
         switch stat {
-        case .steps:    return formatInt(vm.stepsToday)
-        case .cardio:   return vm.vo2Max > 0 ? String(format: "%.1f", vm.vo2Max) : "—"
-        case .exercise: return "\(vm.exerciseMinutesToday)"
-        case .workouts: return "\(vm.workoutsThisWeek)"
-        case .resting:  return "\(vm.restingEnergyToday)"
+        case .steps:     return formatInt(vm.stepsToday)
+        case .cardio:    return vm.vo2Max > 0 ? String(format: "%.1f", vm.vo2Max) : "—"
+        case .exercise:  return "\(vm.exerciseMinutesToday)"
+        case .workouts:  return "\(vm.workoutsThisWeek)"
+        case .sleep:     return vm.sleepLastNight > 0 ? formatSleepHM(vm.sleepLastNight) : "—"
+        case .restingHR: return vm.restingHR > 0 ? "\(vm.restingHR)" : "—"
+        case .workoutHR: return vm.workoutHR > 0 ? "\(vm.workoutHR)" : "—"
+        case .resting:   return "\(vm.restingEnergyToday)"
         }
     }
 
     private var primaryUnit: String {
         switch stat {
-        case .steps:    return "шагов".localized()
-        case .cardio:   return "мл/кг·мин".localized()
-        case .exercise: return "мин".localized()
-        case .workouts: return "за неделю".localized()
-        case .resting:  return "ккал".localized()
+        case .steps:     return "шагов".localized()
+        case .cardio:    return "мл/кг·мин".localized()
+        case .exercise:  return "мин".localized()
+        case .workouts:  return "за неделю".localized()
+        case .sleep:     return "за ночь".localized()
+        case .restingHR: return "уд/мин".localized()
+        case .workoutHR: return "уд/мин".localized()
+        case .resting:   return "ккал".localized()
         }
     }
 
@@ -526,8 +539,21 @@ private struct HealthStatDetailView: View {
             return "сегодня".localized() + " · " + "за неделю".localized() + ": " + "\(vm.exerciseMinutesWeek) " + "мин".localized()
         case .workouts:
             return "Apple Health workouts за 7 дней".localized()
+        case .sleep:
+            return "общая длительность сна за прошлую ночь".localized()
+        case .restingHR:
+            return "среднее значение пульса в покое за неделю".localized()
+        case .workoutHR:
+            return "средний пульс на последней тренировке".localized()
         case .resting:
             return "сегодня".localized() + " · " + "энергия в покое".localized()
+        }
+    }
+
+    private var hasChart: Bool {
+        switch stat {
+        case .steps, .exercise, .workouts, .resting: return true
+        default: return false
         }
     }
 
@@ -537,7 +563,7 @@ private struct HealthStatDetailView: View {
         case .exercise: return vm.dailyExerciseMinutes
         case .workouts: return vm.dailyWorkoutCounts
         case .resting:  return vm.dailyResting
-        case .cardio:   return nil // single value, no per-day series
+        default:        return nil
         }
     }
 
@@ -569,6 +595,19 @@ private struct HealthStatDetailView: View {
                 ("За неделю".localized(), "\(vm.workoutsThisWeek)"),
                 ("Дней с тренировкой".localized(), "\(activeDays)")
             ]
+        case .sleep:
+            return [
+                ("За прошлую ночь".localized(), vm.sleepLastNight > 0 ? formatSleepHM(vm.sleepLastNight) : "—"),
+                ("Цель".localized(), "8\("ч".localized()) 0\("м".localized())")
+            ]
+        case .restingHR:
+            return [
+                ("Среднее за 7 дней".localized(), vm.restingHR > 0 ? "\(vm.restingHR) уд/мин" : "—")
+            ]
+        case .workoutHR:
+            return [
+                ("Последняя тренировка".localized(), vm.workoutHR > 0 ? "\(vm.workoutHR) уд/мин" : "—")
+            ]
         case .resting:
             let total = Int(vm.dailyResting.reduce(0) { $0 + $1.value })
             let avg = vm.dailyResting.isEmpty ? 0 : total / max(vm.dailyResting.count, 1)
@@ -580,15 +619,17 @@ private struct HealthStatDetailView: View {
         }
     }
 
-    private var footerHint: String {
-        "Данные синхронизируются из Apple Health".localized()
-    }
-
     private func formatInt(_ value: Int) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.groupingSeparator = " "
         return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
+    }
+
+    private func formatSleepHM(_ duration: TimeInterval) -> String {
+        let h = Int(duration) / 3600
+        let m = (Int(duration) % 3600) / 60
+        return "\(h)\("ч".localized()) \(m)\("м".localized())"
     }
 }
 

@@ -318,7 +318,7 @@ struct WorkoutProgressChart: View {
                 }
                 .buttonStyle(.plain)
                 .sheet(isPresented: $showingDetail) {
-                    ProgressDetailView()
+                    ProgressHubView()
                 }
             }
         }

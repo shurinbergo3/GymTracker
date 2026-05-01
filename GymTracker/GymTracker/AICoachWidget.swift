@@ -2,9 +2,8 @@
 //  AICoachWidget.swift
 //  GymTracker
 //
-//  Post-workout AI Coach card. Pulls real recommendations from
-//  `AICoachStore` (Groq-backed). Tapping the card opens a full chat
-//  sheet where the user can ask follow-up questions.
+//  Post-workout AI Coach card. Reads the latest assistant message from
+//  SwiftData via @Query and routes the user into a full chat sheet.
 //
 
 import SwiftUI
@@ -21,6 +20,14 @@ struct AICoachWidget: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var workoutManager: WorkoutManager
 
+    /// Latest assistant message — the "current insight" preview.
+    @Query(
+        filter: #Predicate<AICoachMessage> { $0.kind == "assistant" },
+        sort: \AICoachMessage.timestamp,
+        order: .reverse
+    )
+    private var assistantMessages: [AICoachMessage]
+
     @State private var glowPhase: Double = 0
     @State private var showingChat = false
 
@@ -28,6 +35,9 @@ struct AICoachWidget: View {
         self.lastSession = lastSession
         self.previousSession = previousSession
     }
+
+    private var latestInsight: AICoachMessage? { assistantMessages.first }
+    private var hasInsight: Bool { latestInsight != nil }
 
     // MARK: Layout
 
@@ -52,6 +62,7 @@ struct AICoachWidget: View {
         .buttonStyle(PlainButtonStyle())
         .disabled(lastSession == nil)
         .onAppear {
+            store.attach(modelContext)
             withAnimation(.easeInOut(duration: 2.6).repeatForever(autoreverses: true)) {
                 glowPhase = 1
             }
@@ -126,7 +137,7 @@ struct AICoachWidget: View {
     private var headerSubtitle: String {
         if lastSession == nil { return "Готов помочь".localized() }
         if store.isAnalyzing { return "Анализирую тренировку…".localized() }
-        if store.hasInsight { return "Разбор последней тренировки".localized() }
+        if hasInsight { return "Разбор последней тренировки".localized() }
         return "Готов к разбору".localized()
     }
 
@@ -172,7 +183,7 @@ struct AICoachWidget: View {
                 .font(DesignSystem.Typography.body())
                 .foregroundStyle(DesignSystem.Colors.primaryText)
                 .fixedSize(horizontal: false, vertical: true)
-        } else if let err = store.lastError, !store.hasInsight {
+        } else if let err = store.lastError, !hasInsight {
             HStack(spacing: 6) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
@@ -181,14 +192,14 @@ struct AICoachWidget: View {
                     .foregroundStyle(DesignSystem.Colors.primaryText)
                     .fixedSize(horizontal: false, vertical: true)
             }
-        } else if store.isAnalyzing && !store.hasInsight {
+        } else if store.isAnalyzing && !hasInsight {
             HStack(spacing: 8) {
                 ProgressView().tint(DesignSystem.Colors.neonGreen)
                 Text("Анализирую тренировку, датчики и комментарии…".localized())
                     .font(DesignSystem.Typography.body())
                     .foregroundStyle(DesignSystem.Colors.primaryText)
             }
-        } else if let insight = store.latestAssistantInsight {
+        } else if let insight = latestInsight {
             HStack(spacing: 6) {
                 Image(systemName: "sparkles")
                     .font(.system(size: 11, weight: .bold))
@@ -214,7 +225,7 @@ struct AICoachWidget: View {
 
     private var footerRow: some View {
         HStack(spacing: 8) {
-            if lastSession != nil, store.hasInsight {
+            if lastSession != nil, hasInsight {
                 let remaining = store.questionsRemaining
                 HStack(spacing: 4) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
