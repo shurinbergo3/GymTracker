@@ -20,9 +20,9 @@ enum ExerciseCategory: CaseIterable, Identifiable {
     case cardio
     case complex
     case custom
-    
+
     var id: String { rawValue }
-    
+
     var rawValue: String {
         switch self {
         case .chest: return "Грудь".localized()
@@ -36,7 +36,7 @@ enum ExerciseCategory: CaseIterable, Identifiable {
         case .custom: return "Пользовательские упражнения".localized()
         }
     }
-    
+
     var icon: String {
         switch self {
         case .chest: return "figure.strengthtraining.traditional"
@@ -57,32 +57,32 @@ enum MuscleGroup: CaseIterable {
     case upperChest
     case middleChest
     case lowerChest
-    
+
     // Спина
     case lats
     case trapezius
     case lowerBack
     case rearDelts
-    
+
     // Ноги
     case quadriceps
     case hamstrings
     case glutes
     case calves
-    
+
     // Плечи
     case frontDelts
     case sideDelts
-    
+
     // Руки
     case biceps
     case triceps
     case forearms
-    
+
     // Кор и полное тело
     case core
     case fullBody
-    
+
     var rawValue: String {
         switch self {
         case .upperChest: return "Верх груди".localized()
@@ -114,10 +114,10 @@ struct LibraryExercise: Identifiable, Hashable {
     let name: String
     let category: ExerciseCategory
     let muscleGroup: MuscleGroup
-    let defaultType: WorkoutType // Default workout type
-    let technique: String? // Описание техники выполнения
-    let videoUrl: String? // Ссылка на видео (YouTube)
-    
+    let defaultType: WorkoutType
+    let technique: String?
+    let videoUrl: String?
+
     init(name: String, category: ExerciseCategory, muscleGroup: MuscleGroup, defaultType: WorkoutType = .strength, technique: String? = nil, videoUrl: String? = nil) {
         self.name = name
         self.category = category
@@ -126,2064 +126,2072 @@ struct LibraryExercise: Identifiable, Hashable {
         self.technique = technique
         self.videoUrl = videoUrl
     }
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
+
     static func == (lhs: LibraryExercise, rhs: LibraryExercise) -> Bool {
         lhs.id == rhs.id
     }
+}
+
+// MARK: - Helper for YouTube search URLs
+
+private func ytSearch(_ query: String) -> String {
+    let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+    return "https://www.youtube.com/results?search_query=\(encoded)"
 }
 
 // MARK: - Exercise Library
 
 struct ExerciseLibrary {
     nonisolated static let allExercises: [LibraryExercise] = [
-        // MARK: - ARMS
+
+        // MARK: - ГРУДЬ
+
         LibraryExercise(
-            name: "Байезианские сгибания",
-            category: .arms,
-            muscleGroup: .biceps,
-            defaultType: .strength,
-            technique: "Техника: Стоя спиной к нижнему блоку, рука отведена назад. Сгибание происходит из положения максимального растяжения длинной головки бицепса. Считается одним из самых эффективных упражнений для роста бицепса согласно современным данным.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%91%D0%B0%D0%B9%D0%B5%D0%B7%D0%B8%D0%B0%D0%BD%D1%81%D0%BA%D0%B8%D0%B5%20%D1%81%D0%B3%D0%B8%D0%B1%D0%B0%D0%BD%D0%B8%D1%8F%20technique"
-        ),
-        LibraryExercise(
-            name: "Жим узким хватом",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "Хват на ширине плеч. Локти скользят вдоль туловища. Основная нагрузка на трицепс.",
-            videoUrl: "https://www.youtube.com/results?search_query=close+grip+bench+press+technique"
-        ),
-        LibraryExercise(
-            name: "Молотки",
-            category: .arms,
-            muscleGroup: .biceps,
-            defaultType: .strength,
-            technique: "Нейтральный хват. Сгибайте руки. Работает брахиалис (толщина руки) и предплечье.",
-            videoUrl: "https://www.youtube.com/results?search_query=hammer+curls+technique"
-        ),
-        LibraryExercise(
-            name: "Обратные отжимания от скамьи",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .repsOnly,
-            technique: "Руки сзади на скамье. Опускайте таз вниз, сгибая руки. Не уводите таз далеко от скамьи.",
-            videoUrl: "https://www.youtube.com/results?search_query=bench+dips+technique"
-        ),
-        LibraryExercise(
-            name: "Подъем штанги на бицепс",
-            category: .arms,
-            muscleGroup: .biceps,
-            defaultType: .strength,
-            technique: "Стоя. Локти прижаты. Поднимайте штангу по дуге. Не читингуйте спиной. Опускайте под контролем.",
-            videoUrl: "https://www.youtube.com/results?search_query=barbell+curl+technique"
-        ),
-        LibraryExercise(
-            name: "Разгибание рук на блоке",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "Стоя у блока. Локти прижаты к бокам. Разгибайте руки вниз. Плечи неподвижны.",
-            videoUrl: "https://www.youtube.com/results?search_query=tricep+pushdown+technique"
-        ),
-        LibraryExercise(
-            name: "Разгибания на блоке из-за головы",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "Биомеханика: Максимальное растяжение длинной головки. Исследования показывают, что работа в растянутой позиции дает больший гипертрофический стимул.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A0%D0%B0%D0%B7%D0%B3%D0%B8%D0%B1%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20%D0%B1%D0%BB%D0%BE%D0%BA%D0%B5%20%D0%B8%D0%B7-%D0%B7%D0%B0%20%D0%B3%D0%BE%D0%BB%D0%BE%D0%B2%D1%8B%20technique"
-        ),
-        LibraryExercise(
-            name: "Сгибания Зоттмана",
-            category: .arms,
-            muscleGroup: .biceps,
-            defaultType: .strength,
-            technique: "Суть: Подъем гантелей супинированным хватом (на бицепс), в верхней точке разворот кистей (пронация) и медленное опускание обратным хватом (на брахиалис и предплечья). Комплексное развитие всей руки.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A1%D0%B3%D0%B8%D0%B1%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%97%D0%BE%D1%82%D1%82%D0%BC%D0%B0%D0%BD%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Сгибания Паука",
-            category: .arms,
-            muscleGroup: .biceps,
-            defaultType: .strength,
-            technique: "Техника: Лежа животом на вертикальной стороне скамьи Скотта или на наклонной скамье. Руки свисают вертикально вниз. Сгибание происходит без смещения локтей. Максимальная изоляция короткой головки.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A1%D0%B3%D0%B8%D0%B1%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%9F%D0%B0%D1%83%D0%BA%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Сгибания на скамье Скотта",
-            category: .arms,
-            muscleGroup: .biceps,
-            defaultType: .strength,
-            technique: "Руки зафиксированы на пюпитре. Исключает читинг. Полная изоляция бицепса.",
-            videoUrl: "https://www.youtube.com/results?search_query=preacher+curl+technique"
-        ),
-        LibraryExercise(
-            name: "Тейт-пресс",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "Лежа на скамье с гантелями, руки выпрямлены вверх. Сгибание происходит только в локтях, гантели опускаются к груди (ладонями к ногам), локти разведены в стороны. Применение: Изолирует латеральную и медиальную головки, исключая помощь длинной головки.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A2%D0%B5%D0%B9%D1%82-%D0%BF%D1%80%D0%B5%D1%81%D1%81%20technique"
-        ),
-        LibraryExercise(
-            name: "Французский жим",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "Вариация: Опускание штанги не ко лбу, а за голову. Это сильнее растягивает длинную головку трицепса, которая пересекает плечевой сустав. С гантелями: Позволяет использовать нейтральный хват, что безопаснее для локтей.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A4%D1%80%D0%B0%D0%BD%D1%86%D1%83%D0%B7%D1%81%D0%BA%D0%B8%D0%B9%20%D0%B6%D0%B8%D0%BC%20technique"
-        ),
-        LibraryExercise(
-            name: "Французский жим лежа",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "Штанга. Сгибание рук в локтях, гриф ко лбу. Локти смотрят вверх и не гуляют в стороны.",
-            videoUrl: "https://www.youtube.com/results?search_query=skullcrushers+technique"
-        ),
-        // MARK: - BACK
-        LibraryExercise(
-            name: "Гиперэкстензия",
-            category: .back,
-            muscleGroup: .lowerBack,
-            defaultType: .repsOnly,
-            technique: "Упор на уровне бедер. Опускайтесь с прямой или скругленной спиной (вариации). Поднимайтесь до прямой линии с ногами. Не переразгибайтесь.",
-            videoUrl: "https://www.youtube.com/results?search_query=hyperextension+technique"
-        ),
-        LibraryExercise(
-            name: "Лицевая тяга (Face Pull)",
-            category: .back,
-            muscleGroup: .rearDelts,
-            defaultType: .strength,
-            technique: "Тяга каната к лицу (переносице). Локти выше плеч. В конце движения разведите руки ('двойной бицепс'). Для осанки и задней дельты.",
-            videoUrl: "https://www.youtube.com/results?search_query=face+pull+technique"
-        ),
-        LibraryExercise(
-            name: "Подтягивания",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .repsOnly,
-            technique: "Хват шире плеч. Тянитесь грудью к перекладине, сводя лопатки. Локти вниз. Не сутультесь в верхней точке.",
-            videoUrl: "https://www.youtube.com/results?search_query=pullups+technique"
-        ),
-        LibraryExercise(
-            name: "Пуловер с гантелью",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Лежа лопатками на скамье. Опускайте гантель за голову на чуть согнутых руках, максимально растягивая широчайшие. Таз можно слегка опустить.",
-            videoUrl: "https://www.youtube.com/results?search_query=dumbbell+pullover+technique"
-        ),
-        LibraryExercise(
-            name: "Тяга Мэдоуз",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Авторство: Джон Мэдоуз. Техника: Используется Лэндмайн (один конец штанги закреплен). Атлет стоит перпендикулярно грифу, наклонившись вперед. Хват за толстую часть грифа (без рукоятки) пронированной рукой. Локоть тянется вверх и назад, акцентируя нагрузку на заднюю дельту, ромбовидные и внешнюю часть широчайших.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A2%D1%8F%D0%B3%D0%B0%20%D0%9C%D1%8D%D0%B4%D0%BE%D1%83%D0%B7%20technique"
-        ),
-        LibraryExercise(
-            name: "Тяга Т-грифа",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Стоя над грифом, наклон корпуса. Тяните гриф к груди, сводя лопатки. Локти прижаты. Избегайте сильной раскачки.",
-            videoUrl: "https://www.youtube.com/results?search_query=t-bar+row+technique"
-        ),
-        LibraryExercise(
-            name: "Тяга вертикального блока",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Вариация «Прямыми руками» (Straight-Arm Pulldown): Изолирующее упражнение. Атлет стоит, руки прямые, тянет рукоять сверху вниз по дуге к бедрам. Исключает бицепс, активируя широчайшие через функцию разгибания плеча.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D1%82%D1%8F%D0%B3%D0%B0%20%D0%B2%D0%B5%D1%80%D1%82%D0%B8%D0%BA%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D0%B3%D0%BE%20%D0%B1%D0%BB%D0%BE%D0%BA%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Тяга верхнего блока",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Сядьте, зафиксируйте ноги. Тяните рукоять к верху груди, прогибаясь в грудном отделе. Опускайте плечи вниз.",
-            videoUrl: "https://www.youtube.com/results?search_query=lat+pulldown+technique"
-        ),
-        LibraryExercise(
-            name: "Тяга гантели в наклоне",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Упор коленом и рукой в скамью. Спина параллельна полу. Тяните гантель к тазу (движение 'в карман'), локоть строго вверх.",
-            videoUrl: "https://www.youtube.com/results?search_query=dumbbell+row+technique"
-        ),
-        LibraryExercise(
-            name: "Тяга гантели одной рукой",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Специфика: Выполняется с тяжелой гантелей на большое количество повторений (15–25). Допускается легкий читинг корпусом для преодоления инерции в начале. Развивает ментальную устойчивость и силу хвата.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A2%D1%8F%D0%B3%D0%B0%20%D0%B3%D0%B0%D0%BD%D1%82%D0%B5%D0%BB%D0%B8%20%D0%BE%D0%B4%D0%BD%D0%BE%D0%B9%20%D1%80%D1%83%D0%BA%D0%BE%D0%B9%20technique"
-        ),
-        LibraryExercise(
-            name: "Тяга горизонтального блока",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Сидя, спина прямая. Тяните рукоять к животу, сводя лопатки. Плечи не поднимайте к ушам. При возврате чуть подайте корпус вперед для растяжения.",
-            videoUrl: "https://www.youtube.com/results?search_query=seated+cable+row+technique"
-        ),
-        LibraryExercise(
-            name: "Тяга с упором грудью",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Уникальность: Полностью исключает инерцию и нагрузку на поясницу. Атлет лежит на высокой скамье (или использует тренажер), тяга осуществляется строго за счет мышц спины. Это «чистейшая» форма изоляции для верха спины.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A2%D1%8F%D0%B3%D0%B0%20%D1%81%20%D1%83%D0%BF%D0%BE%D1%80%D0%BE%D0%BC%20%D0%B3%D1%80%D1%83%D0%B4%D1%8C%D1%8E%20technique"
-        ),
-        LibraryExercise(
-            name: "Тяга штанги в наклоне",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Наклон корпуса 45°. Спина прямая. Тяните штангу к низу живота, сводя лопатки. Ведите локти вдоль корпуса.",
-            videoUrl: "https://www.youtube.com/results?search_query=barbell+row+technique"
-        ),
-        // MARK: - CHEST
-        LibraryExercise(
-            name: "Гильотинный жим",
+            name: "Жим штанги лежа",
             category: .chest,
             muscleGroup: .middleChest,
             defaultType: .strength,
-            technique: "Специфика: Вариация жима лежа, где штанга опускается прямо к шее. Ноги часто ставятся на скамью, чтобы убрать прогиб и исключить помощь широчайших. Риски и преимущества: Это упражнение создает экстремальное растяжение грудных мышц и полностью исключает трицепс из работы. Однако оно является травмоопасным для плечевых суставов (риск импиджмента) и требует обязательной страховки.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%93%D0%B8%D0%BB%D1%8C%D0%BE%D1%82%D0%B8%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%B6%D0%B8%D0%BC%20technique"
+            technique: "Старт: лягте на скамью, лопатки сведены и опущены, грудь приподнята, ноги жёстко в пол. Хват чуть шире плеч, гриф над глазами.\n\nДвижение: опустите штангу на нижнюю часть груди (область сосков), локти под углом 45–60° к корпусу. Без отбива от груди мощно выжмите вверх по чуть J-образной траектории.\n\nКлючи: лопатки прижаты весь подход, кисти прямые (не загибайте назад). Без отрыва таза. Дыхание: вдох на опускании, выдох на жиме.",
+            videoUrl: ytSearch("жим штанги лёжа техника")
         ),
         LibraryExercise(
-            name: "Жим Свенда",
+            name: "Жим штанги на наклонной скамье",
             category: .chest,
-            muscleGroup: .middleChest,
+            muscleGroup: .upperChest,
             defaultType: .strength,
-            technique: "Изометрическое упражнение. Атлет стоит или сидит, сжимая между ладонями два блина от штанги (или одну гантель) перед грудью. Задача — выпрямить руки перед собой, сохраняя адское давление ладонями друг на друга. Применение: Идеально для завершения тренировки (finisher), создавая сильнейший пампинг и улучшая нейромышечную связь.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%96%D0%B8%D0%BC%20%D0%A1%D0%B2%D0%B5%D0%BD%D0%B4%D0%B0%20technique"
+            technique: "Старт: угол скамьи 30°. Хват чуть шире плеч, лопатки сведены, ягодицы прижаты.\n\nДвижение: опускайте штангу на верх груди (под ключицы), локти разводите на 45°. Жмите вверх без переразгибания локтей.\n\nКлючи: 30° оптимально для верха груди — выше угол смещает нагрузку в дельты. Не прогибайте поясницу до горизонтали.",
+            videoUrl: ytSearch("incline barbell bench press technique")
         ),
         LibraryExercise(
-            name: "Жим в Хаммере",
+            name: "Жим штанги на скамье с обратным наклоном",
             category: .chest,
-            muscleGroup: .middleChest,
+            muscleGroup: .lowerChest,
             defaultType: .strength,
-            technique: "Сядьте плотно, лопатки прижаты. Жмите рукояти вперед. Тренажер задает траекторию, фокусируйтесь только на сокращении грудных.",
-            videoUrl: "https://www.youtube.com/results?search_query=hammer+strength+chest+press"
+            technique: "Старт: скамья наклонена вниз на 15–30°, ноги зафиксированы валиками. Хват шире плеч.\n\nДвижение: опускайте штангу на нижний край груди, локти под 45°. Выжмите без замыкания локтей.\n\nКлючи: акцентирует нижнюю часть груди и снимает нагрузку с дельт. Используйте страховку — встать со штангой здесь сложнее.",
+            videoUrl: ytSearch("decline barbell bench press technique")
         ),
         LibraryExercise(
-            name: "Жим гантелей",
+            name: "Жим штанги обратным хватом",
             category: .chest,
-            muscleGroup: .middleChest,
+            muscleGroup: .upperChest,
             defaultType: .strength,
-            technique: "Преимущество унилатеральности: Позволяет каждой руке двигаться независимо, устраняя силовой дисбаланс. Гантели обеспечивают большую амплитуду движения в нижней точке и возможность конвергенции (сведения рук) в верхней, что усиливает пиковое сокращение. Нюанс: В отличие от штанги, вектор силы всегда направлен вертикально вниз, что требует активной стабилизации.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%96%D0%B8%D0%BC%20%D0%B3%D0%B0%D0%BD%D1%82%D0%B5%D0%BB%D0%B5%D0%B9%20technique"
+            technique: "Старт: лежа на горизонтальной скамье, хват супинированный (ладони к лицу) чуть шире плеч. Попросите партнёра подать штангу.\n\nДвижение: опускайте штангу к низу груди / верху живота, локти прижаты к корпусу. Жмите по широкой дуге.\n\nКлючи: исследования показывают повышенную активацию верха груди. Работайте с умеренными весами — нагрузка на запястья высокая.",
+            videoUrl: ytSearch("reverse grip bench press technique")
         ),
         LibraryExercise(
             name: "Жим гантелей лежа",
             category: .chest,
             muscleGroup: .middleChest,
             defaultType: .strength,
-            technique: "Лягте на скамью. Гантели над грудью, лопатки сведены. Опускайте гантели по дуге вниз до растяжения грудных. Выжмите вверх, сводя их в верхней точке. Это упражнение дает большую амплитуду, чем штанга.",
-            videoUrl: "https://www.youtube.com/results?search_query=dumbbell+bench+press+technique"
+            technique: "Старт: лежа на скамье, гантели у груди, ладони от себя, лопатки сведены.\n\nДвижение: опускайте гантели по дуге до уровня груди (предплечья вертикально). Жмите вверх, сводя гантели в верхней точке (без стука).\n\nКлючи: большая амплитуда и устранение силового дисбаланса. В нижней точке — лёгкое растяжение, без перегиба плеча назад.",
+            videoUrl: ytSearch("dumbbell bench press technique")
         ),
         LibraryExercise(
-            name: "Жим гантелей наклонный",
+            name: "Жим гантелей на наклонной скамье",
             category: .chest,
             muscleGroup: .upperChest,
             defaultType: .strength,
-            technique: "Скамья 30-45°. Опускайте гантели к плечам, чувствуя растяжение верха груди. Жмите вверх, сводя руки. Предплечья вертикальны в нижней точке.",
-            videoUrl: "https://www.youtube.com/results?search_query=incline+dumbbell+press+technique"
+            technique: "Старт: скамья 30°. Гантели на бёдрах, толкните коленями вверх к плечам.\n\nДвижение: опускайте по дуге до уровня плеч (растяжение верха груди). Жмите вверх и слегка внутрь, сводя гантели.\n\nКлючи: предплечья вертикальны в нижней точке, локти не уходят за линию плеч.",
+            videoUrl: ytSearch("incline dumbbell press technique")
         ),
         LibraryExercise(
-            name: "Жим на наклонной скамье",
-            category: .chest,
-            muscleGroup: .upperChest,
-            defaultType: .strength,
-            technique: "Скамья 30-45°. Опускайте штангу на верх груди (ключицы). Локти держите под углом, не разводите широко. Акцент на верхний пучок грудных мышц.",
-            videoUrl: "https://www.youtube.com/results?search_query=incline+bench+press+technique"
-        ),
-        LibraryExercise(
-            name: "Жим штанги лежа",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .strength,
-            technique: "Лягте на скамью, лопатки сведены и плотно прижаты. Хват чуть шире плеч. Опустите штангу на нижнюю часть груди (соски), локти под углом 45°. На выдохе мощно выжмите вверх без отрыва лопаток. Ноги жестко упираются в пол.",
-            videoUrl: "https://www.youtube.com/results?search_query=bench+press+technique"
-        ),
-        LibraryExercise(
-            name: "Жим штанги на наклонной скамье",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .strength,
-            technique: "Опускание производится выше, ближе к ключицам. Важно не допускать чрезмерного прогиба в пояснице, который может нивелировать угол наклона скамьи, превращая упражнение в вариацию горизонтального жима. Угол наклона: Критически важен. 15–30 градусов оптимальны для ключичной (верхней) порции груди. Углы выше 45 градусов катастрофически смещают нагрузку на переднюю дельту, делая упражнение неэффективным для г...",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%96%D0%B8%D0%BC%20%D1%88%D1%82%D0%B0%D0%BD%D0%B3%D0%B8%20%D0%BD%D0%B0%20%D0%BD%D0%B0%D0%BA%D0%BB%D0%BE%D0%BD%D0%BD%D0%BE%D0%B9%20%D1%81%D0%BA%D0%B0%D0%BC%D1%8C%D0%B5%20technique"
-        ),
-        LibraryExercise(
-            name: "Жим штанги обратным хватом",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .strength,
-            technique: "Хват шире плеч, локти движутся строго вдоль туловища. Траектория штанги — широкая дуга над животом. Требует помощи партнера при съеме штанги. Биомеханический феномен: Исследования показывают, что супинированный хват (ладони к себе) увеличивает активность верхней части груди на 30% по сравнению с обычным наклонным жимом.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%96%D0%B8%D0%BC%20%D1%88%D1%82%D0%B0%D0%BD%D0%B3%D0%B8%20%D0%BE%D0%B1%D1%80%D0%B0%D1%82%D0%BD%D1%8B%D0%BC%20%D1%85%D0%B2%D0%B0%D1%82%D0%BE%D0%BC%20technique"
-        ),
-        LibraryExercise(
-            name: "Кроссовер (верхние блоки)",
+            name: "Жим гантелей на скамье с обратным наклоном",
             category: .chest,
             muscleGroup: .lowerChest,
             defaultType: .strength,
-            technique: "Встаньте по центру, корпус чуть вперед. Сводите руки перед собой вниз к поясу, акцентируя внимание на сжатии низа груди. Локти чуть согнуты и зафиксированы.",
-            videoUrl: "https://www.youtube.com/results?search_query=cable+crossover+high+pulley"
+            technique: "Старт: скамья с отрицательным наклоном 15–20°, ноги зафиксированы. Гантели у нижней части груди.\n\nДвижение: жмите гантели вверх, сводя в верхней точке. Опускайте подконтрольно до растяжения низа груди.\n\nКлючи: акцент на нижний пучок, минимальное участие плеч.",
+            videoUrl: ytSearch("decline dumbbell press technique")
         ),
         LibraryExercise(
-            name: "Отжимания на брусьях",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .repsOnly,
-            technique: "Наклоните корпус вперед, ноги отведите назад. Опускайтесь до 90° в локтях. Локти чуть в стороны для акцента на грудь.",
-            videoUrl: "https://www.youtube.com/results?search_query=dips+chest+focus"
-        ),
-        LibraryExercise(
-            name: "Отжимания от пола",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .repsOnly,
-            technique: "Тело в одну линию. Опускайтесь до касания грудью пола. Локти направлены назад под углом 45°, не в стороны. Полная амплитуда.",
-            videoUrl: "https://www.youtube.com/results?search_query=pushups+technique"
-        ),
-        LibraryExercise(
-            name: "Бабочка (грудь)",
+            name: "Жим в Хаммере",
             category: .chest,
             muscleGroup: .middleChest,
             defaultType: .strength,
-            technique: "Исключает трицепс. Важно держать локти на уровне плеч для безопасности сустава. Внутренняя часть груди",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%91%D0%B0%D0%B1%D0%BE%D1%87%D0%BA%D0%B0%20%D0%B3%D1%80%D1%83%D0%B4%D1%8C%20technique"
+            technique: "Старт: сядьте плотно, лопатки прижаты к спинке, грудь приподнята. Рукояти на уровне середины груди.\n\nДвижение: жмите рукояти вперёд, в верхней точке слегка сводите их (если конструкция позволяет). Возвращайте подконтрольно до растяжения.\n\nКлючи: тренажёр стабилизирует траекторию — фокусируйтесь на сокращении грудных, не на удержании веса.",
+            videoUrl: ytSearch("hammer strength chest press")
         ),
         LibraryExercise(
-            name: "Разводка гантелей",
+            name: "Жим в тренажере сидя",
             category: .chest,
             muscleGroup: .middleChest,
             defaultType: .strength,
-            technique: "Лежа на скамье, разводите руки в стороны по широкой дуге до растяжения грудных. Локти зафиксированы под тупым углом. Движение 'обнимания бочки'.",
-            videoUrl: "https://www.youtube.com/results?search_query=dumbbell+flyes+technique"
+            technique: "Старт: отрегулируйте сиденье так, чтобы рукояти были на уровне середины груди. Лопатки прижаты к спинке.\n\nДвижение: жмите рукояти вперёд по фиксированной траектории, не разгибая локти полностью. Возвращайте до растяжения.\n\nКлючи: подходит для безопасной работы до отказа, для дроп-сетов и для новичков.",
+            videoUrl: ytSearch("chest press machine technique")
         ),
-        // MARK: - COMPLEX
         LibraryExercise(
-            name: "360 Swing",
-            category: .complex,
-            muscleGroup: .fullBody,
+            name: "Жим Смита лежа",
+            category: .chest,
+            muscleGroup: .middleChest,
             defaultType: .strength,
-            technique: "Техника: Взрывное подтягивание, отпускание перекладины, оборот вокруг своей оси на 360 градусов и повторный хват. Требует пространственной ориентации.",
-            videoUrl: "https://www.youtube.com/results?search_query=360%20Swing%20technique"
+            technique: "Старт: скамья по центру тренажёра Смита, гриф над нижней частью груди.\n\nДвижение: опускайте штангу к нижней части груди, локти под 45°. Жмите вверх без рывка.\n\nКлючи: фиксированная траектория позволяет работать ближе к отказу без страховщика. Не путать с обычным жимом — дисбалансы здесь не корректируются.",
+            videoUrl: ytSearch("smith machine bench press technique")
         ),
-        LibraryExercise(
-            name: "Анти-ротация",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Техника: Стоя, гриф на вытянутых руках. Перемещение грифа по дуге от бедра к бедру, не поворачивая корпус. Мышцы кора работают в режиме экстремального торможения инерции.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%90%D0%BD%D1%82%D0%B8-%D1%80%D0%BE%D1%82%D0%B0%D1%86%D0%B8%D1%8F%20technique"
-        ),
-        LibraryExercise(
-            name: "Болгарские отжимания",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Техника: Широкие отжимания на кольцах, где руки разводятся в стороны при опускании. Огромная нагрузка на грудь.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%91%D0%BE%D0%BB%D0%B3%D0%B0%D1%80%D1%81%D0%BA%D0%B8%D0%B5%20%D0%BE%D1%82%D0%B6%D0%B8%D0%BC%D0%B0%D0%BD%D0%B8%D1%8F%20technique"
-        ),
-        LibraryExercise(
-            name: "Выпады с жимом",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Комплекс: Обратный выпад, затем при вставании — жим грифа противоположной рукой. Координационно сложное упражнение.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%92%D1%8B%D0%BF%D0%B0%D0%B4%D1%8B%20%D1%81%20%D0%B6%D0%B8%D0%BC%D0%BE%D0%BC%20technique"
-        ),
-        LibraryExercise(
-            name: "Выход силой",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Взрывной: Тяга до пояса за счет инерции и рывка, быстрый проворот кистей. Медленный (Slow/Strict): Выполняется с ложным хватом (False Grip), без рывков. Чистая сила. На кольцах (Ring Muscle-up): Сложнее из-за нестабильности колец. Требует глубокого хвата.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%92%D1%8B%D1%85%D0%BE%D0%B4%20%D1%81%D0%B8%D0%BB%D0%BE%D0%B9%20technique"
-        ),
-        LibraryExercise(
-            name: "Горизонт",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Статус: «Святой Грааль» жимовой статики. Тело параллельно земле, упор только на руки. Биомеханика: Передняя дельта испытывает колоссальную нагрузку. Бицепс работает как стабилизатор локтя (риск разрыва при недостаточной подготовке). Прогрессия: Planche Lean (наклоны) -> Frog Stand (стойка лягушки) -> Tuck Planche -> Straddle Planche -> Full Planche. Push-ups: Отжимания в горизонте без касания ...",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%93%D0%BE%D1%80%D0%B8%D0%B7%D0%BE%D0%BD%D1%82%20technique"
-        ),
-        LibraryExercise(
-            name: "Жим Лэндмайн",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Вариации: Standing: Стоя двумя руками. Half-Kneeling: Стоя на одном колене, жим одной рукой. Отличная стабилизация кора. Push Press: Жим с помощью ног (швунг). Развивает взрывную силу.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%96%D0%B8%D0%BC%20%D0%9B%D1%8D%D0%BD%D0%B4%D0%BC%D0%B0%D0%B9%D0%BD%20technique"
-        ),
-        LibraryExercise(
-            name: "Задний вис",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Skin The Cat: Проворот тела через кольца/турник из виса в положение виса сзади. Развивает мобильность плеч (экстензия). Back Lever: Удержание тела горизонтально лицом вниз. Нагружает грудные мышцы, бицепсы и плечи в растянутом положении. и «Ласточка» (Skin The Cat)",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%97%D0%B0%D0%B4%D0%BD%D0%B8%D0%B9%20%D0%B2%D0%B8%D1%81%20technique"
-        ),
-        LibraryExercise(
-            name: "Лицевая тяга на кольцах",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Техника: Отклонение назад, тяга колец к ушам с разведением рук в позу «Y».",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9B%D0%B8%D1%86%D0%B5%D0%B2%D0%B0%D1%8F%20%D1%82%D1%8F%D0%B3%D0%B0%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BB%D1%8C%D1%86%D0%B0%D1%85%20technique"
-        ),
-        LibraryExercise(
-            name: "Лэндмайн-приседания",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Техника: Удержание конца грифа у груди (\"намоленная поза\"). Эффект: Позволяет приседать глубже с вертикальной спиной даже людям с плохой мобильностью.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9B%D1%8D%D0%BD%D0%B4%D0%BC%D0%B0%D0%B9%D0%BD-%D0%BF%D1%80%D0%B8%D1%81%D0%B5%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F%20technique"
-        ),
-        LibraryExercise(
-            name: "Одноногая румынская тяга",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Преимущество: Гриф дает точку опоры, решая проблему баланса, свойственную гантелям. Позволяет нагрузить ягодицу и бицепс бедра одной ноги значительным весом.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9E%D0%B4%D0%BD%D0%BE%D0%BD%D0%BE%D0%B3%D0%B0%D1%8F%20%D1%80%D1%83%D0%BC%D1%8B%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%20%D1%82%D1%8F%D0%B3%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Отжимания",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Псевдо-планш (Pseudo Planche Push-ups): Кисти развернуты назад (к ногам), плечи сильно поданы вперед. Биомеханически имитирует жим лежа с огромным весом, нагружая переднюю дельту. Подводящее к горизонту. Лучник (Archer Push-ups): Одна рука прямая (опора), другая сгибается. Переходная ступень к отжиманиям на одной руке. Алмазные (Diamond): Руки вместе, акцент на трицепс и внутреннюю часть груди. Па...",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9E%D1%82%D0%B6%D0%B8%D0%BC%D0%B0%D0%BD%D0%B8%D1%8F%20technique"
-        ),
-        LibraryExercise(
-            name: "Отжимания на кольцах",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Преимущество: Возможность сводить руки в верхней точке (аддукция), как при разводке гантелей, чего нельзя сделать на полу.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9E%D1%82%D0%B6%D0%B8%D0%BC%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BB%D1%8C%D1%86%D0%B0%D1%85%20technique"
-        ),
-        LibraryExercise(
-            name: "Передний вис",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Анатомия: Широчайшие и прямая мышца живота работают на пределе изометрии. Прогрессия: Tuck (группировка) -> Advanced Tuck (спина прямая) -> One Leg (одна нога прямая) -> Straddle (ноги врозь) -> Full. Вспомогательное: Front Lever Pull-ups (подтягивания в висе) — одно из самых тяжелых упражнений для спины в мире.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9F%D0%B5%D1%80%D0%B5%D0%B4%D0%BD%D0%B8%D0%B9%20%D0%B2%D0%B8%D1%81%20technique"
-        ),
-        LibraryExercise(
-            name: "Ротационный выброс",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Динамика: Взрывное движение. Подъем грифа с пола с разворотом корпуса и перехватом в верхней точке. Тренирует передачу усилия от бедер к плечам (трансфер силы для единоборств).",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A0%D0%BE%D1%82%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%B2%D1%8B%D0%B1%D1%80%D0%BE%D1%81%20technique"
-        ),
-        LibraryExercise(
-            name: "Удержание угла",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "На кольцах: Сложнее, чем на брусьях, так как кольца норовят разъехаться.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A3%D0%B4%D0%B5%D1%80%D0%B6%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%83%D0%B3%D0%BB%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Флаг человека",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Механика: Нижняя рука толкает, верхняя тянет. Боковые мышцы кора работают на излом.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A4%D0%BB%D0%B0%D0%B3%20%D1%87%D0%B5%D0%BB%D0%BE%D0%B2%D0%B5%D0%BA%D0%B0%20technique"
-        ),
-        // MARK: - CORE
-        LibraryExercise(
-            name: "Копенгагенская планка",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .duration,
-            technique: "Техника: Боковая планка, где верхняя нога лежит на скамье, а нижняя подтянута к ней. Корпус держится на приводящих мышцах (аддукторах). Профилактика травм паха.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9A%D0%BE%D0%BF%D0%B5%D0%BD%D0%B3%D0%B0%D0%B3%D0%B5%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%20%D0%BF%D0%BB%D0%B0%D0%BD%D0%BA%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Планка",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .duration,
-            technique: "Упор лежа на локтях. Тело прямая струна. Пресс и ягодицы напряжены. Поясница не провисает.",
-            videoUrl: "https://www.youtube.com/results?search_query=plank+technique"
-        ),
-        LibraryExercise(
-            name: "Подъем ног в висе",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .repsOnly,
-            technique: "Вис на турнике. Поднимайте ноги, подкручивая таз вверх (показывайте попу зеркалу). Без раскачки.",
-            videoUrl: "https://www.youtube.com/results?search_query=hanging+leg+raise+technique"
-        ),
-        LibraryExercise(
-            name: "Ролик для пресса",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .strength,
-            technique: "Биомеханика: Анти-экстензия. Мышцы пресса работают, чтобы не дать пояснице прогнуться под весом тела. Вариация с разведением рук в стороны (на гантелях) — «Iron Cross» на полу.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A0%D0%BE%D0%BB%D0%B8%D0%BA%20%D0%B4%D0%BB%D1%8F%20%D0%BF%D1%80%D0%B5%D1%81%D1%81%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Русский твист",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .repsOnly,
-            technique: "Сидя на полу, отклонитесь назад, ноги на весу. Повороты корпуса влево-вправо. Косые мышцы.",
-            videoUrl: "https://www.youtube.com/results?search_query=russian+twist+technique"
-        ),
-        LibraryExercise(
-            name: "Скручивания (Crunch)",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .repsOnly,
-            technique: "Лежа. Отрываем только лопатки, поясница прижата. Выдох на подъеме. Скручивайтесь, а не поднимайтесь.",
-            videoUrl: "https://www.youtube.com/results?search_query=crunch+technique"
-        ),
-        // MARK: - LEGS
-        LibraryExercise(
-            name: "Good Morning",
-            category: .legs,
-            muscleGroup: .hamstrings,
-            defaultType: .strength,
-            technique: "Техника: Наклоны со штангой на плечах. Рычаг силы максимален, поэтому веса должны быть умеренными. Акцент на эксцентрическую фазу работы бицепса бедра.",
-            videoUrl: "https://www.youtube.com/results?search_query=Good%20Morning%20technique"
-        ),
-        LibraryExercise(
-            name: "Болгарские сплит-приседания",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Одна нога сзади на скамье. Приседайте на передней ноге. Корпус чуть вперед для ягодиц, прямо для квадрицепса. Адовое упражнение.",
-            videoUrl: "https://www.youtube.com/results?search_query=bulgarian+split+squat+technique"
-        ),
-        LibraryExercise(
-            name: "Выпады с гантелями",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Широкий шаг. Заднее колено почти касается пола. Корпус вертикально. Угол в коленях 90°.",
-            videoUrl: "https://www.youtube.com/results?search_query=dumbbell+lunges+technique"
-        ),
-        LibraryExercise(
-            name: "Гакк-приседания",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Роль: Позволяют нагрузить ноги до полного отказа без риска травмы спины, так как таз зафиксирован. В жиме ногами высокая постановка стоп акцентирует ягодицы/бицепс бедра, низкая — квадрицепс. и Жим ногами (Leg Press)",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%93%D0%B0%D0%BA%D0%BA-%D0%BF%D1%80%D0%B8%D1%81%D0%B5%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F%20technique"
-        ),
-        LibraryExercise(
-            name: "Жим ногами",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Ноги на ширине плеч. Опускайте платформу до 90° в коленях. Не отрывайте поясницу от спинки! Колени не сводите внутрь.",
-            videoUrl: "https://www.youtube.com/results?search_query=leg+press+technique"
-        ),
-        LibraryExercise(
-            name: "Нордическое сгибание",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Значение: «Золотой стандарт» профилактики травм подколенного сухожилия. Техника: Стоя на коленях, пятки зафиксированы (партнером или под шведской стенкой). Медленное опускание корпуса вперед, сопротивляясь гравитации только силой бицепсов бедра. Возврат — руками (для новичков) или бедрами (элита).",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9D%D0%BE%D1%80%D0%B4%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%BE%D0%B5%20%D1%81%D0%B3%D0%B8%D0%B1%D0%B0%D0%BD%D0%B8%D0%B5%20technique"
-        ),
-        LibraryExercise(
-            name: "Обратная гиперэкстензия",
-            category: .legs,
-            muscleGroup: .hamstrings,
-            defaultType: .strength,
-            technique: "Уникальность: Ноги поднимаются сзади, корпус зафиксирован. Растягивает позвоночник (декомпрессия) при одновременной закачке ягодиц и низа спины. Часто используется для реабилитации.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9E%D0%B1%D1%80%D0%B0%D1%82%D0%BD%D0%B0%D1%8F%20%D0%B3%D0%B8%D0%BF%D0%B5%D1%80%D1%8D%D0%BA%D1%81%D1%82%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F%20technique"
-        ),
-        LibraryExercise(
-            name: "Обратный Нордик",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Цель: Прямая мышца бедра (квадрицепс) в растянутом положении. Техника: Стоя на коленях, отклонение корпуса назад до касания спиной пяток (в идеале).",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9E%D0%B1%D1%80%D0%B0%D1%82%D0%BD%D1%8B%D0%B9%20%D0%9D%D0%BE%D1%80%D0%B4%D0%B8%D0%BA%20technique"
-        ),
-        LibraryExercise(
-            name: "Плиометрика",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Прыжки на тумбу (Box Jumps): Развитие взрывной силы. Прыжки в длину (Broad Jumps): Горизонтальная мощность. Выпады с прыжком (Jump Lunges): Интервальная выносливость.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9F%D0%BB%D0%B8%D0%BE%D0%BC%D0%B5%D1%82%D1%80%D0%B8%D0%BA%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Подъемы на носки",
-            category: .legs,
-            muscleGroup: .calves,
-            defaultType: .strength,
-            technique: "Максимальная амплитуда: глубоко вниз (растяжение), высоко вверх (сокращение). Делайте паузы.",
-            videoUrl: "https://www.youtube.com/results?search_query=calf+raises+technique"
-        ),
-        LibraryExercise(
-            name: "Приседания Дракона",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Техника: Похоже на реверанс. Свободная нога заводится за опорную по диагонали назад, но не касается пола. Корпус скручивается. Развивает координацию и ягодицы.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9F%D1%80%D0%B8%D1%81%D0%B5%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%94%D1%80%D0%B0%D0%BA%D0%BE%D0%BD%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Приседания Зерчера",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Техника: Штанга удерживается в локтевых сгибах перед собой. Эффект: Экстремальная нагрузка на кор и верх спины. Биомеханика близка к становой тяге сумо, но с акцентом на квадрицепс. Развивает «рабочую» силу для борьбы и переноски тяжестей.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9F%D1%80%D0%B8%D1%81%D0%B5%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%97%D0%B5%D1%80%D1%87%D0%B5%D1%80%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Приседания Креветка",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Техника: Присед на одной ноге, свободная нога согнута в колене и удерживается рукой сзади. В нижней точке колено свободной ноги касается пола. Сложнее пистолетика из-за смещенного центра тяжести.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9F%D1%80%D0%B8%D1%81%D0%B5%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%9A%D1%80%D0%B5%D0%B2%D0%B5%D1%82%D0%BA%D0%B0%20technique"
-        ),
-        LibraryExercise(
-            name: "Приседания Пистолетик",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .repsOnly,
-            technique: "Техника: Полный присед на одной ноге, вторая выпрямлена вперед. Требует мобильности голеностопа и силы квадрицепса.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9F%D1%80%D0%B8%D1%81%D0%B5%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%9F%D0%B8%D1%81%D1%82%D0%BE%D0%BB%D0%B5%D1%82%D0%B8%D0%BA%20technique"
-        ),
-        LibraryExercise(
-            name: "Приседания с безопасным грифом",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Оборудование: Гриф с рукоятками, смещающий центр тяжесть вперед. Преимущества: Позволяет приседать при травмах плеч (не нужно выворачивать руки) и заставляет сильнее работать верх спины, чтобы не «сложиться» вперед.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9F%D1%80%D0%B8%D1%81%D0%B5%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F%20%D1%81%20%D0%B1%D0%B5%D0%B7%D0%BE%D0%BF%D0%B0%D1%81%D0%BD%D1%8B%D0%BC%20%D0%B3%D1%80%D0%B8%D1%84%D0%BE%D0%BC%20technique"
-        ),
-        LibraryExercise(
-            name: "Приседания со штангой",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Штанга на трапециях. Садитесь вниз, разводя колени в стороны. Спина прямая. Опускайтесь ниже параллели. Вставайте, давя пятками.",
-            videoUrl: "https://www.youtube.com/results?search_query=barbell+squat+technique"
-        ),
-        LibraryExercise(
-            name: "Разгибание ног сидя",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Сидя. Полностью разгибайте ноги, пауза в верхней точке. Изоляция квадрицепса.",
-            videoUrl: "https://www.youtube.com/results?search_query=leg+extension+technique"
-        ),
-        LibraryExercise(
-            name: "Румынская тяга (RDL)",
-            category: .legs,
-            muscleGroup: .hamstrings,
-            defaultType: .strength,
-            technique: "Ноги чуть согнуты. Наклон вперед за счет отведения таза назад. Гриф скользит по ногам. Спина идеально прямая. Чувствуйте растяжение бицепса бедра.",
-            videoUrl: "https://www.youtube.com/results?search_query=romanian+deadlift+technique"
-        ),
-        LibraryExercise(
-            name: "Сгибание ног в тренажере",
-            category: .legs,
-            muscleGroup: .hamstrings,
-            defaultType: .strength,
-            technique: "Лежа или сидя. Сгибайте ноги, прижимая таз к скамье. Не подбрасывайте вес инерцией.",
-            videoUrl: "https://www.youtube.com/results?search_query=leg+curl+technique"
-        ),
-        LibraryExercise(
-            name: "Сисси-приседания",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Техника: Отклонение корпуса назад с одновременным сгибанием коленей и подъемом на носки. Тело образует прямую линию от колен до шеи. Изолирует квадрицепс, исключая ягодицы.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%A1%D0%B8%D1%81%D1%81%D0%B8-%D0%BF%D1%80%D0%B8%D1%81%D0%B5%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F%20technique"
-        ),
-        LibraryExercise(
-            name: "Фронтальные приседания",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Штанга на передних дельтах, локти высоко. Спина вертикальна. Акцент на квадрицепсы.",
-            videoUrl: "https://www.youtube.com/results?search_query=front+squat+technique"
-        ),
-        LibraryExercise(
-            name: "Ягодичный мост (Hip Thrust)",
-            category: .legs,
-            muscleGroup: .glutes,
-            defaultType: .strength,
-            technique: "Лопатки на скамье, штанга на бедрах. Поднимайте таз до полной линии тела. Пиковое сокращение ягодиц. Взгляд вперед.",
-            videoUrl: "https://www.youtube.com/results?search_query=hip+thrust+technique"
-        ),
-        // MARK: - SHOULDERS
-        LibraryExercise(
-            name: "Армейский жим",
-            category: .shoulders,
-            muscleGroup: .frontDelts,
-            defaultType: .strength,
-            technique: "Стоя. Жим штанги с груди над головой. Корпус напряжен, не прогибайтесь в пояснице. Вверху голова чуть вперед.",
-            videoUrl: "https://www.youtube.com/results?search_query=overhead+press+technique"
-        ),
-        LibraryExercise(
-            name: "Жим Z",
-            category: .shoulders,
-            muscleGroup: .frontDelts,
-            defaultType: .strength,
-            technique: "Жим сидя на полу с выпрямленными ногами. Смысл: Полностью исключает помощь ног и поясничного прогиба. Требует колоссальной силы кора и гибкости бицепса бедра. Жесточайшая проверка истинной силы плеч.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%96%D0%B8%D0%BC%20Z%20technique"
-        ),
-        LibraryExercise(
-            name: "Жим Арнольда",
-            category: .shoulders,
-            muscleGroup: .frontDelts,
-            defaultType: .strength,
-            technique: "Старт ладонями к себе. Жим с разворотом кистей. Вверху ладони вперед. Увеличивает амплитуду.",
-            videoUrl: "https://www.youtube.com/results?search_query=arnold+press+technique"
-        ),
-        LibraryExercise(
-            name: "Жим гантелей сидя",
-            category: .shoulders,
-            muscleGroup: .frontDelts,
-            defaultType: .strength,
-            technique: "Спина прижата. Жмите гантели по дуге вверх. Локти не опускайте слишком низко (ниже параллели) для сохранения натяжения.",
-            videoUrl: "https://www.youtube.com/results?search_query=seated+dumbbell+press+technique"
-        ),
-        LibraryExercise(
-            name: "Жим штанги из-за головы",
-            category: .shoulders,
-            muscleGroup: .sideDelts,
-            defaultType: .strength,
-            technique: "Опускайте штангу за голову до уровня ушей (не ниже, если нет гибкости). Жмите вверх. Аккуратно с плечевыми суставами!",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Протяжка (High Pull)",
-            category: .shoulders,
-            muscleGroup: .sideDelts,
-            defaultType: .strength,
-            technique: "Широкий хват. Тяните штангу вдоль тела к груди, поднимая локти максимально высоко в стороны.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Махи перед собой (Гантели)",
-            category: .shoulders,
-            muscleGroup: .frontDelts,
-            defaultType: .strength,
-            technique: "Попеременно или одновременно поднимайте гантели перед собой до уровня глаз. Не раскачивайте корпус.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Отведения руки на блоке",
-            category: .shoulders,
-            muscleGroup: .sideDelts,
-            defaultType: .strength,
-            technique: "Встаньте боком к блоку. Отводите руку в сторону до горизонтали. Постоянное напряжение в дельте.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Обратные разведения (Pec Deck)",
-            category: .shoulders,
-            muscleGroup: .rearDelts,
-            defaultType: .strength,
-            technique: "Сядьте лицом к спинке тренажера. Разводите рукояти назад. Локти на высоте плеч. Акцент на задний пучок.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Жим Арнольда стоя",
-            category: .shoulders,
-            muscleGroup: .frontDelts,
-            defaultType: .strength,
-            technique: "Аналог жима сидя, но требует большей стабилизации корпуса. Не прогибайтесь в пояснице.",
-            videoUrl: nil
-        ),
-
-        // -- Руки (Бицепс/Трицепс/Предплечья) --
-        LibraryExercise(
-            name: "Концентрированный подъем",
-            category: .arms,
-            muscleGroup: .biceps,
-            defaultType: .strength,
-            technique: "Сидя, уприте локоть во внутреннюю часть бедра. Сгибайте руку с гантелей. Полная изоляция, никакого читинга.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Молотки с канатом",
-            category: .arms,
-            muscleGroup: .biceps,
-            defaultType: .strength,
-            technique: "Нижний блок, канатная рукоять. Держите нейтральным хватом (ладони друг к другу). Тяните к плечам.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Сгибания Зоттмана",
-            category: .arms,
-            muscleGroup: .biceps,
-            defaultType: .strength,
-            technique: "Поднимайте как обычный бицепс (ладони вверх), в верхней точке разворачивайте кисти (ладони вниз) и опускайте обратным хватом.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Подъем штанги обратным хватом",
-            category: .arms,
-            muscleGroup: .forearms,
-            defaultType: .strength,
-            technique: "Хват сверху (ладони от себя). Поднимайте штангу на бицепс. Отлично развивает брахиалис и предплечья.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Сгибание кистей со штангой",
-            category: .arms,
-            muscleGroup: .forearms,
-            defaultType: .strength,
-            technique: "Предплечья на скамье, кисти свисают. Сгибайте кисти вверх к себе. Максимальная амплитуда.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Жим Тейта",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "Лежа с гантелями. Сгибайте руки в локтях внутрь (к груди), разводя локти в стороны. Разгибайте мощным усилием.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Разгибание руки из-за головы",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "С гантелью или на нижнем блоке. Локоть смотрит вверх. Опускайте вес за голову, растягивая трицепс.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Отжимания 'Алмаз'",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .repsOnly,
-            technique: "Узкая постановка рук, указательные и большие пальцы образуют треугольник. Локти вдоль тела.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Жим узким хватом в Смите",
-            category: .arms,
-            muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "Локти прижаты к туловищу. Гриф опускается на низ груди. Изолированная работа трицепса и безопасно для баланса.",
-            videoUrl: nil
-        ),
-
-        // -- Спина --
-        LibraryExercise(
-            name: "Тяга штанги обратным хватом",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Как обычная тяга в наклоне, но хват ладонями от себя. Больше включает бицепс и низ широчайших.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Тяга одной рукой в упоре",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Упор рукой и коленом в скамью. Спина параллельно полу. Тяните гантель к тазу, максимально поднимая локоть.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Пуловер в блоке (Прямые руки)",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Стоя у верхнего блока. Прямыми (чуть согнутыми) руками опускайте рукоять к бедрам по дуге. Изоляция широчайших.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Шраги с гантелями",
-            category: .back,
-            muscleGroup: .trapezius,
-            defaultType: .strength,
-            technique: "Стоя с тяжелыми гантелями. Поднимайте плечи строго вверх к ушам. Задержитесь на секунду. Не вращайте плечами!",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Рычажная тяга (Hammer)",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Тяга в тренажере сидя. Грудь прижата к подушке. Тяните локти назад, сводя лопатки. Работает толщина спины.",
-            videoUrl: nil
-        ),
-
-        // -- Грудь --
         LibraryExercise(
             name: "Жим Смита на наклонной",
             category: .chest,
             muscleGroup: .upperChest,
             defaultType: .strength,
-            technique: "Скамья 30-45 градусов. Опускайте гриф на ключицы. Смит дает изоляцию и безопасность.",
-            videoUrl: nil
+            technique: "Старт: установите скамью с углом 30° под гриф так, чтобы он опускался к верху груди.\n\nДвижение: опускайте к ключицам, локти под 45°. Жмите без замыкания.\n\nКлючи: безопасная альтернатива со свободным весом, отлично для прогрессии в верхе груди.",
+            videoUrl: ytSearch("smith machine incline press")
         ),
         LibraryExercise(
-            name: "Сведения в кроссовере лежа",
+            name: "Гильотинный жим",
             category: .chest,
             muscleGroup: .middleChest,
             defaultType: .strength,
-            technique: "Лежа на скамье между блоками. Сводите рукояти над грудью, как при разводке гантелей, но с постоянным натяжением тросов.",
-            videoUrl: nil
-        ),
-
-        // -- Ноги --
-        LibraryExercise(
-            name: "Гакк-приседания",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "В тренажере. Спина прижата. Приседайте глубоко. Отличное упражнение, снимающее нагрузку с поясницы.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Сумо-тяга",
-            category: .legs,
-            muscleGroup: .glutes,
-            defaultType: .strength,
-            technique: "Широкая постановка ног, носки врозь. Хват узкий. Спина вертикальнее, чем в классике. Больше работают ноги и ягодицы.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Гоблет-приседания",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Держите гирю или гантель у груди. Приседайте, разводя колени. Учитесь держать спину прямо.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Приседания 'Пистолетик'",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .repsOnly,
-            technique: "Приседание на одной ноге, вторая выпрямлена вперед. Требует отличного баланса и силы ног.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Зашагивания на скамью",
-            category: .legs,
-            muscleGroup: .glutes,
-            defaultType: .strength,
-            technique: "С гантелями в руках. Шагайте на возвышение всей стопой. Вставайте за счет ноги на скамье, не отталкивайтесь нижней.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Разведение ног (Тренажер)",
-            category: .legs,
-            muscleGroup: .glutes,
-            defaultType: .strength,
-            technique: "Сидя. Разводите ноги в стороны, задерживаясь в пиковой точке. Прорабатывает среднюю ягодичную.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Сведение ног (Тренажер)",
-            category: .legs,
-            muscleGroup: .hamstrings, // Adductors actually
-            defaultType: .strength,
-            technique: "Сидя. Сводите ноги вместе. Работает внутренняя поверхность бедра (аддукторы).",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Подъем на носки сидя",
-            category: .legs,
-            muscleGroup: .calves,
-            defaultType: .strength,
-            technique: "Тренажер или штанга на коленях. Поднимайте пятки максимально высоко. Работает камбаловидная мышца.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Статика у стены (Стульчик)",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .duration,
-            technique: "Прижмитесь спиной к стене и присядьте до угла 90 градусов. Держите позицию до отказа. Жжение гарантировано.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Тяга сумо с гирей",
-            category: .legs,
-            muscleGroup: .glutes,
-            defaultType: .strength,
-            technique: "Гиря между ног. Широкая стойка. Садитесь глубоко и вставайте, сжимая ягодицы наверху.",
-            videoUrl: nil
-        ),
-
-        // -- Кор --
-        LibraryExercise(
-            name: "Колесо для пресса",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .repsOnly,
-            technique: "С колен катите ролик вперед, растягиваясь почти до пола. Спину держите округлой, не прогибайтесь в пояснице!",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Вакуум",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .duration,
-            technique: "Стоя или в наклоне. Сделайте полный выдох и втяните живот под ребра. Держите сколько сможете (15-30 сек).",
-            videoUrl: nil
-        ),
-        
-        LibraryExercise(
-            name: "Уголок (L-Sit)",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .duration,
-            technique: "На брусьях или полу. Поднимите прямые ноги до угла 90 градусов и удерживайте. Стальной пресс обеспечен.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Складочка (V-Ups)",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .repsOnly,
-            technique: "Лежа на спине. Одновременно поднимайте прямые руки и ноги, касаясь пальцами стоп в верхней точке.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Велосипед",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .duration,
-            technique: "Лежа на спине, руки за головой. Поочередно тяните локоть к противоположному колену. Имитация педалирования.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Подъем ног лежа",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .repsOnly,
-            technique: "Руки под ягодицы. Поднимайте прямые ноги до угла 90 градусов. Опускайте плавно, не касаясь пола.",
-            videoUrl: nil
-        ),
-
-        // MARK: - КАРДИО & ЭНДУРАНС
-        LibraryExercise(
-            name: "Берпи",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .repsOnly,
-            technique: "Из положения стоя присядьте, упритесь руками в пол. Прыжком перейдите в упор лежа, отожмитесь, коснувшись грудью пола. Прыжком верните ноги к рукам и выпрыгните вверх с хлопком над головой. Держите темп.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Скакалка",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Держите локти ближе к корпусу, вращайте скакалку только кистями. Прыгайте на носках мягко, амортизируя коленями. Взгляд перед собой.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Бег (Интервалы)",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Чередование периодов максимального ускорения (спринт) и активного отдыха (легкий бег или ходьба). Например: 30 сек спринт / 30 сек отдых. Эффективно для жиросжигания.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Гребля (Concept2)",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Мощный толчок ногами, затем отклонение корпуса назад и тяга рук к солнечному сплетению. Возврат: выпрямить руки, корпус вперед, согнуть ноги. Спина прямая.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Байк (Assault Bike)",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Работайте руками и ногами одновременно. Чем выше скорость, тем выше сопротивление. Следите за тем, чтобы колени не 'гуляли' в стороны.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Лыжный тренажер (SkiErg)",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Имитация лыжного хода. Мощный мах руками вниз с одновременным подседом. Включайте пресс и широчайшие. Не работают только руки!",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Двойные прыжки на скакалке",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .repsOnly,
-            technique: "Высокий прыжок на носках, два оборота скакалки за один прыжок. Требует быстрой работы кистей и тайминга.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Заныривания на коробку (Box Jumps)",
-            category: .cardio,
-            muscleGroup: .quadriceps,
-            defaultType: .repsOnly,
-            technique: "Встаньте перед тумбой. Сделайте замах руками и запрыгните наверх, полностью выпрямив таз в верхней точке. Спускайтесь шагом, чтобы сберечь ахиллы.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Альпинист (Скалолаз)",
-            category: .cardio,
-            muscleGroup: .core,
-            defaultType: .duration,
-            technique: "Упор лежа. Поочередно подтягивайте колени к груди в быстром темпе, имитируя бег. Таз не задирайте. Пресс напряжен.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Джампинг Джек",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Прыжки 'звездочка'. Ноги врозь - хлопок над головой, ноги вместе - руки по швам. Держите легкий темп на носках.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Бег трусцой",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Равномерный бег в комфортном темпе. Пульс 120-140 ударов. Отлично для разминки или заминки.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Эллипсоид",
-            category: .cardio,
-            muscleGroup: .quadriceps,
-            defaultType: .duration,
-            technique: "Кардио без ударной нагрузки на суставы. Держите спину прямо, работайте руками в такт ногам.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Степпер",
-            category: .cardio,
-            muscleGroup: .glutes,
-            defaultType: .duration,
-            technique: "Имитация ходьбы по лестнице. Не опирайтесь всем весом на поручни! Давите пяткой.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Бокс (Груша)",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Работа по мешку. Держите стойку, руки у подбородка. Вкладывайте корпус в удар. Двигайтесь вокруг снаряда.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Ходьба в гору",
-            category: .cardio,
-            muscleGroup: .glutes,
-            defaultType: .duration,
-            technique: "Беговая дорожка с уклоном 10-15%. Быстрая ходьба без бега. Мощно прорабатывает заднюю поверхность бедра.",
-            videoUrl: nil
-        ),
-        // -- Плечи --
-        
-        
-        
-        
-        
-
-        // -- Руки (Бицепс/Трицепс) --
-        
-        
-        
-        
-        
-        
-
-        // -- Спина --
-        
-        
-        
-        
-        
-        // -- Ноги --
-        
-        
-        
-        
-        
-        
-
-        // -- Кор --
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
-        // MARK: - КОМПЛЕКСНЫЕ (Тяжелая атлетика / Crossfit)
-        
-        LibraryExercise(
-            name: "Рывок штанги (Snatch)",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Широкий хват. Мощный подрыв штанги с пола за счет ног и спины, полное выпрямление ('тройное разгибание') и уход в глубокий сед, принимая штангу над головой. Требует гибкости плеч.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Взятие штанги на грудь (Clean)",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Хват на ширине плеч. Подрыв штанги вверх, быстрый 'подворот' локтей вперед и прием штанги на передние дельты в седе или полу-седе. Локти смотрят вперед.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Трастеры (Thrusters)",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Комбинация фронтального приседа и жима (швунга). Штанга на груди, глубокий сед. На вставании мощно вытолкните штангу над головой единым движением.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Махи гирей (Русские)",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .repsOnly,
-            technique: "Мах гирей до уровня глаз за счет мощного разгибания таза. Спина прямая, не приседайте глубоко, работайте бедрами (hip hinge).",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Махи гирей (Американские)",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .repsOnly,
-            technique: "Мах гирей в полную амплитуду над головой. Следите, чтобы поясница не прогибалась в верхней точке. Дно гири смотрит в потолок.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Кластеры (Clusters)",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Взятие штанги на грудь в полный сед + Трастер. Каждый повтор начинается с пола. Одно из самых энергоемких упражнений.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Броски мяча (Wall Balls)",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .repsOnly,
-            technique: "Глубокий присед с медболом у груди. На вставании мощный бросок мяча в мишень/стену. Ловите мяч, амортизируя ногами сразу в следующий присед.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Толчок штанги (Jerk)",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Штанга на груди. Короткий подсед и выталкивание штанги вверх с одновременным уходом под нее (в ножницы или стойку). Руки выпрямляются мгновенно.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Рывок гири",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .repsOnly,
-            technique: "Подрыв гири с пола одной рукой и уход под нее. Гиря описывает дугу и мягко ложится на предплечье наверху. Спина прямая.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Прогулка фермера",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Возьмите тяжелые гантели или снаряды в руки. Идите мелкими шагами, корпус напряжен, плечи расправлены. Адский хват и стабилизация.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Турецкий подъем",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Подъем из положения лежа в положение стоя, удерживая гирю/гантель на вытянутой руке над головой. Требует поэтапного контроля каждого движения.",
-            videoUrl: nil
-        ),
-        
-        // MARK: - НОВЫЕ / ДОПОЛНИТЕЛЬНЫЕ
-        LibraryExercise(
-            name: "Шраги со штангой",
-            category: .back,
-            muscleGroup: .trapezius,
-            defaultType: .strength,
-            technique: "Поднимайте плечи к ушам. Руки прямые. Не вращайте плечами, только вверх-вниз.",
-            videoUrl: "https://www.youtube.com/results?search_query=barbell+shrugs+technique"
-        ),
-        LibraryExercise(
-            name: "Кубинский жим",
-            category: .shoulders,
-            muscleGroup: .rearDelts,
-            defaultType: .strength,
-            technique: "Комплекс: Сочетает тягу к подбородку, наружную ротацию плеча и жим вверх. Укрепляет мелкие стабилизаторы плеча. Выполняется с легкими гантелями.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9A%D1%83%D0%B1%D0%B8%D0%BD%D1%81%D0%BA%D0%B8%D0%B9%20%D0%B6%D0%B8%D0%BC%20technique"
-        ),
-        LibraryExercise(
-            name: "Махи",
-            category: .shoulders,
-            muscleGroup: .frontDelts,
-            defaultType: .strength,
-            technique: "Махи гантелями (Lateral Raises): Локоть должен быть выше кисти («выливание воды из кувшина»). Инерция недопустима. Lu Raises (Махи в стиле Lu Xiaojun): Полная амплитуда — подъем гантелей через стороны до касания над головой. Развивает не только дельты, но и трапеции, и мобильность плеча. Протяжка (Upright Row): Тяга штанги к подбородку. Опасно: Узкий хват может вызвать импиджмент. Решение: Использ...",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9C%D0%B0%D1%85%D0%B8%20technique"
-        ),
-        LibraryExercise(
-            name: "Махи в наклоне",
-            category: .shoulders,
-            muscleGroup: .rearDelts,
-            defaultType: .strength,
-            technique: "Наклон корпуса вперед. Разводите руки в стороны. Локти смотрят в потолок. Работает задняя дельта.",
-            videoUrl: "https://www.youtube.com/results?search_query=rear+delt+fly+technique"
-        ),
-        LibraryExercise(
-            name: "Махи гантелями в стороны",
-            category: .shoulders,
-            muscleGroup: .sideDelts,
-            defaultType: .strength,
-            technique: "Локти чуть согнуты. Поднимайте через стороны до параллели. 'Выливайте воду из кувшина'. Не раскачивайтесь.",
-            videoUrl: "https://www.youtube.com/results?search_query=lateral+raises+technique"
-        ),
-        LibraryExercise(
-            name: "Обратная бабочка",
-            category: .shoulders,
-            muscleGroup: .rearDelts,
-            defaultType: .strength,
-            technique: "Тренажер Pec-Deck. Сядьте лицом к спинке. Отводите руки назад до линии плеч. Локти чуть согнуты. Включает задние дельты.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Подъем ног в упоре",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .repsOnly,
-            technique: "Упор локтями в брусья (станок). Поднимайте прямые или согнутые ноги к груди, подкручивая таз.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Гиперэкстензия (Обратная)",
-            category: .back,
-            muscleGroup: .glutes,
-            defaultType: .repsOnly,
-            technique: "Лежа животом на скамье, ноги свисают. Поднимайте прямые ноги вверх до горизонтали, сжимая ягодицы.",
-            videoUrl: nil
+            technique: "Старт: лежа, ноги на скамье или подставке (исключаем мост). Хват чуть шире обычного.\n\nДвижение: опускайте штангу прямо к шее (не к груди), локти разведены под 90°. Жмите вверх по той же линии.\n\nКлючи: опасно для плеч — начинайте с минимального веса. Обязательна страховка. Даёт максимальное растяжение грудных и убирает помощь трицепсов и широчайших.",
+            videoUrl: ytSearch("guillotine press technique")
         ),
         LibraryExercise(
             name: "Жим Свенда",
             category: .chest,
             muscleGroup: .middleChest,
             defaultType: .strength,
-            technique: "Стоя, сжимаем блины или гантель перед собой на уровне груди ладонями. Выпрямляем руки вперед, постоянно сдавливая снаряд.",
-            videoUrl: nil
+            technique: "Старт: стоя или сидя, сожмите между ладонями два блина (или одну гантель ребром) перед грудью. Локти подняты до уровня плеч.\n\nДвижение: выпрямите руки вперёд, постоянно с максимальной силой сдавливая блины ладонями. Возвращайте к груди, не ослабляя давление.\n\nКлючи: изометрический финишер — даёт сильнейший пампинг и развивает нейромышечную связь. Без давления упражнение бесполезно.",
+            videoUrl: ytSearch("svend press technique")
         ),
         LibraryExercise(
-            name: "Сгибание паука",
-            category: .arms,
-            muscleGroup: .biceps,
+            name: "Сведение гантелей лежа",
+            category: .chest,
+            muscleGroup: .middleChest,
             defaultType: .strength,
-            technique: "Лежа животом на наклонной скамье. Руки свисают вертикально вниз. Сгибание на бицепс, исключая помощь корпуса.",
-            videoUrl: nil
+            technique: "Старт: лежа, гантели над грудью, ладони обращены друг к другу. Локти зафиксированы в лёгком сгибе (15–20°).\n\nДвижение: разведите руки по широкой дуге до уровня плеч (или чуть ниже) — почувствуйте растяжение. Сведите по той же дуге, не меняя угол в локте.\n\nКлючи: это не жим — двигаются только плечевые суставы. В верхней точке слегка сводите гантели вместе для пика.",
+            videoUrl: ytSearch("dumbbell flyes technique")
         ),
         LibraryExercise(
-            name: "Разгибание из-за головы на блоке",
-            category: .arms,
+            name: "Сведение гантелей на наклонной скамье",
+            category: .chest,
+            muscleGroup: .upperChest,
+            defaultType: .strength,
+            technique: "Старт: скамья 30°. Гантели над грудью, ладони друг к другу, локти слегка согнуты.\n\nДвижение: разводите по дуге до растяжения верха груди. Сводите вверху без полного замыкания.\n\nКлючи: акцентирует ключичную головку. Берите умеренный вес — здесь приоритет техника, а не масса.",
+            videoUrl: ytSearch("incline dumbbell flyes technique")
+        ),
+        LibraryExercise(
+            name: "Сведение рук в тренажере (Бабочка)",
+            category: .chest,
+            muscleGroup: .middleChest,
+            defaultType: .strength,
+            technique: "Старт: сядьте, спина прижата, предплечья на подушках (или хват рукоятей). Локти на уровне плеч.\n\nДвижение: сводите руки перед грудью до соприкосновения, удерживая 1 секунду. Разводите подконтрольно до растяжения.\n\nКлючи: идеальная изоляция — нет участия трицепса. Не дёргайте — медленный негатив.",
+            videoUrl: ytSearch("pec deck machine technique")
+        ),
+        LibraryExercise(
+            name: "Кроссовер с верхних блоков",
+            category: .chest,
+            muscleGroup: .lowerChest,
+            defaultType: .strength,
+            technique: "Старт: блоки сверху, рукояти в каждой руке, корпус слегка наклонён вперёд, шаг вперёд для устойчивости.\n\nДвижение: сводите руки по дуге вниз перед собой к уровню таза, скрещивая запястья в нижней точке. Возврат подконтрольный.\n\nКлючи: акцент на низ груди и внутреннюю линию. Локти зафиксированы в лёгком сгибе.",
+            videoUrl: ytSearch("high cable crossover technique")
+        ),
+        LibraryExercise(
+            name: "Кроссовер со средних блоков",
+            category: .chest,
+            muscleGroup: .middleChest,
+            defaultType: .strength,
+            technique: "Старт: блоки на уровне груди. Стойка по центру, шаг вперёд.\n\nДвижение: сводите руки перед собой на уровне груди до пересечения. Контроль на возврате.\n\nКлючи: нагрузка на среднюю часть груди под постоянным напряжением — отличная альтернатива сведениям.",
+            videoUrl: ytSearch("mid cable crossover technique")
+        ),
+        LibraryExercise(
+            name: "Кроссовер с нижних блоков",
+            category: .chest,
+            muscleGroup: .upperChest,
+            defaultType: .strength,
+            technique: "Старт: блоки внизу, корпус слегка наклонён вперёд.\n\nДвижение: ведите руки снизу-вверх к лицу, как будто обнимаете. В верхней точке руки на уровне глаз, лёгкое сведение.\n\nКлючи: целит верхний пучок груди и работает в разрезе, недоступном штанге.",
+            videoUrl: ytSearch("low cable crossover technique")
+        ),
+        LibraryExercise(
+            name: "Сведения в кроссовере лежа",
+            category: .chest,
+            muscleGroup: .middleChest,
+            defaultType: .strength,
+            technique: "Старт: скамья между двух блоков, ручки в руках, ладони друг к другу.\n\nДвижение: сведите руки над грудью по дуге, разведите подконтрольно до глубокого растяжения.\n\nКлючи: постоянное напряжение во всей амплитуде — преимущество кроссовера над гантелями.",
+            videoUrl: ytSearch("lying cable flyes technique")
+        ),
+        LibraryExercise(
+            name: "Отжимания от пола",
+            category: .chest,
+            muscleGroup: .middleChest,
+            defaultType: .repsOnly,
+            technique: "Старт: упор лёжа, ладони чуть шире плеч, тело — прямая линия от макушки до пяток.\n\nДвижение: опуститесь до 1–2 см от пола, локти под 45°. Мощно отожмитесь, не теряя натяжение корпуса.\n\nКлючи: пресс и ягодицы напряжены. Без провисания таза. Шире хват — больше грудь, уже — больше трицепс.",
+            videoUrl: ytSearch("push up technique")
+        ),
+        LibraryExercise(
+            name: "Отжимания узким хватом (Алмаз)",
+            category: .chest,
             muscleGroup: .triceps,
-            defaultType: .strength,
-            technique: "Нижний блок с канатом. Стоя спиной к блоку, тянем канат из-за головы вверх. Локти зафиксированы у ушей.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Тяга Кинга (King Deadlift)",
-            category: .legs,
-            muscleGroup: .quadriceps,
             defaultType: .repsOnly,
-            technique: "Стоя на одной ноге без веса. Приседайте, пытаясь коснуться коленом свободной ноги пола. Сложнейшая координация.",
-            videoUrl: nil
+            technique: "Старт: упор лёжа, ладони сведены под грудью так, чтобы большие и указательные пальцы образовали ромб.\n\nДвижение: опускайтесь, локти движутся назад вдоль рёбер. Отжимайтесь, удерживая корпус ровным.\n\nКлючи: жёсткая нагрузка на трицепс и внутреннюю часть груди. При боли в плечах сместите ладони чуть шире.",
+            videoUrl: ytSearch("diamond push up technique")
         ),
         LibraryExercise(
-            name: "Боковые выпады",
-            category: .legs,
-            muscleGroup: .quadriceps,
-            defaultType: .strength,
-            technique: "Широкая стойка. Перенос веса на одну ногу, сгибая ее в колене. Вторая нога прямая. Спина ровная.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Подъем таза на мяче",
-            category: .legs,
-            muscleGroup: .hamstrings,
+            name: "Отжимания широким хватом",
+            category: .chest,
+            muscleGroup: .middleChest,
             defaultType: .repsOnly,
-            technique: "Лежа на спине, пятки на фитболе. Поднимаем таз и подкатываем мяч к себе, сгибая колени. Жжет бицепс бедра.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Медвежья проходка",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "На четвереньках, колени не касаются пола. Двигаемся вперед-назад разноименными конечностями. Спина параллельно полу.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Прыжки на скакалке (Крест-накрест)",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Базовые прыжки с перекрещиванием рук перед собой. Развивает координацию и ловкость.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Выпрыгивания из приседа",
-            category: .cardio,
-            muscleGroup: .quadriceps,
-            defaultType: .repsOnly,
-            technique: "Полный присед и максимальное выпрыгивание вверх. Руки помогают инерцией. Мягкое приземление.",
-            videoUrl: nil
+            technique: "Старт: ладони на 1.5 ширины плеч, тело прямое.\n\nДвижение: опуститесь подконтрольно до уровня груди. Локти разводятся в стороны под 60–90°.\n\nКлючи: акцент на внешней части груди. Не уходите слишком широко — риск для плечевого сустава.",
+            videoUrl: ytSearch("wide push up technique")
         ),
         LibraryExercise(
             name: "Отжимания с хлопком",
             category: .chest,
             muscleGroup: .middleChest,
             defaultType: .repsOnly,
-            technique: "Взрывное отжимание, в верхней точке делаем хлопок руками. Требует скорости и силы.",
-            videoUrl: nil
+            technique: "Старт: упор лёжа, классический хват.\n\nДвижение: взрывное отжимание вверх с отрывом ладоней от пола, хлопок и мягкое приземление с продолжением движения.\n\nКлючи: плиометрика — для развития мощности. Только когда уверенно делаете 25+ обычных отжиманий.",
+            videoUrl: ytSearch("clap push up technique")
         ),
         LibraryExercise(
-            name: "Подтягивания (Австралийские)",
-            category: .back,
-            muscleGroup: .lats,
+            name: "Отжимания с возвышения для ног",
+            category: .chest,
+            muscleGroup: .upperChest,
             defaultType: .repsOnly,
-            technique: "Вис на низкой перекладине (или кольцах), тело под углом, пятки на полу. Тянемся грудью к перекладине.",
-            videoUrl: nil
+            technique: "Старт: ноги на скамье / возвышении, ладони на полу чуть шире плеч.\n\nДвижение: опускайтесь до касания грудью, локти под 45°. Отжимайтесь, удерживая корпус.\n\nКлючи: чем выше ноги — тем больше нагрузки на верх груди и плечи. Имитирует наклонный жим.",
+            videoUrl: ytSearch("decline push up technique")
         ),
         LibraryExercise(
-            name: "Тяга Пендли",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Тяга штанги в наклоне, но каждый повтор начинается с 'мертвой точки' (с пола). Спина строго параллельна.",
-            videoUrl: nil
-        ),
-        
-        LibraryExercise(
-            name: "Махи рукой лежа на боку",
-            category: .shoulders,
-            muscleGroup: .rearDelts,
-            defaultType: .strength,
-            technique: "Лежа на боку на скамье. Верхней рукой машем гантель вверх. Изоляция задней дельты.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Сгибание запястий (За спиной)",
-            category: .arms,
-            muscleGroup: .forearms,
-            defaultType: .strength,
-            technique: "Штанга за спиной в опущенных руках. Сгибаем кисти вверх. Качает предплечья.",
-            videoUrl: nil
-        ),
-        
-        // -- Растяжка / МФР (Бонус) --
-        LibraryExercise(
-            name: "Ролл спины (МФР)",
-            category: .core,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Прокатка спины на массажном роллере. Расслабляет фасции, снимает напряжение.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Отжимания узким хватом",
-            category: .arms,
-            muscleGroup: .triceps,
+            name: "Отжимания на брусьях",
+            category: .chest,
+            muscleGroup: .lowerChest,
             defaultType: .repsOnly,
-            technique: "Ладони близко друг к другу (ромбик). Локти вдоль тела. Акцент на трицепс.",
-            videoUrl: "https://www.youtube.com/results?search_query=diamond+pushups+technique"
+            technique: "Старт: упор на прямых руках на брусьях, корпус чуть наклонён вперёд (для груди), ноги согнуты или скрещены.\n\nДвижение: опускайтесь, разводя локти под 30–45°, до уровня плеч ниже локтей. Отжимайтесь без переразгибания.\n\nКлючи: вертикальный корпус — больше нагрузки на трицепс. Контролируйте глубину — слишком глубоко чревато травмой плеча.",
+            videoUrl: ytSearch("dips technique chest")
         ),
         LibraryExercise(
-            name: "Планка боковая",
-            category: .core,
-            muscleGroup: .core,
-            defaultType: .duration,
-            videoUrl: "https://www.youtube.com/results?search_query=side+plank+technique"
-        ),
-        
-        // MARK: - ADDED MISSING EXERCISES FROM PROGRAMS
-        
-        // Shoulders - Плечи
-        LibraryExercise(
-            name: "Жим гантелей стоя",
-            category: .shoulders,
-            muscleGroup: .frontDelts,
+            name: "Пуловер с гантелью",
+            category: .chest,
+            muscleGroup: .lats,
             defaultType: .strength,
-            technique: "Встаньте прямо, ноги на ширине плеч. Гантели на уровне плеч, локти под 90°. На выдохе выжмите вверх, полностью выпрямляя руки. Напрягайте кор для стабилизации. опускайте медленно и подконтрольно.",
-            videoUrl: nil
+            technique: "Старт: лопатками поперёк скамьи, ноги в пол, гантель на вытянутых (слегка согнутых) руках над грудью.\n\nДвижение: опустите гантель за голову по дуге до растяжения широчайших и груди. Возвращайте по той же траектории.\n\nКлючи: бёдра можно слегка опустить вниз — увеличивает растяжение. Не разгибайте локти полностью.",
+            videoUrl: ytSearch("dumbbell pullover technique")
         ),
         LibraryExercise(
-            name: "Жим штанги стоя",
-            category: .shoulders,
-            muscleGroup: .frontDelts,
-            defaultType: .strength,
-            technique: "Армейский жим. Штанга на уровне плеч, хват чуть шире плеч. Выжмите вверх, фиксируя корпус. Локти чуть вперед, не разводите wide.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Жим из-за головы",
-            category: .shoulders,
-            muscleGroup: .sideDelts,
-            defaultType: .strength,
-            technique: "Опускайте штангу за голову до уровня ушей. Жмите вверх, акцентируя средние дельты. Требует хорошей подвижности плеч.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Жим швунг",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Жим штанги с небольшим подседом. Используйте импульс ног для мощного выжима штанги вверх. Полезно для развития скоростно-силовых качеств.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Махи сидя",
-            category: .shoulders,
-            muscleGroup: .sideDelts,
-            defaultType: .strength,
-            technique: "Сидя, поднимайте гантели в стороны до уровня плеч. Локти чуть согнуты, ведите движение локтями. Исключает читинг корпусом.",
-            videoUrl: nil
-        ),
-        
-        LibraryExercise(
-            name: "Махи на блоке",
-            category: .shoulders,
-            muscleGroup: .sideDelts,
-            defaultType: .strength,
-            technique: "Тяните рукоять нижнего блока в сторону через тело. Постоянное натяжение троса обеспечивает качественную проработку.",
-            videoUrl: nil
-        ),
-        
-        // Back - Спина
-        LibraryExercise(
-            name: "Лицевая тяга",
-            category: .back,
-            muscleGroup: .rearDelts,
-            defaultType: .strength,
-            technique: "Канат на верхнем блоке. Тяните к лицу, разводя локти в стороны выше плеч. В конце ладони за уровнем лица. Сводите лопатки. Акцент на задние дельты и ротаторы плеча.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Обратные разведения",
-            category: .back,
-            muscleGroup: .rearDelts,
-            defaultType: .strength,
-            technique: "Наклон вперед, разводите руки в стороны. Акцент на задние дельты. Локти слегка согнуты.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Тяга блока узким хватом",
+            name: "Пуловер на верхнем блоке прямыми руками",
             category: .back,
             muscleGroup: .lats,
             defaultType: .strength,
-            technique: "Узкая V-рукоять. Тяните к низу живота, максимально сводя лопатки. Акцент на толщину спины.",
-            videoUrl: nil
+            technique: "Старт: стоя у вертикального блока, прямая или EZ-рукоять. Корпус слегка наклонён вперёд. Руки прямые, рукоять на уровне головы.\n\nДвижение: тяните рукоять вниз к бёдрам по широкой дуге за счёт широчайших, не сгибая локти.\n\nКлючи: чистая изоляция широчайших — нет работы бицепса. Концентрация на разгибании плеча.",
+            videoUrl: ytSearch("straight arm pulldown technique")
         ),
+
+        // MARK: - СПИНА
+
         LibraryExercise(
-            name: "Тяга одной рукой",
+            name: "Становая тяга",
             category: .back,
-            muscleGroup: .lats,
+            muscleGroup: .lowerBack,
             defaultType: .strength,
-            technique: "Одной рукой тяните гантель к поясу, другой упирайтесь в скамью. Сводите лопатку, чувствуя широчайшую.",
-            videoUrl: nil
+            technique: "Старт: гриф над серединой стопы, ноги на ширине таза. Хват чуть шире коленей. Спина нейтральная, грудь раскрыта, плечи чуть впереди грифа.\n\nДвижение: толкайте пол ногами, поднимая гриф вдоль голеней. Когда штанга проходит колени — мощно разгибайте таз. Опускайте по той же траектории.\n\nКлючи: штанга всегда касается ног. Никаких рывков. Поясница нейтральная всё движение. Дыхание: вдох до подъёма, удержание, выдох наверху.",
+            videoUrl: ytSearch("conventional deadlift technique")
         ),
         LibraryExercise(
-            name: "Подтягивания обратным хватом",
+            name: "Становая тяга сумо",
             category: .back,
-            muscleGroup: .lats,
-            defaultType: .repsOnly,
-            technique: "Ладони к себе. Больше задействует бицепс и низ широчайших. Подбородок выше перекладины.",
-            videoUrl: nil
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: широкая стойка, носки развёрнуты на 30–45°. Хват внутри ног, руки прямые. Таз ниже, корпус более вертикален.\n\nДвижение: толкайте пол, разводя колени в стороны (по линии стоп). Когда гриф проходит колени — разгибайте таз.\n\nКлючи: меньше нагрузки на поясницу, больше — на ягодицы и приводящие. Подходит при коротких руках или жёсткой пояснице.",
+            videoUrl: ytSearch("sumo deadlift technique")
         ),
-        LibraryExercise(
-            name: "Подтягивания с весом",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .repsOnly,
-            technique: "Дополнительный вес на поясе или в жилете. Подтягивайтесь подбородком выше перекладины, сводя лопатки.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Подтягивания (Heavy)",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .repsOnly,
-            technique: "Силовые подтягивания с большим весом. Малое количество повторений (3-5).",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Австралийские подтягивания",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .repsOnly,
-            technique: "Низкая перекладина, ноги на полу. Подтягивайтесь грудью к грифу. Хороший вариант для начинающих.",
-            videoUrl: nil
-        ),
-        
-        // Legs - Ноги
         LibraryExercise(
             name: "Румынская тяга",
             category: .legs,
             muscleGroup: .hamstrings,
             defaultType: .strength,
-            technique: "Колени слегка согнуты. Наклоняйтесь вперед, отводя таз назад. Штанга скользит вдоль ног. Опускайте до середины голени, чувствуя растяжение бицепса бедра. Спина прямая!",
-            videoUrl: nil
+            technique: "Старт: штанга в руках, стоя. Ноги на ширине таза, чуть согнуты в коленях.\n\nДвижение: уводите таз назад, опуская штангу по бёдрам до растяжения бицепса бедра (примерно середина голени). Возвращайтесь, разгибая таз.\n\nКлючи: спина нейтральная, грудь раскрыта. Колени почти не сгибаются — это шарнир в тазу, не присед. Штанга ведётся по ноге.",
+            videoUrl: ytSearch("romanian deadlift technique")
         ),
         LibraryExercise(
             name: "Румынская тяга гантели",
             category: .legs,
             muscleGroup: .hamstrings,
             defaultType: .strength,
-            technique: "Вариант с гантелями. Позволяет больший диапазон движения. Техника как с штангой - таз назад, спина прямая.",
-            videoUrl: nil
+            technique: "Старт: гантели в руках вдоль бёдер. Стойка на ширине таза.\n\nДвижение: таз назад, гантели по бёдрам вниз до растяжения бицепса бедра. Возврат — толкая бёдра вперёд.\n\nКлючи: гантели позволяют большую амплитуду и тщательный контроль. Идеально для гипертрофии задней цепи.",
+            videoUrl: ytSearch("dumbbell romanian deadlift technique")
         ),
         LibraryExercise(
-            name: "Болгарские выпады",
+            name: "Одноногая румынская тяга",
             category: .legs,
-            muscleGroup: .quadriceps,
+            muscleGroup: .glutes,
             defaultType: .strength,
-            technique: "Задняя нога на скамье. Опускайтесь до параллели переднего бедра с полом. Колено не выходит за носок. Мощный акцент на квадрицепс и ягодицы.",
-            videoUrl: nil
+            technique: "Старт: гантель в руке, противоположная нога стоит, рабочая чуть согнута.\n\nДвижение: опускайте гантель к полу, отводя свободную ногу назад в одну линию с корпусом. Возвращайтесь, активируя ягодицу.\n\nКлючи: жёсткая нагрузка на ягодицы и стабилизаторы. Бёдра параллельны полу, не разворачивайте таз.",
+            videoUrl: ytSearch("single leg rdl technique")
         ),
         LibraryExercise(
-            name: "Выпады",
-            category: .legs,
-            muscleGroup: .quadriceps,
+            name: "Тяга штанги в наклоне",
+            category: .back,
+            muscleGroup: .lats,
             defaultType: .strength,
-            technique: "Шаг вперед, опуститесь до параллели. Колено не выходит за носок. Отталкивайтесь передней ногой.",
-            videoUrl: nil
+            technique: "Старт: ноги на ширине плеч, лёгкий сгиб в коленях. Корпус наклонён до 45° (или ниже). Хват чуть шире плеч, штанга свисает.\n\nДвижение: тяните штангу к низу живота / верху таза, сводя лопатки. Локти ведутся вдоль корпуса.\n\nКлючи: спина нейтральная всё время. Без читинга корпусом — корпус остаётся фиксированным.",
+            videoUrl: ytSearch("barbell row technique")
         ),
         LibraryExercise(
-            name: "Выпады назад",
-            category: .legs,
-            muscleGroup: .quadriceps,
+            name: "Тяга штанги в наклоне обратным хватом",
+            category: .back,
+            muscleGroup: .lats,
             defaultType: .strength,
-            technique: "Шаг назад. Опуститесь, отталкивайтесь назад. Меньше нагрузки на колени, чем при выпадах вперед.",
-            videoUrl: nil
+            technique: "Старт: хват супинированный (ладони к себе) на ширине плеч, корпус наклонён до 45°.\n\nДвижение: тяните штангу к низу живота, локти прижаты к корпусу. Сводите лопатки в верхней точке.\n\nКлючи: больше акцент на нижние широчайшие и бицепс. Меньше нагрузка на поясницу при таком хвате.",
+            videoUrl: ytSearch("yates row technique")
         ),
         LibraryExercise(
-            name: "Сгибание ног лежа",
+            name: "Тяга Пендли",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: каждое повторение начинается с пола. Корпус параллелен полу, спина нейтральная.\n\nДвижение: взрывная тяга штанги к нижней части груди / верху живота. Опустить полностью на пол, восстановить стойку.\n\nКлючи: строгая техника без раскачки — корпус неподвижен. Развивает мощную тягу для становой и силовых видов спорта.",
+            videoUrl: ytSearch("pendlay row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга Т-грифа",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: над Т-грифом, ноги по бокам или одна сзади. Хват за рукояти, корпус 30–45°, спина нейтральная.\n\nДвижение: тяните рукояти к нижней части груди, сводя лопатки. Локти вдоль корпуса.\n\nКлючи: Т-гриф снимает нагрузку с поясницы по сравнению со штангой, позволяет работать с большим весом.",
+            videoUrl: ytSearch("t bar row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга гантели в наклоне",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: одно колено и одноимённая рука на скамье, спина параллельна полу. Гантель в свободной руке.\n\nДвижение: тяните гантель к тазу (\"в карман\"), локоть ведёте строго вверх вдоль корпуса. Сводите лопатку.\n\nКлючи: не вращайте корпус. Опускайте до полного растяжения широчайшей. Гантель — большая амплитуда против штанги.",
+            videoUrl: ytSearch("one arm dumbbell row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга гантели в стиле Кроча",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: тяжёлая гантель, упор свободной рукой в стойку. Корпус слегка скручен.\n\nДвижение: мощная тяга к тазу с лёгким читингом корпусом для разгона. Контролируйте опускание.\n\nКлючи: фишка Дориана Йейтса и Бранча Уоррена — для атлетов с большим стажем. 15–25 повторений в стиле \"кровь в мышцу\".",
+            videoUrl: ytSearch("kroc row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга в Лэндмайн",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: один конец штанги в углу или в Лэндмайне. Стойка верхом над грифом, корпус наклонён.\n\nДвижение: тяните рукоять / гриф к нижней части груди, локти прижаты.\n\nКлючи: безопасная для поясницы тяга — фиксированная траектория. Отлично подходит при болях в спине.",
+            videoUrl: ytSearch("landmine row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга Мэдоуз",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: штанга в Лэндмайне. Стойка перпендикулярно грифу, наклон вперёд, упор свободной рукой в колено. Хват пронированный за конец грифа.\n\nДвижение: тяните локоть вверх и назад, акцентируя нагрузку на верх широчайших и заднюю дельту.\n\nКлючи: авторство Джона Мэдоуза. Целит ту часть спины, что плохо прокачивается классическими тягами.",
+            videoUrl: ytSearch("meadows row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга в тренажере с упором грудью",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: лягте грудью на наклонную скамью или сядьте в тренажёр Chest-Supported Row. Хват за рукояти.\n\nДвижение: тяните рукояти к корпусу, сводя лопатки в верхней точке. Локти вдоль корпуса.\n\nКлючи: полная изоляция спины — нет нагрузки на поясницу, читинг невозможен.",
+            videoUrl: ytSearch("chest supported row technique")
+        ),
+        LibraryExercise(
+            name: "Рычажная тяга (Hammer)",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: сядьте в Hammer Strength Row, грудь к подушке, хват нейтральный или пронированный.\n\nДвижение: тяните рукояти на себя, выводя локти назад. Сводите лопатки в верхней точке.\n\nКлючи: возможна работа одной рукой для устранения дисбалансов. Фиксированная траектория — фокус на ощущении мышц.",
+            videoUrl: ytSearch("hammer strength row technique")
+        ),
+        LibraryExercise(
+            name: "Подтягивания",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .repsOnly,
+            technique: "Старт: вис на перекладине, хват пронированный (ладонями от себя) шире плеч. Лопатки слегка опущены.\n\nДвижение: подтянитесь грудью к перекладине, сводя лопатки и опуская локти вниз. Опуститесь подконтрольно до полного выпрямления рук.\n\nКлючи: без раскачки. Думайте \"локти в задние карманы\". Вверху — не сутультесь.",
+            videoUrl: ytSearch("pull ups technique")
+        ),
+        LibraryExercise(
+            name: "Подтягивания обратным хватом",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .repsOnly,
+            technique: "Старт: вис на перекладине, хват супинированный (ладонями к себе) на ширине плеч.\n\nДвижение: подтянитесь подбородком над перекладиной, локти прижаты к корпусу. Опускайтесь до полного выпрямления.\n\nКлючи: \"чин-апы\" — больше нагрузки на бицепс и нижние широчайшие. Идеальны для массонабора рук и спины.",
+            videoUrl: ytSearch("chin ups technique")
+        ),
+        LibraryExercise(
+            name: "Подтягивания узким хватом",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .repsOnly,
+            technique: "Старт: хват пронированный или нейтральный, ладони на ширине 10–20 см.\n\nДвижение: подтягивайтесь до подбородка над перекладиной, акцентируя нижние широчайшие и бицепс.\n\nКлючи: укороченная амплитуда сверху, увеличивает нагрузку на низ ширчайших. Хорошая вариация для мышечной разнообразности.",
+            videoUrl: ytSearch("close grip pull ups technique")
+        ),
+        LibraryExercise(
+            name: "Подтягивания нейтральным хватом",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .repsOnly,
+            technique: "Старт: ладони друг к другу на специальных параллельных рукоятях.\n\nДвижение: подтягивайтесь грудью к рукоятям, локти вниз вдоль корпуса.\n\nКлючи: самый щадящий для плечевого сустава вариант. Хорошее соотношение спина / бицепс.",
+            videoUrl: ytSearch("neutral grip pull ups technique")
+        ),
+        LibraryExercise(
+            name: "Подтягивания с дополнительным весом",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: дополнительный вес на поясе или гантель между ног. Вис, хват шире плеч.\n\nДвижение: подтягивайтесь грудью к перекладине без рывков. Опускайтесь подконтрольно.\n\nКлючи: основа силового прогресса в подтягиваниях. 4–8 повторов в подходе.",
+            videoUrl: ytSearch("weighted pull ups technique")
+        ),
+        LibraryExercise(
+            name: "Австралийские подтягивания",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .repsOnly,
+            technique: "Старт: гриф в раме / стойках на уровне таза. Лягте под него, хват шире плеч. Тело — прямая линия от пяток до плеч.\n\nДвижение: подтянитесь грудью к грифу, сводя лопатки. Опуститесь подконтрольно.\n\nКлючи: горизонтальная тяга с собственным весом. Чем ниже гриф — тем сложнее.",
+            videoUrl: ytSearch("inverted row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга вертикального блока",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: сядьте, ноги под валиками. Хват шире плеч, прогиб в грудном отделе.\n\nДвижение: тяните рукоять к верху груди, опуская локти вниз и назад. Сводите лопатки.\n\nКлючи: не сутультесь. Не тяните за голову на классическом тренажёре — это травмоопасно.",
+            videoUrl: ytSearch("lat pulldown technique")
+        ),
+        LibraryExercise(
+            name: "Тяга вертикального блока обратным хватом",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: хват супинированный на ширине плеч.\n\nДвижение: тяните рукоять к низу груди, локти прижаты к корпусу.\n\nКлючи: акцент на нижние широчайшие и бицепс. Хорошая альтернатива чин-апам, если их пока не освоили.",
+            videoUrl: ytSearch("reverse grip lat pulldown technique")
+        ),
+        LibraryExercise(
+            name: "Тяга вертикального блока узким хватом",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: V-рукоять или узкий гриф. Хват ладонями друг к другу.\n\nДвижение: тяните рукоять к верху живота, локти вниз вдоль рёбер.\n\nКлючи: длинная амплитуда — отличная нагрузка на низ широчайших. Прогиб в грудном отделе.",
+            videoUrl: ytSearch("close grip lat pulldown technique")
+        ),
+        LibraryExercise(
+            name: "Тяга горизонтального блока",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: сядьте, ноги в упор, спина прямая, руки тянутся к рукояти.\n\nДвижение: тяните рукоять к низу живота, сводя лопатки и расправляя грудь. Локти вдоль корпуса.\n\nКлючи: на возврате слегка подайте корпус вперёд для растяжения широчайших. Не используйте поясницу для рывков.",
+            videoUrl: ytSearch("seated cable row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга горизонтального блока узким хватом",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: V-рукоять, ладони друг к другу, спина прямая.\n\nДвижение: тяните рукоять к пупку, локти прижаты к корпусу.\n\nКлючи: акцент на середину спины и широчайшие. Удерживайте 1 сек в верхней точке.",
+            videoUrl: ytSearch("close grip seated row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга горизонтального блока одной рукой",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .strength,
+            technique: "Старт: рукоять D-образная, корпус прямой, ноги в упоре.\n\nДвижение: тяните рукоять к боку, поворачивая корпус для большей амплитуды. Сводите лопатку.\n\nКлючи: устраняет дисбаланс правой / левой стороны. Большая амплитуда против двуручной версии.",
+            videoUrl: ytSearch("one arm cable row technique")
+        ),
+        LibraryExercise(
+            name: "Тяга TRX",
+            category: .back,
+            muscleGroup: .lats,
+            defaultType: .repsOnly,
+            technique: "Старт: возьмитесь за петли TRX, отклонитесь назад с прямым телом. Угол определяет сложность.\n\nДвижение: подтянитесь к петлям, сводя лопатки. Локти вдоль корпуса. Опуститесь подконтрольно.\n\nКлючи: чем горизонтальнее тело — тем сложнее. Корпус всегда прямой.",
+            videoUrl: ytSearch("trx row technique")
+        ),
+        LibraryExercise(
+            name: "Гиперэкстензия",
+            category: .back,
+            muscleGroup: .lowerBack,
+            defaultType: .repsOnly,
+            technique: "Старт: упор валиков на уровне сгиба бёдер (не выше). Стопы зафиксированы.\n\nДвижение: опускайтесь до сгибания в тазу под 90°, поднимайтесь до прямой линии с ногами.\n\nКлючи: не переразгибайтесь — это травмоопасно. Можно выполнять с округлой спиной (для широчайших / трапеций) или с прямой (для разгибателей).",
+            videoUrl: ytSearch("hyperextension technique")
+        ),
+        LibraryExercise(
+            name: "Обратная гиперэкстензия",
+            category: .back,
+            muscleGroup: .glutes,
+            defaultType: .repsOnly,
+            technique: "Старт: лежа животом на скамье / тренажёре, ноги свисают.\n\nДвижение: поднимайте прямые ноги вверх до горизонтали, сжимая ягодицы. Опускайте подконтрольно.\n\nКлючи: декомпрессирует поясницу. Отличное упражнение для тяжелоатлетов в дни восстановления.",
+            videoUrl: ytSearch("reverse hyperextension technique")
+        ),
+        LibraryExercise(
+            name: "Good Morning",
             category: .legs,
             muscleGroup: .hamstrings,
             defaultType: .strength,
-            technique: "Лежа на животе, сгибайте ноги, подтягивая валик к ягодицам. Изолированная работа бицепса бедра.",
-            videoUrl: nil
+            technique: "Старт: штанга на трапециях (как в приседе). Ноги на ширине таза, лёгкий сгиб в коленях.\n\nДвижение: тазом отойдите назад, наклоняя корпус вперёд до параллели полу (или ниже, если мобильность позволяет). Спина нейтральная.\n\nКлючи: укрепляет заднюю цепь. Начинайте с лёгкого веса — техника требует практики.",
+            videoUrl: ytSearch("good morning exercise technique")
         ),
         LibraryExercise(
-            name: "Сгибание ног сидя",
-            category: .legs,
-            muscleGroup: .hamstrings,
+            name: "Шраги со штангой",
+            category: .back,
+            muscleGroup: .trapezius,
             defaultType: .strength,
-            technique: "Сидя, сгибайте ноги под собой. Другой вариант изоляции бицепса бедра.",
-            videoUrl: nil
+            technique: "Старт: штанга в опущенных руках перед собой. Хват чуть шире плеч.\n\nДвижение: поднимайте плечи к ушам максимально высоко, удерживая 1 сек. Опускайте подконтрольно.\n\nКлючи: только вертикальное движение. Без вращений плеч (это травмоопасно).",
+            videoUrl: ytSearch("barbell shrug technique")
         ),
         LibraryExercise(
-            name: "Разгибание ног",
+            name: "Шраги с гантелями",
+            category: .back,
+            muscleGroup: .trapezius,
+            defaultType: .strength,
+            technique: "Старт: гантели в руках вдоль корпуса.\n\nДвижение: поднимайте плечи вверх максимально высоко. Удерживайте 1–2 сек в пике.\n\nКлючи: гантели позволяют большую амплитуду по сравнению со штангой.",
+            videoUrl: ytSearch("dumbbell shrug technique")
+        ),
+        LibraryExercise(
+            name: "Шраги в тренажере",
+            category: .back,
+            muscleGroup: .trapezius,
+            defaultType: .strength,
+            technique: "Старт: специальный тренажёр или Hammer Shrug. Рукояти по бокам.\n\nДвижение: поднимайте плечи прямо вверх по фиксированной траектории.\n\nКлючи: чистая изоляция трапеций без участия предплечий и хвата.",
+            videoUrl: ytSearch("machine shrug technique")
+        ),
+
+        // MARK: - НОГИ
+
+        LibraryExercise(
+            name: "Приседания со штангой",
             category: .legs,
             muscleGroup: .quadriceps,
             defaultType: .strength,
-            technique: "Сидя, разгибайте ноги в коленях. Изоляция квадрицепса. Контролируемое опускание веса.",
-            videoUrl: nil
+            technique: "Старт: штанга на верхней части трапеций (high-bar) или на задних дельтах (low-bar). Стойка чуть шире плеч, носки развёрнуты на 15–30°.\n\nДвижение: вдох, удержание корпуса, опускайтесь, отводя таз и сгибая колени по линии стоп. Глубина — параллель или ниже. Поднимайтесь, толкая пол.\n\nКлючи: грудь раскрыта, спина нейтральная, колени на линии стоп. Пятки прижаты.",
+            videoUrl: ytSearch("squat technique")
         ),
         LibraryExercise(
-            name: "Подъем на носки",
+            name: "Приседания со штангой Low Bar",
             category: .legs,
-            muscleGroup: .calves,
+            muscleGroup: .glutes,
             defaultType: .strength,
-            technique: "Поднимайтесь на носки максимально высоко. Задержитесь в верхней точке. Опускайтесь медленно. Для икроножных мышц.",
-            videoUrl: nil
+            technique: "Старт: гриф ниже на спине — на задних дельтах, локти разведены. Стойка чуть шире.\n\nДвижение: больший наклон корпуса вперёд. Таз уводится назад в начале опускания.\n\nКлючи: классика пауэрлифтинга — позволяет поднимать больший вес. Активирует ягодицы и заднюю цепь.",
+            videoUrl: ytSearch("low bar squat technique")
         ),
-        
-        
-        
         LibraryExercise(
-            name: "Приседания Low bar",
+            name: "Фронтальные приседания",
             category: .legs,
             muscleGroup: .quadriceps,
             defaultType: .strength,
-            technique: "Штанга ниже на спине. Больший наклон корпуса, больше работы ягодиц и бицепса бедра.",
-            videoUrl: nil
+            technique: "Старт: штанга на передних дельтах, локти высоко вперёд (хват крестом или олимпийский). Грудь раскрыта.\n\nДвижение: опускайтесь с вертикальным корпусом до параллели или ниже. Поднимайтесь, толкая пол.\n\nКлючи: вертикальный корпус — главный признак правильной техники. Изолирует квадрицепсы и развивает мобильность.",
+            videoUrl: ytSearch("front squat technique")
+        ),
+        LibraryExercise(
+            name: "Приседания Зерчера",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .strength,
+            technique: "Старт: штанга в локтевых сгибах, плотно прижата к корпусу. Стойка как в обычном приседе.\n\nДвижение: опускайтесь с вертикальным корпусом до параллели. Толкайте пол при подъёме.\n\nКлючи: жёстко прокачивает квадрицепсы, верх спины и кор. Используйте подушку или одежду на сгибах локтей.",
+            videoUrl: ytSearch("zercher squat technique")
+        ),
+        LibraryExercise(
+            name: "Приседания с безопасным грифом",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .strength,
+            technique: "Старт: SSB (Safety Squat Bar) на трапециях, рукояти в руках перед собой.\n\nДвижение: опускание как в обычном приседе, но корпус наклоняется чуть больше.\n\nКлючи: щадит плечи и кисти. Идеально при болях в плечах или травмах. Гриф толкает корпус вперёд — нужно сильнее напрягать спину.",
+            videoUrl: ytSearch("safety squat bar technique")
+        ),
+        LibraryExercise(
+            name: "Приседания в Смите",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .strength,
+            technique: "Старт: гриф Смита на трапециях. Ноги поставьте чуть впереди — для нагрузки на квадрицепсы.\n\nДвижение: опускайтесь до параллели. Поднимайтесь, толкая пятками.\n\nКлючи: фиксированная траектория позволяет работать в отказ без риска. Подходит для гипертрофии квадрицепсов.",
+            videoUrl: ytSearch("smith machine squat technique")
+        ),
+        LibraryExercise(
+            name: "Гакк-приседания",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .strength,
+            technique: "Старт: спиной в платформу гакк-машины, плечи под валики. Ноги чуть выше центра платформы.\n\nДвижение: опускайтесь до 90° в коленях. Поднимайтесь, не разгибая колени до конца.\n\nКлючи: стопы выше — больше ягодиц, ниже — больше квадрицепсов. Можно делать в обратном положении (грудью к платформе) для акцента на ягодицы.",
+            videoUrl: ytSearch("hack squat technique")
+        ),
+        LibraryExercise(
+            name: "Сисси-приседания",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .repsOnly,
+            technique: "Старт: стоя, держитесь свободной рукой за стойку. Ноги вместе.\n\nДвижение: отклоняйтесь корпусом назад, поднимаясь на носки и сгибая колени. Колени уходят вперёд за носки.\n\nКлючи: жёсткая нагрузка на низ квадрицепса. Используйте сиси-станок или контролируйте опорой. Не для людей с больными коленями.",
+            videoUrl: ytSearch("sissy squat technique")
+        ),
+        LibraryExercise(
+            name: "Гоблет-приседания",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .strength,
+            technique: "Старт: гантель / гиря у груди, локти под снарядом. Стойка чуть шире плеч.\n\nДвижение: опускайтесь между бёдер до параллели или ниже. Поднимайтесь, толкая пол.\n\nКлючи: лучшее упражнение для обучения приседу — корпус всегда вертикален. Локти направляйте в колени для контроля.",
+            videoUrl: ytSearch("goblet squat technique")
+        ),
+        LibraryExercise(
+            name: "Болгарские сплит-приседания",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .strength,
+            technique: "Старт: задняя нога на скамье (носок упирается). Передняя в шаге, гантели в руках или штанга на спине.\n\nДвижение: опускайтесь, сгибая переднее колено до 90°. Заднее колено почти касается пола. Поднимайтесь через переднюю ногу.\n\nКлючи: нагружает квадрицепс и ягодицу одной ноги. Колено не уходит за носок.",
+            videoUrl: ytSearch("bulgarian split squat technique")
+        ),
+        LibraryExercise(
+            name: "Зашагивания на скамью",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .strength,
+            technique: "Старт: гантели в руках, перед скамьёй высотой ниже колена.\n\nДвижение: поставьте ногу на скамью, поднимитесь полностью на неё. Опуститесь подконтрольно. Не толкайтесь нижней ногой.\n\nКлючи: работа от ягодицы и квадрицепса верхней ноги. Без \"отскока\".",
+            videoUrl: ytSearch("step up technique")
+        ),
+        LibraryExercise(
+            name: "Выпады с гантелями",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .strength,
+            technique: "Старт: гантели в руках, ноги на ширине таза.\n\nДвижение: шаг вперёд, опуститесь до 90° в колене. Заднее колено почти касается пола. Возврат через переднюю ногу.\n\nКлючи: корпус прямой. Колено не уходит за носок. Передняя нога делает работу.",
+            videoUrl: ytSearch("dumbbell lunge technique")
+        ),
+        LibraryExercise(
+            name: "Выпады назад с гантелями",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: гантели в руках, ноги на ширине таза.\n\nДвижение: шаг назад, опуститесь до 90° в переднем колене. Возврат через переднюю ногу.\n\nКлючи: безопаснее для коленей, чем выпады вперёд. Больший акцент на ягодицы.",
+            videoUrl: ytSearch("reverse lunge technique")
+        ),
+        LibraryExercise(
+            name: "Выпады в ходьбе",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .repsOnly,
+            technique: "Старт: гантели в руках, открытое пространство перед собой.\n\nДвижение: шагайте вперёд, делая выпады по очереди. Между шагами — мгновенная пауза для контроля.\n\nКлючи: высокая метаболическая нагрузка. Идеально для финиша тренировки ног.",
+            videoUrl: ytSearch("walking lunge technique")
+        ),
+        LibraryExercise(
+            name: "Боковые выпады",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: широкая стойка, гантель у груди.\n\nДвижение: перенесите вес на одну ногу, отводя таз назад и сгибая колено. Вторая нога остаётся прямой. Возврат в центр.\n\nКлючи: тренирует ягодицы и приводящие. Стопа рабочей ноги полностью на полу.",
+            videoUrl: ytSearch("lateral lunge technique")
         ),
         LibraryExercise(
             name: "Приседания Пистолетик",
             category: .legs,
             muscleGroup: .quadriceps,
             defaultType: .repsOnly,
-            technique: "Приседание на одной ноге. Требует баланса и силы. Свободная нога выпрямлена вперед.",
-            videoUrl: nil
-        ),
-        
-        
-        
-        
-        
-        LibraryExercise(
-            name: "Становая тяга",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Базовое упражнение. Спина прямая, тяните штангу вдоль ног. Разгибайте бедра и спину одновременно.",
-            videoUrl: nil
-        ),
-        
-        
-        LibraryExercise(
-            name: "Становая сумо",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Широкая постановка ног, носки развернуты. Больше работы приводящих и ягодиц.",
-            videoUrl: nil
-        ),
-        
-        // Chest - Грудь
-        LibraryExercise(
-            name: "Жим лежа",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .strength,
-            technique: "Классический жим штанги лежа. Опускайте на грудь, выжмите вверх. Лопатки сведены.",
-            videoUrl: nil
-        ),
-        
-        
-        
-        LibraryExercise(
-            name: "Жим гантелей на наклонной",
-            category: .chest,
-            muscleGroup: .upperChest,
-            defaultType: .strength,
-            technique: "Скамья 30-45°. Жмите гантели вверх, сводя в верхней точке. Акцент на верх груди.",
-            videoUrl: nil
+            technique: "Старт: на одной ноге, вторая выпрямлена вперёд параллельно полу. Руки балансируют.\n\nДвижение: опускайтесь до полного приседа на одной ноге, удерживая вторую. Поднимайтесь без касания пола.\n\nКлючи: требует мобильности и силы. Учитесь с поддержкой за TRX или стойку. Прогрессируйте через приседы на скамью.",
+            videoUrl: ytSearch("pistol squat technique")
         ),
         LibraryExercise(
-            name: "Жим Смита",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .strength,
-            technique: "Жим в тренажере Смита. Фиксированная траектория. Безопаснее для работы без страхующего.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Сведение рук",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .strength,
-            technique: "Сведение гантелей или на тренажере. Изолирует грудные мышцы. Локти слегка согнуты.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Сведения (Flyes)",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .strength,
-            technique: "Разведения/сведения гантелей. Растягивает и сокращает грудные. Чувствуйте stretch.",
-            videoUrl: nil
-        ),
-        
-        LibraryExercise(
-            name: "Пуловер",
-            category: .chest,
-            muscleGroup: .lowerChest,
-            defaultType: .strength,
-            technique: "Лежа, гантель за головой. Поднимайте над грудью прямыми руками. Растягивает грудные и широчайшие.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Отжимания",
-            category: .chest,
-            muscleGroup: .middleChest,
+            name: "Приседания Креветка",
+            category: .legs,
+            muscleGroup: .quadriceps,
             defaultType: .repsOnly,
-            technique: "Классические отжимания от пола. Тело - прямая линия, опускайтесь до касания грудью пола.",
-            videoUrl: nil
+            technique: "Старт: на одной ноге, вторая согнута в колене и удерживается рукой за спиной.\n\nДвижение: опускайтесь до касания пола задним коленом. Поднимайтесь.\n\nКлючи: альтернатива пистолетику — мобильность нужна меньше. Прогрессирует через варианты с разным удержанием руки.",
+            videoUrl: ytSearch("shrimp squat technique")
         ),
         LibraryExercise(
-            name: "Отжимания на брусьях (с весом)",
-            category: .chest,
-            muscleGroup: .lowerChest,
+            name: "Приседания Дракона",
+            category: .legs,
+            muscleGroup: .quadriceps,
             defaultType: .repsOnly,
-            technique: "Отжимания с дополнительным весом. Наклон вперед для акцента на грудь.",
-            videoUrl: nil
+            technique: "Старт: на одной ноге, вторая поднята и проходит под рабочей ногой во время приседа.\n\nДвижение: опускайтесь, проводя свободную ногу под рабочей. Сложнейший контроль.\n\nКлючи: один из самых сложных вариантов одноногих приседов. Требует феноменального баланса.",
+            videoUrl: ytSearch("dragon squat technique")
         ),
         LibraryExercise(
-            name: "Отжимания от перекладины",
-            category: .chest,
-            muscleGroup: .middleChest,
+            name: "Тяга Кинга",
+            category: .legs,
+            muscleGroup: .quadriceps,
             defaultType: .repsOnly,
-            technique: "Отжимания с руками на перекладине. Увеличенная амплитуда.",
-            videoUrl: nil
+            technique: "Старт: стоя на одной ноге, свободная согнута в колене.\n\nДвижение: опускайтесь, пытаясь коснуться пола свободным коленом. Поднимайтесь через переднюю ногу.\n\nКлючи: вариация одноногого приседа. Сложная координация — начинайте без веса.",
+            videoUrl: ytSearch("king deadlift technique")
         ),
-        
-        // Arms - Руки
         LibraryExercise(
-            name: "Байезианские сгибания",
-            category: .arms,
-            muscleGroup: .biceps,
+            name: "Жим ногами",
+            category: .legs,
+            muscleGroup: .quadriceps,
             defaultType: .strength,
-            technique: "Спиной к блоку, рука позади тела. Сгибайте руку на себя, максимально нагружая бицепс в растянутом положении. Наклоняйтесь вперед для пикового сокращения.",
-            videoUrl: nil
+            technique: "Старт: спина и таз плотно прижаты к спинке, стопы на платформе на ширине плеч.\n\nДвижение: опускайте платформу до 90° в коленях (или ниже, если поясница не отрывается). Жмите без замыкания коленей.\n\nКлючи: стопы выше — акцент на ягодицы, ниже — на квадрицепсы. Не отрывайте таз от спинки.",
+            videoUrl: ytSearch("leg press technique")
         ),
         LibraryExercise(
-            name: "Молотки на бицепс",
-            category: .arms,
-            muscleGroup: .biceps,
+            name: "Жим ногами под наклоном 45°",
+            category: .legs,
+            muscleGroup: .quadriceps,
             defaultType: .strength,
-            technique: "Сгибайте руки с гантелями, большие пальцы вверх (молотковый хват). Акцент на бицепс и плечевую мышцу.",
-            videoUrl: nil
+            technique: "Старт: классический Leg Press 45°. Стопы на ширине плеч, носки слегка наружу.\n\nДвижение: опускайте платформу глубоко без отрыва таза. Жмите вверх без замыкания коленей.\n\nКлючи: позволяет работать с очень большим весом. Безопаснее приседа для гипертрофии квадрицепса.",
+            videoUrl: ytSearch("45 leg press technique")
         ),
         LibraryExercise(
-            name: "Сгибание Паук",
-            category: .arms,
-            muscleGroup: .biceps,
+            name: "Разгибание ног в тренажере",
+            category: .legs,
+            muscleGroup: .quadriceps,
             defaultType: .strength,
-            technique: "Spider curl. Живот на скамье, руки вниз. Сгибайте, локти неподвижны. Полная изоляция бицепса.",
-            videoUrl: nil
+            technique: "Старт: сядьте, валик на нижней части голени, спина прижата.\n\nДвижение: разгибайте ноги до полного выпрямления, удерживая 1 сек в пике. Опускайте подконтрольно.\n\nКлючи: единственное упражнение, прицельно изолирующее квадрицепс. Не дёргайте.",
+            videoUrl: ytSearch("leg extension technique")
         ),
         LibraryExercise(
-            name: "Разгибание на трицепс",
-            category: .arms,
-            muscleGroup: .triceps,
+            name: "Сгибание ног лежа",
+            category: .legs,
+            muscleGroup: .hamstrings,
             defaultType: .strength,
-            technique: "Разгибания на блоке или с гантелями. Локти зафиксированы, работает только трицепс.",
-            videoUrl: nil
+            technique: "Старт: лёжа животом на скамье тренажёра, валик на нижней части голени.\n\nДвижение: сгибайте ноги, приводя пятки к ягодицам. Удерживайте 1 сек в пике.\n\nКлючи: акцент на коротких головках бицепса бедра. Не отрывайте таз от скамьи.",
+            videoUrl: ytSearch("lying leg curl technique")
         ),
         LibraryExercise(
-            name: "Бицепс + Трицепс",
-            category: .arms,
-            muscleGroup: .biceps,
+            name: "Сгибание ног сидя",
+            category: .legs,
+            muscleGroup: .hamstrings,
             defaultType: .strength,
-            technique: "Суперсет бицепс + трицепс. Чередуйте упражнения на антагонисты без отдыха.",
-            videoUrl: nil
+            technique: "Старт: сядьте в тренажёр, бёдра под валиком, голени на нижнем валике.\n\nДвижение: сгибайте ноги в коленях, приводя голени под скамью.\n\nКлючи: положение с растяжением бицепса бедра — даёт лучшую гипертрофию по последним исследованиям.",
+            videoUrl: ytSearch("seated leg curl technique")
         ),
-        
-        // Core
         LibraryExercise(
-            name: "Подъем ног к перекладине (Toes to Bar)",
-            category: .core,
-            muscleGroup: .core,
+            name: "Сгибание ног стоя",
+            category: .legs,
+            muscleGroup: .hamstrings,
+            defaultType: .strength,
+            technique: "Старт: стоя в тренажёре, одна нога зацеплена за валик.\n\nДвижение: сгибайте ногу, приводя пятку к ягодице. Меняйте ногу.\n\nКлючи: унилатеральная нагрузка — устраняет дисбаланс. Хорошая альтернатива при отсутствии тренажёра лёжа.",
+            videoUrl: ytSearch("standing leg curl technique")
+        ),
+        LibraryExercise(
+            name: "Нордическое сгибание",
+            category: .legs,
+            muscleGroup: .hamstrings,
             defaultType: .repsOnly,
-            technique: "В висе поднимайте носки к перекладине. Контролируйте раскачку. Мощная работа пресса.",
-            videoUrl: nil
+            technique: "Старт: на коленях, стопы зафиксированы партнёром или тренажёром. Корпус прямой.\n\nДвижение: медленно опускайтесь вперёд, удерживая корпус прямым только за счёт бицепса бедра. У пола опускайтесь на руки.\n\nКлючи: одно из лучших упражнений против травм бицепса бедра. Очень тяжёлое — начинайте с малых амплитуд.",
+            videoUrl: ytSearch("nordic curl technique")
         ),
         LibraryExercise(
-            name: "Уголок (L-sit) на брусьях",
-            category: .core,
-            muscleGroup: .core,
+            name: "Обратный Нордик",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .repsOnly,
+            technique: "Старт: на коленях, корпус вертикален, стопы свободно.\n\nДвижение: отклоняйтесь назад, удерживая прямую линию от колен до плеч за счёт квадрицепсов. Возврат вперёд.\n\nКлючи: сильно нагружает прямую мышцу бедра. Не для слабых коленей.",
+            videoUrl: ytSearch("reverse nordic curl technique")
+        ),
+        LibraryExercise(
+            name: "Ягодичный мост (Hip Thrust)",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: лопатки на скамье, штанга на тазу (с подушкой), стопы на ширине таза в 30 см от таза.\n\nДвижение: разгибайте таз вверх до прямой линии корпус-бёдра. Сжимайте ягодицы в верхней точке.\n\nКлючи: подбородок к груди — без переразгибания шеи. Бёдра параллельны полу в верхней точке.",
+            videoUrl: ytSearch("hip thrust technique")
+        ),
+        LibraryExercise(
+            name: "Ягодичный мост одной ногой",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: как обычный Hip Thrust, но одна нога поднята вверх или скрещена.\n\nДвижение: разгибайте таз одной ногой, удерживая горизонтальное положение.\n\nКлючи: устраняет дисбаланс ягодиц. Без веса или с гантелью на тазу.",
+            videoUrl: ytSearch("single leg hip thrust technique")
+        ),
+        LibraryExercise(
+            name: "Подъем таза на мяче",
+            category: .legs,
+            muscleGroup: .hamstrings,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа на спине, пятки на фитболе, руки вдоль тела.\n\nДвижение: поднимите таз, затем подкатите мяч к ягодицам, согнув колени. Разогните, оттолкнув мяч обратно.\n\nКлючи: одновременно тренирует ягодицы и бицепс бедра. Кор стабилизирует.",
+            videoUrl: ytSearch("hamstring curl ball technique")
+        ),
+        LibraryExercise(
+            name: "Подъемы на носки стоя",
+            category: .legs,
+            muscleGroup: .calves,
+            defaultType: .strength,
+            technique: "Старт: в тренажёре или со штангой, носки на платформе, пятки свисают.\n\nДвижение: поднимайтесь максимально высоко на носки. Удерживайте 1 сек. Опускайтесь до растяжения икр.\n\nКлючи: полная амплитуда — главное условие роста. Многосуставные мышцы икр любят высокие повторы (15–20).",
+            videoUrl: ytSearch("standing calf raise technique")
+        ),
+        LibraryExercise(
+            name: "Подъемы на носки сидя",
+            category: .legs,
+            muscleGroup: .calves,
+            defaultType: .strength,
+            technique: "Старт: сидя в тренажёре, валик на нижней части бедра, носки на платформе.\n\nДвижение: поднимайтесь на носки, сжимая икроножные.\n\nКлючи: акцент на камбаловидную мышцу — это даёт ширину икрам. Высокие повторы.",
+            videoUrl: ytSearch("seated calf raise technique")
+        ),
+        LibraryExercise(
+            name: "Подъемы на носки в жиме ногами",
+            category: .legs,
+            muscleGroup: .calves,
+            defaultType: .strength,
+            technique: "Старт: в Leg Press, носки на нижнем краю платформы, пятки свисают. Не разгибайте колени до замыкания.\n\nДвижение: толкайте платформу носками, поднимаясь на пальцы. Опускайтесь до полного растяжения.\n\nКлючи: позволяет максимальную нагрузку на икры. Безопасно для поясницы.",
+            videoUrl: ytSearch("leg press calf raise technique")
+        ),
+        LibraryExercise(
+            name: "Отведение ноги в кроссовере",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: манжета на лодыжке, лицом к нижнему блоку. Держитесь за стойку.\n\nДвижение: отведите ногу назад максимально высоко, сжимая ягодицу. Возврат подконтрольно.\n\nКлючи: чистая изоляция большой ягодичной. Нога прямая.",
+            videoUrl: ytSearch("cable kickback technique")
+        ),
+        LibraryExercise(
+            name: "Отведение ноги назад в тренажере",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: в тренажёре Glute Kickback, упор на руки. Платформа под рабочей ногой.\n\nДвижение: разгибайте ногу назад против сопротивления, удерживая 1 сек.\n\nКлючи: фиксированная траектория — фокус на ощущении ягодицы.",
+            videoUrl: ytSearch("glute kickback machine technique")
+        ),
+        LibraryExercise(
+            name: "Сведение ног в тренажере",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: сядьте в тренажёр, валики с внутренней стороны бёдер.\n\nДвижение: сведите бёдра вместе. Удерживайте 1 сек, разводите подконтрольно.\n\nКлючи: тренирует приводящие мышцы. Не делайте резких рывков.",
+            videoUrl: ytSearch("hip adduction machine technique")
+        ),
+        LibraryExercise(
+            name: "Разведение ног в тренажере",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: сядьте, валики с внешней стороны бёдер. Корпус слегка наклонён вперёд для акцента на ягодицы.\n\nДвижение: разведите бёдра против сопротивления. Удерживайте 1 сек.\n\nКлючи: акцентирует среднюю ягодичную, отвечающую за \"капы\" ягодиц.",
+            videoUrl: ytSearch("hip abduction machine technique")
+        ),
+        LibraryExercise(
+            name: "Статика у стены (Стульчик)",
+            category: .legs,
+            muscleGroup: .quadriceps,
             defaultType: .duration,
-            technique: "На брусьях держите ноги параллельно полу (уголок). Статическое удержание. Сильный пресс!",
-            videoUrl: nil
+            technique: "Старт: спиной к стене, бёдра параллельны полу, колени под 90°.\n\nДвижение: удерживайте позицию заданное время. Дыхание ровное.\n\nКлючи: изометрическая нагрузка — отлично для выносливости квадрицепсов и реабилитации.",
+            videoUrl: ytSearch("wall sit technique")
         ),
-        
-        // Complex
+
+        // MARK: - ПЛЕЧИ
+
         LibraryExercise(
-            name: "Взятие на грудь",
-            category: .complex,
-            muscleGroup: .fullBody,
+            name: "Армейский жим",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
             defaultType: .strength,
-            technique: "Power clean. Взрывным движением поднимите штангу на грудь. Техничное упражнение для всего тела.",
-            videoUrl: nil
+            technique: "Старт: штанга на передних дельтах, хват чуть шире плеч. Стойка узкая, ягодицы и пресс напряжены.\n\nДвижение: жмите штангу строго вверх. Когда гриф проходит лоб, голову подайте чуть вперёд. Удерживайте корпус прямым.\n\nКлючи: без раскачки и подседа. Локти под грифом. Дыхание: вдох-удержание-выдох наверху.",
+            videoUrl: ytSearch("overhead press technique")
         ),
         LibraryExercise(
-            name: "Выход силой на две руки",
-            category: .complex,
-            muscleGroup: .fullBody,
+            name: "Жим штанги стоя",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: штанга на дельтах, хват шире плеч на 5–10 см. Корпус вертикален.\n\nДвижение: вертикальный жим над головой. В верхней точке трапеции активно тянутся вверх (full lockout).\n\nКлючи: классика силового тренинга. Без читинга — для этого есть швунг.",
+            videoUrl: ytSearch("standing barbell press technique")
+        ),
+        LibraryExercise(
+            name: "Жим гантелей сидя",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: сидя на скамье со спинкой, гантели на уровне ушей, ладони от себя.\n\nДвижение: жмите гантели вверх и слегка внутрь, не сводя их. Опускайте до уровня ушей.\n\nКлючи: больше амплитуда чем со штангой. Лопатки прижаты к спинке.",
+            videoUrl: ytSearch("seated dumbbell press technique")
+        ),
+        LibraryExercise(
+            name: "Жим гантелей стоя",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: гантели на уровне плеч, ладони от себя. Стойка узкая.\n\nДвижение: жмите гантели вверх над головой. Корпус не отклоняется назад.\n\nКлючи: больше работы для кора. Меньше веса по сравнению со штангой, но безопаснее для плеч.",
+            videoUrl: ytSearch("standing dumbbell press technique")
+        ),
+        LibraryExercise(
+            name: "Жим Арнольда",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: гантели у груди, ладони к себе.\n\nДвижение: разворачивайте кисти наружу во время жима — в верхней точке ладони от себя. Возврат с обратным разворотом.\n\nКлючи: ротационное движение прорабатывает все три пучка дельты. Любимое упражнение Арнольда.",
+            videoUrl: ytSearch("arnold press technique")
+        ),
+        LibraryExercise(
+            name: "Жим из-за головы",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: штанга за головой на трапециях, хват шире плеч. Только при хорошей мобильности плеч.\n\nДвижение: жмите штангу вверх, опускайте за голову до уровня ушей.\n\nКлючи: травмоопасно при плохой мобильности — рассмотрите альтернативы. Используйте малый-средний вес.",
+            videoUrl: ytSearch("behind neck press technique")
+        ),
+        LibraryExercise(
+            name: "Жим Z",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: сидя на полу, ноги прямо вперёд. Штанга на дельтах.\n\nДвижение: чистый жим вверх над головой без помощи ног. Опускайте до дельт.\n\nКлючи: исключает помощь ног и кора — самый строгий вертикальный жим. Развивает чистую силу плеч.",
+            videoUrl: ytSearch("z press technique")
+        ),
+        LibraryExercise(
+            name: "Жим швунг",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: штанга на дельтах. Стойка узкая.\n\nДвижение: короткий подсед коленями, взрывное разгибание + жим штанги над головой одним движением.\n\nКлючи: позволяет поднять больший вес. Импульс от ног — ключевой момент.",
+            videoUrl: ytSearch("push press technique")
+        ),
+        LibraryExercise(
+            name: "Жим Лэндмайн",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: один конец штанги в Лэндмайне. Другой конец на уровне плеча.\n\nДвижение: жмите штангу вверх и вперёд. Корпус слегка отклоняется.\n\nКлючи: щадящая для плеч альтернатива вертикальному жиму. Можно делать одной рукой.",
+            videoUrl: ytSearch("landmine press technique")
+        ),
+        LibraryExercise(
+            name: "Махи гантелями в стороны",
+            category: .shoulders,
+            muscleGroup: .sideDelts,
+            defaultType: .strength,
+            technique: "Старт: гантели в опущенных руках, локти слегка согнуты. Корпус слегка наклонён вперёд.\n\nДвижение: поднимайте гантели через стороны до уровня плеч, локти выше кистей (\"выливаем кувшин\"). Опускайте подконтрольно.\n\nКлючи: средние дельты любят высокие повторы. Без читинга корпусом. Используйте средний вес.",
+            videoUrl: ytSearch("lateral raise technique")
+        ),
+        LibraryExercise(
+            name: "Махи в стороны на блоке",
+            category: .shoulders,
+            muscleGroup: .sideDelts,
+            defaultType: .strength,
+            technique: "Старт: блок внизу, рукоять в дальней руке. Стойка боком.\n\nДвижение: поднимайте руку через сторону до уровня плеча. Возврат подконтрольно.\n\nКлючи: постоянное напряжение в нижней точке (где гантели не нагружены). Плавная сила во всей амплитуде.",
+            videoUrl: ytSearch("cable lateral raise technique")
+        ),
+        LibraryExercise(
+            name: "Махи сидя",
+            category: .shoulders,
+            muscleGroup: .sideDelts,
+            defaultType: .strength,
+            technique: "Старт: сидя на скамье, гантели в руках вдоль корпуса.\n\nДвижение: поднимайте гантели через стороны до уровня плеч.\n\nКлючи: исключает читинг корпусом. Чистая изоляция средних дельт.",
+            videoUrl: ytSearch("seated lateral raise technique")
+        ),
+        LibraryExercise(
+            name: "Махи лежа на боку",
+            category: .shoulders,
+            muscleGroup: .sideDelts,
+            defaultType: .strength,
+            technique: "Старт: лёжа на боку на скамье или полу, гантель в верхней руке.\n\nДвижение: поднимайте гантель строго вверх до вертикали. Опускайте подконтрольно.\n\nКлючи: уникальное упражнение — нагрузка максимальна в нижней точке (где обычные махи слабы).",
+            videoUrl: ytSearch("lying lateral raise technique")
+        ),
+        LibraryExercise(
+            name: "Махи в наклоне",
+            category: .shoulders,
+            muscleGroup: .rearDelts,
+            defaultType: .strength,
+            technique: "Старт: корпус наклонён до 45° или ниже. Гантели в опущенных руках, локти слегка согнуты.\n\nДвижение: разводите гантели в стороны до уровня плеч. Локти ведутся вверх.\n\nКлючи: думайте \"свести лопатки\". Не используйте инерцию. Задние дельты любят повторы 12–20.",
+            videoUrl: ytSearch("bent over rear delt fly technique")
+        ),
+        LibraryExercise(
+            name: "Махи в наклоне на блоке",
+            category: .shoulders,
+            muscleGroup: .rearDelts,
+            defaultType: .strength,
+            technique: "Старт: между двух блоков, рукояти в крест-накрест. Корпус слегка наклонён.\n\nДвижение: разводите руки в стороны через дугу до уровня плеч.\n\nКлючи: постоянное напряжение во всей амплитуде. Лучшее упражнение для задних дельт по электромиографии.",
+            videoUrl: ytSearch("cable rear delt fly technique")
+        ),
+        LibraryExercise(
+            name: "Махи перед собой с гантелями",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: гантели в опущенных руках перед бёдрами.\n\nДвижение: поочерёдно или одновременно поднимайте гантели прямо перед собой до уровня плеч.\n\nКлючи: фронтальные дельты получают много нагрузки в жимах — это упражнение скорее добивающее. 10–15 повторов.",
+            videoUrl: ytSearch("front raise technique")
+        ),
+        LibraryExercise(
+            name: "Махи перед собой со штангой",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: штанга в опущенных руках, хват на ширине плеч.\n\nДвижение: поднимайте штангу перед собой до уровня плеч.\n\nКлючи: больший вес чем с гантелями. Без раскачки.",
+            videoUrl: ytSearch("barbell front raise technique")
+        ),
+        LibraryExercise(
+            name: "Махи перед собой на блоке",
+            category: .shoulders,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: спиной к нижнему блоку, рукоять между ног.\n\nДвижение: поднимайте рукоять перед собой до уровня плеч.\n\nКлючи: блок даёт постоянное напряжение. Хорошо после жима для добивания.",
+            videoUrl: ytSearch("cable front raise technique")
+        ),
+        LibraryExercise(
+            name: "Обратные разведения в тренажере",
+            category: .shoulders,
+            muscleGroup: .rearDelts,
+            defaultType: .strength,
+            technique: "Старт: Pec-Deck в обратном положении (грудью к спинке). Хват за рукояти, локти слегка согнуты.\n\nДвижение: разводите руки назад до линии плеч. Удерживайте 1 сек.\n\nКлючи: одна из лучших изоляций задних дельт. Пик сокращения важен.",
+            videoUrl: ytSearch("reverse pec deck technique")
+        ),
+        LibraryExercise(
+            name: "Лицевая тяга",
+            category: .shoulders,
+            muscleGroup: .rearDelts,
+            defaultType: .strength,
+            technique: "Старт: канат на верхнем блоке, хват сверху ладонями вниз. Стойка прямая, шаг назад.\n\nДвижение: тяните канат к лицу (между бровями), локти выше плеч. В конце — \"двойной бицепс\" с разворотом кистей наружу.\n\nКлючи: упражнение для здоровья плеч и осанки. Делайте в каждой тренировке верха.",
+            videoUrl: ytSearch("face pull technique")
+        ),
+        LibraryExercise(
+            name: "Лицевая тяга на кольцах",
+            category: .shoulders,
+            muscleGroup: .rearDelts,
             defaultType: .repsOnly,
-            technique: "Muscle up. Подтягивание с переходом в отжиманиеon верхом перекладины. Требует силы и техники.",
-            videoUrl: nil
+            technique: "Старт: кольца на уровне головы, корпус наклонён, ноги впереди.\n\nДвижение: тяните корпус к рукам, разводя локти и сводя лопатки.\n\nКлючи: отлично для гимнастов и ОФП. Угол наклона определяет нагрузку.",
+            videoUrl: ytSearch("ring face pull technique")
         ),
         LibraryExercise(
-            name: "Махи гирей",
-            category: .complex,
-            muscleGroup: .fullBody,
+            name: "Кубинский жим",
+            category: .shoulders,
+            muscleGroup: .rearDelts,
             defaultType: .strength,
-            technique: "Kettlebell swing. Махи гирей между ног и до уровня груди. Взрывная работа бедер и ягодиц.",
-            videoUrl: nil
-        ),
-        
-        
-        LibraryExercise(
-            name: "Подсобка",
-            category: .complex,
-            muscleGroup: .fullBody,
-            defaultType: .strength,
-            technique: "Вспомогательные упражнения для укрепления слабых мест. Подбираются индивидуально.",
-            videoUrl: nil
-        ),
-        
-        
-        // Cardio
-        
-        LibraryExercise(
-            name: "Эллипс (40-60 мин, зона 2)",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Низкоинтенсивное кардио в зоне 2 (60-70% от макс. пульса). Жиросжигание и восстановление.",
-            videoUrl: nil
-        ),
-        LibraryExercise(
-            name: "Степпер (Шаг через ступеньку, Перекрестный шаг)",
-            category: .cardio,
-            muscleGroup: .fullBody,
-            defaultType: .duration,
-            technique: "Варианты шагов на степпере для разнообразия и проработки мышц под разными углами.",
-            videoUrl: nil
-        ),
-        
-        // Back variations
-        LibraryExercise(
-            name: "Тяга TRX/Блока",
-            category: .back,
-            muscleGroup: .lats,
-            defaultType: .strength,
-            technique: "Горизонтальные тяги на TRX петлях или блоке. Сводите лопатки, тяните к груди.",
-            videoUrl: nil
-        ),
-        
-    ]
-    
-    // MARK: - NEW IMPORTED EXERCISES - BATCH 2
-    
-    // NOTE: This array is getting long. In a real production app, this should be JSON loaded at runtime.
-    // For now, we append to the static let.
-    static let importedExercises: [LibraryExercise] = [
-        LibraryExercise(
-            name: "Классический жим штанги лежа",
-            category: .chest,
-            muscleGroup: .middleChest,
-            defaultType: .strength,
-            technique: "Атлет располагается на скамье, сводя лопатки вместе и опуская их вниз (ретракция и депрессия). Стопы жестко упираются в пол, создавая «leg drive» (импульс от ног). Хват чуть шире плеч. Штанга опускается на нижнюю часть груди (мечевидный отросток) и выжимается по J-образной траектории — сначала вверх, затем слегка назад к проекции глаз.",
-            videoUrl: "https://www.youtube.com/results?search_query=%D0%9A%D0%BB%D0%B0%D1%81%D1%81%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9%20%D0%B6%D0%B8%D0%BC%20%D1%88%D1%82%D0%B0%D0%BD%D0%B3%D0%B8%20%D0%BB%D0%B5%D0%B6%D0%B0%20technique"
+            technique: "Старт: лёгкие гантели у бёдер.\n\nДвижение: поднимите как тягу к подбородку → разверните гантели наружу (наружная ротация плеча) → жмите вверх → возврат в обратном порядке.\n\nКлючи: укрепляет вращательную манжету. Только лёгкий вес.",
+            videoUrl: ytSearch("cuban press technique")
         ),
         LibraryExercise(
             name: "Тяга к подбородку",
             category: .shoulders,
             muscleGroup: .sideDelts,
             defaultType: .strength,
-            technique: "Широкий хват (комфортнее для кистей). Локти тяните вверх через стороны. Гриф до низа груди/подбородка.",
-            videoUrl: "https://www.youtube.com/results?search_query=upright+row+technique"
+            technique: "Старт: штанга в опущенных руках, хват чуть шире плеч (комфортнее для запястий).\n\nДвижение: тяните штангу к низу груди / подбородку, локти выше кистей.\n\nКлючи: широкий хват — больше дельт, меньше травматичности. Узкий хват чреват импинджментом.",
+            videoUrl: ytSearch("upright row technique")
+        ),
+
+        // MARK: - РУКИ — БИЦЕПС
+
+        LibraryExercise(
+            name: "Подъем штанги на бицепс",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: штанга в опущенных руках, хват на ширине плеч снизу.\n\nДвижение: сгибайте руки, локти прижаты к корпусу. Поднимайте до уровня груди. Опускайте полностью.\n\nКлючи: без раскачки корпусом. Локти не уходят вперёд.",
+            videoUrl: ytSearch("barbell curl technique")
+        ),
+        LibraryExercise(
+            name: "Подъем EZ-штанги на бицепс",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: EZ-штанга в опущенных руках, хват в изогнутой части снизу.\n\nДвижение: сгибайте руки до уровня груди.\n\nКлючи: щадит запястья по сравнению с прямой штангой. Чуть меньше нагрузки на бицепс, но сохраняется длительная работа.",
+            videoUrl: ytSearch("ez bar curl technique")
+        ),
+        LibraryExercise(
+            name: "Подъем штанги обратным хватом",
+            category: .arms,
+            muscleGroup: .forearms,
+            defaultType: .strength,
+            technique: "Старт: штанга в опущенных руках, хват сверху на ширине плеч.\n\nДвижение: сгибайте руки, удерживая запястья прямыми.\n\nКлючи: акцент на брахиалис и предплечья. Используйте умеренный вес — кисти будут уставать.",
+            videoUrl: ytSearch("reverse curl technique")
+        ),
+        LibraryExercise(
+            name: "Подъем гантелей на бицепс сидя",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: сидя на скамье под наклоном 60–75° или прямой. Гантели в опущенных руках.\n\nДвижение: сгибайте руки с супинацией (разворот ладоней вверх).\n\nКлючи: исключает читинг корпусом. Полная амплитуда.",
+            videoUrl: ytSearch("seated dumbbell curl technique")
+        ),
+        LibraryExercise(
+            name: "Подъем гантелей на бицепс стоя",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: гантели в руках, ладони к корпусу.\n\nДвижение: сгибайте руки, разворачивая ладони вверх к концу движения (супинация).\n\nКлючи: супинация — ключ к максимальному сокращению. Локти прижаты.",
+            videoUrl: ytSearch("alternating dumbbell curl technique")
+        ),
+        LibraryExercise(
+            name: "Подъем гантелей на наклонной скамье",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: сидя на наклонной скамье 45–60°. Гантели свисают с супинированным хватом.\n\nДвижение: сгибайте руки, удерживая локти за линией корпуса.\n\nКлючи: максимальное растяжение длинной головки бицепса — лучший стимул для гипертрофии по последним исследованиям.",
+            videoUrl: ytSearch("incline dumbbell curl technique")
+        ),
+        LibraryExercise(
+            name: "Молотки",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: гантели в руках, нейтральный хват (ладони друг к другу).\n\nДвижение: сгибайте руки, удерживая нейтральный хват. Не разворачивайте кисти.\n\nКлючи: целит брахиалис (под бицепсом — даёт толщину руки) и плечелучевую.",
+            videoUrl: ytSearch("hammer curl technique")
+        ),
+        LibraryExercise(
+            name: "Молотки с канатом",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: канат на нижнем блоке, хват за концы каната нейтральный.\n\nДвижение: сгибайте руки до уровня груди. В верхней точке слегка раздвиньте концы каната.\n\nКлючи: блок даёт постоянное напряжение и в верхней, и в нижней точке.",
+            videoUrl: ytSearch("hammer curl rope technique")
+        ),
+        LibraryExercise(
+            name: "Сгибания на скамье Скотта",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: руки лежат на пюпитре скамьи Скотта, EZ-штанга или гантели в руках.\n\nДвижение: сгибайте руки до уровня груди. Опускайте до полного выпрямления (но не блокируйте локти).\n\nКлючи: исключает читинг. Больший упор на короткую головку бицепса.",
+            videoUrl: ytSearch("preacher curl technique")
+        ),
+        LibraryExercise(
+            name: "Сгибание паука",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: лёжа животом на наклонной скамье или скамье Скотта вертикальной стороной. Руки свисают вертикально.\n\nДвижение: сгибайте руки, удерживая локти неподвижными.\n\nКлючи: максимальная изоляция короткой головки. Никакого читинга.",
+            videoUrl: ytSearch("spider curl technique")
+        ),
+        LibraryExercise(
+            name: "Сгибания Зоттмана",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: гантели в руках, ладони от себя.\n\nДвижение: подъем как обычное сгибание. Вверху — разверните кисти ладонями от себя. Опускайте обратным хватом.\n\nКлючи: в одном повторе работает и бицепс (на подъёме), и предплечья (на опускании).",
+            videoUrl: ytSearch("zottman curl technique")
+        ),
+        LibraryExercise(
+            name: "Байезианские сгибания",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: спиной к нижнему блоку. Рукоять в одной руке, рука отведена назад за линию корпуса.\n\nДвижение: сгибайте руку в полной амплитуде, удерживая локоть позади корпуса.\n\nКлючи: упражнение работает в положении максимального растяжения длинной головки — даёт сильнейший стимул роста.",
+            videoUrl: ytSearch("bayesian cable curl technique")
+        ),
+        LibraryExercise(
+            name: "Концентрированные сгибания",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: сидя на скамье, локоть упирается во внутреннюю сторону бедра. Гантель в руке.\n\nДвижение: сгибайте руку, удерживая локоть на бедре.\n\nКлючи: пиковое сокращение наверху — максимальная активация бицепса по электромиографии.",
+            videoUrl: ytSearch("concentration curl technique")
+        ),
+        LibraryExercise(
+            name: "Сгибания в кроссовере",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: рукоять (прямая или EZ) на нижнем блоке.\n\nДвижение: сгибайте руки до уровня груди. Локти прижаты к корпусу.\n\nКлючи: постоянное напряжение во всей амплитуде. Идеально для добивающего сета.",
+            videoUrl: ytSearch("cable curl technique")
+        ),
+        LibraryExercise(
+            name: "Сгибания в тренажере",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: сядьте в тренажёр для бицепса, руки на пюпитре.\n\nДвижение: сгибайте руки против сопротивления. Контролируйте опускание.\n\nКлючи: безопасный путь к отказу. Хорош для дроп-сетов.",
+            videoUrl: ytSearch("machine bicep curl technique")
+        ),
+
+        // MARK: - РУКИ — ТРИЦЕПС
+
+        LibraryExercise(
+            name: "Жим узким хватом",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: лёжа на скамье, штанга в руках, хват на ширине плеч (не уже!).\n\nДвижение: опускайте штангу к нижней части груди, локти прижаты к корпусу. Жмите вверх.\n\nКлючи: ширина хвата как ширина плеч — оптимум для трицепса. Уже хват чреват травмой запястья.",
+            videoUrl: ytSearch("close grip bench press technique")
+        ),
+        LibraryExercise(
+            name: "Жим узким хватом в Смите",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: скамья по центру тренажёра Смита, хват на ширине плеч.\n\nДвижение: опускайте к нижней части груди, локти прижаты. Жмите по фиксированной траектории.\n\nКлючи: безопасная альтернатива со свободным весом. Можно работать в отказ.",
+            videoUrl: ytSearch("smith close grip bench technique")
+        ),
+        LibraryExercise(
+            name: "Французский жим",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: лёжа на скамье, EZ-штанга на вытянутых руках над грудью.\n\nДвижение: сгибайте руки в локтях, опуская штангу за голову (не ко лбу!). Локти направлены вверх.\n\nКлючи: опускание за голову даёт максимальное растяжение длинной головки трицепса. Не разводите локти.",
+            videoUrl: ytSearch("skull crusher technique")
+        ),
+        LibraryExercise(
+            name: "Французский жим сидя со штангой",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: сидя на скамье, EZ-штанга над головой на прямых руках.\n\nДвижение: опускайте штангу за голову, локти направлены вверх и слегка вперёд.\n\nКлючи: позиция растянутой длинной головки даёт лучший стимул. Контроль опускания.",
+            videoUrl: ytSearch("seated overhead tricep extension technique")
+        ),
+        LibraryExercise(
+            name: "Французский жим с гантелью стоя",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: стоя, одна гантель в обеих руках над головой.\n\nДвижение: опускайте гантель за голову, удерживая локти у ушей.\n\nКлючи: универсальная вариация — можно делать дома. Локти не разводите.",
+            videoUrl: ytSearch("overhead dumbbell extension technique")
+        ),
+        LibraryExercise(
+            name: "Французский жим из-за головы с гантелью",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: гантель в одной руке над головой, локоть у уха.\n\nДвижение: опускайте гантель за голову, удерживая локоть неподвижным.\n\nКлючи: унилатерально — устраняет дисбаланс. Полная амплитуда.",
+            videoUrl: ytSearch("one arm overhead extension technique")
+        ),
+        LibraryExercise(
+            name: "Тейт-пресс",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: лёжа на скамье, гантели на вытянутых руках над грудью, ладони к ногам.\n\nДвижение: опускайте гантели к груди, разводя локти в стороны. Сгибание происходит только в локте.\n\nКлючи: акцент на медиальную и латеральную головки. Без помощи длинной головки.",
+            videoUrl: ytSearch("tate press technique")
+        ),
+        LibraryExercise(
+            name: "Разгибание рук на блоке",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: стоя у вертикального блока, рукоять (прямая, V или канат) в руках. Локти прижаты к корпусу.\n\nДвижение: разгибайте руки строго вниз. В нижней точке слегка задерживайте.\n\nКлючи: плечи неподвижны — двигаются только локти. Без раскачки корпусом.",
+            videoUrl: ytSearch("tricep pushdown technique")
+        ),
+        LibraryExercise(
+            name: "Разгибание рук на блоке с канатом",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: канат на верхнем блоке, хват за концы.\n\nДвижение: разгибайте руки вниз. В нижней точке разведите концы каната в стороны для пикового сокращения.\n\nКлючи: разведение концов даёт лучшую активацию латеральной головки.",
+            videoUrl: ytSearch("rope pushdown technique")
+        ),
+        LibraryExercise(
+            name: "Разгибание рук на блоке обратным хватом",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: рукоять на верхнем блоке, хват супинированный (ладонями к себе).\n\nДвижение: разгибайте руки вниз, удерживая локти прижатыми.\n\nКлючи: акцент на медиальную головку трицепса. Меньший вес чем с обычным хватом.",
+            videoUrl: ytSearch("reverse grip pushdown technique")
+        ),
+        LibraryExercise(
+            name: "Разгибания на блоке из-за головы",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: спиной к нижнему блоку, рукоять (канат или EZ) над головой. Шаг вперёд.\n\nДвижение: разгибайте руки, удерживая локти неподвижными у головы.\n\nКлючи: позиция растянутой длинной головки + постоянное напряжение блока = двойной стимул.",
+            videoUrl: ytSearch("overhead cable extension technique")
+        ),
+        LibraryExercise(
+            name: "Разгибание руки в наклоне с гантелью",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: упор коленом и рукой в скамью, гантель в свободной руке. Локоть прижат к корпусу, плечо параллельно полу.\n\nДвижение: разгибайте руку назад до полного выпрямления. Удерживайте 1 сек.\n\nКлючи: пиковое сокращение в верхней точке. Не двигайте плечо — только локоть.",
+            videoUrl: ytSearch("tricep kickback technique")
+        ),
+        LibraryExercise(
+            name: "Обратные отжимания от скамьи",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .repsOnly,
+            technique: "Старт: руки на скамье позади, ноги впереди прямые или согнутые.\n\nДвижение: опускайте таз вниз, сгибая руки. Локти строго назад. Поднимайтесь, не разводя локти.\n\nКлючи: не опускайтесь слишком глубоко (риск для плечевых). Не уводите таз далеко от скамьи.",
+            videoUrl: ytSearch("bench dip technique")
+        ),
+        LibraryExercise(
+            name: "Отжимания на брусьях узким хватом",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .repsOnly,
+            technique: "Старт: упор на узких брусьях. Корпус вертикален, ноги согнуты.\n\nДвижение: опускайтесь, локти прижаты вдоль корпуса. Поднимайтесь до полного разгибания.\n\nКлючи: вертикальный корпус — главное условие нагрузки на трицепс. Лучшее упражнение для массонабора рук.",
+            videoUrl: ytSearch("dips for triceps technique")
+        ),
+
+        // MARK: - РУКИ — ПРЕДПЛЕЧЬЯ
+
+        LibraryExercise(
+            name: "Сгибание кистей со штангой",
+            category: .arms,
+            muscleGroup: .forearms,
+            defaultType: .strength,
+            technique: "Старт: сидя, предплечья на коленях, кисти свисают со штангой ладонями вверх.\n\nДвижение: сгибайте кисти максимально вверх. В нижней точке слегка раскрывайте ладони.\n\nКлючи: высокие повторы (15–25). Полная амплитуда.",
+            videoUrl: ytSearch("wrist curl technique")
+        ),
+        LibraryExercise(
+            name: "Сгибание кистей за спиной",
+            category: .arms,
+            muscleGroup: .forearms,
+            defaultType: .strength,
+            technique: "Старт: стоя, штанга за спиной в опущенных руках хватом снизу.\n\nДвижение: сгибайте кисти, поднимая штангу.\n\nКлючи: уникальный угол нагрузки — отлично прорабатывает предплечья.",
+            videoUrl: ytSearch("behind back wrist curl technique")
+        ),
+        LibraryExercise(
+            name: "Разгибание кистей со штангой",
+            category: .arms,
+            muscleGroup: .forearms,
+            defaultType: .strength,
+            technique: "Старт: предплечья на коленях, кисти свисают ладонями вниз.\n\nДвижение: разгибайте кисти максимально вверх.\n\nКлючи: тренирует разгибатели кисти — критично для здоровья локтей и борьбы с эпикондилитом.",
+            videoUrl: ytSearch("reverse wrist curl technique")
+        ),
+        LibraryExercise(
+            name: "Удержание блина",
+            category: .arms,
+            muscleGroup: .forearms,
+            defaultType: .duration,
+            technique: "Старт: блин (5–20 кг) в опущенной руке, удерживается за гладкую плоскость пальцами.\n\nДвижение: удерживайте максимально долго.\n\nКлючи: развивает хват и предплечья. Меняйте руки.",
+            videoUrl: ytSearch("plate pinch grip technique")
+        ),
+
+        // MARK: - КОР
+
+        LibraryExercise(
+            name: "Планка",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: упор лёжа на предплечьях, тело — прямая линия. Локти под плечами.\n\nДвижение: удерживайте позицию, напрягая пресс, ягодицы, ноги.\n\nКлючи: без провисания таза или поднимания. Дыхание ровное. Качество важнее времени.",
+            videoUrl: ytSearch("plank technique")
+        ),
+        LibraryExercise(
+            name: "Боковая планка",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: упор на предплечье на боку, ноги вытянуты, верхняя нога на нижней.\n\nДвижение: удерживайте корпус прямой линией. Таз поднят.\n\nКлючи: тренирует косые мышцы. Меняйте стороны.",
+            videoUrl: ytSearch("side plank technique")
+        ),
+        LibraryExercise(
+            name: "Копенгагенская планка",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: лёжа на боку, верхняя нога на скамье (на уровне колена или щиколотки). Упор на предплечье.\n\nДвижение: поднимите таз до прямой линии тела за счёт верхней ноги.\n\nКлючи: жёсткая нагрузка на приводящие и косые. Профилактика травм паха.",
+            videoUrl: ytSearch("copenhagen plank technique")
+        ),
+        LibraryExercise(
+            name: "Подъем ног в висе",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: вис на перекладине, лопатки активны.\n\nДвижение: поднимайте прямые или согнутые ноги до уровня таза, подкручивая таз вверх в верхней точке.\n\nКлючи: подкрут таза = работа пресса. Без раскачки — контролируемый темп.",
+            videoUrl: ytSearch("hanging leg raise technique")
+        ),
+        LibraryExercise(
+            name: "Подъем ног в упоре",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: упор предплечьями на брусьях, ноги свисают.\n\nДвижение: поднимайте ноги к груди, подкручивая таз.\n\nКлючи: легче чем в висе — отлично для прогрессии.",
+            videoUrl: ytSearch("captains chair leg raise technique")
+        ),
+        LibraryExercise(
+            name: "Подъем ног лежа",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа на спине, руки вдоль корпуса или под ягодицами.\n\nДвижение: поднимайте прямые ноги до вертикали. Опускайте подконтрольно, не касаясь пола.\n\nКлючи: поясница прижата к полу. Если не удаётся — согните колени.",
+            videoUrl: ytSearch("lying leg raise technique")
+        ),
+        LibraryExercise(
+            name: "Подъем ног к перекладине (Toes to Bar)",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: вис на перекладине.\n\nДвижение: поднимайте ноги до касания перекладины носками. Контролируемое опускание.\n\nКлючи: продвинутая версия — требует мобильности и силы пресса. Можно делать в стиле \"кип\" для CrossFit.",
+            videoUrl: ytSearch("toes to bar technique")
+        ),
+        LibraryExercise(
+            name: "Скручивания",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа на спине, колени согнуты, стопы на полу. Руки у висков.\n\nДвижение: подкрутите таз, поднимая лопатки от пола (не более чем на 30°). Сожмите пресс.\n\nКлючи: это не подъем туловища — нужно подкрутить таз. Поясница не отрывается.",
+            videoUrl: ytSearch("crunch technique")
+        ),
+        LibraryExercise(
+            name: "Обратные скручивания",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа на спине, колени к груди, руки вдоль корпуса.\n\nДвижение: подкрутите таз, поднимая ягодицы и приближая колени к груди.\n\nКлючи: акцент на нижнюю часть пресса. Без раскачки.",
+            videoUrl: ytSearch("reverse crunch technique")
+        ),
+        LibraryExercise(
+            name: "Скручивания на блоке",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .strength,
+            technique: "Старт: на коленях перед верхним блоком, канат за головой. Бёдра вертикальны.\n\nДвижение: подкручивайте корпус вниз, приближая локти к коленям. Бёдра не двигаются.\n\nКлючи: позволяет работать с прогрессией веса. Округлите спину при сокращении.",
+            videoUrl: ytSearch("cable crunch technique")
+        ),
+        LibraryExercise(
+            name: "Скручивания в тренажере",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .strength,
+            technique: "Старт: сядьте в тренажёр Ab Crunch, руки за рукоятями.\n\nДвижение: скручивайте корпус вниз против сопротивления.\n\nКлючи: безопасный путь к гипертрофии пресса с прогрессирующей нагрузкой.",
+            videoUrl: ytSearch("ab crunch machine technique")
+        ),
+        LibraryExercise(
+            name: "Складочка (V-Ups)",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа на спине, ноги прямые, руки вытянуты за голову.\n\nДвижение: одновременно поднимите ноги и корпус, тянитесь руками к стопам.\n\nКлючи: единое движение — образуется V-форма. Сохраняйте баланс.",
+            videoUrl: ytSearch("v ups technique")
+        ),
+        LibraryExercise(
+            name: "Велосипед",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа, руки у висков, ноги подняты под 90°.\n\nДвижение: поочерёдно тянитесь локтем к противоположному колену, имитируя велосипед.\n\nКлючи: работает прямая и косые мышцы. Контроль, не скорость.",
+            videoUrl: ytSearch("bicycle crunch technique")
+        ),
+        LibraryExercise(
+            name: "Русский твист",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: сидя, корпус откинут до 45°, ноги приподняты. Гантель / медбол в руках.\n\nДвижение: поворачивайте корпус из стороны в сторону, касаясь снаряда пола.\n\nКлючи: работает за счёт корпуса, не рук. Ноги не дёргаются.",
+            videoUrl: ytSearch("russian twist technique")
+        ),
+        LibraryExercise(
+            name: "Ролик для пресса",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: на коленях, ролик в руках перед собой.\n\nДвижение: катите ролик вперёд, удерживая прямой корпус. До максимально низкого положения. Возврат за счёт пресса.\n\nКлючи: одно из самых тяжёлых упражнений для пресса. Без провисания таза.",
+            videoUrl: ytSearch("ab wheel technique")
+        ),
+        LibraryExercise(
+            name: "Уголок (L-Sit)",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: сидя на полу или на параллетках, руки прямые, упор в пол.\n\nДвижение: оторвите ягодицы и ноги от пола. Удерживайте L-форму.\n\nКлючи: гимнастический навык. Прогрессия от согнутых колен к прямым ногам.",
+            videoUrl: ytSearch("l sit technique")
+        ),
+        LibraryExercise(
+            name: "Уголок на брусьях",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: упор на брусьях, руки прямые.\n\nДвижение: поднимите прямые ноги до уровня таза. Удерживайте.\n\nКлючи: тяжелее L-Sit на полу. Требует сильного хвата и пресса.",
+            videoUrl: ytSearch("l sit dip bar technique")
+        ),
+        LibraryExercise(
+            name: "Вакуум",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: стоя или на коленях, наклонитесь чуть вперёд.\n\nДвижение: полный выдох → втяните живот максимально внутрь и вверх. Удерживайте 15–30 сек.\n\nКлючи: тренирует поперечную мышцу — даёт визуально плоский живот. Делайте утром натощак.",
+            videoUrl: ytSearch("stomach vacuum technique")
+        ),
+        LibraryExercise(
+            name: "Прогулка фермера",
+            category: .core,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: тяжёлые гантели или гири в опущенных руках. Корпус напряжён, плечи расправлены.\n\nДвижение: идите мелкими шагами заданное расстояние или время.\n\nКлючи: тренирует хват, кор, трапеции, ноги. Не сутультесь — гордая осанка.",
+            videoUrl: ytSearch("farmers walk technique")
+        ),
+        LibraryExercise(
+            name: "Анти-ротация на блоке",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .strength,
+            technique: "Старт: боком к блоку, рукоять прижата к груди. Стойка стабильна.\n\nДвижение: вытяните руки вперёд, не позволяя корпусу повернуться к блоку. Удерживайте 2 сек. Возврат.\n\nКлючи: тренирует анти-ротационную силу кора — критично для здоровой поясницы.",
+            videoUrl: ytSearch("pallof press technique")
+        ),
+        LibraryExercise(
+            name: "Прогулка медведя",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: на четвереньках, колени над землёй на 5 см. Спина прямая.\n\nДвижение: шагайте вперёд, продвигая противоположную руку и ногу одновременно. Колени не касаются пола.\n\nКлючи: жёсткая стабилизация кора. Не виляйте тазом.",
+            videoUrl: ytSearch("bear crawl technique")
+        ),
+        LibraryExercise(
+            name: "Удержание угла",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: лёжа на спине, ноги прямые, руки за голову.\n\nДвижение: одновременно оторвите от пола ноги и плечи, удерживая прямой корпус.\n\nКлючи: изометрическая нагрузка на пресс. Дыхание ровное.",
+            videoUrl: ytSearch("hollow hold technique")
+        ),
+        LibraryExercise(
+            name: "Перекрестные скручивания",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа, руки за голову, ноги согнуты.\n\nДвижение: тянитесь правым локтем к левому колену и наоборот.\n\nКлючи: работают косые мышцы. Без рывков шеей.",
+            videoUrl: ytSearch("cross body crunch technique")
+        ),
+        LibraryExercise(
+            name: "Dead Bug (Жук)",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа на спине, руки вверх, ноги под 90°.\n\nДвижение: одновременно опустите противоположные руку и ногу, не отрывая поясницу. Возврат.\n\nКлючи: одно из самых функциональных упражнений для кора. Поясница прижата.",
+            videoUrl: ytSearch("dead bug technique")
+        ),
+        LibraryExercise(
+            name: "Bird Dog (Птица-собака)",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: на четвереньках, руки под плечами, колени под тазом.\n\nДвижение: вытяните противоположные руку и ногу до прямой линии. Удерживайте 2 сек.\n\nКлючи: тренирует кор и поясницу. Не разворачивайте таз.",
+            videoUrl: ytSearch("bird dog technique")
+        ),
+        LibraryExercise(
+            name: "Hollow Body Hold",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: лёжа на спине, поясница прижата.\n\nДвижение: оторвите ноги и плечи, образуя \"полую\" дугу. Руки вытянуты за голову.\n\nКлючи: гимнастическая база. Поясница ВСЕГДА прижата к полу.",
+            videoUrl: ytSearch("hollow body hold technique")
+        ),
+
+        // MARK: - КАРДИО
+
+        LibraryExercise(
+            name: "Бег трусцой",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Зона 2 (60–70% макс. пульса). Расслабленный темп — можно говорить полными предложениями.\n\nКлючи: лёгкий приземление на середину стопы, корпус слегка наклонён вперёд. Идеально для жиросжигания и восстановления.",
+            videoUrl: ytSearch("jogging form technique")
+        ),
+        LibraryExercise(
+            name: "Бег интервалы",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "HIIT-схемы: 30/30, 45/45, 60/60. Спринт + восстановление.\n\nКлючи: на спринтах работа в зоне 4–5 (90%+ макс. пульса). Между интервалами — лёгкая трусца. Запускает EPOC — догорание калорий после.",
+            videoUrl: ytSearch("interval running technique")
+        ),
+        LibraryExercise(
+            name: "Скакалка",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: скакалка отрегулирована — рукояти под мышками при наступании на середину.\n\nДвижение: прыгайте на носках, едва отрывая ноги. Кисти крутят, плечи расслаблены.\n\nКлючи: лучшее портативное кардио. Тренирует икры и координацию.",
+            videoUrl: ytSearch("jump rope technique")
+        ),
+        LibraryExercise(
+            name: "Двойные прыжки на скакалке",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: уверенно делаете 100+ обычных прыжков.\n\nДвижение: один прыжок выше + два оборота скакалки за это время.\n\nКлючи: культовое CrossFit упражнение. Кисти крутят быстрее, прыжок выше.",
+            videoUrl: ytSearch("double under technique")
+        ),
+        LibraryExercise(
+            name: "Прыжки на скакалке крест-накрест",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: после освоения базовых прыжков.\n\nДвижение: на каждом прыжке скрещивайте руки перед собой, прыгая через образовавшуюся петлю.\n\nКлючи: координационное упражнение. Хорошо разнообразит тренировку.",
+            videoUrl: ytSearch("criss cross jump rope technique")
+        ),
+        LibraryExercise(
+            name: "Гребля (Concept2)",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Цикл: ноги (60% усилия) → корпус (20%) → руки (20%). Возврат в обратном порядке.\n\nКлючи: толкайте ногами, не тяните руками. Спина прямая. Гребок мощный, возврат подконтрольный.",
+            videoUrl: ytSearch("rowing machine technique")
+        ),
+        LibraryExercise(
+            name: "Байк (Assault Bike)",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Сядьте, ноги и руки одновременно работают.\n\nДвижение: толкайте педали и тяните рукояти максимально мощно.\n\nКлючи: жёсткая аэробно-силовая нагрузка. \"Самокат смерти\" — обожаемый CrossFit-инструмент.",
+            videoUrl: ytSearch("assault bike technique")
+        ),
+        LibraryExercise(
+            name: "Лыжный тренажер (SkiErg)",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: рукояти вверху, корпус слегка наклонён, ноги чуть согнуты.\n\nДвижение: тяните рукояти вниз и за спину, наклоняя корпус. Используйте кор и ноги.\n\nКлючи: имитация классических лыж. Высокая нагрузка на спину и кор.",
+            videoUrl: ytSearch("skierg technique")
+        ),
+        LibraryExercise(
+            name: "Эллипсоид",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Стопы на платформах, рукояти в руках.\n\nДвижение: толкайте ноги назад, помогая руками. Корпус прямой.\n\nКлючи: щадящее кардио — нет ударной нагрузки. Зона 2, 30–60 минут.",
+            videoUrl: ytSearch("elliptical technique")
+        ),
+        LibraryExercise(
+            name: "Степпер",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Шагайте на месте, удерживая корпус вертикально. Не наклоняйтесь на рукояти.\n\nКлючи: жжёт ягодицы и квадрицепсы. Идеально для кардио в дни верха тела.",
+            videoUrl: ytSearch("stair stepper technique")
+        ),
+        LibraryExercise(
+            name: "Бокс (груша)",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Раунды по 2–3 минуты. Базовые удары: джеб, кросс, хук, апперкот.\n\nКлючи: техника важнее силы. Кисти всегда в перчатках. Возвращайте руки в защиту после каждого удара.",
+            videoUrl: ytSearch("boxing bag technique")
+        ),
+        LibraryExercise(
+            name: "Ходьба в гору",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Беговая дорожка с наклоном 10–15% или живой подъём. Темп быстрая ходьба.\n\nКлючи: жгучее кардио без ударной нагрузки. Работают ягодицы и икры. Не держитесь за поручни.",
+            videoUrl: ytSearch("incline walking technique")
+        ),
+        LibraryExercise(
+            name: "Берпи",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Цикл: присед → выброс ног в планку → отжимание → подтягивание ног к груди → выпрыгивание с хлопком над головой.\n\nКлючи: легендарное упражнение CrossFit. Темп умеренный, не жертвуйте техникой.",
+            videoUrl: ytSearch("burpee technique")
+        ),
+        LibraryExercise(
+            name: "Заныривания на коробку (Box Jumps)",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: перед коробкой высотой 50–75 см.\n\nДвижение: глубокий присед → взрывное выпрыгивание на коробку. Спрыгивание мягкое.\n\nКлючи: безопаснее ставить ногу на коробку при спуске (не спрыгивать), чтобы беречь ахилл.",
+            videoUrl: ytSearch("box jump technique")
+        ),
+        LibraryExercise(
+            name: "Альпинист",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: упор лёжа.\n\nДвижение: поочерёдно подтягивайте колени к груди в быстром темпе.\n\nКлючи: тренирует кор и кардио. Бёдра не поднимаются вверх.",
+            videoUrl: ytSearch("mountain climber technique")
+        ),
+        LibraryExercise(
+            name: "Джампинг Джек",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: стоя, ноги вместе, руки вдоль тела.\n\nДвижение: прыжком развести ноги в стороны и поднять руки над головой. Прыжком вернуться.\n\nКлючи: классическое разогревочное упражнение. Высокий темп.",
+            videoUrl: ytSearch("jumping jack technique")
+        ),
+        LibraryExercise(
+            name: "Выпрыгивания из приседа",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: стоя, ноги на ширине плеч.\n\nДвижение: глубокий присед → взрывное выпрыгивание вверх → мягкое приземление.\n\nКлючи: плиометрика для развития мощности ног.",
+            videoUrl: ytSearch("squat jump technique")
+        ),
+        LibraryExercise(
+            name: "Прыжки в длину",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: стоя, руки отведены назад.\n\nДвижение: мах руками вперёд + взрывное выпрыгивание вперёд. Мягкое приземление.\n\nКлючи: тренирует мощность задней цепи. Измеряйте длину для прогрессии.",
+            videoUrl: ytSearch("broad jump technique")
+        ),
+        LibraryExercise(
+            name: "Спринты",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Дистанция 50–200 м. Максимальная скорость.\n\nКлючи: между спринтами — полное восстановление (2–3 мин). Для развития мощности и анаэробной системы.",
+            videoUrl: ytSearch("sprint training technique")
+        ),
+        LibraryExercise(
+            name: "Табата",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Протокол: 20 сек работы / 10 сек отдыха x 8 раундов = 4 минуты.\n\nКлючи: жёсткий HIIT — упражнение на пределе. Работает с любым движением (берпи, спринт, гири).",
+            videoUrl: ytSearch("tabata protocol technique")
+        ),
+        LibraryExercise(
+            name: "Подъем по лестнице",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Живой подъезд / стадион. Темп быстрый, без бега.\n\nКлючи: фантастическое кардио для ягодиц и икр. Безопасно для коленей.",
+            videoUrl: ytSearch("stair climbing cardio")
+        ),
+
+        // MARK: - КОМПЛЕКСНЫЕ (Тяжелая атлетика / Crossfit / Calisthenics)
+
+        LibraryExercise(
+            name: "Рывок штанги (Snatch)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .strength,
+            technique: "Старт: широкий хват, штанга над серединой стопы. Таз ниже плеч.\n\nДвижение: подрыв с пола → \"тройное разгибание\" (стопы, колени, таз) → подсед под штангу → приём над головой в полном приседе.\n\nКлючи: один из самых технически сложных движений. Изучайте под тренером. Требует мобильности.",
+            videoUrl: ytSearch("snatch technique")
+        ),
+        LibraryExercise(
+            name: "Силовой рывок",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .strength,
+            technique: "Старт: как в обычном рывке.\n\nДвижение: приём штанги над головой без полного подседа (выше параллели).\n\nКлючи: проще классики, отлично для развития мощности задней цепи.",
+            videoUrl: ytSearch("power snatch technique")
+        ),
+        LibraryExercise(
+            name: "Взятие штанги на грудь (Clean)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .strength,
+            technique: "Старт: хват на ширине плеч, штанга над серединой стопы.\n\nДвижение: подрыв → подсед → приём штанги на передние дельты. Локти высоко вперёд.\n\nКлючи: ключ — быстрый \"подворот\" локтей. База тяжёлой атлетики.",
+            videoUrl: ytSearch("clean technique")
+        ),
+        LibraryExercise(
+            name: "Силовое взятие на грудь",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .strength,
+            technique: "Старт: как в обычном Clean.\n\nДвижение: приём штанги на грудь без полного подседа.\n\nКлючи: развивает взрывную мощность. Используется в CrossFit-комплексах.",
+            videoUrl: ytSearch("power clean technique")
+        ),
+        LibraryExercise(
+            name: "Толчок штанги (Jerk)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .strength,
+            technique: "Старт: штанга на дельтах после взятия на грудь.\n\nДвижение: короткий подсед → взрывное разгибание → выталкивание штанги вверх с уходом под неё в ножницы.\n\nКлючи: ноги дают импульс, руки только фиксируют. Финал — корпус прямой под штангой.",
+            videoUrl: ytSearch("split jerk technique")
+        ),
+        LibraryExercise(
+            name: "Швунг толчковый",
+            category: .complex,
+            muscleGroup: .frontDelts,
+            defaultType: .strength,
+            technique: "Старт: штанга на дельтах.\n\nДвижение: подсед → разгибание → выталкивание штанги вверх с подсаживанием под неё.\n\nКлючи: между швунгом и толчком — без ножниц.",
+            videoUrl: ytSearch("push jerk technique")
+        ),
+        LibraryExercise(
+            name: "Трастеры (Thrusters)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .strength,
+            technique: "Старт: штанга на передних дельтах (как фронт-присед).\n\nДвижение: фронтальный присед → на вставании толкайте штангу вверх над головой.\n\nКлючи: одно движение от пола до верха. Один из самых жёстких CrossFit-комплексов.",
+            videoUrl: ytSearch("thruster technique")
+        ),
+        LibraryExercise(
+            name: "Махи гирей русские",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: гиря между ног, ноги шире плеч.\n\nДвижение: hip hinge → взрывное разгибание таза → гиря летит до уровня глаз. Возврат с замахом между ног.\n\nКлючи: работа от бёдер, не от рук. Спина нейтральная.",
+            videoUrl: ytSearch("russian kettlebell swing technique")
+        ),
+        LibraryExercise(
+            name: "Махи гирей американские",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: как в русском махе.\n\nДвижение: гиря летит над головой в полную амплитуду. Дно гири смотрит в потолок.\n\nКлючи: требует мобильности плеч. В верхней точке корпус прямой — не прогибайтесь в пояснице.",
+            videoUrl: ytSearch("american kettlebell swing technique")
+        ),
+        LibraryExercise(
+            name: "Кластеры (Clusters)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .strength,
+            technique: "Старт: каждый повтор начинается с пола.\n\nДвижение: взятие на грудь → фронтальный присед → выталкивание над головой → возврат на пол.\n\nКлючи: жёсткое CrossFit-движение. Энергоёмкое.",
+            videoUrl: ytSearch("clusters crossfit technique")
+        ),
+        LibraryExercise(
+            name: "Броски мяча (Wall Balls)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: медбол у груди, перед мишенью на стене (3 м).\n\nДвижение: глубокий присед → выпрыгивание → бросок мяча в мишень. Ловите и сразу в присед.\n\nКлючи: непрерывный темп. Жёсткая ритмическая нагрузка.",
+            videoUrl: ytSearch("wall ball technique")
+        ),
+        LibraryExercise(
+            name: "Рывок гири",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: гиря между ног, одна рука на ручке.\n\nДвижение: подрыв → гиря летит вверх → \"подворот\" кисти → приём над головой на вытянутой руке.\n\nКлючи: гиря должна мягко \"приземлиться\" на предплечье. Меняйте руки.",
+            videoUrl: ytSearch("kettlebell snatch technique")
+        ),
+        LibraryExercise(
+            name: "Толчок гирь длинным циклом",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: две гири в опущенных руках.\n\nДвижение: взятие на грудь → толчок над головой → опускание на грудь → опускание между ног → повтор.\n\nКлючи: гиревой спорт высшей сложности. Развивает невероятную выносливость.",
+            videoUrl: ytSearch("long cycle clean and jerk technique")
+        ),
+        LibraryExercise(
+            name: "Турецкий подъем",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .strength,
+            technique: "Старт: лёжа на спине, гиря на вытянутой руке над собой.\n\nДвижение: пошаговый подъем в стойку, удерживая руку с гирей вертикально. Возврат тем же путём.\n\nКлючи: культовое упражнение для подвижности и стабильности всего тела. Изучайте по этапам.",
+            videoUrl: ytSearch("turkish get up technique")
+        ),
+        LibraryExercise(
+            name: "Подъем мешка на плечо",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: тяжёлый сэндбэг или мешок на полу.\n\nДвижение: становая → поднять на плечо одним движением → опустить на пол.\n\nКлючи: классика силового экстрима. Используйте поясной ремень.",
+            videoUrl: ytSearch("sandbag shoulder technique")
+        ),
+        LibraryExercise(
+            name: "Кипинг подтягивания",
+            category: .complex,
+            muscleGroup: .lats,
+            defaultType: .repsOnly,
+            technique: "Старт: вис на перекладине.\n\nДвижение: используйте импульс корпуса (\"кип\") для выполнения большого числа подтягиваний.\n\nКлючи: CrossFit-стандарт. Не путайте со строгими подтягиваниями.",
+            videoUrl: ytSearch("kipping pull up technique")
+        ),
+        LibraryExercise(
+            name: "Бабочка-подтягивания",
+            category: .complex,
+            muscleGroup: .lats,
+            defaultType: .repsOnly,
+            technique: "Старт: после освоения кипа.\n\nДвижение: непрерывная циклическая работа корпусом для подтягиваний без задержек в верхней / нижней точке.\n\nКлючи: высочайший темп подтягиваний для CrossFit. Очень нагрузочно для плеч.",
+            videoUrl: ytSearch("butterfly pull up technique")
+        ),
+        LibraryExercise(
+            name: "Хождение на руках",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: стойка на руках у стены или в свободной среде.\n\nДвижение: переставляйте руки, продвигаясь вперёд / в стороны.\n\nКлючи: требует освоенной стойки на руках. Развивает плечи, кор, координацию.",
+            videoUrl: ytSearch("handstand walk technique")
+        ),
+        LibraryExercise(
+            name: "Жим в стойке на руках",
+            category: .complex,
+            muscleGroup: .frontDelts,
+            defaultType: .repsOnly,
+            technique: "Старт: стойка на руках у стены.\n\nДвижение: опускайтесь на голову, отжимайтесь до полного выпрямления.\n\nКлючи: гимнастический эквивалент жима над головой. Нужны сильные плечи и кор.",
+            videoUrl: ytSearch("handstand push up technique")
+        ),
+        LibraryExercise(
+            name: "Burpee Box Jump Over",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Цикл: берпи → выпрыгивание на коробку → перепрыгивание на другую сторону → берпи.\n\nКлючи: одно из самых тяжёлых движений в CrossFit. Темп умеренный.",
+            videoUrl: ytSearch("burpee box jump over technique")
+        ),
+        LibraryExercise(
+            name: "Толкание салазок",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: руки на рукоятях салазок, корпус наклонён вперёд.\n\nДвижение: толкайте салазки на расстояние, мощно отталкиваясь ногами.\n\nКлючи: безударный спринт. Жжёт ноги и кардио.",
+            videoUrl: ytSearch("sled push technique")
+        ),
+        LibraryExercise(
+            name: "Тяга салазок",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: лямка на поясе или верёвка в руках. Салазки сзади.\n\nДвижение: идите вперёд, либо тяните руками к корпусу.\n\nКлючи: тренирует тягу и ноги. Прекрасное восстановительное упражнение для тяжелоатлетов.",
+            videoUrl: ytSearch("sled pull technique")
+        ),
+        LibraryExercise(
+            name: "Атласовый камень",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: каменный шар (50–150 кг) на полу.\n\nДвижение: подними на платформу или плечо.\n\nКлючи: соревновательное упражнение силового экстрима. Используйте липкие лосьоны и ремни.",
+            videoUrl: ytSearch("atlas stone technique")
+        ),
+        LibraryExercise(
+            name: "Переворот покрышки",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: покрышка лежит. Хват снизу под покрышкой.\n\nДвижение: используйте всё тело для подъёма. Толкните плечом для перевода через верх.\n\nКлючи: техника близка к становой и трастерам. Огромная нагрузка на всё тело.",
+            videoUrl: ytSearch("tire flip technique")
+        ),
+        LibraryExercise(
+            name: "Канаты (Battle Ropes)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: концы канатов в руках, лёгкий присед, корпус наклонён вперёд.\n\nДвижение: интенсивные удары канатами вверх-вниз или волной.\n\nКлючи: высокоинтенсивное кардио для верха тела. Раунды по 30–60 сек.",
+            videoUrl: ytSearch("battle ropes technique")
+        ),
+
+        // MARK: - КАЛИСТЕНИКА И ГИМНАСТИКА (Complex)
+
+        LibraryExercise(
+            name: "Выход силой",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: вис на перекладине.\n\nДвижение: взрывное подтягивание + переворот корпуса с выходом в упор на прямые руки.\n\nКлючи: гимнастический навык. Прогрессия через подтягивания с большим импульсом.",
+            videoUrl: ytSearch("muscle up technique")
+        ),
+        LibraryExercise(
+            name: "Передний вис (Front Lever)",
+            category: .complex,
+            muscleGroup: .lats,
+            defaultType: .duration,
+            technique: "Старт: вис на перекладине.\n\nДвижение: поднимите тело параллельно полу лицом вверх, удерживая прямую линию от плеч до пят.\n\nКлючи: продвинутый гимнастический навык. Прогрессия от подтянутых колен.",
+            videoUrl: ytSearch("front lever technique")
+        ),
+        LibraryExercise(
+            name: "Задний вис (Back Lever)",
+            category: .complex,
+            muscleGroup: .frontDelts,
+            defaultType: .duration,
+            technique: "Старт: вис на перекладине.\n\nДвижение: переверните корпус и удерживайте параллельно полу лицом вниз.\n\nКлючи: жёсткое испытание для бицепса и плеч. Прогрессия очень постепенная.",
+            videoUrl: ytSearch("back lever technique")
+        ),
+        LibraryExercise(
+            name: "Горизонт (Planche)",
+            category: .complex,
+            muscleGroup: .frontDelts,
+            defaultType: .duration,
+            technique: "Старт: упор на руках на полу или параллетках.\n\nДвижение: оторвите ноги от пола, удерживая прямое тело параллельно полу.\n\nКлючи: высочайшая гимнастическая сложность. Прогрессия годами через лягушку, тук, страддл.",
+            videoUrl: ytSearch("planche technique")
+        ),
+        LibraryExercise(
+            name: "Флаг человека",
+            category: .complex,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: вертикальный шест, хват двумя руками друг над другом.\n\nДвижение: выведите тело в горизонталь параллельно полу.\n\nКлючи: иконическое движение калистеники. Требует силы кора, хвата и плеч.",
+            videoUrl: ytSearch("human flag technique")
+        ),
+        LibraryExercise(
+            name: "Болгарские отжимания",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: упор на двух гирях / упорах с разведением рук в стороны.\n\nДвижение: отжимание с большим разведением рук — нагрузка на грудь и плечи.\n\nКлючи: культовое упражнение русских силовых традиций.",
+            videoUrl: ytSearch("bulgarian push up technique")
+        ),
+        LibraryExercise(
+            name: "Отжимания на кольцах",
+            category: .complex,
+            muscleGroup: .middleChest,
+            defaultType: .repsOnly,
+            technique: "Старт: упор на гимнастических кольцах с прямыми руками.\n\nДвижение: опуститесь, стабилизируя кольца. Поднимитесь, разворачивая кисти наружу.\n\nКлючи: жёсткая нагрузка на стабилизаторы. Прогрессия от отжиманий на низких кольцах.",
+            videoUrl: ytSearch("ring push up technique")
+        ),
+        LibraryExercise(
+            name: "Лэндмайн-приседания",
+            category: .complex,
+            muscleGroup: .quadriceps,
+            defaultType: .strength,
+            technique: "Старт: один конец штанги в Лэндмайне, другой у груди.\n\nДвижение: фронтальный присед с штангой у груди.\n\nКлючи: безопасная альтернатива фронтальному приседу. Подходит для людей с проблемами в плечах.",
+            videoUrl: ytSearch("landmine squat technique")
+        ),
+        LibraryExercise(
+            name: "Махи 360",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: гиря в руках.\n\nДвижение: круговой мах гирей вокруг головы и корпуса.\n\nКлючи: тренирует кор и хват. Контролируемое движение, не на скорость.",
+            videoUrl: ytSearch("kettlebell halo technique")
+        ),
+        LibraryExercise(
+            name: "Ротационный выброс",
+            category: .complex,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: медбол в руках, стойка боком к стене.\n\nДвижение: разворотом корпуса бросьте мяч в стену с максимальной силой.\n\nКлючи: тренирует ротационную мощность — для борьбы, бокса, гольфа.",
+            videoUrl: ytSearch("rotational med ball throw technique")
+        ),
+        LibraryExercise(
+            name: "Выпады с жимом над головой",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .strength,
+            technique: "Старт: гантели на плечах.\n\nДвижение: выпад вперёд + жим гантелей над головой одновременно.\n\nКлючи: требует координации и стабильности. Нагружает всё тело.",
+            videoUrl: ytSearch("lunge with press technique")
+        ),
+        LibraryExercise(
+            name: "Прогулка медведя с тягой",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: на четвереньках с гантелями. Колени над землёй.\n\nДвижение: тяните гантель к корпусу, шагните противоположной рукой и ногой.\n\nКлючи: жёсткая стабилизация + тяга. Кор работает максимально.",
+            videoUrl: ytSearch("bear crawl renegade row technique")
         ),
     ]
 
-    /// Упражнения, сгруппированные по категориям
+    // MARK: - Lookup helpers
+
     static var exercisesByCategory: [ExerciseCategory: [LibraryExercise]] {
         Dictionary(grouping: allExercises, by: { $0.category })
     }
-    
-    /// Поиск упражнений по названию
+
     static func search(_ query: String) -> [LibraryExercise] {
         guard !query.isEmpty else { return allExercises }
         return allExercises.filter { $0.name.localizedCaseInsensitiveContains(query) }
     }
-    
+
     // MARK: - Helper Methods
-    
-    /// Получение полного объекта упражнения
+
     nonisolated static func getExercise(for name: String) -> LibraryExercise? {
-        // 1. Точное совпадение
-        if let exactMatch = allExercises.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
-            return exactMatch
+        // 1. Exact match
+        if let exact = allExercises.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
+            return exact
         }
-        
-        // 2. Очистка имени (удаляем все в скобках)
+        // 2. Strip parenthetical suffix and try exact again
         let cleanName = name.components(separatedBy: "(").first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? name
         if let cleanMatch = allExercises.first(where: { $0.name.caseInsensitiveCompare(cleanName) == .orderedSame }) {
             return cleanMatch
         }
-        
-        // 3. Fallback: Содержит подстроку
-        return allExercises.first(where: { name.localizedCaseInsensitiveContains($0.name) || $0.name.localizedCaseInsensitiveContains(name) })
+        // 3. Substring match (either direction)
+        if let substringMatch = allExercises.first(where: { name.localizedCaseInsensitiveContains($0.name) || $0.name.localizedCaseInsensitiveContains(name) }) {
+            return substringMatch
+        }
+        // 4. Token-based fallback — require every meaningful query token to appear in the candidate name.
+        //    Handles seeder names like "Жим лежа" → "Жим штанги лежа", "Жим стоя" → "Жим штанги стоя".
+        let stopWords: Set<String> = ["на", "со", "с", "в", "из", "и", "для", "до", "по", "к", "за"]
+        let queryTokens = cleanName
+            .lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty && !stopWords.contains($0) && $0.count > 1 }
+        guard queryTokens.count >= 2 else { return nil }
+
+        var bestMatch: (exercise: LibraryExercise, score: Int)?
+        for candidate in allExercises {
+            let candidateLower = candidate.name.lowercased()
+            let matched = queryTokens.filter { candidateLower.contains($0) }.count
+            // Require all query tokens present
+            guard matched == queryTokens.count else { continue }
+            // Prefer the candidate with the fewest extra tokens (closest match)
+            let candidateTokenCount = candidate.name
+                .components(separatedBy: CharacterSet.alphanumerics.inverted)
+                .filter { !$0.isEmpty }
+                .count
+            let score = -abs(candidateTokenCount - queryTokens.count)
+            if bestMatch == nil || score > bestMatch!.score {
+                bestMatch = (candidate, score)
+            }
+        }
+        return bestMatch?.exercise
     }
-    
-    /// Получение техники выполнения по названию (с нечетким поиском)
+
     static func getTechnique(for name: String) -> String? {
         getExercise(for: name)?.technique
     }
-    
-    /// Получение дефолтного типа тренировки для упражнения
+
     nonisolated static func getDefaultType(for name: String) -> WorkoutType {
         getExercise(for: name)?.defaultType ?? .strength
     }
-    
-    /// Получение ссылки на видео
+
     static func getVideoUrl(for name: String) -> String? {
         getExercise(for: name)?.videoUrl
     }
-    
-    /// Миграция существующих упражнений для установки правильного типа
-    /// Миграция существующих упражнений для установки правильного типа (Background Safe)
+
+    /// Background-safe migration that fills missing default workout types on existing templates.
     static func migrateExerciseTypes(container: ModelContainer) async {
-        // Use a detached task with the SHARED container to avoid database conflicts
         await Task.detached(priority: .utility) {
             let context = ModelContext(container)
-            // Disable autosave for performance, save once at end
             context.autosaveEnabled = false
-            
+
             let descriptor = FetchDescriptor<ExerciseTemplate>()
-            
-            // Try to fetch templates, if this throws we skip migration
             guard let templates = try? context.fetch(descriptor) else {
                 #if DEBUG
                 print("⚠️ Migration: Failed to fetch templates")
                 #endif
                 return
             }
-            
+
             var migratedCount = 0
             for template in templates {
-                // Safely check and update each template
                 if template._customWorkoutType == nil {
-                    let defaultType = getDefaultType(for: template.name)
-                    template._customWorkoutType = defaultType
+                    template._customWorkoutType = getDefaultType(for: template.name)
                     migratedCount += 1
                 }
             }
-            
+
             if migratedCount > 0 {
-                // Try to save, but don't crash if it fails
                 do {
                     try context.save()
                     #if DEBUG
@@ -2199,8 +2207,6 @@ struct ExerciseLibrary {
     }
 }
 
-
 extension ExerciseCategory {
-    // Adding Full Body case alias if needed or rely on existing complex
     static var fullBody: ExerciseCategory { .complex }
 }

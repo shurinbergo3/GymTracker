@@ -77,7 +77,14 @@
       }
     },
     "(%lld)" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(%lld)"
+          }
+        }
+      }
     },
     "%@" : {
       "localizations" : {
@@ -118,6 +125,12 @@
             "state" : "new",
             "value" : "%1$@ %2$lld"
           }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %lld"
+          }
         }
       }
     },
@@ -128,11 +141,24 @@
             "state" : "new",
             "value" : "%1$@ %2$lld:"
           }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %lld:"
+          }
         }
       }
     },
     "%@ см" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ cm"
+          }
+        }
+      }
     },
     "%@кг x %lld" : {
       "extractionState" : "manual",
@@ -152,7 +178,14 @@
       }
     },
     "%lld" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
     },
     "%lld %@" : {
       "localizations" : {
@@ -160,6 +193,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$lld %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld %@"
           }
         }
       }
@@ -170,6 +209,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$lld %2$@ × %3$lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld %@ × %lld"
           }
         }
       }
@@ -361,7 +406,14 @@
       }
     },
     "%lld." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld."
+          }
+        }
+      }
     },
     "%lld/%lld" : {
       "localizations" : {
@@ -369,6 +421,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$lld/%2$lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld"
           }
         }
       }
@@ -425,7 +483,14 @@
       }
     },
     "%lld%%" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        }
+      }
     },
     "•" : {
       "localizations" : {
@@ -715,7 +780,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "⬆️ 'Выгрузить в облако' ЗАМЕНИТ всё в облаке вашими текущими локальными тренировками.\n⚠️ Красная кнопка удалит вообще ВСЁ."
+            "value" : "⬆️ 'Upload to cloud' will REPLACE everything in the cloud with your current local workouts.\n⚠️ The red button will delete EVERYTHING."
           }
         },
         "ru" : {
@@ -6475,7 +6540,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "АДРЕНАЛИН"
+            "value" : "ADRENALINE"
           }
         },
         "ru" : {
@@ -7064,7 +7129,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Беги, остановись или бей"
+            "value" : "Run, stop, or fight"
           }
         },
         "ru" : {
@@ -7130,7 +7195,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Беззащитность, состояние «тряпки», рефлексия, самообвинение. Готовность подчиняться без согласия."
+            "value" : "Defenselessness, a \"doormat\" state, rumination, self-blame. Readiness to submit without consent."
           }
         },
         "ru" : {
@@ -7244,7 +7309,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бескомпромиссность. Подумал – сделал. Готовность уживаться только с приятными людьми."
+            "value" : "Uncompromising. Thought it — done it. Willing to live alongside only pleasant people."
           }
         },
         "ru" : {
@@ -9789,7 +9854,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Глубокий сон, быстрое пробуждение полностью отдохнувшим."
+            "value" : "Deep sleep, quick wake-up fully rested."
           }
         },
         "ru" : {
@@ -10473,7 +10538,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "День 3"
+            "value" : "Day 3"
           }
         },
         "ru" : {
@@ -10505,7 +10570,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "День 4"
+            "value" : "Day 4"
           }
         },
         "ru" : {
@@ -11943,7 +12008,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Зависит от окситоцина, немного от кортизола и тестостерона."
+            "value" : "Depends on oxytocin, slightly on cortisol and testosterone."
           }
         },
         "ru" : {
@@ -12059,7 +12124,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закончить тренировку"
+            "value" : "Finish workout"
           }
         },
         "ru" : {
@@ -12093,7 +12158,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закрыть и сохранить"
+            "value" : "Close and save"
           }
         },
         "ru" : {
@@ -12109,7 +12174,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Заменить облако"
+            "value" : "Replace cloud"
           }
         },
         "ru" : {
@@ -13293,7 +13358,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "комментарий о тренировке"
+            "value" : "workout comment"
           }
         },
         "ru" : {
@@ -13483,7 +13548,14 @@
       }
     },
     "КОРТИЗОЛ" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CORTISOL"
+          }
+        }
+      }
     },
     "Кофеин" : {
       "extractionState" : "manual",
@@ -14534,7 +14606,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Махи в стороны"
+            "value" : "Lateral raises"
           }
         },
         "ru" : {
@@ -14723,7 +14795,14 @@
       }
     },
     "МЕЛАТОНИН" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MELATONIN"
+          }
+        }
+      }
     },
     "Мелатонин: Блокирует собственную выработку, повышает пролактин." : {
       "extractionState" : "manual",
@@ -14747,7 +14826,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Меньше вырабатывается при высоком тестостероне и низком кортизоле."
+            "value" : "Less is produced under high testosterone and low cortisol."
           }
         },
         "ru" : {
@@ -15116,7 +15195,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Молитва (Блок)"
+            "value" : "Prayer (Cable)"
           }
         },
         "ru" : {
@@ -15297,7 +15376,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Мужитское состояние"
+            "value" : "Manly state"
           }
         },
         "ru" : {
@@ -15446,7 +15525,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "На время / Кардио"
+            "value" : "For time / Cardio"
           }
         },
         "ru" : {
@@ -16044,7 +16123,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Неспособность сфокусироваться, тревожность, дерганность, мнительность, страх."
+            "value" : "Inability to focus, anxiety, jitteriness, suspicion, fear."
           }
         },
         "ru" : {
@@ -16264,7 +16343,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Неуверенность в себе, робость, стеснительность, неверие в позитивный исход жизни, в свои силы. Общая вялость во всем."
+            "value" : "Self-doubt, timidity, shyness, lack of belief in a positive outcome and in one's own strength. General lethargy in everything."
           }
         },
         "ru" : {
@@ -16425,7 +16504,14 @@
       }
     },
     "Низкий уровень:" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low level:"
+          }
+        }
+      }
     },
     "Низкоинтенсивное кардио в зоне 2 (60-70% от макс. пульса). Жиросжигание и восстановление." : {
       "localizations" : {
@@ -16579,7 +16665,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "НОРАДРЕНАЛИН"
+            "value" : "NORADRENALINE"
           }
         },
         "ru" : {
@@ -16758,7 +16844,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Обратно связан с кортизолом и пролактином, растет с дофамином, норадреналином и серотонином, снижается с ростом адреналина, и снижается при высоких значениях окситоцина."
+            "value" : "Inversely correlated with cortisol and prolactin; rises with dopamine, noradrenaline, and serotonin; decreases as adrenaline increases, and falls at high oxytocin levels."
           }
         },
         "ru" : {
@@ -16774,7 +16860,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Обратно связан с тестостероном и дофамином. Растет с кортизолом, коррелирует с эстрадиолом."
+            "value" : "Inversely correlated with testosterone and dopamine. Rises with cortisol, correlates with estradiol."
           }
         },
         "ru" : {
@@ -17070,7 +17156,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ОКСИТОЦИН"
+            "value" : "OXYTOCIN"
           }
         },
         "ru" : {
@@ -17137,7 +17223,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оптимизм"
+            "value" : "Optimism"
           }
         },
         "ru" : {
@@ -17387,7 +17473,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Отдых, расслабление"
+            "value" : "Rest, relaxation"
           }
         },
         "ru" : {
@@ -17680,7 +17766,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Охота и ярость"
+            "value" : "Hunt and rage"
           }
         },
         "ru" : {
@@ -17863,7 +17949,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Первая"
+            "value" : "First"
           }
         },
         "ru" : {
@@ -17880,7 +17966,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Первая тренировка"
+            "value" : "First workout"
           }
         },
         "ru" : {
@@ -18128,7 +18214,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "повт."
+            "value" : "reps"
           }
         },
         "ru" : {
@@ -18883,7 +18969,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Полный контроль, эмоциональная собранность, концентрация, бесстрашие, стрессоустойчивость."
+            "value" : "Full control, emotional composure, focus, fearlessness, stress resilience."
           }
         },
         "ru" : {
@@ -18916,7 +19002,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пользовательские упражнения"
+            "value" : "Custom exercises"
           }
         },
         "ru" : {
@@ -19000,7 +19086,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пора приступать к следующему подходу"
+            "value" : "Time to start the next set"
           }
         },
         "ru" : {
@@ -19132,7 +19218,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Предвкушение и интерес"
+            "value" : "Anticipation and interest"
           }
         },
         "ru" : {
@@ -19262,7 +19348,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Привязанность"
+            "value" : "Attachment"
           }
         },
         "ru" : {
@@ -19278,7 +19364,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Привязка к предвосхищаемым действиям, поисковый инстинкт."
+            "value" : "Attachment to anticipated actions, the seeking instinct."
           }
         },
         "ru" : {
@@ -19403,7 +19489,14 @@
       }
     },
     "Приседания 'Пистолетик'" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pistol Squat"
+          }
+        }
+      }
     },
     "Приседания (5/3/1)" : {
       "localizations" : {
@@ -19486,7 +19579,14 @@
       }
     },
     "Приседания Пистолетик" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pistol Squat"
+          }
+        }
+      }
     },
     "Приседания с безопасным грифом" : {
       "localizations" : {
@@ -19593,7 +19693,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Прогресс"
+            "value" : "Progress"
           }
         },
         "ru" : {
@@ -19720,7 +19820,14 @@
       }
     },
     "ПРОЛАКТИН" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PROLACTIN"
+          }
+        }
+      }
     },
     "Проработка всего тела. Идеально для новичков." : {
       "extractionState" : "manual",
@@ -19959,7 +20066,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Психованность, манерность, истероидность, эгоцентризм, вспышки ярости, гнева и обиды."
+            "value" : "Volatility, mannerism, hysteroid traits, egocentrism, outbursts of rage, anger, and resentment."
           }
         },
         "ru" : {
@@ -20501,7 +20608,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Реализует программу «Бей», ответное наступление на опасность."
+            "value" : "Carries out the \"Fight\" program — a counterattack against danger."
           }
         },
         "ru" : {
@@ -20686,7 +20793,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Результат выгрузки"
+            "value" : "Upload result"
           }
         },
         "ru" : {
@@ -20804,7 +20911,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ровное настроение. Нет лишних мыслей и эмоций, хладнокровие. Отсутствует избыточная мимика."
+            "value" : "Steady mood. No extra thoughts or emotions, composure. No excessive facial expressions."
           }
         },
         "ru" : {
@@ -20919,7 +21026,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Рост коррелирует с пролактином, меньше проявляется при перекосе в адреналин и глутамат."
+            "value" : "Increase correlates with prolactin; less pronounced when there is a shift toward adrenaline and glutamate."
           }
         },
         "ru" : {
@@ -20969,7 +21076,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Рост сопровождается с пролактином и адреналином. Снижается вместе с серотонином, мелатонином, окситоцином и тестостероном."
+            "value" : "Increase comes with prolactin and adrenaline. Decreases together with serotonin, melatonin, oxytocin, and testosterone."
           }
         },
         "ru" : {
@@ -21001,7 +21108,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ругаетесь, не понимаете друг друга; небезопасность, угнетенность, недоверчивость, поиск подвоха."
+            "value" : "Quarreling, mutual misunderstanding; insecurity, despondency, distrust, looking for a catch."
           }
         },
         "ru" : {
@@ -21508,7 +21615,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Свой вес"
+            "value" : "Bodyweight"
           }
         },
         "ru" : {
@@ -21524,7 +21631,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Связан с накопленным за день серотонином и окситоцином. Снижается с кортизолом и адреналином."
+            "value" : "Linked to serotonin and oxytocin accumulated during the day. Decreases with cortisol and adrenaline."
           }
         },
         "ru" : {
@@ -21590,7 +21697,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Связь с серотонином: при низком окситоцине практически гарантирован низкий серотонин."
+            "value" : "Link to serotonin: with low oxytocin, low serotonin is virtually guaranteed."
           }
         },
         "ru" : {
@@ -21828,7 +21935,14 @@
       }
     },
     "СЕРОТОНИН" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SEROTONIN"
+          }
+        }
+      }
     },
     "Сет %lld:" : {
       "extractionState" : "manual",
@@ -22014,7 +22128,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Силовая"
+            "value" : "Strength"
           }
         },
         "ru" : {
@@ -22289,7 +22403,14 @@
       }
     },
     "См" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cm"
+          }
+        }
+      }
     },
     "Смотреть на YouTube" : {
       "extractionState" : "manual",
@@ -22364,7 +22485,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Снижение"
+            "value" : "Decrease"
           }
         },
         "ru" : {
@@ -22602,7 +22723,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Создать аккаунт"
+            "value" : "Create account"
           }
         },
         "ru" : {
@@ -22720,7 +22841,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сон поверхностный, не восстанавливающий, разбитость, вечером настроение падает, склонность к бесплодным рефлексиям."
+            "value" : "Sleep is shallow and non-restorative; exhaustion; mood drops in the evening; tendency toward fruitless rumination."
           }
         },
         "ru" : {
@@ -22804,7 +22925,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Социальное подчинение"
+            "value" : "Social submission"
           }
         },
         "ru" : {
@@ -22855,7 +22976,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Спад активности"
+            "value" : "Activity decline"
           }
         },
         "ru" : {
@@ -23001,7 +23122,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Спокойствие, безмятежность, удовлетворение жизнью."
+            "value" : "Calm, serenity, satisfaction with life."
           }
         },
         "ru" : {
@@ -23204,7 +23325,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Стабильность"
+            "value" : "Stability"
           }
         },
         "ru" : {
@@ -23301,7 +23422,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Становая тяга (Классика)"
+            "value" : "Deadlift (Classic)"
           }
         },
         "ru" : {
@@ -23658,7 +23779,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Стресс"
+            "value" : "Stress"
           }
         },
         "ru" : {
@@ -25955,7 +26076,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "упражнений"
+            "value" : "exercises"
           }
         },
         "ru" : {

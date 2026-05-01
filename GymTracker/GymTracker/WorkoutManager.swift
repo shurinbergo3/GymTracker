@@ -521,7 +521,22 @@ class WorkoutManager: ObservableObject {
         
         // 4.6 Auto-select next workout day for next session
         selectNextWorkoutDay()
-        
+
+        // 4.7 Kick off the AI Coach analysis in the background. The widget on
+        // the dashboard observes `AICoachStore.shared` and updates as soon as
+        // the response arrives. Done last so the UI transition isn't blocked.
+        if let healthMgr = healthProvider as? HealthManager {
+            let ctx = modelContext
+            let aiSession = session
+            Task { @MainActor in
+                await AICoachStore.shared.analyzeFinishedWorkout(
+                    session: aiSession,
+                    modelContext: ctx,
+                    healthManager: healthMgr
+                )
+            }
+        }
+
         // 5. Only NOW transition UI to summary (after all data is saved)
         self.workoutState = .summary
     }
