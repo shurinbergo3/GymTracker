@@ -335,7 +335,9 @@ class SyncManager: ObservableObject {
             print("✅ SyncManager: Pushed \(programs.count) programs to cloud")
             #endif
         } catch {
+            #if DEBUG
             print("❌ SyncManager: Failed to push programs: \(error)")
+            #endif
         }
     }
     
@@ -485,7 +487,9 @@ class SyncManager: ObservableObject {
             
             return .success(restoredCount + updatedCount)
         } catch {
+            #if DEBUG
             print("❌ SyncManager: Failed to restore programs: \(error)")
+            #endif
             return .failure(SyncError.message("\(String(localized: "Ошибка загрузки:")) \(error.localizedDescription)"))
         }
     }
@@ -515,7 +519,9 @@ class SyncManager: ObservableObject {
             print("✅ SyncManager: Deleted program '\(program.name)' from cloud")
             #endif
         } catch {
+            #if DEBUG
             print("⚠️ SyncManager: Failed to sync program deletion: \(error)")
+            #endif
         }
     }
     
@@ -538,7 +544,9 @@ class SyncManager: ObservableObject {
             print("✅ SyncManager: Synced \(exercises.count) custom exercises to cloud")
             #endif
         } catch {
+            #if DEBUG
             print("❌ SyncManager: Failed to sync custom exercises: \(error)")
+            #endif
         }
     }
     
@@ -592,7 +600,9 @@ class SyncManager: ObservableObject {
             }
             return .success(restoredCount)
         } catch {
+            #if DEBUG
             print("❌ SyncManager: Failed to restore custom exercises: \(error)")
+            #endif
             return .failure(SyncError.message("\(String(localized: "Ошибка загрузки:")) \(error.localizedDescription)"))
         }
     }

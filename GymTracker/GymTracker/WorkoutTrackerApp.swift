@@ -161,13 +161,17 @@ struct WorkoutTrackerApp: App {
             if count == 0 {
                 // Database is empty! Assume fresh install or wipe.
                 // Trigger Restore Flow
+                #if DEBUG
                 print("🆕 Fresh install detected. Triggering auto-restore.")
+                #endif
                 withAnimation {
                     isRestoringData = true
                 }
             }
         } catch {
+            #if DEBUG
             print("⚠️ Failed to check DB count: \(error)")
+            #endif
         }
     }
 }

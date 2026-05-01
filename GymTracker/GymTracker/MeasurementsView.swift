@@ -23,6 +23,7 @@ struct MeasurementsView: View {
     @Query private var userProfiles: [UserProfile]
     
     @State private var showingSettings = false
+    @State private var showingProgressHub = false
 
     private var workoutsThisWeekCount: Int {
         var cal = Calendar(identifier: .gregorian)
@@ -42,11 +43,14 @@ struct MeasurementsView: View {
                 
                 ScrollView {
                     VStack(spacing: DesignSystem.Spacing.lg) {
-                        // График прогресса
-                        if !completedSessions.isEmpty {
-                            WorkoutProgressChart(sessions: completedSessions)
-                                .padding(.horizontal, DesignSystem.Spacing.lg)
-                        }
+                        // Уровень / геймификация — открывает Прогресс-хаб
+                        ActivityHeroSection(
+                            totalWorkouts: completedSessions.count,
+                            workoutsThisWeek: workoutsThisWeekCount,
+                            history: completedSessions,
+                            onTap: { showingProgressHub = true }
+                        )
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
 
                         // История тренировок (hero card)
                         NavigationLink(destination: WorkoutHistoryView(selectedTab: $selectedTab)) {
@@ -56,13 +60,6 @@ struct MeasurementsView: View {
                             )
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-
-                        // Активность — кольца Apple Watch ИЛИ ачивки (если часов нет)
-                        ActivityHeroSection(
-                            totalWorkouts: completedSessions.count,
-                            workoutsThisWeek: workoutsThisWeekCount
-                        )
                         .padding(.horizontal, DesignSystem.Spacing.lg)
 
                         // Apple Health — единый блок: активность + восстановление (сон, пульс, энергия)
@@ -113,6 +110,9 @@ struct MeasurementsView: View {
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
                     .environmentObject(authManager)
+            }
+            .sheet(isPresented: $showingProgressHub) {
+                ProgressHubView()
             }
         }
     }

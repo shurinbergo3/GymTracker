@@ -1092,6 +1092,7 @@ struct SummaryOverlay: View {
     @State private var heartRate: Int = 0
     @State private var progressData: [ExerciseProgress] = []
     @State private var animateHero = false
+    @State private var showingProgressHub = false
 
     @Query(filter: #Predicate<WorkoutSession> { $0.isCompleted == true },
            sort: \WorkoutSession.date, order: .reverse)
@@ -1156,6 +1157,28 @@ struct SummaryOverlay: View {
         return count
     }
 
+    private var historyIncludingCurrent: [WorkoutSession] {
+        guard let s = session else { return completedSessions }
+        if completedSessions.contains(where: { $0.id == s.id }) {
+            return completedSessions
+        }
+        return [s] + completedSessions
+    }
+
+    private var totalWorkoutsIncludingCurrent: Int {
+        historyIncludingCurrent.count
+    }
+
+    private var workoutsThisWeekIncludingCurrent: Int {
+        var cal = Calendar(identifier: .gregorian)
+        cal.firstWeekday = 2
+        let today = cal.startOfDay(for: Date())
+        let weekday = cal.component(.weekday, from: today)
+        let daysFromMonday = (weekday + 5) % 7
+        guard let monday = cal.date(byAdding: .day, value: -daysFromMonday, to: today) else { return 0 }
+        return historyIncludingCurrent.filter { $0.date >= monday }.count
+    }
+
     private var motivationalSubtitle: String {
         if prCount >= 3 { return "Невероятный результат! Новые рекорды!".localized() }
         if prCount > 0 { return "Ты растёшь! Только вперёд!".localized() }
@@ -1177,13 +1200,18 @@ struct SummaryOverlay: View {
                 VStack(spacing: DesignSystem.Spacing.lg) {
                     heroSection
 
-                    if let s = session {
+                    if session != nil {
                         heroMetricCard
                         achievementStrip
                         compactStatsGrid
 
-                        WorkoutProgressChart(sessions: [s])
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                        ActivityHeroSection(
+                            totalWorkouts: totalWorkoutsIncludingCurrent,
+                            workoutsThisWeek: workoutsThisWeekIncludingCurrent,
+                            history: historyIncludingCurrent,
+                            onTap: { showingProgressHub = true }
+                        )
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
 
                         if !progressData.isEmpty {
                             exerciseBreakdown
@@ -1203,6 +1231,9 @@ struct SummaryOverlay: View {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.05)) {
                 animateHero = true
             }
+        }
+        .sheet(isPresented: $showingProgressHub) {
+            ProgressHubView()
         }
     }
 
@@ -1494,43 +1525,136 @@ struct SummaryOverlay: View {
     // MARK: - Notes & Save
 
     private var notesEditor: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-            HStack(spacing: 6) {
-                Text("комментарий о тренировке".localized().uppercased())
-                    .font(DesignSystem.Typography.sectionHeader())
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                    .tracking(1.2)
+        VStack(alignment: .leading, spacing: 14) {
+            // Header в стиле AI Coach: иконка-«сфера» + заголовок + подпись
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [DesignSystem.Colors.accentPurple.opacity(0.55), .clear],
+                                center: .center,
+                                startRadius: 2,
+                                endRadius: 32
+                            )
+                        )
+                        .frame(width: 64, height: 64)
+                        .blur(radius: 8)
+                        .opacity(0.85)
 
-                Image(systemName: "brain.head.profile")
-                    .font(.caption)
-                    .foregroundColor(DesignSystem.Colors.neonGreen.opacity(0.8))
-            }
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [DesignSystem.Colors.accentPurple, DesignSystem.Colors.neonGreen],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 44, height: 44)
 
-            ZStack(alignment: .topLeading) {
-                if notes.isEmpty {
-                    Text("Расскажите как прошла ваша тренировка".localized())
-                        .font(DesignSystem.Typography.body())
-                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
-                        .padding(.top, 12)
-                        .padding(.leading, 12)
-                        .allowsHitTesting(false)
+                    Image(systemName: "brain.head.profile")
+                        .font(.system(size: 22, weight: .heavy))
+                        .foregroundStyle(.black)
                 }
 
-                TextEditor(text: $notes)
-                    .scrollContentBackground(.hidden)
-                    .frame(height: 90)
-                    .padding(4)
-                    .font(DesignSystem.Typography.body())
-                    .foregroundColor(DesignSystem.Colors.primaryText)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Комментарий о тренировке".localized())
+                        .font(DesignSystem.Typography.title3())
+                        .foregroundStyle(DesignSystem.Colors.primaryText)
+
+                    Text("Заметка для AI-разбора".localized().uppercased())
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .tracking(1.2)
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                }
+                Spacer()
             }
-            .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(DesignSystem.CornerRadius.medium)
-            .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                    .stroke(DesignSystem.Colors.secondaryText.opacity(0.3), lineWidth: 1)
+
+            // Bubble-поле ввода в стиле сообщения AI Coach
+            HStack(alignment: .top, spacing: 10) {
+                Capsule()
+                    .fill(Color.white.opacity(0.06))
+                    .frame(width: 3, height: 90)
+
+                ZStack(alignment: .topLeading) {
+                    if notes.isEmpty {
+                        Text("Расскажите как прошла ваша тренировка".localized())
+                            .font(DesignSystem.Typography.body())
+                            .foregroundStyle(DesignSystem.Colors.secondaryText.opacity(0.5))
+                            .padding(.top, 10)
+                            .padding(.leading, 6)
+                            .allowsHitTesting(false)
+                    }
+
+                    TextEditor(text: $notes)
+                        .scrollContentBackground(.hidden)
+                        .frame(height: 90)
+                        .font(DesignSystem.Typography.body())
+                        .foregroundStyle(DesignSystem.Colors.primaryText)
+                }
+                .padding(.vertical, 4)
+                .padding(.horizontal, 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.06), Color.white.opacity(0.02)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                )
+            }
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .background(notesCardBackground)
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                .stroke(notesNeonStroke, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .shadow(color: DesignSystem.Colors.accentPurple.opacity(0.25), radius: 20, x: 0, y: 8)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+    }
+
+    private var notesCardBackground: some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.10, green: 0.08, blue: 0.16),
+                    Color(red: 0.05, green: 0.05, blue: 0.08)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            RadialGradient(
+                colors: [DesignSystem.Colors.accentPurple.opacity(0.18), .clear],
+                center: .topLeading,
+                startRadius: 4,
+                endRadius: 220
+            )
+            RadialGradient(
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.12), .clear],
+                center: .bottomTrailing,
+                startRadius: 4,
+                endRadius: 240
             )
         }
-        .padding(.horizontal, DesignSystem.Spacing.lg)
+    }
+
+    private var notesNeonStroke: LinearGradient {
+        LinearGradient(
+            colors: [
+                DesignSystem.Colors.accentPurple.opacity(0.55),
+                DesignSystem.Colors.neonGreen.opacity(0.35),
+                Color.white.opacity(0.05)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
 
     private var saveButton: some View {

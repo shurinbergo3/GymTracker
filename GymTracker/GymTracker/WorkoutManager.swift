@@ -137,7 +137,9 @@ class WorkoutManager: ObservableObject {
             // Check for stale session (older than 24 hours)
             let timeSinceStart = Date().timeIntervalSince(session.date)
             if timeSinceStart > 86400 { // 24 hours in seconds
+                #if DEBUG
                 print("Found stale session from \(session.date). Deleting.")
+                #endif
                 modelContext.delete(session)
                 try? modelContext.save()
                 return 
@@ -178,7 +180,9 @@ class WorkoutManager: ObservableObject {
         let container = modelContext.container
         Task.detached(priority: .background) {
             do {
+                #if DEBUG
                 print("🧹 Starting duplicate cleanup (v6) - Aggressive Mode...")
+                #endif
                 let context = ModelContext(container)
                 context.autosaveEnabled = false
 
@@ -212,7 +216,9 @@ class WorkoutManager: ObservableObject {
                 }
 
                 if !sessionsToDelete.isEmpty {
+                    #if DEBUG
                     print("🗑️ Found \(sessionsToDelete.count) duplicates (Aggressive v6). Deleting...")
+                    #endif
 
                     // Batch delete
                     for id in sessionsToDelete {
@@ -221,9 +227,13 @@ class WorkoutManager: ObservableObject {
                         }
                     }
                     try context.save()
+                    #if DEBUG
                     print("✅ cleanupDuplicateSessions (v6) complete. Removed \(sessionsToDelete.count) sessions.")
+                    #endif
                 } else {
+                    #if DEBUG
                     print("✅ No duplicates found (v6).")
+                    #endif
                 }
 
                 await MainActor.run {
@@ -231,7 +241,9 @@ class WorkoutManager: ObservableObject {
                 }
 
             } catch {
+                #if DEBUG
                 print("❌ Cleanup error: \(error)")
+                #endif
             }
         }
     }
@@ -265,7 +277,9 @@ class WorkoutManager: ObservableObject {
             // Select next day, or cycle to first
             let nextIndex = (currentIndex + 1) % sortedDays.count
             selectedDay = sortedDays[nextIndex]
+            #if DEBUG
             print("✅ Auto-selected next day: \(sortedDays[nextIndex].name)")
+            #endif
         } else {
             // Fallback: if current day not found, select first day
             selectedDay = sortedDays.first
@@ -287,13 +301,17 @@ class WorkoutManager: ObservableObject {
         
         // 1. Refresh object directly from ID to avoid using potentially invalidated 'selectedDay' reference
         guard let freshDay = modelContext.model(for: dayID) as? WorkoutDay else {
+            #if DEBUG
             print("❌ Failed to refresh WorkoutDay from context")
+            #endif
             workoutState = .idle // Reset state on error
             return
         }
         
         if freshDay.isDeleted {
+             #if DEBUG
              print("❌ WorkoutDay was deleted")
+             #endif
              workoutState = .idle
              return
         }
@@ -305,9 +323,13 @@ class WorkoutManager: ObservableObject {
         // 2. Log exercises count (warning if empty, but continue anyway)
         // Accessing .exercises here should now be safe on freshDay
         if freshDay.exercises.isEmpty {
+            #if DEBUG
             print("⚠️ No exercises in this workout day")
+            #endif
         } else {
+            #if DEBUG
             print("✅ Loaded \(freshDay.exercises.count) exercises")
+            #endif
         }
         
         // Guard against duplicate starts (Rapid tapping)
@@ -319,7 +341,9 @@ class WorkoutManager: ObservableObject {
         )
         
         if let existingRecent = try? modelContext.fetch(duplicateDescriptor).first {
+             #if DEBUG
              print("⚠️ Preventing duplicate session start. Using existing session from \(existingRecent.date)")
+             #endif
              currentSession = existingRecent
              workoutState = .active
              // Ensure live activity is running for this existing session
