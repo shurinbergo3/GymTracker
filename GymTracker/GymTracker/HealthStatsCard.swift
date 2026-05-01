@@ -187,17 +187,18 @@ struct HealthStatsCard: View {
             }
 
             // Section 2: Recovery
+            // Order: heart rate tiles together on the first row, then sleep + resting energy.
             sectionHeader("Восстановление".localized())
             LazyVGrid(columns: columns, spacing: 10) {
-                tile(.sleep,
-                     value: vm.sleepLastNight > 0 ? formatSleep(vm.sleepLastNight) : "—",
-                     subtitle: "за ночь".localized())
                 tile(.restingHR,
                      value: vm.restingHR > 0 ? "\(vm.restingHR)" : "—",
                      subtitle: "уд/мин · 7 дн".localized())
                 tile(.workoutHR,
                      value: vm.workoutHR > 0 ? "\(vm.workoutHR)" : "—",
                      subtitle: "посл. тренировка".localized())
+                tile(.sleep,
+                     value: vm.sleepLastNight > 0 ? formatSleep(vm.sleepLastNight) : "—",
+                     subtitle: "за ночь".localized())
                 tile(.resting,
                      value: "\(vm.restingEnergyToday)",
                      subtitle: "ккал · сегодня".localized())

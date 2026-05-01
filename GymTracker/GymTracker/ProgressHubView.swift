@@ -382,18 +382,64 @@ struct ProgressHubView: View {
     // MARK: - Level/XP card
 
     private var levelCard: some View {
+        // Compact milestones strip — replaces the duplicated AchievementsHubCard
+        // that the user already tapped to open this screen. Tap = open the
+        // full achievements detail with stats and badge progress.
         Button {
             showingAllMilestones = true
         } label: {
-            AchievementsHubCard(
-                totalWorkouts: totalCompleted,
-                workoutsThisWeek: workoutsThisWeek,
-                weeklyGoal: weeklyGoal,
-                trainedDays: trainedDays
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 1.0, green: 0.7, blue: 0.2),
+                                    Color(red: 1.0, green: 0.4, blue: 0.55)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "rosette")
+                        .font(.system(size: 16, weight: .heavy))
+                        .foregroundStyle(.black)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Награды и статистика".localized())
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.white)
+                    Text("\(unlockedBadgesCount)/\(totalBadgesCount) собрано • тоннаж, серии, PR".localized())
+                        .font(.caption)
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 0)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.04))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color(red: 1.0, green: 0.7, blue: 0.2).opacity(0.25), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
     }
+
+    private var milestoneThresholds: [Int] { [1, 5, 15, 30, 50, 100] }
+    private var unlockedBadgesCount: Int { milestoneThresholds.filter { $0 <= totalCompleted }.count }
+    private var totalBadgesCount: Int { milestoneThresholds.count }
 
     // MARK: - Analytics deep-link
 

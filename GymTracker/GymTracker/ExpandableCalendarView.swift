@@ -10,33 +10,42 @@ import SwiftData
 
 struct ExpandableCalendarView: View {
     @Query private var allSessions: [WorkoutSession]
-    @State private var isExpanded = false
+    @State private var isExpanded: Bool
     @State private var selectedMonth = Date()
     @State private var selectedSession: WorkoutSession?
-    
+
+    /// When true, the calendar is permanently expanded: chevron hidden, tap-to-collapse disabled.
+    /// Use this when the calendar is presented in a dedicated sheet where the week-strip mode
+    /// would leave most of the screen empty.
+    private let lockedExpanded: Bool
+
+    init(initiallyExpanded: Bool = false, lockedExpanded: Bool = false) {
+        self._isExpanded = State(initialValue: initiallyExpanded || lockedExpanded)
+        self.lockedExpanded = lockedExpanded
+    }
+
     var body: some View {
         CardView {
             VStack(spacing: DesignSystem.Spacing.md) {
-                // Заголовок с месяцем
                 MonthHeaderView(
                     month: selectedMonth,
                     isExpanded: isExpanded,
+                    showsToggleChevron: !lockedExpanded,
                     onPreviousMonth: previousMonth,
                     onNextMonth: nextMonth,
                     onToggleExpand: {
+                        guard !lockedExpanded else { return }
                         withAnimation { isExpanded.toggle() }
                     }
                 )
-                
+
                 if isExpanded {
-                    // Полный месяц
                     FullMonthView(
                         month: selectedMonth,
                         completedDates: completedDates,
                         onDaySelected: handleDaySelection
                     )
                 } else {
-                    // Текущая неделя
                     WeekView(
                         date: Date(),
                         completedDates: completedDates,
@@ -47,6 +56,7 @@ struct ExpandableCalendarView: View {
             .padding(DesignSystem.Spacing.md)
             .contentShape(Rectangle())
             .onTapGesture {
+                guard !lockedExpanded else { return }
                 withAnimation { isExpanded.toggle() }
             }
         }
@@ -93,6 +103,7 @@ struct ExpandableCalendarView: View {
 struct MonthHeaderView: View {
     let month: Date
     let isExpanded: Bool
+    var showsToggleChevron: Bool = true
     let onPreviousMonth: () -> Void
     let onNextMonth: () -> Void
     let onToggleExpand: () -> Void
@@ -119,9 +130,11 @@ struct MonthHeaderView: View {
                     .font(DesignSystem.Typography.headline())
                     .foregroundColor(DesignSystem.Colors.primaryText)
 
-                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                    .font(.caption)
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                if showsToggleChevron {
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                }
                 Spacer()
             }
             .contentShape(Rectangle())

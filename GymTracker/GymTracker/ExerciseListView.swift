@@ -90,14 +90,14 @@ struct ExerciseListRow: View {
                 Text(exercise.name.localized())
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(DesignSystem.Colors.primaryText)
-                
+
                 Text(exercise.muscleGroup.rawValue)
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.secondaryText)
             }
-            
+
             Spacer()
-            
+
             if let url = youtubeSearchURL(for: exercise.name) {
                 Button(action: { openURL(url) }) {
                     Image(systemName: "play.rectangle.fill")
@@ -107,16 +107,17 @@ struct ExerciseListRow: View {
                 .buttonStyle(PlainButtonStyle())
                 .padding(.trailing, 8)
             }
-            
-            Button(action: { showingTechnique = true }) {
-                Image(systemName: "info.circle")
-                    .foregroundColor(DesignSystem.Colors.accent)
-                    .font(.title3)
-            }
-            .buttonStyle(PlainButtonStyle())
+
+            Image(systemName: "info.circle")
+                .foregroundColor(DesignSystem.Colors.accent)
+                .font(.title3)
         }
         .padding(.vertical, DesignSystem.Spacing.xs)
         .padding(.horizontal, DesignSystem.Spacing.md)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            showingTechnique = true
+        }
         .sheet(isPresented: $showingTechnique) {
             ExerciseTechniqueDetailView(exerciseName: exercise.name)
         }

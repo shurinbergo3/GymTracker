@@ -15,6 +15,7 @@ struct WorkoutTrackerApp: App {
     // Use shared instance to ensure consistent state across the app
     @StateObject private var authManager = AuthManager.shared
     @StateObject private var languageManager = LanguageManager.shared
+    @Environment(\.scenePhase) private var scenePhase
     @State private var isCheckingAuth = true
     @State private var isRestoringData = false
     @State private var dbError: Error? = nil
@@ -125,10 +126,16 @@ struct WorkoutTrackerApp: App {
             .modelContainer(sharedModelContainer)
             .onAppear {
                 checkAuthStatus()
+                InactivityNotificationService.requestAuthorizationIfNeeded()
             }
             .onChange(of: authManager.isLoggedIn) { _, isLoggedIn in
                 if isLoggedIn {
                     checkForFreshInstall()
+                }
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    InactivityNotificationService.rescheduleOnAppOpen()
                 }
             }
         }
