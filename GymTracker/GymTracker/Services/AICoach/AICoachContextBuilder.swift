@@ -3,8 +3,9 @@
 //  GymTracker
 //
 //  Builds a compact, model-friendly context block describing the user's
-//  recent training, sensor data, comments and profile. The output is
-//  embedded into the first user message of every cycle.
+//  recent training, sensor data, comments, profile, **active program**,
+//  body measurements, weight trend and aggregate workout stats. The output
+//  is embedded into the first user message of every cycle.
 //
 
 import Foundation
@@ -54,9 +55,57 @@ struct AICoachContext {
         let weeklySleepAvgHours: Double?
     }
 
+    struct ProgramExerciseSummary {
+        let name: String
+        let plannedSets: Int
+        let workoutType: String       // "strength" / "repsOnly" / "duration"
+    }
+
+    struct ProgramDaySummary {
+        let name: String
+        let orderIndex: Int
+        let workoutType: String
+        let defaultRestSec: Int
+        let exercises: [ProgramExerciseSummary]
+    }
+
+    struct ProgramSummary {
+        let name: String
+        let description: String?
+        let startedDaysAgo: Int
+        let isActive: Bool
+        let isUserModified: Bool
+        let days: [ProgramDaySummary]
+        let currentDayName: String?   // which day is "today" in the cycle
+    }
+
+    struct MeasurementSummary {
+        let typeName: String          // "Бицепс", "Грудь", ...
+        let valueCm: Double
+        let date: Date
+    }
+
+    struct WeightTrendSummary {
+        let currentKg: Double
+        let weekAgoKg: Double?
+        let monthAgoKg: Double?
+    }
+
+    struct AggregateStats {
+        let totalCompletedWorkouts: Int
+        let workoutsThisWeek: Int
+        let avgWorkoutsPerWeekLast4Weeks: Double
+        let totalVolumeLast30Days: Double
+        let longestStreakDays: Int    // consecutive days with at least 1 completed workout
+    }
+
     let profile: ProfileSummary?
-    let workouts: [WorkoutSummary]   // most recent first
+    let workouts: [WorkoutSummary]                // most recent first
     let health: HealthSummary
+    let program: ProgramSummary?
+    let measurements: [MeasurementSummary]
+    let weightTrend: WeightTrendSummary?
+    let stats: AggregateStats
     let userLocaleIdentifier: String
 }
 
@@ -64,82 +113,67 @@ struct AICoachContext {
 enum AICoachContextBuilder {
 
     /// Pulls the last `limit` completed workouts from SwiftData + sensor data
-    /// from HealthKit and packs them into an `AICoachContext`.
+    /// from HealthKit + active program + body data + aggregate stats and
+    /// packs them into an `AICoachContext`.
     static func build(modelContext: ModelContext,
                       healthManager: HealthManager,
                       limit: Int = 4) async -> AICoachContext {
 
-        // --- Workouts ----------------------------------------------------
-        var descriptor = FetchDescriptor<WorkoutSession>(
+        // --- Recent workouts ---------------------------------------------
+        var workoutDescriptor = FetchDescriptor<WorkoutSession>(
             predicate: #Predicate { $0.isCompleted == true },
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
-        descriptor.fetchLimit = limit
-        let sessions = (try? modelContext.fetch(descriptor)) ?? []
+        workoutDescriptor.fetchLimit = limit
+        let recentSessions = (try? modelContext.fetch(workoutDescriptor)) ?? []
 
-        let workouts: [AICoachContext.WorkoutSummary] = sessions.map { session in
-            let durationMin: Int?
-            if let end = session.endTime {
-                durationMin = max(0, Int(end.timeIntervalSince(session.date) / 60))
-            } else {
-                durationMin = nil
-            }
-
-            // Group sets by exercise, preserving discovery order
-            var orderedNames: [String] = []
-            var grouped: [String: [WorkoutSet]] = [:]
-            for set in session.sets {
-                if grouped[set.exerciseName] == nil {
-                    orderedNames.append(set.exerciseName)
-                    grouped[set.exerciseName] = []
-                }
-                grouped[set.exerciseName]?.append(set)
-            }
-
-            let exercises: [AICoachContext.ExerciseSummary] = orderedNames.map { name in
-                let sets = (grouped[name] ?? []).sorted { lhs, rhs in
-                    if lhs.date != rhs.date { return lhs.date < rhs.date }
-                    return lhs.setNumber < rhs.setNumber
-                }
-                let setSummaries = sets.map {
-                    AICoachContext.SetSummary(
-                        setNumber: $0.setNumber,
-                        weight: $0.weight,
-                        reps: $0.reps,
-                        isCompleted: $0.isCompleted,
-                        comment: $0.comment?.trimmingCharacters(in: .whitespacesAndNewlines).nonEmptyOrNil
-                    )
-                }
-                return AICoachContext.ExerciseSummary(name: name, sets: setSummaries)
-            }
-
-            let totalVolume = session.sets
-                .filter { $0.isCompleted }
-                .reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
-
-            return AICoachContext.WorkoutSummary(
-                date: session.date,
-                dayName: session.workoutDayName,
-                programName: session.programName,
-                durationMinutes: durationMin,
-                calories: session.calories,
-                averageHeartRate: session.averageHeartRate,
-                totalVolume: totalVolume,
-                totalSets: session.sets.count,
-                completedSets: session.sets.filter { $0.isCompleted }.count,
-                exercises: exercises,
-                notes: session.notes?.trimmingCharacters(in: .whitespacesAndNewlines).nonEmptyOrNil
-            )
+        let workouts: [AICoachContext.WorkoutSummary] = recentSessions.map { session in
+            workoutSummary(from: session)
         }
 
         // --- Profile -----------------------------------------------------
         let profile: AICoachContext.ProfileSummary?
         let profDescriptor = FetchDescriptor<UserProfile>()
-        if let p = try? modelContext.fetch(profDescriptor).last {
+        let userProfile = try? modelContext.fetch(profDescriptor).last
+        if let p = userProfile {
             profile = .init(age: p.age, heightCm: p.height, weightKg: p.currentWeight)
         } else {
             profile = nil
         }
+
+        // --- Active program ----------------------------------------------
+        let activeProgramDescriptor = FetchDescriptor<Program>(
+            predicate: #Predicate { $0.isActive == true }
+        )
+        let activeProgram = (try? modelContext.fetch(activeProgramDescriptor))?.first
+        let programSummary = activeProgram.map { programSummaryFrom($0) }
+
+        // --- Body measurements (latest per type) -------------------------
+        let measurementDescriptor = FetchDescriptor<BodyMeasurement>(
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        let allMeasurements = (try? modelContext.fetch(measurementDescriptor)) ?? []
+        var seen = Set<MeasurementType>()
+        var latestMeasurements: [AICoachContext.MeasurementSummary] = []
+        for m in allMeasurements where !seen.contains(m.type) {
+            seen.insert(m.type)
+            latestMeasurements.append(.init(
+                typeName: m.type.rawValue,
+                valueCm: m.value,
+                date: m.date
+            ))
+        }
+
+        // --- Weight trend ------------------------------------------------
+        let weightTrend = userProfile.flatMap { weightTrendFrom($0.weightHistory) }
+
+        // --- Aggregate stats (across ALL completed workouts) -------------
+        let allCompletedDescriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.isCompleted == true },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        let allCompleted = (try? modelContext.fetch(allCompletedDescriptor)) ?? []
+        let stats = aggregateStats(from: allCompleted)
 
         // --- Sensors -----------------------------------------------------
         var rhr: Int? = nil
@@ -186,7 +220,179 @@ enum AICoachContextBuilder {
             profile: profile,
             workouts: workouts,
             health: health,
+            program: programSummary,
+            measurements: latestMeasurements,
+            weightTrend: weightTrend,
+            stats: stats,
             userLocaleIdentifier: LanguageManager.shared.currentLocale.identifier
+        )
+    }
+
+    // MARK: - Mappers
+
+    private static func workoutSummary(from session: WorkoutSession) -> AICoachContext.WorkoutSummary {
+        let durationMin: Int?
+        if let end = session.endTime {
+            durationMin = max(0, Int(end.timeIntervalSince(session.date) / 60))
+        } else {
+            durationMin = nil
+        }
+
+        // Group sets by exercise, preserving discovery order
+        var orderedNames: [String] = []
+        var grouped: [String: [WorkoutSet]] = [:]
+        for set in session.sets {
+            if grouped[set.exerciseName] == nil {
+                orderedNames.append(set.exerciseName)
+                grouped[set.exerciseName] = []
+            }
+            grouped[set.exerciseName]?.append(set)
+        }
+
+        let exercises: [AICoachContext.ExerciseSummary] = orderedNames.map { name in
+            let sets = (grouped[name] ?? []).sorted { lhs, rhs in
+                if lhs.date != rhs.date { return lhs.date < rhs.date }
+                return lhs.setNumber < rhs.setNumber
+            }
+            let setSummaries = sets.map {
+                AICoachContext.SetSummary(
+                    setNumber: $0.setNumber,
+                    weight: $0.weight,
+                    reps: $0.reps,
+                    isCompleted: $0.isCompleted,
+                    comment: $0.comment?.trimmingCharacters(in: .whitespacesAndNewlines).nonEmptyOrNil
+                )
+            }
+            return AICoachContext.ExerciseSummary(name: name, sets: setSummaries)
+        }
+
+        let totalVolume = session.sets
+            .filter { $0.isCompleted }
+            .reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+
+        return AICoachContext.WorkoutSummary(
+            date: session.date,
+            dayName: session.workoutDayName,
+            programName: session.programName,
+            durationMinutes: durationMin,
+            calories: session.calories,
+            averageHeartRate: session.averageHeartRate,
+            totalVolume: totalVolume,
+            totalSets: session.sets.count,
+            completedSets: session.sets.filter { $0.isCompleted }.count,
+            exercises: exercises,
+            notes: session.notes?.trimmingCharacters(in: .whitespacesAndNewlines).nonEmptyOrNil
+        )
+    }
+
+    private static func programSummaryFrom(_ program: Program) -> AICoachContext.ProgramSummary {
+        let cal = Calendar.current
+        let started = cal.dateComponents([.day], from: program.startDate, to: Date()).day ?? 0
+        let sortedDays = program.days.sorted { $0.orderIndex < $1.orderIndex }
+
+        let days: [AICoachContext.ProgramDaySummary] = sortedDays.map { day in
+            let exs = day.exercises.sorted { $0.orderIndex < $1.orderIndex }
+            let exerciseSummaries = exs.map { ex in
+                AICoachContext.ProgramExerciseSummary(
+                    name: ex.name,
+                    plannedSets: ex.plannedSets,
+                    workoutType: ex.resolvedWorkoutType.rawValue
+                )
+            }
+            return AICoachContext.ProgramDaySummary(
+                name: day.name,
+                orderIndex: day.orderIndex,
+                workoutType: day.workoutType.rawValue,
+                defaultRestSec: day.defaultRestTime,
+                exercises: exerciseSummaries
+            )
+        }
+
+        return AICoachContext.ProgramSummary(
+            name: program.name,
+            description: program.desc.trimmingCharacters(in: .whitespacesAndNewlines).nonEmptyOrNil,
+            startedDaysAgo: max(0, started),
+            isActive: program.isActive,
+            isUserModified: program.isUserModified,
+            days: days,
+            currentDayName: program.currentWorkoutDay()?.name
+        )
+    }
+
+    private static func weightTrendFrom(_ history: [WeightRecord]) -> AICoachContext.WeightTrendSummary? {
+        let sorted = history.sorted { $0.date < $1.date }
+        guard let latest = sorted.last, latest.weight > 0 else { return nil }
+
+        let now = Date()
+        let weekAgo = now.addingTimeInterval(-7 * 24 * 3600)
+        let monthAgo = now.addingTimeInterval(-30 * 24 * 3600)
+
+        // Pick the record closest to (and ≤) the target date
+        func closest(to target: Date) -> Double? {
+            let candidates = sorted.filter { $0.date <= target }
+            return candidates.last?.weight
+        }
+
+        return .init(
+            currentKg: latest.weight,
+            weekAgoKg: closest(to: weekAgo),
+            monthAgoKg: closest(to: monthAgo)
+        )
+    }
+
+    private static func aggregateStats(from completed: [WorkoutSession]) -> AICoachContext.AggregateStats {
+        let total = completed.count
+
+        let cal = Calendar.current
+        let now = Date()
+
+        // This week (Mon-anchored, matching dashboard)
+        var weekCal = Calendar(identifier: .gregorian)
+        weekCal.firstWeekday = 2
+        let today = weekCal.startOfDay(for: now)
+        let weekday = weekCal.component(.weekday, from: today)
+        let daysFromMonday = (weekday + 5) % 7
+        let monday = weekCal.date(byAdding: .day, value: -daysFromMonday, to: today) ?? today
+        let thisWeek = completed.filter { $0.date >= monday }.count
+
+        // Last 4 weeks average
+        let fourWeeksAgo = now.addingTimeInterval(-28 * 24 * 3600)
+        let last4w = completed.filter { $0.date >= fourWeeksAgo }.count
+        let avgPerWeek = Double(last4w) / 4.0
+
+        // Total volume in last 30 days
+        let thirtyAgo = now.addingTimeInterval(-30 * 24 * 3600)
+        let recent = completed.filter { $0.date >= thirtyAgo }
+        let totalVolume30 = recent.reduce(0.0) { acc, session in
+            acc + session.sets
+                .filter { $0.isCompleted }
+                .reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+        }
+
+        // Longest streak of consecutive workout days
+        let uniqueDays = Set(completed.map { cal.startOfDay(for: $0.date) })
+        let sortedDays = uniqueDays.sorted()
+        var longest = 0
+        var current = 0
+        var prev: Date?
+        for day in sortedDays {
+            if let p = prev,
+               let next = cal.date(byAdding: .day, value: 1, to: p),
+               cal.isDate(next, inSameDayAs: day) {
+                current += 1
+            } else {
+                current = 1
+            }
+            longest = max(longest, current)
+            prev = day
+        }
+
+        return .init(
+            totalCompletedWorkouts: total,
+            workoutsThisWeek: thisWeek,
+            avgWorkoutsPerWeekLast4Weeks: avgPerWeek,
+            totalVolumeLast30Days: totalVolume30,
+            longestStreakDays: longest
         )
     }
 
@@ -197,49 +403,105 @@ enum AICoachContextBuilder {
         var out: [String] = []
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd HH:mm"
+        let dfDay = DateFormatter()
+        dfDay.dateFormat = "yyyy-MM-dd"
 
         // Profile
         if let p = ctx.profile {
-            out.append("ПОЛЬЗОВАТЕЛЬ: возраст \(p.age) лет, рост \(Int(p.heightCm)) см, вес \(String(format: "%.1f", p.weightKg)) кг.")
+            out.append("USER: age \(p.age), height \(Int(p.heightCm)) cm, weight \(String(format: "%.1f", p.weightKg)) kg.")
         }
 
-        // Health
+        // Weight trend
+        if let w = ctx.weightTrend {
+            var bits = ["current \(String(format: "%.1f", w.currentKg)) kg"]
+            if let week = w.weekAgoKg {
+                let delta = w.currentKg - week
+                bits.append(String(format: "Δ7d %+.1f", delta))
+            }
+            if let month = w.monthAgoKg {
+                let delta = w.currentKg - month
+                bits.append(String(format: "Δ30d %+.1f", delta))
+            }
+            out.append("WEIGHT: " + bits.joined(separator: ", ") + ".")
+        }
+
+        // Body measurements
+        if !ctx.measurements.isEmpty {
+            let bits = ctx.measurements.map { "\($0.typeName) \(String(format: "%.1f", $0.valueCm))cm" }
+            out.append("MEASUREMENTS (latest): " + bits.joined(separator: "; ") + ".")
+        }
+
+        // Aggregate stats
+        let s = ctx.stats
+        var statBits: [String] = []
+        statBits.append("total \(s.totalCompletedWorkouts) workouts")
+        statBits.append("this week \(s.workoutsThisWeek)")
+        statBits.append(String(format: "avg %.1f/wk (4w)", s.avgWorkoutsPerWeekLast4Weeks))
+        statBits.append("vol30d \(Int(s.totalVolumeLast30Days)) kg·rep")
+        statBits.append("longest streak \(s.longestStreakDays)d")
+        out.append("STATS: " + statBits.joined(separator: "; ") + ".")
+
+        // Sensors
         var healthBits: [String] = []
-        if let r = ctx.health.restingHeartRate { healthBits.append("ЧСС покоя \(r) уд/мин") }
-        if let s = ctx.health.last7DaysSteps { healthBits.append("шагов за 7 дней: \(s)") }
-        if let w = ctx.health.last7DaysWorkouts { healthBits.append("тренировок за 7 дней: \(w)") }
-        if let n = ctx.health.lastNightSleepHours { healthBits.append("сон прошлой ночью: \(String(format: "%.1f", n)) ч") }
-        if let a = ctx.health.weeklySleepAvgHours { healthBits.append("средний сон за 7 дней: \(String(format: "%.1f", a)) ч") }
+        if let r = ctx.health.restingHeartRate { healthBits.append("resting HR \(r) bpm") }
+        if let s = ctx.health.last7DaysSteps { healthBits.append("steps 7d: \(s)") }
+        if let w = ctx.health.last7DaysWorkouts { healthBits.append("workouts 7d (HK): \(w)") }
+        if let n = ctx.health.lastNightSleepHours { healthBits.append(String(format: "sleep last night: %.1f h", n)) }
+        if let a = ctx.health.weeklySleepAvgHours { healthBits.append(String(format: "sleep avg 7d: %.1f h", a)) }
         if !healthBits.isEmpty {
-            out.append("ДАТЧИКИ: " + healthBits.joined(separator: "; ") + ".")
+            out.append("SENSORS: " + healthBits.joined(separator: "; ") + ".")
         }
 
-        // Workouts (most recent first; first one is the just-finished session)
-        if ctx.workouts.isEmpty {
-            out.append("ИСТОРИЯ ТРЕНИРОВОК: пусто (это первая тренировка).")
+        // Active program (the planned routine)
+        if let p = ctx.program {
+            var head = "ACTIVE PROGRAM: \"\(p.name)\""
+            if let desc = p.description { head += " — \(desc)" }
+            head += " · started \(p.startedDaysAgo) days ago"
+            if p.isUserModified { head += " · user-modified" }
+            if let cur = p.currentDayName { head += " · today's day: \(cur)" }
+            out.append(head)
+
+            for day in p.days {
+                let typeTag = day.workoutType
+                let exTexts = day.exercises.map { e -> String in
+                    if e.workoutType != typeTag {
+                        return "\(e.name) ×\(e.plannedSets) [\(e.workoutType)]"
+                    } else {
+                        return "\(e.name) ×\(e.plannedSets)"
+                    }
+                }.joined(separator: ", ")
+                out.append("  · Day \(day.orderIndex + 1) \"\(day.name)\" [\(typeTag), rest \(day.defaultRestSec)s]: \(exTexts.isEmpty ? "—" : exTexts)")
+            }
         } else {
-            out.append("ПОСЛЕДНИЕ ТРЕНИРОВКИ (от свежей к старой, до 4 шт.):")
+            out.append("ACTIVE PROGRAM: none.")
+        }
+
+        // Recent workouts (most recent first; first one is the just-finished session)
+        if ctx.workouts.isEmpty {
+            out.append("RECENT WORKOUTS: empty (this is the first session).")
+        } else {
+            out.append("RECENT WORKOUTS (newest → oldest, up to 4):")
             for (idx, w) in ctx.workouts.enumerated() {
-                let label = idx == 0 ? "ТОЛЬКО ЧТО" : "T-\(idx)"
+                let label = idx == 0 ? "JUST_NOW" : "T-\(idx)"
                 var head = "[\(label)] \(df.string(from: w.date)) — \(w.dayName)"
                 if let prog = w.programName { head += " · \(prog)" }
-                if let d = w.durationMinutes { head += " · \(d) мин" }
-                if let c = w.calories { head += " · \(c) ккал" }
-                if let hr = w.averageHeartRate { head += " · ЧСС ср. \(hr)" }
-                head += " · объём \(Int(w.totalVolume)) кг·повт · подходов \(w.completedSets)/\(w.totalSets)"
+                if let d = w.durationMinutes { head += " · \(d) min" }
+                if let c = w.calories { head += " · \(c) kcal" }
+                if let hr = w.averageHeartRate { head += " · avg HR \(hr)" }
+                head += " · vol \(Int(w.totalVolume)) kg·rep · sets \(w.completedSets)/\(w.totalSets)"
                 out.append(head)
 
                 for ex in w.exercises {
                     let setStrs = ex.sets.map { s -> String in
                         var base = "\(s.setNumber): \(formatWeight(s.weight))×\(s.reps)"
-                        if !s.isCompleted { base += " (не завершён)" }
+                        if !s.isCompleted { base += " (incomplete)" }
                         if let c = s.comment { base += " «\(c)»" }
                         return base
                     }
                     out.append("  • \(ex.name) — " + setStrs.joined(separator: "; "))
                 }
                 if let n = w.notes {
-                    out.append("  Комментарий к тренировке: «\(n)»")
+                    out.append("  Workout note: «\(n)»")
                 }
             }
         }

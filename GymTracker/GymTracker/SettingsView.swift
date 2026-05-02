@@ -26,6 +26,7 @@ struct SettingsView: View {
     @State private var showingWipeCoachConfirmation = false
     @State private var isWipingCoach = false
     @State private var showingSignOutConfirmation = false
+    @State private var showingOnboardingPreview = false
 
     private let supportTelegramURL = URL(string: "https://t.me/sumotry")!
     private let supportEmailURL = URL(string: "mailto:sumotry@gmail.com?subject=GymTracker%20Support")!
@@ -106,6 +107,9 @@ struct SettingsView: View {
                 }
             } message: {
                 Text(String(localized: "Вы сможете вернуться в любой момент — данные сохранены в облаке."))
+            }
+            .fullScreenCover(isPresented: $showingOnboardingPreview) {
+                OnboardingPreviewSheet { showingOnboardingPreview = false }
             }
             .alert("delete_error_title", isPresented: $showingDeleteError) {
                 if requiresReauth {
@@ -385,37 +389,47 @@ struct SettingsView: View {
     private var appInfoSection: some View {
         SettingsSection(title: "about_section".localized()) {
             SettingsCard {
-                HStack(spacing: DesignSystem.Spacing.md) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(Color.white.opacity(0.06))
-                            .frame(width: 36, height: 36)
-                        Image(systemName: "dumbbell.fill")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(DesignSystem.Colors.accent)
-                    }
+                Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    showingOnboardingPreview = true
+                } label: {
+                    HStack(spacing: DesignSystem.Spacing.md) {
+                        Image("BrandLogo")
+                            .resizable()
+                            .interpolation(.high)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 40, height: 40)
+                            .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                    .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
+                            )
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("GymTracker")
-                            .font(DesignSystem.Typography.body().weight(.semibold))
-                            .foregroundStyle(DesignSystem.Colors.primaryText)
-                        Text("version_label")
-                            .font(DesignSystem.Typography.caption())
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("BODY FORGE")
+                                .font(DesignSystem.Typography.body().weight(.heavy))
+                                .tracking(1.2)
+                                .foregroundStyle(DesignSystem.Colors.primaryText)
+                            Text("version_label")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        }
+
+                        Spacer()
+
+                        Text(appVersion)
+                            .font(DesignSystem.Typography.monospaced(.footnote, weight: .medium))
                             .foregroundStyle(DesignSystem.Colors.secondaryText)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule().fill(Color.white.opacity(0.06))
+                            )
                     }
-
-                    Spacer()
-
-                    Text(appVersion)
-                        .font(DesignSystem.Typography.monospaced(.footnote, weight: .medium))
-                        .foregroundStyle(DesignSystem.Colors.secondaryText)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule().fill(Color.white.opacity(0.06))
-                        )
+                    .padding(DesignSystem.Spacing.md)
+                    .contentShape(Rectangle())
                 }
-                .padding(DesignSystem.Spacing.md)
+                .buttonStyle(.plain)
             }
         }
     }
@@ -470,6 +484,35 @@ struct SettingsView: View {
                 }
                 showingDeleteError = true
             }
+        }
+    }
+}
+
+// MARK: - Onboarding Preview Wrapper
+
+private struct OnboardingPreviewSheet: View {
+    let onClose: () -> Void
+    @State private var done: Bool = false
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            OnboardingView(hasSeenOnboarding: $done)
+
+            Button {
+                onClose()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .padding(10)
+                    .background(Circle().fill(Color.white.opacity(0.12)))
+                    .overlay(Circle().stroke(Color.white.opacity(0.18), lineWidth: 0.5))
+            }
+            .padding(.top, 56)
+            .padding(.trailing, 16)
+        }
+        .onChange(of: done) { _, finished in
+            if finished { onClose() }
         }
     }
 }

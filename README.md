@@ -1,148 +1,527 @@
-# Body Forge
-
-> **Log your lifts. Track your body. Close your rings. All in one place — built natively for iOS 17.**
-
-A performance-first fitness tracking app for iOS. Body Forge combines intelligent workout logging, real-time biometric data from Apple Health, and a Bento Grid interface designed to surface what matters during a session — not after it.
-
----
-
-## Core Design Philosophy
-
-Body Forge is built around one idea: **remove friction from the moment you touch iron to the moment you rack it.**
-
-Every screen is optimized for single-hand use mid-set. The data model is local-first with optional cloud sync. HealthKit reads happen in the background so heart rate and calorie data are ready the moment you need them.
-
----
-
-## How It Works
+<div align="center">
 
 ```
-┌─────────────────┐    ┌──────────────────────┐    ┌────────────────────────┐
-│   Program View   │───▶│   Active Workout      │───▶│   Completion + History │
-│                  │    │                       │    │                        │
-│  Browse & select │    │  Log sets in real-    │    │  Volume summary,       │
-│  your program    │    │  time. Rest timer on  │    │  PRs flagged,          │
-│  for the day     │    │  Dynamic Island.      │    │  HealthKit write.      │
-└─────────────────┘    │  Live HR + Calories.  │    └────────────────────────┘
-                        └──────────────────────┘
-                                   │
-                        ┌──────────▼───────────┐
-                        │   SwiftData (Local)   │
-                        │   Firestore (Cloud)   │
-                        └──────────────────────┘
+
+
+      ██████╗  ██████╗ ██████╗ ██╗   ██╗
+      ██╔══██╗██╔═══██╗██╔══██╗╚██╗ ██╔╝
+      ██████╔╝██║   ██║██║  ██║ ╚████╔╝
+      ██╔══██╗██║   ██║██║  ██║  ╚██╔╝
+      ██████╔╝╚██████╔╝██████╔╝   ██║
+      ╚═════╝  ╚═════╝ ╚═════╝    ╚═╝
+
+      ███████╗ ██████╗ ██████╗  ██████╗ ███████╗
+      ██╔════╝██╔═══██╗██╔══██╗██╔════╝ ██╔════╝
+      █████╗  ██║   ██║██████╔╝██║  ███╗█████╗
+      ██╔══╝  ██║   ██║██╔══██╗██║   ██║██╔══╝
+      ██║     ╚██████╔╝██║  ██║╚██████╔╝███████╗
+      ╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+
+
 ```
 
-1. **Select a program** — browse your training plans, pick the day's session
-2. **Log in real-time** — enter sets, reps, and weight with instant comparison to your last session
-3. **Rest timer** — fires automatically after each set; appears on Dynamic Island and Lock Screen via Live Activities
-4. **HealthKit sync** — heart rate, active calories, and workout metadata are written to Apple Health at session close
-5. **Analyze progress** — per-exercise strength charts, body measurement trends, and weight history are updated automatically
+<kbd>&nbsp; **STRENGTH** &nbsp;</kbd> &nbsp; <kbd>&nbsp; **DATA** &nbsp;</kbd> &nbsp; <kbd>&nbsp; **DISCIPLINE** &nbsp;</kbd>
 
----
+###### ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## Features
+<h3>A native iOS performance lab for serious lifters.</h3>
 
-### Workout Engine
-- Create and manage multi-day training programs with full exercise customization
-- Log sets, reps, weight, and rest time with per-set trend indicators (up/down vs previous session)
-- Superset support with linked exercise display
-- Workout types: Strength, Cardio, Circuit
-- Built-in exercise technique reference for 100+ movements
+<p>
+<sub><i>Real-time set logging · HealthKit biometrics · Dynamic Island rest timer · AI coach · Local-first sync</i></sub>
+</p>
 
-### HealthKit Integration
-- Live heart rate and active calorie feed during sessions
-- Activity rings displayed and closeable from within the app
-- Step count and sleep data pulled automatically
-- Workouts written back to Apple Health on completion
+<br/>
 
-### Live Activities & Dynamic Island
-- Rest timer persists on Dynamic Island and Lock Screen while the app is backgrounded
-- Current exercise name and set count visible without unlocking the phone
-- Timer fires a haptic alert when rest is complete
+[![iOS](https://img.shields.io/badge/iOS-17.0%2B-0a0a0a?style=for-the-badge&logo=apple&logoColor=white&labelColor=0a0a0a)](https://www.apple.com/ios)
+[![Swift](https://img.shields.io/badge/Swift-5.9-FA7343?style=for-the-badge&logo=swift&logoColor=white&labelColor=0a0a0a)](https://swift.org)
+[![SwiftUI](https://img.shields.io/badge/SwiftUI-Native-007AFF?style=for-the-badge&logo=swift&logoColor=white&labelColor=0a0a0a)](https://developer.apple.com/swiftui)
+[![Firebase](https://img.shields.io/badge/Firebase-Cloud-FFCA28?style=for-the-badge&logo=firebase&logoColor=black&labelColor=0a0a0a)](https://firebase.google.com)
+[![License](https://img.shields.io/badge/License-MIT-ff6b1a?style=for-the-badge&labelColor=0a0a0a)](#-license)
 
-### Analytics & Progress
+</div>
 
-| View | What It Shows |
-|---|---|
-| **Workout History** | Chronological log of all sessions with volume and duration |
-| **Progress Charts** | Per-exercise 1RM trend over time using Swift Charts |
-| **Body Measurements** | Tracked metrics (chest, waist, arms, etc.) with delta visualization |
-| **Weight Tracker** | Daily weigh-in log with rolling average graph |
+<br/>
 
-### Nutrition & Health
-- Calorie calculator with TDEE and macro breakdown
-- Nutrition guide with food reference data
-- Supplement tracker with dosing and timing views
-- Hormones reference view
+```
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                                                                 │
+  │   "From the moment you grip the iron to the moment you rack     │
+  │    it — zero friction. Just you, the bar, and the data."        │
+  │                                                                 │
+  └─────────────────────────────────────────────────────────────────┘
+```
 
-### AI Trainer
-- In-app AI coaching panel for workout programming advice and technique guidance
+<br/>
 
-### Authentication & Sync
-- Google Sign-In via Firebase Authentication
-- Cloud sync with Firestore for multi-device access
-- Local persistence via SwiftData — fully functional offline
+<table align="center">
+<tr>
+<td align="center"><a href="#-overview"><b>OVERVIEW</b></a></td>
+<td>·</td>
+<td align="center"><a href="#-how-it-works"><b>FLOW</b></a></td>
+<td>·</td>
+<td align="center"><a href="#-features"><b>FEATURES</b></a></td>
+<td>·</td>
+<td align="center"><a href="#-integrations"><b>INTEGRATIONS</b></a></td>
+<td>·</td>
+<td align="center"><a href="#-architecture"><b>ARCHITECTURE</b></a></td>
+<td>·</td>
+<td align="center"><a href="#-stack"><b>STACK</b></a></td>
+<td>·</td>
+<td align="center"><a href="#-getting-started"><b>SETUP</b></a></td>
+</tr>
+</table>
 
----
+<br/>
 
-## Tech Stack
+<!-- ─────────────────────────────────────────────────────────── -->
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Language** | Swift 5.9+ | — |
-| **UI** | SwiftUI | All screens and components |
-| **Architecture** | MVVM | ViewModels + Managers pattern |
-| **Local Storage** | SwiftData | Offline-first persistence |
-| **Health Data** | HealthKit | Biometrics read/write |
-| **Live Activities** | ActivityKit | Dynamic Island + Lock Screen widget |
-| **Charts** | Swift Charts | Progress and trend visualization |
-| **Backend** | Firebase Firestore | Cloud sync |
-| **Auth** | Firebase Authentication + Google Sign-In | User identity |
-| **Async** | Swift Concurrency (`async/await`, `@MainActor`) | All async operations |
-| **Localization** | String Catalogs (`.xcstrings`) | Multi-language support |
+## ◢ &nbsp; OVERVIEW
 
----
+> **Body Forge** is a performance-first workout tracker for iOS. Every screen is built for one-handed use mid-set. HealthKit reads happen in the background so heart rate and calories are ready the instant you need them. Data is local-first — the app is fully functional offline and syncs to Firestore when network is available.
 
-## Project Structure
+<table>
+<tr>
+<td width="50%" valign="top">
+
+#### ◆ &nbsp; What it does
+
+```
+▸  Logs sets, reps, weight, rest
+▸  Streams live HR + calories
+▸  Persists rest timer to the
+   Dynamic Island & Lock Screen
+▸  Syncs to Apple Health
+▸  Detects PRs automatically
+▸  Chats with an AI coach
+▸  Tracks body composition
+   over time
+```
+
+</td>
+<td width="50%" valign="top">
+
+#### ◆ &nbsp; What it isn't
+
+```
+✕  Yet another social feed
+✕  A subscription paywall
+✕  A nutrition tracker pretending
+   to be a workout app
+✕  A workout app pretending to
+   be a nutrition tracker
+✕  Cloud-only — your data lives
+   on your device first
+```
+
+</td>
+</tr>
+</table>
+
+<br/>
+
+<!-- ─────────────────────────────────────────────────────────── -->
+
+## ◢ &nbsp; HOW IT WORKS
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#ff6b1a', 'primaryTextColor': '#0a0a0a', 'primaryBorderColor':'#ff6b1a', 'lineColor':'#ff6b1a', 'fontFamily':'monospace'}}}%%
+flowchart LR
+    A([👤 PROFILE<br/>+ PROGRAM]) ==> B([🏋 ACTIVE<br/>WORKOUT])
+    B ==> C([📊 COMPLETION<br/>+ ANALYTICS])
+
+    B -.live HR.-> H[(❤ HealthKit)]
+    B -.timer.-> L[🏝 Dynamic<br/>Island]
+    B -.write.-> S[(💾 SwiftData)]
+
+    C -.workout.-> H
+    C -.sync.-> F[(☁ Firestore)]
+    S <-.queue.-> F
+
+    A -.context.-> AI{{🤖 AI Coach<br/>Groq}}
+    C -.context.-> AI
+```
+
+<br/>
+
+<table>
+<tr>
+<th align="left" width="60">STAGE</th>
+<th align="left">PIPELINE</th>
+<th align="left">CORE TYPES</th>
+</tr>
+<tr><td><code>01</code></td><td><b>Pick a program</b> — the day's plan loads from local storage</td><td><code>ProgramRepository</code> · <code>ProgramSeeder</code></td></tr>
+<tr><td><code>02</code></td><td><b>Start the session</b> — Live Activity boots on the Dynamic Island</td><td><code>WorkoutStateMachine</code> · <code>LiveActivityManager</code></td></tr>
+<tr><td><code>03</code></td><td><b>Log a set</b> — diff vs. last session, trend arrow rendered instantly</td><td><code>WorkoutManager</code> · <code>ProgressTrend</code></td></tr>
+<tr><td><code>04</code></td><td><b>Rest timer</b> — counts down, updates Dynamic Island, fires haptic</td><td><code>WorkoutTimerService</code></td></tr>
+<tr><td><code>05</code></td><td><b>Biometrics</b> — heart rate + active calories stream into the header</td><td><code>HealthKitService</code> · <code>ActiveWorkoutHeader</code></td></tr>
+<tr><td><code>06</code></td><td><b>Complete</b> — write to Apple Health, detect PRs, refresh analytics</td><td><code>PersonalRecordsService</code> · <code>AnalyticsService</code></td></tr>
+<tr><td><code>07</code></td><td><b>Sync</b> — offline queue ships changes to Firestore on reconnect</td><td><code>OfflineQueueManager</code> · <code>WorkoutSyncService</code></td></tr>
+</table>
+
+<br/>
+
+<!-- ─────────────────────────────────────────────────────────── -->
+
+## ◢ &nbsp; FEATURES
+
+###### `█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █`
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### 🏋 &nbsp; <sub>MODULE 01</sub>
+
+#### Workout Engine
+
+Multi-day programs with full exercise customization. Per-set trend arrows compare against your last session in real time.
+
+```
+›  Strength  ·  Cardio  ·  Circuit
+›  Superset support
+›  100+ technique videos
+›  Weekly streaks + calendar
+```
+
+</td>
+<td width="33%" valign="top">
+
+### ❤ &nbsp; <sub>MODULE 02</sub>
+
+#### HealthKit Live
+
+Heart rate and active calories streamed straight into the active workout header. Activity Rings closeable from the app.
+
+```
+›  Live HR + calories
+›  Activity Rings card
+›  Steps + sleep auto-pull
+›  Workouts → Apple Health
+```
+
+</td>
+<td width="33%" valign="top">
+
+### 🏝 &nbsp; <sub>MODULE 03</sub>
+
+#### Dynamic Island
+
+Rest timer persists on the Dynamic Island and Lock Screen. Current exercise visible without unlocking.
+
+```
+›  ActivityKit-powered
+›  Lock Screen presentation
+›  Compact + expanded layouts
+›  Haptic on rest end
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 📊 &nbsp; <sub>MODULE 04</sub>
+
+#### Analytics Suite
+
+Per-exercise 1RM trends rendered with Swift Charts. Body measurements, weight log, rolling averages — all in one hub.
+
+```
+›  WorkoutHistoryView
+›  ProgressDetailView (1RM)
+›  BodyMeasurementsView
+›  WeightTrackerCard
+```
+
+</td>
+<td valign="top">
+
+### 🤖 &nbsp; <sub>MODULE 05</sub>
+
+#### AI Coach
+
+Conversational coach powered by Groq. Context auto-built from your last sessions and metrics — no copy-paste required.
+
+```
+›  Groq inference backend
+›  Auto-built context
+›  History synced to Firestore
+›  Quick-question widget
+```
+
+</td>
+<td valign="top">
+
+### 🍎 &nbsp; <sub>MODULE 06</sub>
+
+#### Nutrition + Health
+
+TDEE calculator with macro split. Supplement schedules, sleep guide, hormones reference — all native, all offline.
+
+```
+›  Calorie + macros calc
+›  Nutrition guide
+›  Supplement tracker
+›  Sleep + hormones guides
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🏆 &nbsp; <sub>MODULE 07</sub>
+
+#### Gamification
+
+Personal Records detected automatically. Achievement hub with detailed breakdown — get rewarded for actually showing up.
+
+```
+›  PR auto-detection
+›  AchievementsHubCard
+›  Detailed achievement view
+›  Real-time PR celebrations
+```
+
+</td>
+<td valign="top">
+
+### 🔔 &nbsp; <sub>MODULE 08</sub>
+
+#### Smart Nudges
+
+Local notifications nudge you back after a week off the iron. No server-side push — fully on-device, fully private.
+
+```
+›  Inactivity detection
+›  Local-only notifications
+›  Configurable thresholds
+›  Privacy-respecting
+```
+
+</td>
+<td valign="top">
+
+### 🔐 &nbsp; <sub>MODULE 09</sub>
+
+#### Auth + Sync
+
+Sign in with Apple, Google, or Email. Local-first storage with offline queue ensures zero data loss when network drops.
+
+```
+›  Sign in with Apple
+›  Google Sign-In
+›  Email + Password
+›  GDPR account deletion
+```
+
+</td>
+</tr>
+</table>
+
+###### `█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █`
+
+<br/>
+
+<!-- ─────────────────────────────────────────────────────────── -->
+
+## ◢ &nbsp; INTEGRATIONS
+
+<table>
+<tr>
+<th align="left" colspan="2"><sub>APPLE PLATFORM</sub></th>
+</tr>
+<tr><td><img src="https://img.shields.io/badge/HealthKit-FF2D55?style=flat-square&logo=apple&logoColor=white&labelColor=0a0a0a"/></td><td>Biometrics, Activity Rings, workout writeback &nbsp;·&nbsp; <code>HealthKitService</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/ActivityKit-000000?style=flat-square&logo=apple&logoColor=white&labelColor=0a0a0a"/></td><td>Live Activity + Dynamic Island &nbsp;·&nbsp; <code>LiveActivityManager</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/SwiftData-1F1F1F?style=flat-square&logo=swift&logoColor=white&labelColor=0a0a0a"/></td><td>Local-first persistence layer &nbsp;·&nbsp; entire <code>Storage/</code> module</td></tr>
+<tr><td><img src="https://img.shields.io/badge/Swift%20Charts-007AFF?style=flat-square&logo=swift&logoColor=white&labelColor=0a0a0a"/></td><td>1RM curves, body trends &nbsp;·&nbsp; <code>WorkoutProgressChart</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/WidgetKit-007AFF?style=flat-square&logo=apple&logoColor=white&labelColor=0a0a0a"/></td><td>Home-screen widgets + Live Activity UI &nbsp;·&nbsp; <code>GymTrackerWidget</code></td></tr>
+
+<tr>
+<th align="left" colspan="2"><sub>BACKEND &amp; AUTH</sub></th>
+</tr>
+<tr><td><img src="https://img.shields.io/badge/Firebase%20Auth-FFCA28?style=flat-square&logo=firebase&logoColor=black&labelColor=0a0a0a"/></td><td>User identity &nbsp;·&nbsp; <code>FirebaseAuthService</code> · <code>UserSessionManager</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/Firestore-FFCA28?style=flat-square&logo=firebase&logoColor=black&labelColor=0a0a0a"/></td><td>Cloud sync &nbsp;·&nbsp; <code>WorkoutSyncService</code> · <code>ProgramSyncService</code> · <code>ProfileSyncService</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/Sign%20in%20with%20Apple-000000?style=flat-square&logo=apple&logoColor=white&labelColor=0a0a0a"/></td><td>Native OAuth &nbsp;·&nbsp; <code>SignInWithAppleCoordinator</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/Google%20Sign--In-4285F4?style=flat-square&logo=google&logoColor=white&labelColor=0a0a0a"/></td><td>OAuth login &nbsp;·&nbsp; <code>AuthManager</code></td></tr>
+
+<tr>
+<th align="left" colspan="2"><sub>AI</sub></th>
+</tr>
+<tr><td><img src="https://img.shields.io/badge/Groq-F55036?style=flat-square&labelColor=0a0a0a"/></td><td>LLM inference for the in-app coach &nbsp;·&nbsp; <code>GroqClient</code> · <code>AICoachContextBuilder</code></td></tr>
+</table>
+
+<br/>
+
+<!-- ─────────────────────────────────────────────────────────── -->
+
+## ◢ &nbsp; ARCHITECTURE
+
+```
+   ┌───────────────────────────────────────────────────────────────┐
+   │                                                               │
+   │                       PRESENTATION                            │
+   │           SwiftUI Views  ·  ViewModels  ·  Widgets            │
+   │     ProgramView  │  ActiveWorkout  │  ProgressHub  │  …       │
+   │                                                               │
+   └────────────────────────────┬──────────────────────────────────┘
+                                │
+   ┌────────────────────────────▼──────────────────────────────────┐
+   │                                                               │
+   │                          DOMAIN                               │
+   │   WorkoutManager  ·  WorkoutStateMachine  ·  Calculators      │
+   │       AICoachContextBuilder  ·  AnalyticsService              │
+   │              PersonalRecordsService                           │
+   │                                                               │
+   └────────────────────────────┬──────────────────────────────────┘
+                                │
+   ┌────────────────────────────▼──────────────────────────────────┐
+   │                                                               │
+   │                     INFRASTRUCTURE                            │
+   │                                                               │
+   │   ╔══════════╗   ╔══════════╗   ╔══════════╗   ╔══════════╗   │
+   │   ║SwiftData ║   ║HealthKit ║   ║ Firebase ║   ║   Groq   ║   │
+   │   ║  Local   ║   ║   Apple  ║   ║   Cloud  ║   ║    AI    ║   │
+   │   ╚══════════╝   ╚══════════╝   ╚══════════╝   ╚══════════╝   │
+   │                                                               │
+   └───────────────────────────────────────────────────────────────┘
+```
+
+<table>
+<tr><td><b>PATTERN</b></td><td>MVVM + Repository + Dependency Injection (<code>/DI</code>)</td></tr>
+<tr><td><b>CONCURRENCY</b></td><td>Swift Concurrency &nbsp;·&nbsp; <code>async/await</code> &nbsp;·&nbsp; <code>@MainActor</code></td></tr>
+<tr><td><b>PRINCIPLES</b></td><td>Local-first &nbsp;·&nbsp; Offline-resilient &nbsp;·&nbsp; Single Source of Truth (SwiftData)</td></tr>
+</table>
+
+<br/>
+
+<!-- ─────────────────────────────────────────────────────────── -->
+
+## ◢ &nbsp; STACK
+
+<table>
+<tr><th align="left">LAYER</th><th align="left">TECHNOLOGY</th><th align="left">ROLE</th></tr>
+<tr><td><sub>LANGUAGE</sub></td><td><b>Swift 5.9+</b></td><td>—</td></tr>
+<tr><td><sub>UI</sub></td><td><b>SwiftUI</b></td><td>All screens and components</td></tr>
+<tr><td><sub>ARCHITECTURE</sub></td><td><b>MVVM + DI</b></td><td>ViewModels · Managers · Services</td></tr>
+<tr><td><sub>LOCAL STORE</sub></td><td><b>SwiftData</b></td><td>Offline-first persistence</td></tr>
+<tr><td><sub>HEALTH</sub></td><td><b>HealthKit</b></td><td>Biometrics read/write</td></tr>
+<tr><td><sub>LIVE</sub></td><td><b>ActivityKit</b></td><td>Dynamic Island + Lock Screen</td></tr>
+<tr><td><sub>CHARTS</sub></td><td><b>Swift Charts</b></td><td>Trend visualization</td></tr>
+<tr><td><sub>BACKEND</sub></td><td><b>Firebase Firestore</b></td><td>Cloud sync</td></tr>
+<tr><td><sub>AUTH</sub></td><td><b>Firebase Auth</b> + Apple + Google</td><td>Identity</td></tr>
+<tr><td><sub>AI</sub></td><td><b>Groq</b></td><td>LLM inference for coach</td></tr>
+<tr><td><sub>ASYNC</sub></td><td><b>Swift Concurrency</b></td><td>All async operations</td></tr>
+<tr><td><sub>i18n</sub></td><td><b>String Catalogs</b> (<code>.xcstrings</code>)</td><td>Multi-language support</td></tr>
+<tr><td><sub>WIDGETS</sub></td><td><b>WidgetKit</b></td><td>Home screen + Live Activity UI</td></tr>
+</table>
+
+<br/>
+
+<!-- ─────────────────────────────────────────────────────────── -->
+
+## ◢ &nbsp; PROJECT STRUCTURE
 
 ```
 GymTracker/
-├── GymTracker/
-│   ├── Models/                   # SwiftData schemas and domain models
-│   │   ├── AnalyticsModels.swift
-│   │   ├── ProgramModels.swift
-│   │   └── SleepModels.swift
-│   ├── Services/                 # Business logic services
-│   │   ├── AnalyticsService.swift
-│   │   ├── CalorieCalculator.swift
-│   │   └── SleepService.swift
-│   ├── Protocols/                # Shared protocols
-│   ├── DI/                       # Dependency injection container
-│   ├── *View.swift               # SwiftUI screens and reusable components
-│   ├── *ViewModel.swift          # View-scoped logic
-│   ├── WorkoutManager.swift      # Active session state machine
-│   ├── HealthManager.swift       # HealthKit read/write
-│   ├── LiveActivityManager.swift # ActivityKit session lifecycle
-│   ├── SyncManager.swift         # Firestore sync orchestration
-│   ├── AuthManager.swift         # Firebase authentication
-│   └── DesignSystem.swift        # Colors, typography, shared modifiers
-├── GymTrackerWidget/             # Widget extension + Live Activity UI
-├── GymTrackerTests/
-└── GymTrackerUITests/
+│
+├──  GymTracker/
+│    │
+│    ├──  Models/
+│    │    ├──  AnalyticsModels.swift          ◆ analytics domain
+│    │    ├──  ProgramModels.swift            ◆ training programs
+│    │    ├──  SleepModels.swift              ◆ sleep
+│    │    ├──  SyncModels.swift               ◆ Firestore DTOs
+│    │    └──  ValueObjects/                  ◆ Email · Password · UserId
+│    │
+│    ├──  Services/
+│    │    ├──  AICoach/                       ◆ Groq client + context builder
+│    │    ├──  Auth/                          ◆ Firebase Auth + Apple + Google
+│    │    ├──  Health/                        ◆ HealthKit wrapper
+│    │    ├──  Storage/                       ◆ SwiftData persistence
+│    │    ├──  Sync/                          ◆ offline queue + Firestore sync
+│    │    ├──  Workout/                       ◆ state machine + repositories
+│    │    ├──  AnalyticsService.swift
+│    │    ├──  CalorieCalculator.swift
+│    │    ├──  PersonalRecordsService.swift
+│    │    ├──  InactivityNotificationService.swift
+│    │    └──  SleepService.swift
+│    │
+│    ├──  Protocols/                          ◆ service contracts
+│    ├──  DI/                                 ◆ DI container
+│    │
+│    ├──  *View.swift                         ◆ SwiftUI screens
+│    ├──  *ViewModel.swift                    ◆ view-scoped logic
+│    ├──  WorkoutManager.swift                ◆ active session orchestrator
+│    ├──  HealthManager.swift                 ◆ HealthKit facade
+│    ├──  LiveActivityManager.swift           ◆ Live Activity lifecycle
+│    ├──  SyncManager.swift                   ◆ sync orchestrator
+│    ├──  AuthManager.swift                   ◆ auth facade
+│    └──  DesignSystem.swift                  ◆ colors · typography · modifiers
+│
+├──  GymTrackerWidget/                        ◆ widget + Live Activity UI
+├──  GymTrackerTests/                         ◆ unit tests
+└──  GymTrackerUITests/                       ◆ UI tests
 ```
 
----
+<br/>
 
-## Getting Started
+<!-- ─────────────────────────────────────────────────────────── -->
 
-### Prerequisites
+## ◢ &nbsp; LOCALIZATION
 
-- Xcode 15.0+
-- iOS 17.0+ device or simulator
-- Apple Developer account (for HealthKit and Live Activities entitlements)
-- Firebase project with Firestore and Google Sign-In enabled
+The app is fully localized through **String Catalogs** (`.xcstrings`). Every user-facing string is added to the catalog the moment it's introduced — no exceptions.
 
-### 1. Clone
+<table>
+<tr>
+<th align="left" width="50%">✕ &nbsp; WON'T PASS REVIEW</th>
+<th align="left" width="50%">✓ &nbsp; CORRECT</th>
+</tr>
+<tr>
+<td>
+
+```swift
+Text(exercise.name)
+let title = "Settings"
+```
+
+</td>
+<td>
+
+```swift
+Text(LocalizedStringKey(exercise.name))
+let title = String(localized: "Settings")
+```
+
+</td>
+</tr>
+</table>
+
+> Full i18n protocol lives in [`CLAUDE.md`](./CLAUDE.md) → **LOCALIZATION & i18n PROTOCOL**.
+
+<br/>
+
+<!-- ─────────────────────────────────────────────────────────── -->
+
+## ◢ &nbsp; GETTING STARTED
+
+<details>
+<summary><b>&nbsp; ▸ &nbsp; PREREQUISITES</b></summary>
+<br/>
+
+| | |
+|---|---|
+| **Xcode** | 15.0+ |
+| **iOS** | 17.0+ device or simulator |
+| **Apple Developer** | required for HealthKit + Live Activities entitlements |
+| **Firebase** | project with Firestore + Google Sign-In enabled |
+| **Groq** | API key for the AI coach |
+
+</details>
+
+<br/>
+
+#### <kbd>&nbsp;01&nbsp;</kbd> &nbsp; Clone the repo
 
 ```bash
 git clone https://github.com/shurinbergo3/GymTracker.git
@@ -150,31 +529,68 @@ cd GymTracker
 open "Body Forge.xcodeproj"
 ```
 
-### 2. Configure Firebase
+#### <kbd>&nbsp;02&nbsp;</kbd> &nbsp; Configure Firebase
 
-Add your `GoogleService-Info.plist` from the Firebase console into the `GymTracker/GymTracker/` target folder. The file is git-ignored and required for auth and sync to function.
+Drop your `GoogleService-Info.plist` from the Firebase console into `GymTracker/GymTracker/`.
+The file is git-ignored and required for auth and sync to function.
 
-### 3. Signing
+#### <kbd>&nbsp;03&nbsp;</kbd> &nbsp; Sign both targets
 
-In Xcode, select your development team for both the **GymTracker** and **GymTrackerWidget** targets under *Signing & Capabilities*.
+In Xcode, select your development team for **both** targets under *Signing & Capabilities → Team*:
 
-### 4. Run
+> `GymTracker`
+> `GymTrackerWidget`
 
-Select an **iPhone 15 Pro** or **iPhone 16 Pro** simulator (or a real device) to test Dynamic Island.
+#### <kbd>&nbsp;04&nbsp;</kbd> &nbsp; Run
+
+To test the Dynamic Island, pick an **iPhone 15 Pro / 16 Pro** simulator or a real device.
 
 ```
-Cmd + R
+⌘ + R
 ```
 
----
+<br/>
 
-## Requirements
+<!-- ─────────────────────────────────────────────────────────── -->
 
-- iOS 17.0+
-- Xcode 15.0+
+## ◢ &nbsp; DEFINITION OF DONE
 
----
+```
+   ✓  Code passes linting and tests
+   ✓  All user-facing strings localized via .xcstrings
+   ✓  Result committed or saved in the project
+   ✓  Task status updated in /directives/
+   ✓  Manual /execution/ commands documented (if applicable)
+```
 
-## License
+<br/>
 
-MIT
+<!-- ─────────────────────────────────────────────────────────── -->
+
+## ◢ &nbsp; LICENSE
+
+**MIT** &nbsp;·&nbsp; do whatever you want, just keep the attribution.
+
+<br/>
+<br/>
+
+<div align="center">
+
+```
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                BUILT  FOR  LIFTERS · BY  LIFTERS
+
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+<sub>Forged with Swift, sweat, and an obscene amount of espresso ☕</sub>
+
+<br/>
+<br/>
+
+<sub>
+<kbd>iOS 17+</kbd> &nbsp; <kbd>Swift 5.9</kbd> &nbsp; <kbd>SwiftUI</kbd> &nbsp; <kbd>SwiftData</kbd> &nbsp; <kbd>HealthKit</kbd> &nbsp; <kbd>ActivityKit</kbd> &nbsp; <kbd>Firebase</kbd> &nbsp; <kbd>Groq</kbd>
+</sub>
+
+</div>

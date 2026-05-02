@@ -152,6 +152,8 @@ class AuthManager: ObservableObject {
     func logout() {
         do {
             try Auth.auth().signOut()
+            // Reset onboarding so the welcome preview shows again on next launch
+            UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
             // Listener will handle clearing state
         } catch {
             #if DEBUG

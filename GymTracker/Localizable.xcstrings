@@ -21126,6 +21126,7 @@
       }
     },
     "растут" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23113,6 +23114,7 @@
       }
     },
     "снижение" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23946,6 +23948,7 @@
       }
     },
     "стабильно" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25419,6 +25422,7 @@
       }
     },
     "Тренируйся регулярно — данные собираются" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
