@@ -112,13 +112,7 @@ struct ProgressHubView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(.white, .white.opacity(0.18))
-                    }
+                    CloseButton(action: { dismiss() })
                 }
             }
             .sheet(isPresented: $showingAnalytics) {

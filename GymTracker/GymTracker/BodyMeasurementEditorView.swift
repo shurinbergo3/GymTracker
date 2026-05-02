@@ -108,11 +108,7 @@ struct BodyMeasurementEditorView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .font(.headline)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                    }
+                    CloseButton(action: { dismiss() })
                 }
             }
         }

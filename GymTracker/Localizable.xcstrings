@@ -69,6 +69,7 @@
         }
       }
     },
+    "·": {},
     "«Кругом враги», депрессивность, рабство страстей, невозможность отказать себе во вредном.": {
       "extractionState": "manual",
       "localizations": {
@@ -109,6 +110,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@"
+          }
+        }
+      }
+    },
+    "%@ — ещё %d тренировок": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ — %2$d more workouts"
           }
         }
       }
@@ -251,6 +263,17 @@
         }
       }
     },
+    "%@кг x %d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ kg x %2$d"
+          }
+        }
+      }
+    },
     "%@кг x %lld": {
       "extractionState": "manual",
       "localizations": {
@@ -264,6 +287,138 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@кг x %lld"
+          }
+        }
+      }
+    },
+    "%1$d кг × %2$d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$d kg × %2$d"
+          }
+        }
+      }
+    },
+    "%d × подходов": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d × sets"
+          }
+        }
+      }
+    },
+    "%d дней": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d days"
+          }
+        }
+      }
+    },
+    "%d дней подряд! Не останавливайся.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d days in a row! Keep going."
+          }
+        }
+      }
+    },
+    "%d кг": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d kg"
+          }
+        }
+      }
+    },
+    "%d ккал": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d kcal"
+          }
+        }
+      }
+    },
+    "%d подх.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d sets"
+          }
+        }
+      }
+    },
+    "%d раз": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d reps"
+          }
+        }
+      }
+    },
+    "%d упражнений": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d exercises"
+          }
+        }
+      }
+    },
+    "%d/15 ": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d/15 "
+          }
+        }
+      }
+    },
+    "%dм": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%dm"
+          }
+        }
+      }
+    },
+    "%dч": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%dh"
           }
         }
       }
@@ -574,6 +729,7 @@
       }
     },
     "%lld/5": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -863,6 +1019,17 @@
       }
     },
     "+%lld PR": {},
+    "+1 XP за каждую завершённую тренировку": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 XP for each completed workout"
+          }
+        }
+      }
+    },
     "×": {
       "localizations": {
         "en": {
@@ -2036,6 +2203,17 @@
         }
       }
     },
+    "14 ДНЕЙ": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 DAYS"
+          }
+        }
+      }
+    },
     "15-30 мг в день. При болезни можно повышать до 50 мг (краткосрочно). Не принимать вместе с молочными продуктами (кальций мешает).": {
       "extractionState": "manual",
       "localizations": {
@@ -2069,6 +2247,17 @@
         }
       }
     },
+    "20 лет опыта · прогрессия и здоровье": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "20 years of experience · progression and health"
+          }
+        }
+      }
+    },
     "30": {
       "localizations": {
         "en": {
@@ -2098,6 +2287,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "30 мин"
+          }
+        }
+      }
+    },
+    "30 дней": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 days"
           }
         }
       }
@@ -2617,6 +2817,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Body Forge"
+          }
+        }
+      }
+    },
+    "Apple Health workouts за 7 дней": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health workouts over 7 days"
           }
         }
       }
@@ -4197,6 +4408,7 @@
       }
     },
     "GymTracker": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6649,6 +6861,28 @@
         }
       }
     },
+    "XP до следующего уровня": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "XP to next level"
+          }
+        }
+      }
+    },
+    "XP начал просаживаться": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "XP started declining"
+          }
+        }
+      }
+    },
     "Your goal": {
       "extractionState": "manual",
       "localizations": {
@@ -6899,6 +7133,39 @@
         }
       }
     },
+    "Анализ тренировки": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout analysis"
+          }
+        }
+      }
+    },
+    "Анализирую тренировку, датчики и комментарии…": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing workout, sensors and comments…"
+          }
+        }
+      }
+    },
+    "Анализирую тренировку…": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing workout…"
+          }
+        }
+      }
+    },
     "АНАЛИТИКА": {
       "extractionState": "manual",
       "localizations": {
@@ -7075,6 +7342,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Армейский жим. Штанга на уровне плеч, хват чуть шире плеч. Выжмите вверх, фиксируя корпус. Локти чуть вперед, не разводите wide."
+          }
+        }
+      }
+    },
+    "Атлет": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Athlete"
           }
         }
       }
@@ -7417,6 +7695,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Без движения не накапливается аденозин (нейромедиатор усталости)."
+          }
+        }
+      }
+    },
+    "Без тренировок дольше 3 дней XP начинает падать. После 14 дней можно потерять и уровень — но «пик» останется как трофей.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without workouts for more than 3 days XP starts declining. After 14 days you may lose a level — but your \"peak\" will remain as a trophy."
           }
         }
       }
@@ -7844,6 +8133,17 @@
         }
       }
     },
+    "Большинство упражнений растут": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most exercises are progressing"
+          }
+        }
+      }
+    },
     "Бор": {
       "localizations": {
         "en": {
@@ -7944,6 +8244,17 @@
         }
       }
     },
+    "БЫЛ %d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WAS %d"
+          }
+        }
+      }
+    },
     "Быстрое усвоение": {
       "extractionState": "manual",
       "localizations": {
@@ -8011,6 +8322,39 @@
         }
       }
     },
+    "Бэйдж «ПИК» хранит твой максимальный уровень — его можно вернуть, продолжив тренировки.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The \"PEAK\" badge holds your highest level — you can reclaim it by continuing to train."
+          }
+        }
+      }
+    },
+    "БЭЙДЖИ": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BADGES"
+          }
+        }
+      }
+    },
+    "Бэйджи открываются за общее число тренировок": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Badges unlock based on total workout count"
+          }
+        }
+      }
+    },
     "В висе поднимайте носки к перекладине. Контролируйте раскачку. Мощная работа пресса.": {
       "localizations": {
         "en": {
@@ -8057,6 +8401,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "В покое"
+          }
+        }
+      }
+    },
+    "В работе": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In progress"
           }
         }
       }
@@ -8856,6 +9211,17 @@
         }
       }
     },
+    "Войди, чтобы продолжить тренировки": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to continue workouts"
+          }
+        }
+      }
+    },
     "Войти": {
       "extractionState": "stale",
       "localizations": {
@@ -8873,6 +9239,17 @@
         }
       }
     },
+    "Войти через Apple": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in with Apple"
+          }
+        }
+      }
+    },
     "Войти через Google": {
       "extractionState": "manual",
       "localizations": {
@@ -8886,6 +9263,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Войти через Google"
+          }
+        }
+      }
+    },
+    "вопросов": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "questions"
           }
         }
       }
@@ -9024,6 +9412,28 @@
         }
       }
     },
+    "ВРЕМЯ": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TIME"
+          }
+        }
+      }
+    },
+    "Время в зале": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time in gym"
+          }
+        }
+      }
+    },
     "Время и дистанция": {
       "extractionState": "manual",
       "localizations": {
@@ -9092,12 +9502,45 @@
         }
       }
     },
+    "Время: %@": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time: %@"
+          }
+        }
+      }
+    },
+    "Все ваши прошлые сессии": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All your past sessions"
+          }
+        }
+      }
+    },
     "Все диалоги и разборы будут удалены с этого устройства и из облака. Действие нельзя отменить.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "All conversations and analyses will be deleted from this device and the cloud. This action cannot be undone."
+          }
+        }
+      }
+    },
+    "Все награды собраны 🏆": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All rewards collected 🏆"
           }
         }
       }
@@ -9214,6 +9657,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Всего подходов"
+          }
+        }
+      }
+    },
+    "Всего тренировок": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total workouts"
           }
         }
       }
@@ -9355,6 +9809,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "yesterday"
+          }
+        }
+      }
+    },
+    "Вчера": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yesterday"
           }
         }
       }
@@ -9675,6 +10140,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Выпады с жимом"
+          }
+        }
+      }
+    },
+    "Выполнено: %1$d / %2$d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done: %1$d / %2$d"
           }
         }
       }
@@ -10533,6 +11009,28 @@
         }
       }
     },
+    "Готов к разбору": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready for analysis"
+          }
+        }
+      }
+    },
+    "Готов помочь": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready to help"
+          }
+        }
+      }
+    },
     "Готово": {
       "extractionState": "manual",
       "localizations": {
@@ -10546,6 +11044,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Готово"
+          }
+        }
+      }
+    },
+    "Готово!": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done!"
           }
         }
       }
@@ -10626,6 +11135,28 @@
         }
       }
     },
+    "Дайджест последней недели": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last week digest"
+          }
+        }
+      }
+    },
+    "Данные синхронизируются из Apple Health": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data synced from Apple Health"
+          }
+        }
+      }
+    },
     "Данные текущей тренировки не будут сохранены.": {
       "extractionState": "manual",
       "localizations": {
@@ -10655,6 +11186,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Дата"
+          }
+        }
+      }
+    },
+    "Движение": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movement"
           }
         }
       }
@@ -10766,6 +11308,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "День"
+          }
+        }
+      }
+    },
+    "День %d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day %d"
           }
         }
       }
@@ -11045,6 +11598,17 @@
         }
       }
     },
+    "день подряд": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "day in a row"
+          }
+        }
+      }
+    },
     "Держите гирю или гантель у груди. Приседайте, разводя колени. Учитесь держать спину прямо.": {
       "localizations": {
         "en": {
@@ -11124,6 +11688,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Детокс печени"
+          }
+        }
+      }
+    },
+    "Детренинг — пора в зал": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detraining — time to hit the gym"
           }
         }
       }
@@ -11237,6 +11812,39 @@
         }
       }
     },
+    "дней назад": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "days ago"
+          }
+        }
+      }
+    },
+    "дней подряд": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "days in a row"
+          }
+        }
+      }
+    },
+    "Дней с тренировкой": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days with workout"
+          }
+        }
+      }
+    },
     "Днем на солнце вырабатывается серотонин. Если его мало, ночью не из чего производить мелатонин.": {
       "extractionState": "manual",
       "localizations": {
@@ -11277,6 +11885,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "days"
+          }
+        }
+      }
+    },
+    "дня назад": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "days ago"
+          }
+        }
+      }
+    },
+    "дня подряд": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "days in a row"
           }
         }
       }
@@ -11500,6 +12130,17 @@
         }
       }
     },
+    "Дождись разбора, потом задавай вопросы…": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wait for the analysis, then ask questions…"
+          }
+        }
+      }
+    },
     "ДОП. ПОДХОД": {
       "extractionState": "manual",
       "localizations": {
@@ -11637,6 +12278,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ешь больше, чем тратишь — набираешь. Тратишь больше — худеешь."
+          }
+        }
+      }
+    },
+    "ещё": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "more"
+          }
+        }
+      }
+    },
+    "ещё %d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d more"
+          }
+        }
+      }
+    },
+    "ещё %d сек": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d sec left"
           }
         }
       }
@@ -12317,6 +12991,50 @@
         }
       }
     },
+    "за неделю": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "this week"
+          }
+        }
+      }
+    },
+    "За неделю": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This week"
+          }
+        }
+      }
+    },
+    "за ночь": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "per night"
+          }
+        }
+      }
+    },
+    "За прошлую ночь": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last night"
+          }
+        }
+      }
+    },
     "Завершено": {
       "extractionState": "manual",
       "localizations": {
@@ -12330,6 +13048,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Завершено"
+          }
+        }
+      }
+    },
+    "Заверши тренировку, чтобы получить первый разбор. Все диалоги с коучем сохраняются здесь.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete a workout to get your first analysis. All coach conversations are saved here."
           }
         }
       }
@@ -12563,6 +13292,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Заметка"
+          }
+        }
+      }
+    },
+    "Заметка для AI-разбора": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note for AI analysis"
           }
         }
       }
@@ -12875,6 +13615,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Изменить тип"
+          }
+        }
+      }
+    },
+    "Изменить фото": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change photo"
           }
         }
       }
@@ -13230,6 +13981,17 @@
         }
       }
     },
+    "История пуста": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History is empty"
+          }
+        }
+      }
+    },
     "История тренировок": {
       "extractionState": "manual",
       "localizations": {
@@ -13281,6 +14043,17 @@
         }
       }
     },
+    "Каждая тренировка приближает к цели": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every workout brings you closer to your goal"
+          }
+        }
+      }
+    },
     "Каждые 4-8 недель снижай объем на 50%, чтобы дать ЦНС и связкам восстановиться.": {
       "extractionState": "manual",
       "localizations": {
@@ -13294,6 +14067,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Каждые 4-8 недель снижай объем на 50%, чтобы дать ЦНС и связкам восстановиться."
+          }
+        }
+      }
+    },
+    "Каждые 5 XP = новый уровень": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every 5 XP = new level"
           }
         }
       }
@@ -13361,6 +14145,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "КАК ПРИНИМАТЬ"
+          }
+        }
+      }
+    },
+    "Как это работает": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How it works"
           }
         }
       }
@@ -13491,6 +14286,17 @@
         }
       }
     },
+    "Категорий": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Categories"
+          }
+        }
+      }
+    },
     "Квадрицепсы": {
       "localizations": {
         "en": {
@@ -13537,6 +14343,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "ккал"
+          }
+        }
+      }
+    },
+    "ккал · сегодня": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal · today"
           }
         }
       }
@@ -13621,6 +14438,17 @@
         }
       }
     },
+    "Ключевые моменты": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key highlights"
+          }
+        }
+      }
+    },
     "КМ": {
       "extractionState": "manual",
       "localizations": {
@@ -13666,6 +14494,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Колесо для пресса"
+          }
+        }
+      }
+    },
+    "КОЛЬЦА АКТИВНОСТИ": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ACTIVITY RINGS"
           }
         }
       }
@@ -13726,6 +14565,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "комментарий о тренировке"
+          }
+        }
+      }
+    },
+    "Комментарий о тренировке": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout note"
           }
         }
       }
@@ -13914,6 +14764,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "CORTISOL"
+          }
+        }
+      }
+    },
+    "Коуч": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach"
           }
         }
       }
@@ -14197,6 +15058,17 @@
         }
       }
     },
+    "Легенда": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legend"
+          }
+        }
+      }
+    },
     "Лежа животом на наклонной скамье. Руки свисают вертикально вниз. Сгибание на бицепс, исключая помощь корпуса.": {
       "localizations": {
         "en": {
@@ -14437,6 +15309,17 @@
         }
       }
     },
+    "Лимит вопросов исчерпан до следующей тренировки.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Question limit reached until your next workout."
+          }
+        }
+      }
+    },
     "Линейная": {
       "extractionState": "manual",
       "localizations": {
@@ -14594,6 +15477,39 @@
         }
       }
     },
+    "Лучшая серия": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best streak"
+          }
+        }
+      }
+    },
+    "Лучший день": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best day"
+          }
+        }
+      }
+    },
+    "Лучший рекорд: %1$d. До него — %2$d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best record: %1$d. To beat it — %2$d"
+          }
+        }
+      }
+    },
     "Лыжный тренажер (SkiErg)": {
       "localizations": {
         "en": {
@@ -14622,6 +15538,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Лэндмайн-приседания"
+          }
+        }
+      }
+    },
+    "Любимая группа": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorite group"
+          }
+        }
+      }
+    },
+    "Любитель": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amateur"
           }
         }
       }
@@ -14855,6 +15793,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Макронутриенты — это кирпичики нашего тела."
+          }
+        }
+      }
+    },
+    "Макс.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max."
           }
         }
       }
@@ -15409,6 +16358,17 @@
         }
       }
     },
+    "мин/нед": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "min/wk"
+          }
+        }
+      }
+    },
     "Минимум 7-9 часов. Дефицит сна убивает тестостерон и повышает кортизол.": {
       "extractionState": "manual",
       "localizations": {
@@ -15439,6 +16399,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Мио-инозитол (основная форма)"
+          }
+        }
+      }
+    },
+    "мл/кг·мин": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ml/kg·min"
           }
         }
       }
@@ -15933,6 +16904,17 @@
         }
       }
     },
+    "На пике": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At peak"
+          }
+        }
+      }
+    },
     "На тренировке": {
       "localizations": {
         "en": {
@@ -15965,6 +16947,17 @@
         }
       }
     },
+    "на этой неделе": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "this week"
+          }
+        }
+      }
+    },
     "Навигация ума": {
       "extractionState": "manual",
       "localizations": {
@@ -15978,6 +16971,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Навигация ума"
+          }
+        }
+      }
+    },
+    "Награды": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rewards"
           }
         }
       }
@@ -16201,6 +17205,28 @@
         }
       }
     },
+    "Начни ковать форму уже сегодня": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start forging your body today"
+          }
+        }
+      }
+    },
+    "Начни первую тренировку — XP начнут расти": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete your first workout — XP will start growing"
+          }
+        }
+      }
+    },
     "Начни тренироваться": {
       "extractionState": "manual",
       "localizations": {
@@ -16231,6 +17257,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Начните с восстановления"
+          }
+        }
+      }
+    },
+    "Начните тренировку, после чего я буду анализировать и давать рекомендации.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a workout, then I will analyze it and give recommendations."
           }
         }
       }
@@ -16401,6 +17438,28 @@
         }
       }
     },
+    "Невероятный результат! Новые рекорды!": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incredible result! New records!"
+          }
+        }
+      }
+    },
+    "Недельная цель выполнена 🔥": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly goal completed 🔥"
+          }
+        }
+      }
+    },
     "Неделя": {
       "extractionState": "manual",
       "localizations": {
@@ -16418,6 +17477,7 @@
         }
       }
     },
+    "Неделя без тренировок. Скоро потеряешь уровень — приходи в зал.": {},
     "Недостаточно данных за этот период": {
       "extractionState": "manual",
       "localizations": {
@@ -16519,6 +17579,17 @@
         }
       }
     },
+    "Несколько упражнений просели": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Several exercises declined"
+          }
+        }
+      }
+    },
     "Неспособность сфокусироваться, тревожность, дерганность, мнительность, страх.": {
       "localizations": {
         "en": {
@@ -16531,6 +17602,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Неспособность сфокусироваться, тревожность, дерганность, мнительность, страх."
+          }
+        }
+      }
+    },
+    "Нет аккаунта?": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No account?"
           }
         }
       }
@@ -16616,6 +17698,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Нет данных для сравнения"
+          }
+        }
+      }
+    },
+    "нет доступа": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no access"
           }
         }
       }
@@ -16761,6 +17854,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Неуверенность в себе, робость, стеснительность, неверие в позитивный исход жизни, в свои силы. Общая вялость во всем."
+          }
+        }
+      }
+    },
+    "ни одной тренировки": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no workouts"
           }
         }
       }
@@ -16974,6 +18078,17 @@
         }
       }
     },
+    "Новичок": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beginner"
+          }
+        }
+      }
+    },
     "Новый": {
       "localizations": {
         "en": {
@@ -17012,6 +18127,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Новый замер"
+          }
+        }
+      }
+    },
+    "Новый рекорд!": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New record!"
           }
         }
       }
@@ -17366,6 +18492,28 @@
         }
       }
     },
+    "общая длительность сна за прошлую ночь": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "total sleep duration last night"
+          }
+        }
+      }
+    },
+    "общее время": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "total time"
+          }
+        }
+      }
+    },
     "Общение с сильными, жесткими мужчинами, избегание нытиков.": {
       "extractionState": "manual",
       "localizations": {
@@ -17464,6 +18612,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Объём"
+          }
+        }
+      }
+    },
+    "Объём вырос на": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume increased by"
           }
         }
       }
@@ -17594,6 +18753,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "ОКСИТОЦИН"
+          }
+        }
+      }
+    },
+    "Описание": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Description"
           }
         }
       }
@@ -17866,6 +19036,17 @@
         }
       }
     },
+    "от прошлой": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "from last"
+          }
+        }
+      }
+    },
     "Отведения руки на блоке": {
       "localizations": {
         "en": {
@@ -17878,6 +19059,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отведения руки на блоке"
+          }
+        }
+      }
+    },
+    "ответов": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "responses"
           }
         }
       }
@@ -18155,6 +19347,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "Отключить уведомления, убрать токсичных паникеров из окружения."
+          }
+        }
+      }
+    },
+    "Открой чат, чтобы получить разбор.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open chat to get an analysis."
+          }
+        }
+      }
+    },
+    "Открыть полный профиль": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open full profile"
+          }
+        }
+      }
+    },
+    "Открыть чат ›": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open chat ›"
           }
         }
       }
@@ -18540,6 +19765,28 @@
         }
       }
     },
+    "Персональный коуч": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personal coach"
+          }
+        }
+      }
+    },
+    "ПИК %d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PEAK %d"
+          }
+        }
+      }
+    },
     "Пиколинат цинка: Отличная усвояемость.": {
       "extractionState": "manual",
       "localizations": {
@@ -18702,6 +19949,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "повт."
+          }
+        }
+      }
+    },
+    "Повторы": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reps"
           }
         }
       }
@@ -18883,12 +20141,34 @@
         }
       }
     },
+    "Поднято за тренировку": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifted per workout"
+          }
+        }
+      }
+    },
     "Подробная аналитика": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Detailed analytics"
+          }
+        }
+      }
+    },
+    "Подробнее: статистика, награды, серия": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details: stats, rewards, streak"
           }
         }
       }
@@ -19072,6 +20352,17 @@
         }
       }
     },
+    "Подход %d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set %d"
+          }
+        }
+      }
+    },
     "Подход %lld": {
       "extractionState": "manual",
       "localizations": {
@@ -19089,6 +20380,17 @@
         }
       }
     },
+    "подходов": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sets"
+          }
+        }
+      }
+    },
     "Подходов": {
       "extractionState": "manual",
       "localizations": {
@@ -19102,6 +20404,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Подходов"
+          }
+        }
+      }
+    },
+    "Подходы": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sets"
           }
         }
       }
@@ -19321,6 +20634,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Поешь белок и углеводы для восстановления."
+          }
+        }
+      }
+    },
+    "Поиск по истории": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search history"
           }
         }
       }
@@ -19628,6 +20952,17 @@
         }
       }
     },
+    "посл. тренировка": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "last workout"
+          }
+        }
+      }
+    },
     "После": {
       "localizations": {
         "en": {
@@ -19657,6 +20992,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "После овуляции силы падают. Лучше снизить интенсивность, делать больше кардио."
+          }
+        }
+      }
+    },
+    "Последние 7 дней": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 7 days"
+          }
+        }
+      }
+    },
+    "последняя": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "last"
+          }
+        }
+      }
+    },
+    "ПОСЛЕДНЯЯ": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LAST"
           }
         }
       }
@@ -19691,6 +21059,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Последняя: %@"
+          }
+        }
+      }
+    },
+    "Потеряно %@ XP — одна тренировка восстановит форму": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lost %@ XP — one workout will restore your shape"
           }
         }
       }
@@ -20245,6 +21624,17 @@
         }
       }
     },
+    "Прогресс и награды": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress and rewards"
+          }
+        }
+      }
+    },
     "ПРОГРЕСС ПО ОБЪЕМУ": {
       "extractionState": "manual",
       "localizations": {
@@ -20258,6 +21648,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "ПРОГРЕСС ПО ОБЪЕМУ"
+          }
+        }
+      }
+    },
+    "Прогресс по упражнениям": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exercise progress"
           }
         }
       }
@@ -20306,6 +21707,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Продвинутый DUP"
+          }
+        }
+      }
+    },
+    "Продолжая, ты соглашаешься с правилами и политикой конфиденциальности": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By continuing, you agree to the terms and privacy policy"
           }
         }
       }
@@ -20442,6 +21854,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Протяжка (High Pull)"
+          }
+        }
+      }
+    },
+    "Профи": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro"
           }
         }
       }
@@ -20710,6 +22133,28 @@
         }
       }
     },
+    "Пульс покоя": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resting HR"
+          }
+        }
+      }
+    },
+    "Пульс трен.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout HR"
+          }
+        }
+      }
+    },
     "Работа по мешку. Держите стойку, руки у подбородка. Вкладывайте корпус в удар. Двигайтесь вокруг снаряда.": {
       "localizations": {
         "en": {
@@ -20754,6 +22199,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "Равномерный бег в комфортном темпе. Пульс 120-140 ударов. Отлично для разминки или заминки."
+          }
+        }
+      }
+    },
+    "Разбор": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analysis"
+          }
+        }
+      }
+    },
+    "РАЗБОР": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ANALYSIS"
+          }
+        }
+      }
+    },
+    "Разбор последней тренировки": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last workout analysis"
+          }
+        }
+      }
+    },
+    "разборов": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "analyses"
           }
         }
       }
@@ -21014,6 +22503,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ранний подъем"
+          }
+        }
+      }
+    },
+    "Расписание дней (%d)": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days schedule (%d)"
           }
         }
       }
@@ -21393,6 +22893,17 @@
         }
       }
     },
+    "Рекомендации носят информационный характер и не заменяют консультацию врача. При боли, недомогании или хронических заболеваниях обратитесь к специалисту.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommendations are informational only and do not replace medical advice. Consult a specialist for pain, illness, or chronic conditions."
+          }
+        }
+      }
+    },
     "Рекомендуется (за пару часов):": {
       "extractionState": "manual",
       "localizations": {
@@ -21632,6 +23143,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Рост коррелирует с пролактином, меньше проявляется при перекосе в адреналин и глутамат."
+          }
+        }
+      }
+    },
+    "Рост показателей": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stats growth"
           }
         }
       }
@@ -21894,6 +23416,17 @@
         }
       }
     },
+    "С возвращением": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome back"
+          }
+        }
+      }
+    },
     "С гантелью или на нижнем блоке. Локоть смотрит вверх. Опускайте вес за голову, растягивая трицепс.": {
       "localizations": {
         "en": {
@@ -22123,6 +23656,17 @@
         }
       }
     },
+    "Свежая мышечная адаптация": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fresh muscle adaptation"
+          }
+        }
+      }
+    },
     "Свежий воздух": {
       "extractionState": "manual",
       "localizations": {
@@ -22187,6 +23731,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Свечи, blue-blocker очки, беруши."
+          }
+        }
+      }
+    },
+    "Сводка": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Summary"
           }
         }
       }
@@ -22510,6 +24065,39 @@
         }
       }
     },
+    "Сегодня": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        }
+      }
+    },
+    "Сейчас": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now"
+          }
+        }
+      }
+    },
+    "сек": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sec"
+          }
+        }
+      }
+    },
     "Середина груди": {
       "localizations": {
         "en": {
@@ -22532,6 +24120,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Streak"
+          }
+        }
+      }
+    },
+    "Серия — сколько дней подряд ты тренируешься": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streak — how many consecutive days you train"
+          }
+        }
+      }
+    },
+    "Серия в опасности — тренируйся сегодня": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streak at risk — train today"
           }
         }
       }
@@ -22586,6 +24196,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Сет %lld:"
+          }
+        }
+      }
+    },
+    "Сжимает %d сообщений в один контекст для модели — экономит токены.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compresses %d messages into one context for the model — saves tokens."
           }
         }
       }
@@ -22835,6 +24456,17 @@
         }
       }
     },
+    "синхронизировано": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "synced"
+          }
+        }
+      }
+    },
     "Синхронизирует тренировки с Apple Health, считает калории и закрывает кольца.": {
       "extractionState": "manual",
       "localizations": {
@@ -23014,6 +24646,17 @@
         }
       }
     },
+    "Следующая цель": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next goal"
+          }
+        }
+      }
+    },
     "см": {
       "extractionState": "manual",
       "localizations": {
@@ -23104,6 +24747,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Снижает усталость и повышает производительность."
+          }
+        }
+      }
+    },
+    "Снижается": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Declining"
           }
         }
       }
@@ -23319,6 +24973,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Снятие психического напряжения"
+          }
+        }
+      }
+    },
+    "Соберём данные ещё за пару тренировок — и покажем прогресс по каждому упражнению.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A couple more workouts and we'll show you progress for each exercise."
+          }
+        }
+      }
+    },
+    "Создай аккаунт": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create account"
           }
         }
       }
@@ -23543,6 +25219,7 @@
         }
       }
     },
+    "Сохраним «ПИК %lld» как трофей. Возвращайся — и заберёшь уровень обратно.": {},
     "Сохранить": {
       "extractionState": "manual",
       "localizations": {
@@ -23790,6 +25467,17 @@
         }
       }
     },
+    "Спроси коуча…": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask the coach…"
+          }
+        }
+      }
+    },
     "Ср. калории / мес": {
       "extractionState": "manual",
       "localizations": {
@@ -23824,6 +25512,50 @@
         }
       }
     },
+    "среднее VO₂ Max за 30 дней": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avg VO₂ Max over 30 days"
+          }
+        }
+      }
+    },
+    "Среднее в день": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily average"
+          }
+        }
+      }
+    },
+    "Среднее за 7 дней": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7-day average"
+          }
+        }
+      }
+    },
+    "Среднее за 30 дней": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30-day average"
+          }
+        }
+      }
+    },
     "среднее за неделю": {
       "extractionState": "manual",
       "localizations": {
@@ -23837,6 +25569,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "среднее за неделю"
+          }
+        }
+      }
+    },
+    "Среднее за неделю": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly average"
+          }
+        }
+      }
+    },
+    "среднее значение пульса в покое за неделю": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avg resting heart rate over the week"
           }
         }
       }
@@ -23904,6 +25658,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Средний пульс"
+          }
+        }
+      }
+    },
+    "средний пульс на последней тренировке": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avg heart rate during last workout"
           }
         }
       }
@@ -24113,6 +25878,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Старт ладонями к себе. Жим с разворотом кистей. Вверху ладони вперед. Увеличивает амплитуду."
+          }
+        }
+      }
+    },
+    "Стартовое положение": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting position"
           }
         }
       }
@@ -24458,6 +26234,17 @@
         }
       }
     },
+    "Суммарный тоннаж": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total tonnage"
+          }
+        }
+      }
+    },
     "Сумо-тяга": {
       "localizations": {
         "en": {
@@ -24622,6 +26409,17 @@
         }
       }
     },
+    "так держать!": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "keep it up!"
+          }
+        }
+      }
+    },
     "Так держать! Не пропускай дни.": {
       "localizations": {
         "en": {
@@ -24731,6 +26529,7 @@
         }
       }
     },
+    "Тело начинает терять адаптацию. Возвращайся в зал.": {},
     "Температурный сброс": {
       "extractionState": "manual",
       "localizations": {
@@ -24744,6 +26543,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Температурный сброс"
+          }
+        }
+      }
+    },
+    "Теряешь форму": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Losing shape"
+          }
+        }
+      }
+    },
+    "Теряешь форму — уровень под угрозой": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Losing shape — level at risk"
           }
         }
       }
@@ -25166,6 +26987,28 @@
         }
       }
     },
+    "ТОННАЖ": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TONNAGE"
+          }
+        }
+      }
+    },
+    "Тоннаж · серии · бэйджи · детренинг": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tonnage · streaks · badges · detraining"
+          }
+        }
+      }
+    },
     "Топ Бадов": {
       "extractionState": "manual",
       "localizations": {
@@ -25332,6 +27175,17 @@
         }
       }
     },
+    "тренировка": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "workout"
+          }
+        }
+      }
+    },
     "Тренировка": {
       "extractionState": "manual",
       "localizations": {
@@ -25382,6 +27236,17 @@
         }
       }
     },
+    "тренировки": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "workouts"
+          }
+        }
+      }
+    },
     "Тренировки": {
       "extractionState": "manual",
       "localizations": {
@@ -25416,6 +27281,17 @@
         }
       }
     },
+    "ТРЕНИРОВОК": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WORKOUTS"
+          }
+        }
+      }
+    },
     "Тренируйся регулярно — данные собираются": {
       "extractionState": "stale",
       "localizations": {
@@ -25427,6 +27303,18 @@
         }
       }
     },
+    "Тренируйся сегодня, чтобы начать новую серию": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Train today to start a new streak"
+          }
+        }
+      }
+    },
+    "Третий день без зала. XP пошёл вниз — одна тренировка вернёт пик.": {},
     "Трицепс": {
       "localizations": {
         "en": {
@@ -25455,6 +27343,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Турецкий подъем"
+          }
+        }
+      }
+    },
+    "Ты": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You"
           }
         }
       }
@@ -26076,6 +27975,17 @@
         }
       }
     },
+    "уд/мин · 7 дн": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bpm · 7 days"
+          }
+        }
+      }
+    },
     "Удаление аккаунта": {
       "extractionState": "stale",
       "localizations": {
@@ -26237,6 +28147,17 @@
         }
       }
     },
+    "Удалить фото": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete photo"
+          }
+        }
+      }
+    },
     "Удержание угла": {
       "localizations": {
         "en": {
@@ -26266,6 +28187,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Удержание формы"
+          }
+        }
+      }
+    },
+    "Удерживаешь форму": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintaining shape"
+          }
+        }
+      }
+    },
+    "Уже есть аккаунт?": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already have an account?"
           }
         }
       }
@@ -26639,6 +28582,17 @@
         }
       }
     },
+    "Упал на %1$d %2$@ и %3$@ XP. Тренировка восстановит прогресс — и доведёт обратно к Уровню %4$d.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropped %1$d %2$@ and %3$@ XP. A workout will restore progress — and bring you back to Level %4$d."
+          }
+        }
+      }
+    },
     "Упор коленом и рукой в скамью. Спина параллельна полу. Тяните гантель к тазу (движение 'в карман'), локоть строго вверх.": {
       "localizations": {
         "en": {
@@ -26735,6 +28689,17 @@
         }
       }
     },
+    "упр.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exercises"
+          }
+        }
+      }
+    },
     "Управление данными": {
       "extractionState": "manual",
       "localizations": {
@@ -26765,6 +28730,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "упражнений"
+          }
+        }
+      }
+    },
+    "Упражнений": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exercises"
           }
         }
       }
@@ -26820,6 +28796,17 @@
         }
       }
     },
+    "Упражнения (%d)": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exercises (%d)"
+          }
+        }
+      }
+    },
     "Упражнения (%lld)": {
       "extractionState": "manual",
       "localizations": {
@@ -26849,6 +28836,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "Урежь порции углеводов и жиров."
+          }
+        }
+      }
+    },
+    "Уровень %d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Level %d"
+          }
+        }
+      }
+    },
+    "Уровень под угрозой": {},
+    "Уровень упал": {},
+    "Уровень упал до %1$d — верни %2$d": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Level dropped to %1$d — reclaim %2$d"
           }
         }
       }
@@ -26987,6 +28998,29 @@
         }
       }
     },
+    "ФОРМА": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SHAPE"
+          }
+        }
+      }
+    },
+    "Форма начинает падать": {},
+    "Форма снижается — пора в зал": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shape declining — time to hit the gym"
+          }
+        }
+      }
+    },
     "ФОРМЫ И ОТЛИЧИЯ": {
       "extractionState": "manual",
       "localizations": {
@@ -27000,6 +29034,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "ФОРМЫ И ОТЛИЧИЯ"
+          }
+        }
+      }
+    },
+    "Фото профиля": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile photo"
           }
         }
       }
@@ -27637,6 +29682,17 @@
         }
       }
     },
+    "шагов": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "steps"
+          }
+        }
+      }
+    },
     "Шея": {
       "extractionState": "manual",
       "localizations": {
@@ -27960,6 +30016,17 @@
         }
       }
     },
+    "Эл. почта": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
+          }
+        }
+      }
+    },
     "Эллипс (40-60 мин, зона 2)": {
       "localizations": {
         "en": {
@@ -28025,6 +30092,17 @@
         }
       }
     },
+    "энергия в покое": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "resting energy"
+          }
+        }
+      }
+    },
     "Энергия для тренировок и мозга. Крупы, макароны, фрукты, овощи.": {
       "localizations": {
         "en": {
@@ -28037,6 +30115,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Энергия для тренировок и мозга. Крупы, макароны, фрукты, овощи."
+          }
+        }
+      }
+    },
+    "Энергия покоя": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resting energy"
           }
         }
       }
@@ -28139,6 +30228,17 @@
         }
       }
     },
+    "Это твой новый рекорд. Не упусти его!": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is your new record. Don't miss it!"
+          }
+        }
+      }
+    },
     "Этот функционал еще создается. Скоро будет доступно!": {
       "extractionState": "manual",
       "localizations": {
@@ -28221,1902 +30321,1982 @@
         }
       }
     },
-    "+1 XP за каждую завершённую тренировку": {
+    "Сведение в тренажере Хаммер": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "+1 XP for each completed workout"
+            "value": "Hammer Strength Pec Fly"
           }
         }
       }
     },
-    "14 ДНЕЙ": {
+    "Старт: сядьте, спина прижата к спинке, рукояти на уровне середины груди. Локти слегка согнуты, упор предплечий в подушки или хват за рукояти.\n\nДвижение: сводите рукояти перед грудью по дуге до соприкосновения. Удержите 1 секунду — затем разведите подконтрольно до растяжения.\n\nКлючи: рычажная конструкция Hammer Strength даёт более естественную траекторию чем pec deck. Лопатки прижаты к спинке весь подход.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "14 DAYS"
+            "value": "Setup: sit with your back pressed against the seatback, handles at mid-chest level. Elbows slightly bent, forearms against the pads or grip the handles.\n\nMovement: bring the handles together in front of your chest along an arc until they touch. Hold for 1 second — then return under control to a stretched position.\n\nKeys: the Hammer Strength leverage design provides a more natural arc than a pec deck. Keep your shoulder blades pinned to the seatback throughout the set."
           }
         }
       }
     },
-    "20 лет опыта · прогрессия и здоровье": {
+    "Жим в Хаммере одной рукой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "20 years of experience · progression and health"
+            "value": "Single-Arm Hammer Chest Press"
           }
         }
       }
     },
-    "30 дней": {
+    "Старт: сядьте в тренажёр, одна рука на рукояти на уровне груди. Свободной рукой держитесь за сиденье.\n\nДвижение: жмите рукоять вперёд, не позволяя корпусу разворачиваться. Возврат подконтрольный до растяжения.\n\nКлючи: устраняет силовой дисбаланс между сторонами. Кор работает как стабилизатор — корпус неподвижен.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 days"
+            "value": "Setup: sit in the machine, one hand on the handle at chest level. Hold the seat with your free hand.\n\nMovement: press the handle forward without letting your torso rotate. Return under control to a stretched position.\n\nKeys: eliminates strength imbalance between sides. Your core works as a stabilizer — keep the torso still."
           }
         }
       }
     },
-    "Apple Health workouts за 7 дней": {
+    "Жим блина перед собой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple Health workouts over 7 days"
+            "value": "Plate Squeeze Press"
           }
         }
       }
     },
-    "XP до следующего уровня": {
+    "Старт: стоя, блин (5–15 кг) зажат между ладонями на уровне груди. Локти на уровне плеч, пальцы в стороны.\n\nДвижение: с силой сдавливая блин, выпрямите руки вперёд. Возвращайте к груди, не ослабляя давление ладоней.\n\nКлючи: вариация Жима Свенда с одним блином. Сильнейший пампинг при минимальном весе. Без давления упражнение бесполезно.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "XP to next level"
+            "value": "Setup: standing, plate (5–15 kg) squeezed between your palms at chest level. Elbows at shoulder height, fingers pointing outward.\n\nMovement: pressing the plate firmly, extend your arms forward. Return to your chest without releasing palm pressure.\n\nKeys: a Svend Press variation with a single plate. Massive pump with minimal weight. Without constant squeeze the exercise is useless."
           }
         }
       }
     },
-    "XP начал просаживаться": {
+    "Жим штанги с пола": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "XP started declining"
+            "value": "Floor Press"
           }
         }
       }
     },
-    "Анализ тренировки": {
+    "Старт: лёжа на полу, ноги согнуты или вытянуты. Штанга в руках над грудью, хват чуть шире плеч.\n\nДвижение: опускайте штангу до касания локтями пола (пауза 1 сек). Жмите вверх без отбива.\n\nКлючи: пол ограничивает амплитуду — щадит плечи и акцентирует локаут трицепсами. Хороший выбор при болях в плечах.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Workout analysis"
+            "value": "Setup: lying on the floor, legs bent or extended. Bar in your hands above your chest, grip slightly wider than shoulders.\n\nMovement: lower the bar until your elbows touch the floor (1 sec pause). Press up without bouncing.\n\nKeys: the floor limits range of motion — saves your shoulders and emphasizes triceps lockout. Good choice for shoulder pain."
           }
         }
       }
     },
-    "Анализирую тренировку, датчики и комментарии…": {
+    "Жим гантелей с пола": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Analyzing workout, sensors and comments…"
+            "value": "Dumbbell Floor Press"
           }
         }
       }
     },
-    "Анализирую тренировку…": {
+    "Старт: лёжа на полу, гантели у груди, локти на полу под 45°.\n\nДвижение: жмите гантели вверх, в верхней точке слегка сводите. Опускайте до касания локтями пола, пауза 1 сек.\n\nКлючи: альтернатива классическому жиму — нейтральнее для плеч. Нет помощи отскока — работа за счёт мышц.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Analyzing workout…"
+            "value": "Setup: lying on the floor, dumbbells at your chest, elbows on the floor at 45°.\n\nMovement: press the dumbbells up, slightly bringing them together at the top. Lower until your elbows touch the floor, 1 sec pause.\n\nKeys: alternative to classic bench press — more shoulder-friendly. No bounce assist — pure muscle work."
           }
         }
       }
     },
-    "Атлет": {
+    "Жим Лэндмайн стоя одной рукой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Athlete"
+            "value": "Single-Arm Standing Landmine Press"
           }
         }
       }
     },
-    "БЭЙДЖИ": {
+    "Старт: гриф в Лэндмайн-станции, конец у плеча. Противоположная нога впереди, свободная рука у пояса.\n\nДвижение: жмите гриф вперёд-вверх по диагонали до полного разгибания. Возврат подконтрольный.\n\nКлючи: гибрид жима и наклонного жима. Жёстко работает кор и верх груди. Не разворачивайте корпус — таз фиксирован.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "BADGES"
+            "value": "Setup: bar in a Landmine station, end at shoulder level. Opposite leg forward, free hand on your waist.\n\nMovement: press the bar forward and up diagonally to full extension. Return under control.\n\nKeys: a hybrid of bench press and incline press. Heavy core and upper chest work. Don't rotate the torso — keep the hips locked."
           }
         }
       }
     },
-    "Без тренировок дольше 3 дней XP начинает падать. После 14 дней можно потерять и уровень — но «пик» останется как трофей.": {
+    "Жим в кроссовере одной рукой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Without workouts for more than 3 days XP starts declining. After 14 days you may lose a level — but your \"peak\" will remain as a trophy."
+            "value": "Single-Arm Cable Chest Press"
           }
         }
       }
     },
-    "Большинство упражнений растут": {
+    "Старт: блок на уровне груди, рукоять в одной руке. Стоя боком к блоку, шаг вперёд для устойчивости.\n\nДвижение: жмите рукоять вперёд по дуге, чуть к центру. Возврат с глубоким растяжением.\n\nКлючи: постоянное напряжение во всей амплитуде. Корпус неподвижен — работают только грудные.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Most exercises are progressing"
+            "value": "Setup: pulley at chest level, handle in one hand. Standing sideways to the pulley, take a step forward for stability.\n\nMovement: press the handle forward in an arc, slightly toward center. Return with a deep stretch.\n\nKeys: constant tension throughout the full range. Torso stays still — only the chest works."
           }
         }
       }
     },
-    "Бэйдж «ПИК» хранит твой максимальный уровень — его можно вернуть, продолжив тренировки.": {
+    "Сведения сидя в кроссовере": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The \"PEAK\" badge holds your highest level — you can reclaim it by continuing to train."
+            "value": "Seated Cable Fly"
           }
         }
       }
     },
-    "Бэйджи открываются за общее число тренировок": {
+    "Старт: сидя на лавке между двумя блоками на уровне плеч. Рукояти в руках, ладони друг к другу, локти слегка согнуты.\n\nДвижение: сводите рукояти перед грудью до соприкосновения. Разведите подконтрольно до полного растяжения.\n\nКлючи: альтернатива pec deck с большей свободой движения и постоянным напряжением блока.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Badges unlock based on total workout count"
+            "value": "Setup: seated on a bench between two pulleys at shoulder level. Handles in your hands, palms facing each other, elbows slightly bent.\n\nMovement: bring the handles together in front of your chest until they touch. Return under control to a full stretch.\n\nKeys: alternative to pec deck with greater freedom of motion and constant cable tension."
           }
         }
       }
     },
-    "В работе": {
+    "Жим в раме с упоров (Pin press)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In progress"
+            "value": "Pin Press (Power Rack)"
           }
         }
       }
     },
-    "ВРЕМЯ": {
+    "Старт: штанга на упорах силовой рамы на 5–10 см ниже груди. Установите рабочую высоту, лягте.\n\nДвижение: с упоров взрывной жим штанги вверх до полного разгибания. Опустите на упоры — пауза 1–2 сек, затем повтор.\n\nКлючи: уничтожает рефлекс растяжения — чистая концентрическая работа. Топливо для пробивания плато в жиме.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "TIME"
+            "value": "Setup: bar on safety pins of a power rack, 5–10 cm below your chest. Set the working height and lie down.\n\nMovement: press the bar explosively from the pins to full extension. Lower onto the pins — pause 1–2 sec, then repeat.\n\nKeys: kills the stretch reflex — pure concentric work. Fuel for breaking through bench press plateaus."
           }
         }
       }
     },
-    "Войди, чтобы продолжить тренировки": {
+    "Сведение со сжатием на блоке": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in to continue workouts"
+            "value": "Cable Chest Squeeze Fly"
           }
         }
       }
     },
-    "Войти через Apple": {
+    "Старт: блок на уровне середины груди. Рукояти в руках, локти слегка согнуты.\n\nДвижение: сводите руки перед собой до соприкосновения и удерживайте 2 секунды с максимальным напряжением. Возвращайте только на 80% амплитуды — не теряя натяжения.\n\nКлючи: пиковое сокращение — финишер для пампинга. Не разводите до полного растяжения, чтобы не терять напряжение.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in with Apple"
+            "value": "Setup: pulley at mid-chest level. Handles in your hands, elbows slightly bent.\n\nMovement: bring your hands together in front of you until they touch and hold for 2 seconds with maximum tension. Return only 80% of the way — without losing tension.\n\nKeys: peak contraction — a finisher for pump work. Don't go to a full stretch to maintain tension."
           }
         }
       }
     },
-    "Время в зале": {
+    "Старт: сядьте в тренажёр, бёдра под валиками. Хват прямой штанги шире плеч сверху. Корпус слегка наклонён назад на 10–15°, грудь раскрыта.\n\nДвижение: тяните штангу к верхней части груди, сводя лопатки вниз и назад. Локти ведутся вниз и слегка назад, к карманам.\n\nКлючи: активируйте широчайшие до движения — представьте, что тянете локтями, а не кистями. Не качайте корпус — он фиксирован весь подход.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Time in gym"
+            "value": "Setup: sit in the machine, thighs under the pads. Overhand grip on a straight bar wider than shoulders. Torso slightly leaned back 10–15°, chest open.\n\nMovement: pull the bar to your upper chest, drawing your shoulder blades down and back. Elbows lead down and slightly back, toward your pockets.\n\nKeys: activate the lats before moving — imagine pulling with your elbows, not your hands. Don't swing the torso — keep it fixed throughout the set."
           }
         }
       }
     },
-    "Все ваши прошлые сессии": {
+    "Тяга верхнего блока за голову": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All your past sessions"
+            "value": "Behind-the-Neck Lat Pulldown"
           }
         }
       }
     },
-    "Все награды собраны 🏆": {
+    "Старт: широкий хват сверху, корпус прямой и слегка наклонён вперёд. Бёдра под валиками.\n\nДвижение: тяните штангу за голову, до уровня основания шеи. Локти движутся в стороны и вниз.\n\nКлючи: вариант с риском для плеч — только при достаточной мобильности грудного отдела. Используйте умеренный вес.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All rewards collected 🏆"
+            "value": "Setup: wide overhand grip, torso upright and slightly leaned forward. Thighs under the pads.\n\nMovement: pull the bar behind your head to the base of your neck. Elbows travel out and down.\n\nKeys: a risky variation for the shoulders — only with sufficient thoracic mobility. Use moderate weight."
           }
         }
       }
     },
-    "Всего тренировок": {
+    "Тяга вертикального блока одной рукой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Total workouts"
+            "value": "Single-Arm Lat Pulldown"
           }
         }
       }
     },
-    "Вчера": {
+    "Старт: сидя или стоя на одном колене у блока. Одна рукоять в руке нейтральным хватом. Свободная рука опирается на бедро.\n\nДвижение: тяните рукоять к плечу, локоть назад вдоль корпуса. В нижней точке концентрируйтесь на сокращении широчайшей.\n\nКлючи: унилатеральная работа — больше амплитуда и лучшая активация. Без скручивания корпуса.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yesterday"
+            "value": "Setup: seated or kneeling at the pulley. One handle in your hand with a neutral grip. Free hand resting on your thigh.\n\nMovement: pull the handle to your shoulder, elbow back along the torso. At the bottom, focus on lat contraction.\n\nKeys: unilateral work — greater range and better activation. No torso twisting."
           }
         }
       }
     },
-    "Готов к разбору": {
+    "Тяга нижнего блока одной рукой стоя": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ready for analysis"
+            "value": "Standing Single-Arm Cable Row"
           }
         }
       }
     },
-    "Готов помочь": {
+    "Старт: стоя в выпаде или с упором коленом. Рукоять в одной руке, корпус наклонён вперёд под 30°.\n\nДвижение: тяните рукоять к боку живота, локоть назад вдоль корпуса. Сводите лопатку.\n\nКлючи: горизонтальная тяга с акцентом на одну сторону. Корпус неподвижен — без скручивания.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ready to help"
+            "value": "Setup: standing in a lunge or with a knee supported. Handle in one hand, torso leaned forward 30°.\n\nMovement: pull the handle to the side of your abdomen, elbow back along the torso. Squeeze the shoulder blade.\n\nKeys: horizontal row with one-side emphasis. Torso stays still — no rotation."
           }
         }
       }
     },
-    "Готово!": {
+    "Тяга гантели двумя руками в наклоне": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Done!"
+            "value": "Two-Hand Bent-Over Dumbbell Row"
           }
         }
       }
     },
-    "Дайджест последней недели": {
+    "Старт: одна гантель в обеих руках на торце. Стойка на ширине плеч, корпус наклонён до 45°. Спина нейтральная.\n\nДвижение: тяните гантель к низу живота, локти вдоль корпуса. Сводите лопатки в верхней точке.\n\nКлючи: симметричная нагрузка устраняет компенсации. Идеально для проработки нижних широчайших.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last week digest"
+            "value": "Setup: one dumbbell held by both hands at one end. Stance shoulder-width, torso leaned to 45°. Spine neutral.\n\nMovement: pull the dumbbell to your lower abdomen, elbows along the torso. Squeeze shoulder blades at the top.\n\nKeys: symmetrical loading eliminates compensation. Ideal for hitting the lower lats."
           }
         }
       }
     },
-    "Данные синхронизируются из Apple Health": {
+    "Тяга гантелей лежа на наклонной": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Data synced from Apple Health"
+            "value": "Chest-Supported Incline Dumbbell Row"
           }
         }
       }
     },
-    "Движение": {
+    "Старт: лёжа животом на наклонной скамье 30–45°. Гантели свисают вниз, ладони друг к другу.\n\nДвижение: тяните гантели к бёдрам, сводя лопатки. Локти ведутся вдоль корпуса вверх и назад.\n\nКлючи: исключает читинг корпусом — изолирует широчайшие. Не отрывайте грудь от скамьи.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Movement"
+            "value": "Setup: lying face-down on an incline bench at 30–45°. Dumbbells hanging down, palms facing each other.\n\nMovement: pull the dumbbells to your hips, squeezing shoulder blades. Elbows travel along the torso up and back.\n\nKeys: eliminates torso cheating — isolates the lats. Don't lift your chest off the bench."
           }
         }
       }
     },
-    "Детренинг — пора в зал": {
+    "Тяга гантелей в наклоне нейтральным хватом": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Detraining — time to hit the gym"
+            "value": "Neutral-Grip Bent-Over Dumbbell Row"
           }
         }
       }
     },
-    "Дней с тренировкой": {
+    "Старт: гантели в опущенных руках, ладони друг к другу. Корпус наклонён до 45°, спина нейтральная.\n\nДвижение: тяните гантели к корпусу, локти движутся вдоль рёбер вверх и назад.\n\nКлючи: нейтральный хват щадит плечи. Сильнее активирует середину спины и задние дельты.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Days with workout"
+            "value": "Setup: dumbbells in lowered hands, palms facing each other. Torso leaned to 45°, spine neutral.\n\nMovement: pull the dumbbells to your torso, elbows traveling along your ribs up and back.\n\nKeys: neutral grip is shoulder-friendly. Hits the mid-back and rear delts harder."
           }
         }
       }
     },
-    "Дождись разбора, потом задавай вопросы…": {
+    "Австралийские подтягивания со штангой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wait for the analysis, then ask questions…"
+            "value": "Australian Pull-Ups (Inverted Row)"
           }
         }
       }
     },
-    "За неделю": {
+    "Старт: штанга в раме на уровне таза. Лягте под штангой, хват шире плеч сверху. Тело — прямая линия от плеч до пяток.\n\nДвижение: тяните грудь к штанге, сводя лопатки. Опускайтесь подконтрольно до полного выпрямления рук.\n\nКлючи: горизонтальная тяга весом тела — проработка средней части спины. Чем горизонтальнее тело, тем сложнее.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This week"
+            "value": "Setup: bar in a rack at hip height. Lie under the bar, overhand grip wider than shoulders. Body in a straight line from shoulders to heels.\n\nMovement: pull your chest to the bar, squeezing shoulder blades. Lower under control to full arm extension.\n\nKeys: bodyweight horizontal row — works the mid-back. The more horizontal your body, the harder it gets."
           }
         }
       }
     },
-    "За прошлую ночь": {
+    "Шраги обратные с гантелями": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last night"
+            "value": "Reverse Dumbbell Shrugs"
           }
         }
       }
     },
-    "Заверши тренировку, чтобы получить первый разбор. Все диалоги с коучем сохраняются здесь.": {
+    "Старт: гантели в руках за спиной, ладони назад. Стойка на ширине плеч.\n\nДвижение: поднимите плечи строго вверх к ушам. Удержите 1 секунду — опустите подконтрольно.\n\nКлючи: акцент на нижнюю и среднюю трапеции. Не вращайте плечами по кругу.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Complete a workout to get your first analysis. All coach conversations are saved here."
+            "value": "Setup: dumbbells in your hands behind your back, palms facing back. Stance shoulder-width.\n\nMovement: lift your shoulders straight up toward your ears. Hold 1 second — lower under control.\n\nKeys: emphasis on lower and mid traps. Don't roll your shoulders in a circle."
           }
         }
       }
     },
-    "Заметка для AI-разбора": {
+    "Шраги в Смите": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Note for AI analysis"
+            "value": "Smith Machine Shrugs"
           }
         }
       }
     },
-    "Изменить фото": {
+    "Старт: штанга Смита на уровне бёдер, хват сверху на ширине плеч.\n\nДвижение: поднимите плечи строго вверх. Удержите 1 сек. Опустите.\n\nКлючи: фиксированная траектория позволяет работать с большим весом без потери техники. Отлично для прогрессии трапеций.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Change photo"
+            "value": "Setup: Smith machine bar at hip height, overhand grip shoulder-width.\n\nMovement: lift your shoulders straight up. Hold 1 sec. Lower.\n\nKeys: fixed path lets you handle heavier weight without losing form. Excellent for trap progression."
           }
         }
       }
     },
-    "История пуста": {
+    "Обратная гиперэкстензия со штангой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "History is empty"
+            "value": "Barbell Reverse Hyperextension"
           }
         }
       }
     },
-    "КОЛЬЦА АКТИВНОСТИ": {
+    "Старт: лягте животом на скамью или GHD так, чтобы таз был на краю. Штанга между лодыжек или специальный тренажёр.\n\nДвижение: поднимайте ноги до параллели с полом за счёт ягодиц и поясницы. Опускайте подконтрольно.\n\nКлючи: разгружает поясницу и качает заднюю цепь. Без раскачки и инерции.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ACTIVITY RINGS"
+            "value": "Setup: lie face-down on a bench or GHD with your hips at the edge. Bar between your ankles or a dedicated machine.\n\nMovement: raise your legs to parallel with the floor using glutes and lower back. Lower under control.\n\nKeys: unloads the lower back and trains the posterior chain. No swinging or momentum."
           }
         }
       }
     },
-    "Каждая тренировка приближает к цели": {
+    "Тяга в Лэндмайн узким хватом": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Every workout brings you closer to your goal"
+            "value": "Close-Grip Landmine Row"
           }
         }
       }
     },
-    "Каждые 5 XP = новый уровень": {
+    "Старт: гриф в Лэндмайн-станции, V-рукоять надета на конец грифа. Стоя над грифом, корпус наклонён до 45°.\n\nДвижение: тяните рукоять к низу живота, локти вдоль корпуса. Сводите лопатки.\n\nКлючи: естественная дуга движения. Меньше нагрузки на поясницу чем в классической штанговой тяге.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Every 5 XP = new level"
+            "value": "Setup: bar in a Landmine station, V-handle attached to the end of the bar. Standing over the bar, torso leaned to 45°.\n\nMovement: pull the handle to your lower abdomen, elbows along the torso. Squeeze shoulder blades.\n\nKeys: natural movement arc. Less stress on the lower back than classic barbell rows."
           }
         }
       }
     },
-    "Как это работает": {
+    "Hip Thrust в тренажере": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "How it works"
+            "value": "Machine Hip Thrust"
           }
         }
       }
     },
-    "Категорий": {
+    "Старт: сядьте в тренажёр для ягодичного моста, валик на бёдрах. Ноги на платформе на ширине таза.\n\nДвижение: толкайте таз вверх, выпрямляя бёдра в одну линию с корпусом. Сожмите ягодицы в верхней точке. Опустите подконтрольно.\n\nКлючи: фиксированная траектория позволяет работать в отказ безопасно. Подходит для прогрессии больших весов.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Categories"
+            "value": "Setup: sit in the hip thrust machine, pad on your hips. Feet on the platform hip-width apart.\n\nMovement: drive your hips up, extending them in line with your torso. Squeeze your glutes at the top. Lower under control.\n\nKeys: fixed path lets you train safely to failure. Ideal for heavy progression."
           }
         }
       }
     },
-    "Ключевые моменты": {
+    "Hip Thrust одной ногой со штангой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Key highlights"
+            "value": "Single-Leg Barbell Hip Thrust"
           }
         }
       }
     },
-    "Комментарий о тренировке": {
+    "Старт: лопатки на скамье, штанга на тазу. Одна нога в полу, другая поднята или скрещена.\n\nДвижение: толкайте таз вверх через рабочую ногу до полного разгибания бедра. Сожмите ягодицу в верхней точке.\n\nКлючи: устраняет дисбаланс между ягодицами. Используйте лёгкий вес — это сложнее обычного моста.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Workout note"
+            "value": "Setup: shoulder blades on a bench, bar across your hips. One foot on the floor, the other raised or crossed.\n\nMovement: drive your hips up through the working leg until your hip is fully extended. Squeeze the glute at the top.\n\nKeys: eliminates imbalance between glutes. Use light weight — it's harder than the classic thrust."
           }
         }
       }
     },
-    "Коуч": {
+    "Выпады назад со штангой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Coach"
+            "value": "Barbell Reverse Lunges"
           }
         }
       }
     },
-    "Легенда": {
+    "Старт: штанга на трапециях, ноги на ширине таза.\n\nДвижение: шагните одной ногой назад, опуститесь до 90° в переднем колене. Возврат через переднюю ногу.\n\nКлючи: легче для коленей чем выпады вперёд. Сильнее активирует ягодицы. Колено не уходит за носок.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Legend"
+            "value": "Setup: bar across your traps, feet hip-width apart.\n\nMovement: step one leg back, lower until your front knee is at 90°. Drive back up through the front leg.\n\nKeys: easier on the knees than forward lunges. Stronger glute activation. Knee shouldn't pass your toes."
           }
         }
       }
     },
-    "Лимит вопросов исчерпан до следующей тренировки.": {
+    "Казацкие приседания": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Question limit reached until your next workout."
+            "value": "Cossack Squats"
           }
         }
       }
     },
-    "Лучшая серия": {
+    "Старт: широкая стойка, носки слегка развёрнуты. Гиря или гантель у груди (по желанию).\n\nДвижение: приседайте на одну ногу, перенося вес. Вторая нога прямая, носок смотрит вверх. Поднимитесь и перейдите на другую сторону.\n\nКлючи: развивает мобильность тазобедренного и силу одной ноги. Контроль глубины — постепенно увеличивайте амплитуду.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Best streak"
+            "value": "Setup: wide stance, toes turned slightly out. Hands at your chest or extended forward for balance.\n\nMovement: shift your weight to one leg, lowering into a deep squat with that leg while the other extends straight to the side. Drive back through the working leg.\n\nKeys: massive hip mobility and unilateral leg strength. Keep the extended leg straight, heel on the floor."
           }
         }
       }
     },
-    "Лучший день": {
+    "Приседания с пятками на возвышении": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Best day"
+            "value": "Heel-Elevated Squats"
           }
         }
       }
     },
-    "Любимая группа": {
+    "Старт: пятки на блинах 2.5–5 см или специальной платформе. Штанга на трапециях. Стойка чуть уже плеч.\n\nДвижение: глубокий присед с вертикальным корпусом до полной амплитуды. Поднимайтесь, толкая пол.\n\nКлючи: имитирует фронтальный присед — изолирует квадрицепсы. Идеально для бодибилдеров с тугими голеностопами.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Favorite group"
+            "value": "Setup: heels on a 2.5–5 cm plate or wedge. Bar on your traps or dumbbells at your sides.\n\nMovement: squat keeping your torso upright. Drive through the heels back up.\n\nKeys: heel elevation lets you keep the torso vertical and target the quads. Saves the lower back if ankle mobility is limited."
           }
         }
       }
     },
-    "Любитель": {
+    "Сплит-присед с передней ногой на возвышении": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Amateur"
+            "value": "Front-Foot Elevated Split Squat"
           }
         }
       }
     },
-    "Макс.": {
+    "Старт: передняя нога на блине 5–10 см, задняя в шаге сзади. Гантели в руках.\n\nДвижение: опускайтесь, сгибая переднее колено в полной амплитуде. Заднее колено почти касается пола.\n\nКлючи: больше амплитуда чем в обычном сплит-приседе — лучшая растяжка квадрицепса. Для ATG-нагрузки.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Max."
+            "value": "Setup: front foot on a 10–15 cm platform, rear foot on the floor in a split stance. Dumbbells at your sides or bar on your back.\n\nMovement: lower into a deep split squat, front knee tracking over your toes. Drive up through the front leg.\n\nKeys: the elevation increases range of motion and quad stretch. Hits the front leg harder."
           }
         }
       }
     },
-    "На пике": {
+    "Боковое зашагивание на скамью": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "At peak"
+            "value": "Lateral Step-Ups"
           }
         }
       }
     },
-    "Награды": {
+    "Старт: гантели в руках, скамья сбоку. Стойка боком к скамье.\n\nДвижение: боком ставьте ближнюю ногу на скамью, поднимайтесь полностью. Спускайтесь подконтрольно.\n\nКлючи: акцент на средней ягодичной — мышца, отвечающая за стабилизацию таза. Без отскока.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rewards"
+            "value": "Setup: stand sideways to a bench. Dumbbells in your hands or bar on your back.\n\nMovement: step one leg sideways onto the bench, drive up through it lifting the other leg. Lower under control.\n\nKeys: trains the gluteus medius and lateral leg stability. Drive only through the working leg — don't push off the floor."
           }
         }
       }
     },
-    "Начни ковать форму уже сегодня": {
+    "Обратные гакк-приседания": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Start forging your body today"
+            "value": "Reverse Hack Squats"
           }
         }
       }
     },
-    "Начни первую тренировку — XP начнут расти": {
+    "Старт: лицом к платформе гакк-машины, грудь и плечи прижаты к подушкам. Ноги на ширине таза.\n\nДвижение: опускайтесь до 90° в коленях. Поднимайтесь, толкая пятками.\n\nКлючи: акцент на ягодицы и бицепсы бедра, минимум на квадрицепсы. Альтернатива хип-трасту.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Complete your first workout — XP will start growing"
+            "value": "Setup: stand facing the hack squat machine, chest against the back pad. Feet shoulder-width on the platform.\n\nMovement: squat lowering hips back. Drive up through the heels.\n\nKeys: emphasizes glutes and hamstrings. Alternative to classic hack squat with different angle."
           }
         }
       }
     },
-    "Начните тренировку, после чего я буду анализировать и давать рекомендации.": {
+    "Жим ногами одной ногой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Start a workout, then I will analyze it and give recommendations."
+            "value": "Single-Leg Press"
           }
         }
       }
     },
-    "Невероятный результат! Новые рекорды!": {
+    "Старт: сядьте в тренажёр, одна нога на платформе по центру. Другая в стороне или у груди.\n\nДвижение: жмите платформу до почти полного разгибания (не блокируйте колено). Опускайте подконтрольно.\n\nКлючи: устраняет дисбаланс. Стопа выше — больше ягодиц, ниже — больше квадрицепсов.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Incredible result! New records!"
+            "value": "Setup: lie in the leg press machine, one foot on the platform, the other on the floor or bent.\n\nMovement: lower the platform until your knee approaches your chest, then press up to near full extension.\n\nKeys: unilateral leg pressing — eliminates strength imbalance. Don't lock the knee out fully."
           }
         }
       }
     },
-    "Недельная цель выполнена 🔥": {
+    "Glute Ham Raise (GHR)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Weekly goal completed 🔥"
+            "value": "Glute Ham Raise (GHR)"
           }
         }
       }
     },
-    "Несколько упражнений просели": {
+    "Старт: тренажёр GHR. Подушки под бёдрами, голени между валиками. Корпус параллелен полу.\n\nДвижение: опускайтесь, разгибая колени, до горизонтали или ниже. Поднимайтесь за счёт сгибания коленей.\n\nКлючи: лучшее упражнение для бицепса бедра в коленном сгибании. При слабости — помогайте руками или резиной.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Several exercises declined"
+            "value": "Setup: knees on the GHR pad, feet locked under the rollers. Body straight, hands at your chest.\n\nMovement: lower the torso forward by extending the knees. At the bottom, contract the hamstrings to raise back to start.\n\nKeys: brutal hamstring and glute exercise. If too hard, push off the floor with your hands to assist."
           }
         }
       }
     },
-    "Нет аккаунта?": {
+    "Тяга Кинга на одной ноге": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No account?"
+            "value": "Single-Leg King Deadlift"
           }
         }
       }
     },
-    "Новичок": {
+    "Старт: рабочая нога стоит, свободная согнута и поднята назад. Гантели в руках.\n\nДвижение: уводите свободную ногу назад, опускаясь как в одноногой румынской тяге, но с касанием пола свободным коленом. Возврат.\n\nКлючи: гибрид RDL и обратного выпада. Без поддержки задней ноги — больше работы для ягодицы рабочей ноги.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beginner"
+            "value": "Setup: stand on one leg, the other slightly behind for balance. Dumbbell or kettlebell in the opposite hand.\n\nMovement: hinge at the hip lowering the weight along the standing leg, free leg extends back. Return by driving the hip forward.\n\nKeys: ultimate unilateral hamstring/glute exercise. No swinging — pure hip hinge."
           }
         }
       }
     },
-    "Новый рекорд!": {
+    "Glute Pull-Through на блоке": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New record!"
+            "value": "Cable Pull-Through"
           }
         }
       }
     },
-    "Объём вырос на": {
+    "Старт: спиной к нижнему блоку, канат между ног, ладони друг к другу. Шаг вперёд для натяжения.\n\nДвижение: уводите таз назад с лёгким сгибом коленей. Канат проходит между ног. Возврат — толкая бёдра вперёд и сжимая ягодицы.\n\nКлючи: отличная альтернатива хип-трасту без скамьи. Концентрация на разгибании бедра.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Volume increased by"
+            "value": "Setup: stand facing away from a low pulley, rope between your legs. Walk forward to load tension.\n\nMovement: hinge at the hips letting the rope travel back between your legs. Drive your hips forward to return, squeezing your glutes hard.\n\nKeys: pure hip hinge with constant tension. Don't squat — only your hips move."
           }
         }
       }
     },
-    "Описание": {
+    "Приседания Пистолетик с поддержкой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Description"
+            "value": "Assisted Pistol Squat"
           }
         }
       }
     },
-    "Открой чат, чтобы получить разбор.": {
+    "Старт: одна нога на полу, другая вытянута вперёд. Держитесь за TRX, столб или стену.\n\nДвижение: опускайтесь на одну ногу до глубокого приседа. Поднимайтесь, помогая руками минимально.\n\nКлючи: обучающая прогрессия к чистому пистолетику. Постепенно уменьшайте опору.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open chat to get an analysis."
+            "value": "Setup: stand on one leg holding a TRX strap, doorframe, or rack with your hands for support.\n\nMovement: lower into a single-leg squat using the support to balance. Drive back up through the working leg.\n\nKeys: progression toward unassisted pistol squats. Gradually reduce the assistance from your hands."
           }
         }
       }
     },
-    "Открыть полный профиль": {
+    "Ягодичный мост с резиной": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open full profile"
+            "value": "Banded Glute Bridge"
           }
         }
       }
     },
-    "Открыть чат ›": {
+    "Старт: лопатки на скамье, штанга или вес на тазу. Резинка вокруг колен, ноги на ширине таза.\n\nДвижение: толкайте таз вверх, активно разводя колени против резинки. Сжимайте ягодицы 1 сек в верхней точке.\n\nКлючи: резинка добавляет работу средней ягодичной. Колени не сходятся внутрь.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open chat ›"
+            "value": "Setup: lie on your back, knees bent, feet on the floor. Resistance band looped around the knees.\n\nMovement: drive your hips up squeezing the glutes, while pressing the knees outward against the band. Lower under control.\n\nKeys: the band activates the gluteus medius along with the main glutes. Maximum squeeze at the top."
           }
         }
       }
     },
-    "ПОСЛЕДНЯЯ": {
+    "ATG сплит-присед": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "LAST"
+            "value": "ATG Split Squat"
           }
         }
       }
     },
-    "Персональный коуч": {
+    "Старт: задняя нога на скамье, передняя в большом шаге. Гантели в руках.\n\nДвижение: опускайтесь до полного контакта задней голени с икрой. Колено передней ноги уходит далеко за носок.\n\nКлючи: ATG (Ass-To-Grass) — полная амплитуда для здоровья колена и силы квадрицепса. Для подготовленных.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Personal coach"
+            "value": "Setup: long split stance, front foot flat. Hands at your chest for balance, optionally with light dumbbells.\n\nMovement: lower into a deep split squat until the back of the front thigh touches the calf. Drive back up through the heel.\n\nKeys: maximum range of motion. Builds knee resilience and quad strength. Knee tracks naturally over the toes."
           }
         }
       }
     },
-    "Повторы": {
+    "Жим Лэндмайн стоя одной рукой над головой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reps"
+            "value": "Single-Arm Overhead Landmine Press"
           }
         }
       }
     },
-    "Поднято за тренировку": {
+    "Старт: гриф в Лэндмайн-станции, конец у плеча. Стоя, противоположная нога впереди.\n\nДвижение: жмите гриф вверх по диагонали до полного разгибания. Возврат подконтрольный.\n\nКлючи: гибрид жима над головой и лёгкая на плечо траектория. Кор работает как стабилизатор.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lifted per workout"
+            "value": "Setup: bar in a Landmine station, end at shoulder level. Stand with feet hip-width.\n\nMovement: press the bar forward and up overhead in a diagonal line. Lower under control.\n\nKeys: shoulder-friendly overhead pressing. The diagonal path matches natural shoulder mechanics."
           }
         }
       }
     },
-    "Подробнее: статистика, награды, серия": {
+    "Жим гантелей нейтральным хватом сидя": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Details: stats, rewards, streak"
+            "value": "Seated Neutral-Grip Dumbbell Press"
           }
         }
       }
     },
-    "Подходы": {
+    "Старт: сидя на скамье 80–90°, гантели у плеч ладонями друг к другу.\n\nДвижение: жмите гантели вверх, удерживая нейтральный хват весь подход. В верхней точке слегка сводите.\n\nКлючи: нейтральный хват щадит плечи — отличный выбор при болях. Активирует передние и средние пучки.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sets"
+            "value": "Setup: seated on a bench with back support, dumbbells at shoulder level, palms facing each other.\n\nMovement: press the dumbbells up keeping the neutral grip. Lower under control to shoulder level.\n\nKeys: neutral grip reduces shoulder stress. Excellent option if classic shoulder press hurts."
           }
         }
       }
     },
-    "Поиск по истории": {
+    "Тяга к подбородку с гантелями": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search history"
+            "value": "Dumbbell Upright Row"
           }
         }
       }
     },
-    "Последние 7 дней": {
+    "Старт: гантели в опущенных руках перед бёдрами, ладони к корпусу.\n\nДвижение: тяните гантели вдоль корпуса вверх, ведя локти в стороны и вверх. До уровня груди или ниже.\n\nКлючи: гантели позволяют большую амплитуду чем штанга и мягче для плеч. Локти не выше плеч.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last 7 days"
+            "value": "Setup: dumbbells in front of your thighs, palms facing your body, feet shoulder-width.\n\nMovement: pull the dumbbells up to chin level, elbows leading and staying higher than the wrists. Lower under control.\n\nKeys: dumbbells allow a more natural path than a barbell. Don't lift higher than your shoulders to spare the shoulder joint."
           }
         }
       }
     },
-    "Прогресс и награды": {
+    "Y-подъемы лежа на наклонной": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Progress and rewards"
+            "value": "Incline Y-Raises"
           }
         }
       }
     },
-    "Прогресс по упражнениям": {
+    "Старт: лёжа животом на наклонной скамье 30°. Лёгкие гантели в опущенных руках, ладони друг к другу.\n\nДвижение: поднимайте руки в форме буквы Y до уровня плеч. Большие пальцы вверх.\n\nКлючи: целит нижние трапеции и задние дельты — критически важные для здоровья плеча. Используйте лёгкий вес.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exercise progress"
+            "value": "Setup: lying face-down on an incline bench. Light dumbbells in your hands, arms hanging.\n\nMovement: raise the dumbbells up and out forming a Y shape with your body. Squeeze the shoulder blades.\n\nKeys: targets the lower traps and rear delts. Use very light weight — form is everything."
           }
         }
       }
     },
-    "Продолжая, ты соглашаешься с правилами и политикой конфиденциальности": {
+    "Powell Raise": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "By continuing, you agree to the terms and privacy policy"
+            "value": "Powell Raise"
           }
         }
       }
     },
-    "Профи": {
+    "Старт: лёжа боком на скамье, верхняя рука с гантелью свисает вниз. Локоть согнут под 90°.\n\nДвижение: поворачивайте гантель вверх дугой, удерживая локоть на одном уровне. Возврат подконтрольный.\n\nКлючи: гибрид внешней ротации и махов в стороны — для здоровья ротаторной манжеты.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro"
+            "value": "Setup: lying sideways on a bench, light dumbbell in the top hand. Arm bent at 90°, elbow against the side.\n\nMovement: rotate the forearm upward keeping the elbow pinned. Lower under control.\n\nKeys: external rotation that targets the rotator cuff. Use very light weight (1–3 kg)."
           }
         }
       }
     },
-    "Пульс покоя": {
+    "Махи на блоке за спиной": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resting HR"
+            "value": "Behind-the-Back Cable Lateral Raise"
           }
         }
       }
     },
-    "Пульс трен.": {
+    "Старт: стоя боком к нижнему блоку. Рукоять в дальней руке за спиной (рука перед бёдрами противоположной стороны).\n\nДвижение: поднимайте руку в сторону до уровня плеча по дуге.\n\nКлючи: новый угол нагрузки — больше акцент на средние дельты. Постоянное напряжение блока.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Workout HR"
+            "value": "Setup: stand sideways to a low pulley, working arm crossed behind your body holding the handle.\n\nMovement: raise your arm out to the side and up to shoulder level. Lower under control.\n\nKeys: cable tension stays constant throughout the movement, unlike with dumbbells. Excellent for lateral delt isolation."
           }
         }
       }
     },
-    "РАЗБОР": {
+    "Подъем блина перед собой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ANALYSIS"
+            "value": "Plate Front Raise"
           }
         }
       }
     },
-    "Разбор": {
+    "Старт: блин (10–20 кг) в обеих руках по бокам, хват на 3 и 9 часов.\n\nДвижение: поднимайте блин перед собой до уровня плеч. Опускайте подконтрольно.\n\nКлючи: альтернатива гантелям/штанге. Меньше нагрузки на запястья, лучшее ощущение нагрузки на дельты.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Analysis"
+            "value": "Setup: standing, plate held with both hands at the edges in front of your hips.\n\nMovement: raise the plate in front of you to shoulder level, arms straight. Lower under control.\n\nKeys: targets the front delts and upper chest. Don't swing the plate — purely shoulder-driven."
           }
         }
       }
     },
-    "Разбор последней тренировки": {
+    "Bus Driver (вращение блина)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last workout analysis"
+            "value": "Bus Driver (Plate Rotation)"
           }
         }
       }
     },
-    "Рекомендации носят информационный характер и не заменяют консультацию врача. При боли, недомогании или хронических заболеваниях обратитесь к специалисту.": {
+    "Старт: блин в руках, поднят перед собой на уровне плеч.\n\nДвижение: вращайте блин 90° по часовой стрелке, затем 90° против. Удерживая блин на уровне плеч весь подход.\n\nКлючи: изометрия + вращение — финишер для передних дельт. Используйте небольшой вес.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommendations are informational only and do not replace medical advice. Consult a specialist for pain, illness, or chronic conditions."
+            "value": "Setup: standing, plate held in front of you at chest level with arms extended, gripping the edges.\n\nMovement: rotate the plate left and right as if turning a steering wheel, keeping arms straight.\n\nKeys: serious shoulder endurance work. Front delts and stabilizers burn quickly."
           }
         }
       }
     },
-    "Рост показателей": {
+    "Кубинская ротация с гантелями": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stats growth"
+            "value": "Cuban Rotation with Dumbbells"
           }
         }
       }
     },
-    "С возвращением": {
+    "Старт: стоя, гантели в опущенных руках, ладони к корпусу.\n\nДвижение: поднимите гантели через стороны на уровень локтей плеч (как тяга к подбородку). Не меняя положение локтей, разверните гантели вверх по дуге. Жим над головой (опционально). Возврат по той же траектории.\n\nКлючи: для здоровья плеч и активации внешних ротаторов. Лёгкий вес — техника важнее.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Welcome back"
+            "value": "Setup: stand with light dumbbells, elbows raised to shoulder level, forearms hanging down (upright row position).\n\nMovement: rotate the forearms up keeping the elbows fixed at shoulder level. Then press overhead.\n\nKeys: rotator cuff and shoulder mobility work. Use light weight (2–5 kg) — quality, not quantity."
           }
         }
       }
     },
-    "Свежая мышечная адаптация": {
+    "Тяга к подбородку с канатом на блоке": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fresh muscle adaptation"
+            "value": "Cable Rope Upright Row"
           }
         }
       }
     },
-    "Сводка": {
+    "Старт: канат на нижнем блоке, хват за концы.\n\nДвижение: тяните канат вверх вдоль корпуса, ведя локти в стороны и вверх. В верхней точке слегка раздвиньте концы.\n\nКлючи: блок даёт постоянное напряжение, канат позволяет естественную траекторию.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Summary"
+            "value": "Setup: stand facing a low pulley, rope handle in your hands. Step back to load tension.\n\nMovement: pull the rope to chin level, elbows leading high and out. Spread the rope ends at the top.\n\nKeys: rope allows a wider grip at the top — better for the shoulders than a straight bar."
           }
         }
       }
     },
-    "Сегодня": {
+    "Перекрёстный подъем гантелей на бицепс": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today"
+            "value": "Cross-Body Dumbbell Curl"
           }
         }
       }
     },
-    "Сейчас": {
+    "Старт: стоя, гантели в опущенных руках, ладони к корпусу (нейтральный хват).\n\nДвижение: согните руку, ведя гантель по диагонали к противоположному плечу (поперёк корпуса). Удерживайте локоть прижатым к боку. Опустите подконтрольно. Чередуйте руки.\n\nКлючи: изоляция плечелучевой мышцы и брахиалиса. Сильнее работает короткая головка бицепса. Без раскачки корпусом.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Now"
+            "value": "Setup: standing, dumbbells at your sides, neutral grip (hammer grip).\n\nMovement: curl the dumbbell across your body toward the opposite shoulder, keeping the neutral grip. Lower under control. Alternate sides.\n\nKeys: hits the brachialis and brachioradialis along with the biceps. Adds thickness to the arms."
           }
         }
       }
     },
-    "Серия в опасности — тренируйся сегодня": {
+    "Drag Curl со штангой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streak at risk — train today"
+            "value": "Barbell Drag Curl"
           }
         }
       }
     },
-    "Серия — сколько дней подряд ты тренируешься": {
+    "Старт: штанга в опущенных руках, хват на ширине плеч снизу.\n\nДвижение: сгибайте руки, удерживая штангу как можно ближе к корпусу — гриф буквально \\": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streak — how many consecutive days you train"
+            "value": "Setup: barbell in a regular curl grip, elbows pulled slightly back.\n\nMovement: curl the bar up keeping it close to the body — drag it along the torso. Elbows travel back, not forward.\n\nKeys: removes the front delt from the movement — pure biceps work. Lighter weight than standard curls."
           }
         }
       }
     },
-    "Следующая цель": {
+    "Обратные сгибания на скамье Скотта": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Next goal"
+            "value": "Reverse Preacher Curl"
           }
         }
       }
     },
-    "Снижается": {
+    "Старт: руки на пюпитре скамьи Скотта, EZ-штанга в руках хватом сверху.\n\nДвижение: сгибайте руки до уровня груди. Опускайте подконтрольно до полного выпрямления.\n\nКлючи: изоляция брахиалиса и плечелучевой. Используйте лёгкий вес — кисти быстро устанут.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Declining"
+            "value": "Setup: arms on a preacher bench, EZ bar with overhand grip (palms down).\n\nMovement: curl the bar up keeping the wrists straight. Lower under control.\n\nKeys: brutal brachialis and forearm work. Use light weight — this exercise punishes ego."
           }
         }
       }
     },
-    "Соберём данные ещё за пару тренировок — и покажем прогресс по каждому упражнению.": {
+    "Подъем штанги широким хватом": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A couple more workouts and we'll show you progress for each exercise."
+            "value": "Wide-Grip Barbell Curl"
           }
         }
       }
     },
-    "Создай аккаунт": {
+    "Старт: штанга в руках, хват шире плеч снизу.\n\nДвижение: сгибайте руки до уровня груди, локти прижаты.\n\nКлючи: широкий хват акцентирует короткую головку бицепса (внутренняя часть). Альтернатива классическому хвату для разнообразия.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create account"
+            "value": "Setup: bar in your hands, underhand grip wider than shoulders.\n\nMovement: curl the bar to chest level, elbows pinned.\n\nKeys: wide grip emphasizes the short head of the biceps (inner part). Alternative to the classic grip for variety."
           }
         }
       }
     },
-    "Спроси коуча…": {
+    "Обратные сгибания на блоке": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask the coach…"
+            "value": "Cable Reverse Curl"
           }
         }
       }
     },
-    "Среднее в день": {
+    "Старт: прямая рукоять на нижнем блоке. Хват сверху на ширине плеч.\n\nДвижение: сгибайте руки до уровня груди. Опускайте подконтрольно.\n\nКлючи: постоянное напряжение блока + хват сверху = акцент на брахиалис и предплечья.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daily average"
+            "value": "Setup: straight bar on a low pulley. Overhand grip shoulder-width.\n\nMovement: curl up to chest level. Lower under control.\n\nKeys: constant cable tension + overhand grip = emphasis on brachialis and forearms."
           }
         }
       }
     },
-    "Среднее за 30 дней": {
+    "Сгибания Скотта на блоке": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "30-day average"
+            "value": "Cable Preacher Curl"
           }
         }
       }
     },
-    "Среднее за 7 дней": {
+    "Старт: скамья Скотта перед нижним блоком. EZ-рукоять в руках хватом снизу.\n\nДвижение: сгибайте руки до уровня груди, удерживая локти на пюпитре. Опускайте до почти полного выпрямления.\n\nКлючи: изоляция короткой головки + постоянное напряжение блока. Идеально для пампинга.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "7-day average"
+            "value": "Setup: preacher bench in front of a low pulley. EZ handle in your hands underhand.\n\nMovement: curl to chest level keeping elbows on the pad. Lower to nearly full extension.\n\nKeys: short-head isolation + constant cable tension. Ideal for pump work."
           }
         }
       }
     },
-    "Среднее за неделю": {
+    "Cheat Curl (читинг)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Weekly average"
+            "value": "Cheat Curl"
           }
         }
       }
     },
-    "Стартовое положение": {
+    "Старт: штанга в руках с весом на 10–20% больше рабочего, хват на ширине плеч снизу.\n\nДвижение: лёгким импульсом коленями выведите штангу до уровня груди. Опускайте СТРОГО подконтрольно за 3–4 секунды.\n\nКлючи: техника продвинутых для пробивания плато. Акцент на эксцентрической фазе. Не перебарщивайте с импульсом.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Starting position"
+            "value": "Setup: bar with 10–20% more than your working weight, underhand grip shoulder-width.\n\nMovement: use a slight knee drive to get the bar to chest level. Lower STRICTLY under control over 3–4 seconds.\n\nKeys: advanced technique for breaking plateaus. Emphasis on the eccentric phase. Don't overdo the cheat impulse."
           }
         }
       }
     },
-    "Суммарный тоннаж": {
+    "21-ки (21s) на бицепс": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Total tonnage"
+            "value": "21s Bicep Curl"
           }
         }
       }
     },
-    "ТОННАЖ": {
+    "Старт: штанга в руках хватом снизу.\n\nДвижение: 7 повторений нижней половины амплитуды (от старта до 90°). Без отдыха — 7 повторений верхней половины (от 90° до груди). Без отдыха — 7 полных повторений.\n\nКлючи: 21 повторение в подходе для шокирующего пампинга. Используйте вес на 40–50% от 1ПМ.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "TONNAGE"
+            "value": "Setup: bar in your hands, underhand grip.\n\nMovement: 7 reps of the bottom half (start to 90°). No rest — 7 reps of the top half (90° to chest). No rest — 7 full reps.\n\nKeys: 21 reps per set for a shocking pump. Use 40–50% of your 1RM."
           }
         }
       }
     },
-    "ТРЕНИРОВОК": {
+    "Старт: стоя у вертикального блока, прямая или V-рукоять в руках. Локти прижаты к корпусу, корпус слегка наклонён вперёд.\n\nДвижение: разгибайте руки вниз до полного выпрямления. В нижней точке слегка задерживайтесь для пикового сокращения. Возврат подконтрольный до 90°.\n\nКлючи: универсальная вариация для всех уровней. Плечи неподвижны — двигаются только локти. Без раскачки корпусом.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "WORKOUTS"
+            "value": "Setup: stand at a high pulley, straight or V-handle in your hands. Elbows pinned to your sides, torso slightly leaned forward.\n\nMovement: extend the arms down to full lockout. Briefly hold at the bottom for peak contraction. Return under control to 90°.\n\nKeys: universal variation for all levels. Shoulders are still — only elbows move. No torso swing."
           }
         }
       }
     },
-    "Теряешь форму": {
+    "JM-press": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Losing shape"
+            "value": "JM Press"
           }
         }
       }
     },
-    "Теряешь форму — уровень под угрозой": {
+    "Старт: лёжа на скамье, штанга в руках, хват на ширине плеч.\n\nДвижение: гибрид жима узким хватом и французского. Опускайте штангу к верхней части груди, локти под 45°. На середине пути сгибайте локти больше, чтобы штанга шла к шее. Жмите по обратной траектории.\n\nКлючи: изобретено пауэрлифтером JM Blakley. Позволяет работать с большими весами для трицепса. Только для опытных.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Losing shape — level at risk"
+            "value": "Setup: lying on a bench, bar in your hands, grip shoulder-width.\n\nMovement: hybrid of close-grip bench press and skull crusher. Lower the bar to your upper chest, elbows at 45°. Mid-way, bend the elbows more so the bar travels toward your neck. Press back along the reverse path.\n\nKeys: invented by powerlifter JM Blakley. Lets you handle big weight for the triceps. Advanced only."
           }
         }
       }
     },
-    "Тоннаж · серии · бэйджи · детренинг": {
+    "Французский жим с пола": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tonnage · streaks · badges · detraining"
+            "value": "Floor Skull Crusher"
           }
         }
       }
     },
-    "Тренируйся сегодня, чтобы начать новую серию": {
+    "Старт: лёжа на полу, EZ-штанга на вытянутых руках над грудью.\n\nДвижение: опускайте штангу за голову, локти направлены вверх. Касание локтями пола — пауза 1 сек. Жмите вверх.\n\nКлючи: пол ограничивает амплитуду — щадит локти. Хорош для прогрессии при болях.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Train today to start a new streak"
+            "value": "Setup: lying on the floor, EZ bar at full arm extension above the chest.\n\nMovement: lower the bar behind the head, elbows pointing up. Elbows touching the floor — pause 1 sec. Press back up.\n\nKeys: floor limits range — saves the elbows. Good for progression when in pain."
           }
         }
       }
     },
-    "Ты": {
+    "Однорукое разгибание на блоке": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You"
+            "value": "Single-Arm Cable Triceps Extension"
           }
         }
       }
     },
-    "Удалить фото": {
+    "Старт: рукоять (D-handle) на верхнем блоке, в одной руке. Свободная рука у пояса.\n\nДвижение: разгибайте руку строго вниз до полного выпрямления. Удержите 1 сек.\n\nКлючи: унилатеральная работа — устраняет дисбаланс. Концентрация на пиковом сокращении.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete photo"
+            "value": "Setup: D-handle on a high pulley, in one hand. Free hand on your waist.\n\nMovement: extend the arm straight down to full lockout. Hold 1 sec.\n\nKeys: unilateral work — eliminates imbalance. Focus on peak contraction."
           }
         }
       }
     },
-    "Удерживаешь форму": {
+    "Cross-body разгибание трицепса с гантелью": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Maintaining shape"
+            "value": "Cross-Body Dumbbell Triceps Extension"
           }
         }
       }
     },
-    "Уже есть аккаунт?": {
+    "Старт: лёжа на скамье, гантель в одной руке над грудью. Свободная рука держит локоть рабочей.\n\nДвижение: опускайте гантель к противоположному плечу, удерживая локоть фиксированным. Разгибайте до полного выпрямления.\n\nКлючи: новый угол растяжения длинной головки. Используйте лёгкий вес.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Already have an account?"
+            "value": "Setup: lying on a bench, dumbbell in one hand above the chest. Free hand holds the working elbow.\n\nMovement: lower the dumbbell toward the opposite shoulder keeping the elbow fixed. Extend to full lockout.\n\nKeys: new stretch angle for the long head. Use light weight."
           }
         }
       }
     },
-    "Упражнений": {
+    "California Press": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exercises"
+            "value": "California Press"
           }
         }
       }
     },
-    "ФОРМА": {
+    "Старт: лёжа на скамье, гантели в руках на уровне груди, ладони друг к другу.\n\nДвижение: опускайте гантели к нижней части груди (как сгибание). На середине пути выводите гантели вперёд и жмите как французский жим. Возврат по той же траектории.\n\nКлючи: гибрид жима и французского. Сильно нагружает все три головки трицепса.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "SHAPE"
+            "value": "Setup: lying on a bench, dumbbells at chest level, palms facing each other.\n\nMovement: lower the dumbbells toward the lower chest (like a curl). Mid-way, bring the dumbbells forward and press like a skull crusher. Return along the same path.\n\nKeys: hybrid of bench press and skull crusher. Hits all three triceps heads hard."
           }
         }
       }
     },
-    "Форма снижается — пора в зал": {
+    "Разгибание трицепса в тренажере": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shape declining — time to hit the gym"
+            "value": "Machine Triceps Extension"
           }
         }
       }
     },
-    "Фото профиля": {
+    "Старт: сядьте в тренажёр, спина прижата, предплечья на подушках. Хват за рукояти.\n\nДвижение: разгибайте руки против сопротивления. Удержите 1 сек в нижней точке.\n\nКлючи: стабильная траектория позволяет работать в отказ. Идеально для дроп-сетов.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Profile photo"
+            "value": "Setup: sit in the machine, back pressed against the seat, forearms on the pads. Grip the handles.\n\nMovement: extend the arms against resistance. Hold 1 sec at the bottom.\n\nKeys: stable path lets you train to failure. Ideal for drop sets."
           }
         }
       }
     },
-    "Эл. почта": {
+    "Отжимания на брусьях в гравитроне": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Email"
+            "value": "Assisted Dip Machine"
           }
         }
       }
     },
-    "Энергия покоя": {
+    "Старт: коленями на платформу гравитрона, упор на брусьях. Корпус вертикален.\n\nДвижение: опускайтесь, локти вдоль корпуса. Поднимайтесь до полного разгибания.\n\nКлючи: ассистированная версия отжиманий на брусьях. Идеально для прогрессии или объёмной работы. Постепенно уменьшайте помощь.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resting energy"
+            "value": "Setup: knees on the assist platform, arms on the dip bars. Torso vertical.\n\nMovement: lower yourself, elbows along the body. Press up to full extension.\n\nKeys: assisted dip variation. Ideal for progression or volume work. Gradually reduce the assistance."
           }
         }
       }
     },
-    "Это твой новый рекорд. Не упусти его!": {
+    "Сжатие гриппера": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This is your new record. Don't miss it!"
+            "value": "Gripper Squeeze"
           }
         }
       }
     },
-    "вопросов": {
+    "Старт: гриппер в одной руке, ручки в ладони и пальцах.\n\nДвижение: сжимайте гриппер до полного смыкания ручек. Удержите 1–2 сек. Контролируйте раскрытие.\n\nКлючи: основное упражнение для силы хвата. Прогрессия — переход на более жёсткие модели (Captains of Crush и аналоги).": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "questions"
+            "value": "Setup: gripper in one hand, handles in the palm and fingers.\n\nMovement: squeeze the gripper until the handles fully close. Hold 1–2 sec. Control the release.\n\nKeys: the core grip-strength exercise. Progression — move to stiffer models (Captains of Crush and similar)."
           }
         }
       }
     },
-    "день подряд": {
+    "Wrist Roller (катушка с весом)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "day in a row"
+            "value": "Wrist Roller"
           }
         }
       }
     },
-    "дней назад": {
+    "Старт: специальная палка с верёвкой и весом. Держите палку на вытянутых руках перед собой.\n\nДвижение: вращая палку поочерёдно кистями, поднимайте вес до палки. Затем подконтрольно опускайте.\n\nКлючи: сильнейший пампинг предплечий. Развивает выносливость хвата.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "days ago"
+            "value": "Setup: dedicated bar with rope and weight. Hold the bar at arm's length in front of you.\n\nMovement: rotating the bar with alternating wrists, wind the weight up to the bar. Then unwind under control.\n\nKeys: brutal forearm pump. Builds grip endurance."
           }
         }
       }
     },
-    "дней подряд": {
+    "Щепотный хват блина": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "days in a row"
+            "value": "Plate Pinch Grip"
           }
         }
       }
     },
-    "дня назад": {
+    "Старт: блин в опущенной руке, держите за гладкий край пальцами и большим пальцем (как щепотка).\n\nДвижение: удерживайте на время или ходите с блинами в обеих руках.\n\nКлючи: развивает силу пальцев — критично для борцов, скалолазов, силачей. Постепенно увеличивайте вес.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "days ago"
+            "value": "Setup: plate in a lowered hand, gripped by its smooth edge with fingers and thumb (pinch grip).\n\nMovement: hold for time or walk with plates in both hands.\n\nKeys: builds finger strength — critical for wrestlers, climbers, strongmen. Increase weight gradually."
           }
         }
       }
     },
-    "дня подряд": {
+    "Сгибание кистей за спиной со штангой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "days in a row"
+            "value": "Behind-the-Back Wrist Curl"
           }
         }
       }
     },
-    "ещё": {
+    "Старт: штанга за спиной в опущенных руках. Хват сверху на ширине плеч.\n\nДвижение: сгибайте кисти, поднимая штангу как можно выше за спиной.\n\nКлючи: уникальный угол нагрузки на сгибатели предплечья. Лёгкий вес — приоритет техника.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "more"
+            "value": "Setup: bar behind your back in lowered hands. Overhand grip shoulder-width.\n\nMovement: curl the wrists, lifting the bar as high as possible behind your back.\n\nKeys: unique angle for the wrist flexors. Light weight — form first."
           }
         }
       }
     },
-    "за неделю": {
+    "Hammer Hold (удержание молотка)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "this week"
+            "value": "Hammer Hold"
           }
         }
       }
     },
-    "за ночь": {
+    "Старт: гантель в руке за один край (вертикально). Тяжёлая сторона направлена вниз.\n\nДвижение: удерживайте гантель в этом положении 30–60 сек.\n\nКлючи: тренирует силу хвата и стабилизаторы запястья. Меняйте стороны.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "per night"
+            "value": "Setup: dumbbell held by one end (vertically). Heavy side pointing down.\n\nMovement: hold the dumbbell in this position for 30–60 sec.\n\nKeys: trains grip strength and wrist stabilizers. Switch sides."
           }
         }
       }
     },
-    "ккал · сегодня": {
+    "Рубка дров на блоке (Woodchopper)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "kcal · today"
+            "value": "Cable Woodchopper"
           }
         }
       }
     },
-    "мин/нед": {
+    "Старт: блок наверху, рукоять в обеих руках над одним плечом. Стоя боком к блоку.\n\nДвижение: тяните рукоять по диагонали вниз к противоположному бедру, разворачивая корпус. Возврат подконтрольный.\n\nКлючи: тренирует ротацию корпуса — важно для борьбы, бокса, гольфа. Руки прямые, движение от кора.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "min/wk"
+            "value": "Setup: pulley high, handle in both hands above one shoulder. Standing sideways to the pulley.\n\nMovement: pull the handle diagonally down to the opposite hip, rotating the torso. Return under control.\n\nKeys: trains rotational power — important for wrestling, boxing, golf. Arms straight, motion comes from the core."
           }
         }
       }
     },
-    "мл/кг·мин": {
+    "Обратная рубка дров на блоке": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ml/kg·min"
+            "value": "Reverse Cable Woodchopper"
           }
         }
       }
     },
-    "на этой неделе": {
+    "Старт: блок внизу, рукоять в обеих руках у бедра. Стоя боком к блоку.\n\nДвижение: тяните рукоять по диагонали вверх над противоположным плечом, разворачивая корпус.\n\nКлючи: ротация снизу вверх — нагружает косые с другого угла. Руки прямые.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "this week"
+            "value": "Setup: pulley low, handle in both hands at one hip. Standing sideways to the pulley.\n\nMovement: pull the handle diagonally up over the opposite shoulder, rotating the torso.\n\nKeys: bottom-up rotation — loads the obliques from a different angle. Arms straight."
           }
         }
       }
     },
-    "нет доступа": {
+    "Pallof Press со штангой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "no access"
+            "value": "Barbell Pallof Press"
           }
         }
       }
     },
-    "ни одной тренировки": {
+    "Старт: гриф в Лэндмайн-станции, конец у груди в обеих руках. Стоя боком к станции, ноги на ширине плеч.\n\nДвижение: выпрямите руки от груди, удерживая гриф по центру. Сопротивляйтесь силе, тянущей гриф в сторону. Удерживайте 2–3 сек, верните к груди.\n\nКлючи: анти-ротация — учит кор сопротивляться скручиванию. Корпус НЕ должен поворачиваться.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "no workouts"
+            "value": "Setup: bar in a Landmine station, end at chest level in both hands. Standing sideways to the station, feet shoulder-width.\n\nMovement: extend arms forward keeping the bar centered. Resist the force pulling the bar to the side. Hold 2–3 sec, return to the chest.\n\nKeys: anti-rotation — teaches the core to resist twisting. The torso must NOT rotate."
           }
         }
       }
     },
-    "общая длительность сна за прошлую ночь": {
+    "Прогулка фермера одной рукой": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "total sleep duration last night"
+            "value": "Single-Arm Farmer's Walk"
           }
         }
       }
     },
-    "общее время": {
+    "Старт: одна тяжёлая гантель в одной руке у бедра. Свободная рука сбоку.\n\nДвижение: ходите 20–40 м, удерживая корпус ровным. Не наклоняйтесь в сторону веса.\n\nКлючи: жёстко работают косые мышцы и квадратная поясницы. Отличное упражнение для антибокового сгибания.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "total time"
+            "value": "Setup: one heavy dumbbell in one hand at the hip. Free hand at your side.\n\nMovement: walk 20–40 m keeping the torso level. Don't lean toward the weight.\n\nKeys: hard work for the obliques and quadratus lumborum. Excellent anti-lateral-flexion exercise."
           }
         }
       }
     },
-    "от прошлой": {
+    "Suitcase Carry (прогулка с чемоданом)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "from last"
+            "value": "Suitcase Carry"
           }
         }
       }
     },
-    "ответов": {
+    "Старт: тяжёлая гантель или гиря в одной руке.\n\nДвижение: ходите медленно, поддерживая идеально ровную осанку. Свободная рука сбоку.\n\nКлючи: то же что и фермерская прогулка одной рукой, но с акцентом на медленный темп и идеальную осанку. Отличный антиротационный стимул.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "responses"
+            "value": "Setup: heavy dumbbell or kettlebell in one hand.\n\nMovement: walk slowly, maintaining perfectly even posture. Free hand at your side.\n\nKeys: same as single-arm farmer's walk but with emphasis on slow tempo and ideal posture. Excellent anti-rotational stimulus."
           }
         }
       }
     },
-    "подходов": {
+    "Stir the Pot (помешивание на фитболе)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "sets"
+            "value": "Stir the Pot (Stability Ball)"
           }
         }
       }
     },
-    "посл. тренировка": {
+    "Старт: упор предплечьями на фитбол, тело в планке.\n\nДвижение: \\": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "last workout"
+            "value": "Setup: forearms on a stability ball, body in a plank.\n\nMovement: \"stir\" the ball with your forearms drawing circles. Keep the torso still.\n\nKeys: anti-rotational core stability. Start with small circles, gradually expand."
           }
         }
       }
     },
-    "последняя": {
+    "V-Sit Hold (удержание уголка)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "last"
+            "value": "V-Sit Hold"
           }
         }
       }
     },
-    "разборов": {
+    "Старт: сидя на полу, ноги вытянуты, корпус под углом 45°.\n\nДвижение: оторвите ноги от пола, образуя V. Удерживайте позицию.\n\nКлючи: жёсткое удержание прямой мышцы живота. Дыхание спокойное, корпус не прогибается.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "analyses"
+            "value": "Setup: sitting on the floor, legs extended, torso at a 45° angle.\n\nMovement: lift your legs off the floor forming a V. Hold the position.\n\nKeys: hard rectus abdominis hold. Breathe calmly, don't let the torso sag."
           }
         }
       }
     },
-    "сек": {
+    "Боковые наклоны с гантелей": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "sec"
+            "value": "Dumbbell Side Bend"
           }
         }
       }
     },
-    "синхронизировано": {
+    "Старт: гантель в одной руке, свободная рука у головы. Стойка на ширине плеч.\n\nДвижение: наклоняйте корпус в сторону гантели до растяжения. Поднимайтесь, сжимая косые противоположной стороны.\n\nКлючи: акцент на латеральную флексию косых. Не наклоняйтесь вперёд или назад — только в стороны.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "synced"
+            "value": "Setup: dumbbell in one hand, free hand on your head. Stance shoulder-width.\n\nMovement: lean the torso toward the dumbbell side until you feel a stretch. Lift up by squeezing the obliques on the opposite side.\n\nKeys: emphasis on lateral flexion of the obliques. Don't lean forward or back — only sideways."
           }
         }
       }
     },
-    "среднее VO₂ Max за 30 дней": {
+    "Русский твист с блином": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "avg VO₂ Max over 30 days"
+            "value": "Plate Russian Twist"
           }
         }
       }
     },
-    "среднее значение пульса в покое за неделю": {
+    "Старт: сидя на полу, ноги согнуты или висят. Блин в обеих руках, корпус откинут на 45°.\n\nДвижение: вращайте корпус в стороны, касаясь блином пола рядом с бёдрами. Чередуйте стороны.\n\nКлючи: ноги в воздухе — больше сложность. Двигается корпус, а не только руки.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "avg resting heart rate over the week"
+            "value": "Setup: sitting on the floor, legs bent or hanging. Plate in both hands, torso leaned back to 45°.\n\nMovement: rotate the torso side to side, touching the plate to the floor near the hips. Alternate sides.\n\nKeys: feet off the floor — increased difficulty. The torso moves, not just the arms."
           }
         }
       }
     },
-    "средний пульс на последней тренировке": {
+    "Дворники в висе (Windshield Wipers)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "avg heart rate during last workout"
+            "value": "Hanging Windshield Wipers"
           }
         }
       }
     },
-    "так держать!": {
+    "Старт: вис на перекладине, ноги подняты в L-sit или выше.\n\nДвижение: вращайте ноги в стороны как стрелки часов или дворники. Корпус неподвижен.\n\nКлючи: продвинутое упражнение для силы кора и хвата. Только при освоенных подъёмах ног в висе.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "keep it up!"
+            "value": "Setup: hanging from a pull-up bar, legs raised in an L-sit or higher.\n\nMovement: rotate the legs side to side like clock hands or windshield wipers. Torso stays still.\n\nKeys: advanced core and grip strength exercise. Only after you've mastered hanging leg raises."
           }
         }
       }
     },
-    "тренировка": {
+    "Inchworm (Червяк)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "workout"
+            "value": "Inchworm"
           }
         }
       }
     },
-    "тренировки": {
+    "Старт: стоя, ноги вместе.\n\nДвижение: наклонитесь, поставьте руки на пол. Перебирая руками, дойдите до планки. Перебирая ступнями, подойдите к рукам. Встаньте.\n\nКлючи: разогревает всё тело — мобильность + плечи + кор. Идеально как первый блок разминки.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "workouts"
+            "value": "Setup: standing, feet together.\n\nMovement: bend over, place your hands on the floor. Walk your hands out to a plank. Walk your feet up to your hands. Stand up.\n\nKeys: warms up the whole body — mobility + shoulders + core. Ideal as the first warm-up block."
           }
         }
       }
     },
-    "уд/мин · 7 дн": {
+    "Бег с высоким подъёмом коленей": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "bpm · 7 days"
+            "value": "High-Knee Run"
           }
         }
       }
     },
-    "упр.": {
+    "Старт: стоя на месте, локти на 90°.\n\nДвижение: бегите на месте, поднимая колени до уровня таза. Активно работайте руками.\n\nКлючи: высокая интенсивность для разогрева или интервалов. Стопы — на носки.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "exercises"
+            "value": "Setup: standing in place, elbows at 90°.\n\nMovement: run in place lifting the knees to hip level. Drive the arms actively.\n\nKeys: high-intensity warm-up or interval. Stay on the balls of your feet."
           }
         }
       }
     },
-    "шагов": {
+    "Прыжки в стороны (Lateral Jumps)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "steps"
+            "value": "Lateral Jumps"
           }
         }
       }
     },
-    "энергия в покое": {
+    "Старт: стоя, ноги вместе. Можно поставить полосу или шнурок для ориентира.\n\nДвижение: прыгайте боком через линию двумя ногами. Без пауз.\n\nКлючи: плиометрика для лёгких и боковой стабильности. Мягкое приземление через колени.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "resting energy"
+            "value": "Setup: standing, feet together. Optionally place a strap or rope as a marker.\n\nMovement: jump sideways over the line with both feet. No pauses.\n\nKeys: plyometrics for cardio and lateral stability. Land softly through the knees."
           }
         }
       }
     },
-    "Сжимает %d сообщений в один контекст для модели — экономит токены.": {
+    "Burpee Broad Jump": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Compresses %d messages into one context for the model — saves tokens."
+            "value": "Burpee Broad Jump"
           }
         }
       }
     },
-    "ещё %d сек": {
+    "Старт: стоя, ноги на ширине плеч.\n\nДвижение: классический берпи (отжимание + подъём). Из стойки прыгайте в длину вперёд. Развернитесь и повторите в обратную сторону.\n\nКлючи: жёсткое кардио + плиометрика. Для функциональной подготовки.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d sec left"
+            "value": "Setup: standing, feet shoulder-width.\n\nMovement: classic burpee (push-up + stand). From the standing position, jump forward for distance. Turn around and repeat back.\n\nKeys: brutal cardio + plyometrics. Functional conditioning."
           }
         }
       }
     },
-    "Уровень %d": {
+    "Skater Hops (Прыжки конькобежца)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Level %d"
+            "value": "Skater Hops"
           }
         }
       }
     },
-    "ПИК %d": {
+    "Старт: стоя на одной ноге, корпус слегка наклонён вперёд.\n\nДвижение: оттолкнитесь и прыгните боком на другую ногу. Свободная нога уходит назад накрест. Без пауз чередуйте.\n\nКлючи: плиометрика + латеральная сила. Имитирует движение конькобежца. Мягкое приземление.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PEAK %d"
+            "value": "Setup: standing on one leg, torso slightly leaned forward.\n\nMovement: push off and jump sideways onto the other leg. Free leg crosses behind. Alternate without pause.\n\nKeys: plyometrics + lateral power. Mimics a speed skater. Land softly."
           }
         }
       }
     },
-    "БЫЛ %d": {
+    "Devil Press": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "WAS %d"
+            "value": "Devil Press"
           }
         }
       }
     },
-    "Лучший рекорд: %1$d. До него — %2$d": {
+    "Старт: стойка над двумя гантелями.\n\nДвижение: бёрпи с упором на гантели → встать с гантелями в руках → одним движением (рывком) забросить обе гантели над головой. Опустить и повторить.\n\nКлючи: одно из самых тяжёлых упражнений в кроссфите. Тренирует всё тело + лёгкие.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Best record: %1$d. To beat it — %2$d"
+            "value": "Setup: stance over two dumbbells.\n\nMovement: burpee with hands on the dumbbells → stand up holding the dumbbells → in one motion (snatch) launch both dumbbells overhead. Lower and repeat.\n\nKeys: one of the toughest CrossFit exercises. Trains the whole body and lungs."
           }
         }
       }
     },
-    "%@ — ещё %d тренировок": {
+    "Man Maker": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ — %2$d more workouts"
+            "value": "Man Maker"
           }
         }
       }
     },
-    "Уровень упал до %1$d — верни %2$d": {
+    "Старт: гантели в руках в планке.\n\nДвижение: тяга гантели к корпусу одной рукой, затем другой → отжимание → встать с гантелями → присед с гантелями у плеч → жим над головой. Это одно повторение.\n\nКлючи: метаболически невероятно тяжёлое. Используйте умеренные веса — техника важнее.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Level dropped to %1$d — reclaim %2$d"
+            "value": "Setup: dumbbells in your hands in a plank.\n\nMovement: row one dumbbell to the torso, then the other → push-up → stand up with the dumbbells → squat with dumbbells at the shoulders → press overhead. That's one rep.\n\nKeys: metabolically punishing. Use moderate weights — form is more important."
           }
         }
       }
     },
-    "%d дней подряд! Не останавливайся.": {
+    "Sumo Deadlift High Pull": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d days in a row! Keep going."
+            "value": "Sumo Deadlift High Pull"
           }
         }
       }
     },
-    "%d ккал": {
+    "Старт: широкая стойка сумо, гиря или штанга между ног, хват внутри ног.\n\nДвижение: становая сумо → продолжая инерцию, тянуть штангу к подбородку, ведя локти в стороны.\n\nКлючи: соединяет тазовое разгибание и работу плеч. Используется в кроссфите для метаболической работы.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d kcal"
+            "value": "Setup: wide sumo stance, kettlebell or barbell between the legs, hands inside the legs.\n\nMovement: sumo deadlift → continuing the momentum, pull the bar to chin level, leading the elbows out.\n\nKeys: connects hip extension and shoulder work. Used in CrossFit for metabolic conditioning."
           }
         }
       }
     },
-    "Упражнения (%d)": {
+    "Подъем сэндбэга на плечо": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exercises (%d)"
+            "value": "Sandbag Shoulder Lift"
           }
         }
       }
     },
-    "%d подх.": {
+    "Старт: сэндбэг на полу. Стойка над мешком.\n\nДвижение: становой движение → когда мешок дойдёт до бёдер, забросьте его на одно плечо. Опустите и повторите на другую сторону.\n\nКлючи: реалистичная функциональная сила. Атлас и силовые виды спорта.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d sets"
+            "value": "Setup: sandbag on the floor. Stance over the bag.\n\nMovement: deadlift motion → when the bag reaches your hips, hoist it onto one shoulder. Lower and repeat on the other side.\n\nKeys: real-world functional strength. Atlas stones and strongman sports."
           }
         }
       }
     },
-    "%d упражнений": {
+    "Рывок гантели": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d exercises"
+            "value": "Dumbbell Snatch"
           }
         }
       }
     },
-    "%@кг x %d": {
+    "Старт: гантель на полу между ног. Полуприсед, ладонь к корпусу.\n\nДвижение: взрывное разгибание ног и таза → рука тянет гантель вверх по дуге → подсед под гантель → выпрямление с гантелью над головой.\n\nКлючи: классика кроссфита. Чередуйте руки. Локоть высокий в фазе подъёма.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ kg x %2$d"
+            "value": "Setup: dumbbell on the floor between the feet. Half-squat, palm facing the body.\n\nMovement: explosive leg and hip extension → arm pulls the dumbbell up in an arc → drop under the dumbbell → stand up with the dumbbell overhead.\n\nKeys: a CrossFit classic. Alternate hands. Keep the elbow high during the pull phase."
           }
         }
       }
     },
-    "Выполнено: %1$d / %2$d": {
+    "Тяга в планке с гантелями (Renegade Row)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Done: %1$d / %2$d"
+            "value": "Renegade Row"
           }
         }
       }
     },
-    "Подход %d": {
+    "Старт: упор на гантели в планке. Ноги шире плеч для стабильности.\n\nДвижение: тяните одну гантель к боку корпуса, удерживая таз ровно (без скручивания). Опустите и повторите другой рукой.\n\nКлючи: антиротация + тяга. Жёстко работает кор и широчайшие.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set %d"
+            "value": "Setup: hands on dumbbells in a plank position. Feet wider than shoulders for stability.\n\nMovement: row one dumbbell to the side of the torso, keeping the hips level (no rotation). Lower and repeat with the other arm.\n\nKeys: anti-rotation + row. Hard work for core and lats."
           }
         }
       }
     },
-    "%1$d кг × %2$d": {
+    "Трастер с гантелями": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$d kg × %2$d"
+            "value": "Dumbbell Thruster"
           }
         }
       }
     },
-    "%dм": {
+    "Старт: гантели у плеч, ладони друг к другу.\n\nДвижение: фронтальный присед → инерцией подъёма из приседа выжмите гантели над головой. Возврат гантелей к плечам — опуститесь в присед. Повторите.\n\nКлючи: ноги + плечи в одном движении. Лучшее для метаболической работы. Темп высокий.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%dm"
+            "value": "Setup: dumbbells at the shoulders, palms facing each other.\n\nMovement: front squat → use the rising momentum to press the dumbbells overhead. Return the dumbbells to the shoulders — descend into the squat. Repeat.\n\nKeys: legs + shoulders in one movement. Best for metabolic conditioning. High tempo."
           }
         }
       }
     },
-    "%dч": {
+    "Отжимания Spider-Man": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%dh"
+            "value": "Spider-Man Push-Ups"
           }
         }
       }
     },
-    "%d дней": {
+    "Старт: упор лёжа, ладони на ширине плеч.\n\nДвижение: опускаясь, подтяните одно колено к одноимённому локтю. Поднимаясь, верните ногу. Чередуйте стороны.\n\nКлючи: классические отжимания + работа кора и тазобедренного. Имитирует движение Человека-Паука.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d days"
+            "value": "Setup: push-up position, palms shoulder-width.\n\nMovement: as you lower, draw one knee toward the same-side elbow. As you push up, return the leg. Alternate sides.\n\nKeys: classic push-up + core and hip work. Mimics Spider-Man's movement."
           }
         }
       }
     },
-    "%d × подходов": {
+    "Отжимания Лучник": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d × sets"
+            "value": "Archer Push-Ups"
           }
         }
       }
     },
-    "Расписание дней (%d)": {
+    "Старт: широкий упор лёжа, руки в полтора-два раза шире плеч.\n\nДвижение: опускайтесь к одной руке, удерживая вторую прямой и натянутой. Поднимайтесь и переходите на другую сторону.\n\nКлючи: прогрессия к отжиманиям на одной руке. Жёсткая работа одной стороны груди и трицепса.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Days schedule (%d)"
+            "value": "Setup: wide push-up stance, hands 1.5–2x wider than shoulders.\n\nMovement: lower toward one hand, keeping the other arm straight and extended. Push up and shift to the other side.\n\nKeys: progression toward one-arm push-ups. Hard work for one side of the chest and triceps."
           }
         }
       }
     },
-    "День %d": {
+    "Pseudo Planche отжимания": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Day %d"
+            "value": "Pseudo Planche Push-Ups"
           }
         }
       }
     },
-    "Время: %@": {
+    "Старт: упор лёжа, ладони у пояса (а не у плеч), пальцы развёрнуты назад. Корпус наклонён вперёд.\n\nДвижение: опускайтесь, удерживая корпус наклонённым вперёд. Поднимайтесь, держа смещённый центр тяжести.\n\nКлючи: подготовка к Planche (горизонту). Жёсткая нагрузка на передние дельты и кор.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Time: %@"
+            "value": "Setup: push-up position, palms at the waist (not at the shoulders), fingers turned back. Torso leaned forward.\n\nMovement: lower keeping the torso leaned forward. Press up holding the shifted center of gravity.\n\nKeys: prep work for the Planche (front lever). Brutal load on the front delts and core."
           }
         }
       }
     },
-    "ещё %d": {
+    "Подтягивания Лучник": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d more"
+            "value": "Archer Pull-Ups"
           }
         }
       }
     },
-    "%d кг": {
+    "Старт: широкий хват на перекладине, руки шире плеч.\n\nДвижение: подтягивайтесь к одной руке, удерживая вторую прямой и натянутой. Чередуйте стороны.\n\nКлючи: прогрессия к подтягиваниям на одной руке. Сильно нагружает одну широчайшую.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d kg"
+            "value": "Setup: wide grip on the bar, hands wider than shoulders.\n\nMovement: pull up toward one hand, keeping the other arm straight and extended. Alternate sides.\n\nKeys: progression toward one-arm pull-ups. Heavily loads one lat."
           }
         }
       }
     },
-    "%d раз": {
+    "L-Sit на полу": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d reps"
+            "value": "Floor L-Sit"
           }
         }
       }
     },
-    "Упал на %1$d %2$@ и %3$@ XP. Тренировка восстановит прогресс — и доведёт обратно к Уровню %4$d.": {
+    "Старт: сидя на полу, ладони рядом с бёдрами. Ноги вытянуты.\n\nДвижение: оторвите таз от пола, удерживая ноги горизонтально. Удерживайте позицию.\n\nКлючи: жёсткая работа пресса, сгибателей бедра и трицепсов. Прогрессия — поднимать в висе или на брусьях.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dropped %1$d %2$@ and %3$@ XP. A workout will restore progress — and bring you back to Level %4$d."
+            "value": "Setup: sitting on the floor, palms next to the hips. Legs extended.\n\nMovement: lift the hips off the floor keeping the legs horizontal. Hold the position.\n\nKeys: hard work for the abs, hip flexors, and triceps. Progression — perform hanging or on dip bars."
           }
         }
       }
     },
-    "Потеряно %@ XP — одна тренировка восстановит форму": {
+    "Pike отжимания": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lost %@ XP — one workout will restore your shape"
+            "value": "Pike Push-Ups"
           }
         }
       }
     },
-    "%d/15 ": {
+    "Старт: упор лёжа, поднимите таз вверх — тело образует перевёрнутую V (как поза \\": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d/15 "
+            "value": "Setup: push-up position, raise the hips up — body forms an inverted V (downward-facing dog pose).\n\nMovement: lower the head toward the floor between the hands by bending the elbows. Press back up.\n\nKeys: bodyweight progression toward handstand push-ups. Heavy shoulder load."
+          }
+        }
+      }
+    },
+    "Hindu отжимания": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hindu Push-Ups"
+          }
+        }
+      }
+    },
+    "Старт: тело в перевёрнутой V, ноги шире плеч.\n\nДвижение: опускайте корпус по дуге, проводя грудью почти по полу. В конечной точке поднимите голову и выпрямите руки (поза кобры). Возврат по обратной дуге.\n\nКлючи: индийский борцовский стиль. Развивает мобильность плеч и силу.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup: body in an inverted V, feet wider than shoulders.\n\nMovement: lower the torso along an arc, sweeping the chest near the floor. At the end point, lift the head and straighten the arms (cobra pose). Return along the reverse arc.\n\nKeys: Indian wrestling style. Builds shoulder mobility and strength."
+          }
+        }
+      }
+    },
+    "Pseudo Planche удержание": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pseudo Planche Hold"
+          }
+        }
+      }
+    },
+    "Старт: упор лёжа, ладони у пояса, пальцы развёрнуты назад.\n\nДвижение: наклоните корпус вперёд, перенесите вес на руки. Удерживайте позицию 10–30 сек.\n\nКлючи: изометрический шаг к чистому Planche. Силовая база для горизонта.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup: push-up position, palms at the waist, fingers turned back.\n\nMovement: lean the torso forward, shifting weight onto the arms. Hold the position 10–30 sec.\n\nKeys: isometric step toward a clean Planche. Strength foundation for the front lever."
+          }
+        }
+      }
+    },
+    "Негативные подтягивания": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negative Pull-Ups"
+          }
+        }
+      }
+    },
+    "Старт: с прыжка или подставки в верхнюю точку подтягивания (подбородок над перекладиной).\n\nДвижение: опускайтесь подконтрольно за 4–6 секунд до полного выпрямления рук. Используйте подставку или прыжок для возврата.\n\nКлючи: эксцентрическая работа — сильнейший стимул для мышц. Идеально, если ещё не освоили подтягивания.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup: jump or step up to the top position of a pull-up (chin above the bar).\n\nMovement: lower under control over 4–6 seconds to full arm extension. Use a step or jump to return up.\n\nKeys: eccentric work — strongest stimulus for muscles. Ideal if you can't do regular pull-ups yet."
+          }
+        }
+      }
+    },
+    "Лопаточные подтягивания (Scapular Pull-ups)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scapular Pull-Ups"
+          }
+        }
+      }
+    },
+    "Старт: вис на перекладине, плечи расслаблены — лопатки подняты к ушам.\n\nДвижение: НЕ сгибая руки, опустите лопатки вниз и сведите. Тело слегка поднимется. Удержите 1 сек, расслабьтесь.\n\nКлючи: фундамент здорового подтягивания. Учит активировать широчайшие до движения. Обязательно для новичков.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup: hanging from a bar, shoulders relaxed — shoulder blades raised toward the ears.\n\nMovement: WITHOUT bending the arms, pull the shoulder blades down and together. The body rises slightly. Hold 1 sec, relax.\n\nKeys: foundation of healthy pull-ups. Teaches you to activate the lats before moving. A must for beginners."
           }
         }
       }

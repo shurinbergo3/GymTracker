@@ -374,26 +374,47 @@ extension View {
 // MARK: - Close Button
 struct CloseButton: View {
     var action: () -> Void
-    
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 30, weight: .regular))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(
+                    Color.white.opacity(0.92),
+                    Color.white.opacity(0.18)
+                )
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text("Закрыть".localized()))
+    }
+}
+
+/// Destructive close button — used only for actions that cancel/discard work
+/// (e.g. abandoning an active workout). For regular sheet/modal dismissal use `CloseButton`.
+struct DestructiveCloseButton: View {
+    var action: () -> Void
+
     var body: some View {
         Button(action: action) {
             ZStack {
-                // Outer dark circle border
                 Circle()
                     .fill(Color.black.opacity(0.6))
                     .frame(width: 44, height: 44)
-                
-                // Inner bright red circle
+
                 Circle()
-                    .fill(Color(red: 1.0, green: 0.27, blue: 0.23)) // Bright red like reference
+                    .fill(Color(red: 1.0, green: 0.27, blue: 0.23))
                     .frame(width: 36, height: 36)
-                
-                // White X icon
+
                 Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .heavy))
+                    .font(.system(size: 15, weight: .heavy))
                     .foregroundColor(.white)
             }
             .shadow(color: Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.5), radius: 8, x: 0, y: 2)
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text("Отменить".localized()))
     }
 }

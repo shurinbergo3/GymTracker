@@ -1058,25 +1058,7 @@ struct ActiveWorkoutView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingCancelConfirmation = true }) {
-                        ZStack {
-                            // Outer dark circle border
-                            Circle()
-                                .fill(Color.black.opacity(0.6))
-                                .frame(width: 40, height: 40)
-                            
-                            // Inner bright red circle
-                            Circle()
-                                .fill(Color(red: 1.0, green: 0.27, blue: 0.23))
-                                .frame(width: 34, height: 34)
-                            
-                            // White X icon
-                            Image(systemName: "xmark")
-                                .font(.system(size: 14, weight: .heavy))
-                                .foregroundColor(.white)
-                        }
-                        .shadow(color: Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.5), radius: 8, x: 0, y: 2)
-                    }
+                    DestructiveCloseButton(action: { showingCancelConfirmation = true })
                 }
             }
         }

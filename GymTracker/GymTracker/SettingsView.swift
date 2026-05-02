@@ -498,18 +498,9 @@ private struct OnboardingPreviewSheet: View {
         ZStack(alignment: .topTrailing) {
             OnboardingView(hasSeenOnboarding: $done)
 
-            Button {
-                onClose()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .padding(10)
-                    .background(Circle().fill(Color.white.opacity(0.12)))
-                    .overlay(Circle().stroke(Color.white.opacity(0.18), lineWidth: 0.5))
-            }
-            .padding(.top, 56)
-            .padding(.trailing, 16)
+            CloseButton(action: onClose)
+                .padding(.top, 56)
+                .padding(.trailing, 16)
         }
         .onChange(of: done) { _, finished in
             if finished { onClose() }
