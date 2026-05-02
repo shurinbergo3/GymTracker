@@ -42,8 +42,8 @@ struct HistoryHeroCard: View {
         }
         let hours = Int(secs / 3600)
         let mins = Int((secs.truncatingRemainder(dividingBy: 3600)) / 60)
-        if hours == 0 { return "\(mins)м".localized() }
-        return "\(hours)ч".localized() + (mins > 0 ? " \(mins)м".localized() : "")
+        if hours == 0 { return String(format: "%dм".localized(), mins) }
+        return String(format: "%dч".localized(), hours) + (mins > 0 ? " " + String(format: "%dм".localized(), mins) : "")
     }
 
     private var totalSets: Int {
@@ -168,7 +168,7 @@ struct HistoryHeroCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "flame.fill")
                             .font(.system(size: 9))
-                        Text("\(lastWorkoutCalories) ккал".localized())
+                        Text(String(format: "%d ккал".localized(), lastWorkoutCalories))
                             .font(.system(size: 11, weight: .semibold))
                     }
                     .foregroundStyle(.orange)

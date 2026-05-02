@@ -325,7 +325,7 @@ struct AICoachChatSheet: View {
             HStack(spacing: 4) {
                 Image(systemName: "bubble.left.and.bubble.right.fill")
                     .font(.system(size: 9, weight: .bold))
-                Text("\(store.questionsRemaining)/15 ".localized() + "вопросов".localized())
+                Text(String(format: "%d/15 ".localized(), store.questionsRemaining) + "вопросов".localized())
                     .font(.system(size: 10, weight: .semibold))
             }
             .foregroundStyle(DesignSystem.Colors.neonGreen)

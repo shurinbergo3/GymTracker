@@ -105,7 +105,7 @@ struct DaySelectionCard: View {
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
                         HStack(spacing: DesignSystem.Spacing.sm) {
-                            Text("\(day.exercises.count) упражнений".localized())
+                            Text(String(format: "%d упражнений".localized(), day.exercises.count))
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             

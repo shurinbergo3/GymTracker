@@ -123,7 +123,7 @@ struct AchievementsHubCard: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
-                    Text("Уровень \(level)".localized().localizedUppercase)
+                    Text(String(format: "Уровень %d".localized(), level).localizedUppercase)
                         .font(DesignSystem.Typography.sectionHeader())
                         .tracking(1.4)
                         .foregroundStyle(hasLostLevel ? formState.color : Color(red: 1.0, green: 0.7, blue: 0.2))
@@ -158,7 +158,7 @@ struct AchievementsHubCard: View {
         HStack(spacing: 3) {
             Image(systemName: "trophy.fill")
                 .font(.system(size: 8, weight: .heavy))
-            Text("БЫЛ \(peakLevel)".localized())
+            Text(String(format: "БЫЛ %d".localized(), peakLevel))
                 .font(.system(size: 9, weight: .heavy, design: .rounded))
                 .tracking(0.8)
         }
@@ -379,7 +379,7 @@ struct AchievementsHubCard: View {
         // Level loss is the loudest signal — surface it first
         if hasLostLevel {
             return MotivationMessage(
-                text: "Уровень упал до \(level) — верни \(peakLevel)".localized(),
+                text: String(format: "Уровень упал до %1$d — верни %2$d".localized(), level, peakLevel),
                 icon: "arrow.down.heart.fill",
                 tint: formState.color
             )
@@ -407,7 +407,7 @@ struct AchievementsHubCard: View {
         }
         if currentStreak >= 3 {
             return MotivationMessage(
-                text: "\(currentStreak) дней подряд! Не останавливайся.".localized(),
+                text: String(format: "%d дней подряд! Не останавливайся.".localized(), currentStreak),
                 icon: "flame.fill",
                 tint: .red
             )

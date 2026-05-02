@@ -68,7 +68,7 @@ class ProgramEditorViewModel: ObservableObject {
     func addDay() {
         let dayNumber = workoutDays.count + 1
         let newDay = WorkoutDayDraft(
-            name: "День \(dayNumber)".localized(),
+            name: String(format: "День %d".localized(), dayNumber),
             orderIndex: workoutDays.count
         )
         workoutDays.append(newDay)

@@ -184,7 +184,7 @@ struct AchievementsDetailView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
-                        Text("Уровень \(level)".localized().localizedUppercase)
+                        Text(String(format: "Уровень %d".localized(), level).localizedUppercase)
                             .font(DesignSystem.Typography.sectionHeader())
                             .tracking(1.4)
                             .foregroundStyle(hasLostLevel ? formState.color : Color(red: 1.0, green: 0.7, blue: 0.2))
@@ -193,7 +193,7 @@ struct AchievementsDetailView: View {
                             HStack(spacing: 3) {
                                 Image(systemName: "trophy.fill")
                                     .font(.system(size: 9, weight: .heavy))
-                                Text("ПИК \(peakLevel)".localized())
+                                Text(String(format: "ПИК %d".localized(), peakLevel))
                                     .font(.system(size: 10, weight: .heavy, design: .rounded))
                                     .tracking(0.8)
                             }
@@ -415,7 +415,7 @@ struct AchievementsDetailView: View {
         if currentStreak == 0 {
             return "Тренируйся сегодня, чтобы начать новую серию".localized()
         } else if currentStreak < bestStreak {
-            return "Лучший рекорд: \(bestStreak). До него — \(bestStreak - currentStreak)".localized()
+            return String(format: "Лучший рекорд: %1$d. До него — %2$d".localized(), bestStreak, bestStreak - currentStreak)
         } else {
             return "Это твой новый рекорд. Не упусти его!".localized()
         }
@@ -459,7 +459,7 @@ struct AchievementsDetailView: View {
                     Text("Следующая цель".localized())
                         .font(.caption)
                         .foregroundColor(DesignSystem.Colors.secondaryText)
-                    Text("\(next.title) — ещё \(remaining) тренировок".localized())
+                    Text(String(format: "%@ — ещё %d тренировок".localized(), next.title, remaining))
                         .font(DesignSystem.Typography.headline())
                         .foregroundColor(.white)
                 }
@@ -499,9 +499,9 @@ struct AchievementsDetailView: View {
         if hasLostLevel {
             let drop = peakLevel - level
             let lvlWord = drop == 1 ? "уровень" : "уровня"
-            return "Упал на \(drop) \(lvlWord) и \(lost) XP. Тренировка восстановит прогресс — и доведёт обратно к Уровню \(peakLevel).".localized()
+            return String(format: "Упал на %1$d %2$@ и %3$@ XP. Тренировка восстановит прогресс — и доведёт обратно к Уровню %4$d.".localized(), drop, lvlWord, lost, peakLevel)
         }
-        return "Потеряно \(lost) XP — одна тренировка восстановит форму".localized()
+        return String(format: "Потеряно %@ XP — одна тренировка восстановит форму".localized(), lost)
     }
 
     private var daysOffLabel: String {

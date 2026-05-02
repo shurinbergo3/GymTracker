@@ -182,7 +182,7 @@ struct WorkoutProgressStrip: View {
             return "Готово!".localized().uppercased()
         }
         let remaining = totalPlannedSets - completedSets
-        return "ещё \(remaining)".localized().uppercased()
+        return String(format: "ещё %d".localized(), remaining).uppercased()
     }
 
     private var streakChip: some View {

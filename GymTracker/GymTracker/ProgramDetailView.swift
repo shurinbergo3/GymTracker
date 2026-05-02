@@ -32,7 +32,7 @@ struct ProgramDetailView: View {
                     }
                     
                     HStack {
-                        Label("\(program.days.count) дней".localized(), systemImage: "calendar")
+                        Label(String(format: "%d дней".localized(), program.days.count), systemImage: "calendar")
                         Spacer()
                         if program.isActive {
                             Text("Активная".localized())
@@ -123,7 +123,7 @@ struct WorkoutDayRow: View {
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
                         
-                        Text("\(day.exercises.count) упражнений".localized())
+                        Text(String(format: "%d упражнений".localized(), day.exercises.count))
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -154,7 +154,7 @@ struct WorkoutDayRow: View {
                             
                             Spacer()
                             
-                            Text("\(exercise.plannedSets) × подходов".localized())
+                            Text(String(format: "%d × подходов".localized(), exercise.plannedSets))
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }

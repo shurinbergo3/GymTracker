@@ -519,7 +519,7 @@ struct AthleteProfileCard: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
-                    Text("Уровень \(level)".localized().localizedUppercase)
+                    Text(String(format: "Уровень %d".localized(), level).localizedUppercase)
                         .font(.system(.caption, design: .rounded, weight: .heavy))
                         .tracking(1.6)
                         .foregroundStyle(hasLostLevel ? formState.color : Color(red: 1.0, green: 0.7, blue: 0.2))
@@ -528,7 +528,7 @@ struct AthleteProfileCard: View {
                         HStack(spacing: 3) {
                             Image(systemName: "trophy.fill")
                                 .font(.system(size: 8, weight: .heavy))
-                            Text("БЫЛ \(peakLevel)".localized())
+                            Text(String(format: "БЫЛ %d".localized(), peakLevel))
                                 .font(.system(size: 9, weight: .heavy, design: .rounded))
                                 .tracking(0.8)
                         }

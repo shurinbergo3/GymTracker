@@ -149,7 +149,7 @@ struct WorkoutSessionDetailView: View {
                 return $0.setNumber < $1.setNumber
             }).enumerated()), id: \.offset) { index, set in
                 HStack {
-                    Text("Подход \(set.setNumber)".localized())
+                    Text(String(format: "Подход %d".localized(), set.setNumber))
                         .font(.caption)
                         .foregroundColor(.gray)
                         .frame(width: 70, alignment: .leading)
@@ -158,7 +158,7 @@ struct WorkoutSessionDetailView: View {
                     
                     // Show based on workout type
                     if set.weight > 0 {
-                        Text("\(Int(set.weight)) кг".localized())
+                        Text(String(format: "%d кг".localized(), Int(set.weight)))
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.white)
@@ -176,7 +176,7 @@ struct WorkoutSessionDetailView: View {
                             .fontWeight(.medium)
                             .foregroundColor(DesignSystem.Colors.neonGreen)
                     } else {
-                        Text("\(set.reps) раз".localized())
+                        Text(String(format: "%d раз".localized(), set.reps))
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(DesignSystem.Colors.neonGreen)
@@ -196,7 +196,7 @@ struct WorkoutSessionDetailView: View {
                     Text("volume_colon".localized())
                         .font(.caption)
                         .foregroundColor(.gray)
-                    Text("\(Int(volume)) кг".localized())
+                    Text(String(format: "%d кг".localized(), Int(volume)))
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundColor(DesignSystem.Colors.neonGreen)

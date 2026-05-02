@@ -248,7 +248,7 @@ struct ActiveProgramCard: View {
                         
                         Spacer()
                         
-                        Label("\(program.days.count) дней".localized(), systemImage: "calendar.badge.clock")
+                        Label(String(format: "%d дней".localized(), program.days.count), systemImage: "calendar.badge.clock")
                             .font(DesignSystem.Typography.callout())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
@@ -358,7 +358,7 @@ struct ProgramCard: View {
                         
                         Spacer()
                         
-                        Label("\(program.days.count) дней".localized(), systemImage: "calendar.badge.clock")
+                        Label(String(format: "%d дней".localized(), program.days.count), systemImage: "calendar.badge.clock")
                             .font(DesignSystem.Typography.callout())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }

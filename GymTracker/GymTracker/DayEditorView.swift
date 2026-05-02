@@ -85,7 +85,7 @@ struct DayEditorView: View {
                         .foregroundColor(DesignSystem.Colors.accent)
                 }
             } header: {
-                Text("Упражнения (\(day.exercises.count))".localized())
+                Text(String(format: "Упражнения (%d)".localized(), day.exercises.count))
                     .font(DesignSystem.Typography.headline())
             }
         }
@@ -177,7 +177,7 @@ struct ExerciseEditRow: View {
                 
                 // Подходы
                 HStack(spacing: DesignSystem.Spacing.xs) {
-                    Text("\(exercise.plannedSets) подх.".localized())
+                    Text(String(format: "%d подх.".localized(), exercise.plannedSets))
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                     

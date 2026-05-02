@@ -53,13 +53,13 @@ struct ExerciseHistoryView: View {
                         Section {
                             ForEach(sessionData.sets, id: \.self) { set in
                                 HStack {
-                                    Text("Подход \(set.setNumber)".localized())
+                                    Text(String(format: "Подход %d".localized(), set.setNumber))
                                         .font(DesignSystem.Typography.callout())
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                     
                                     Spacer()
                                     
-                                    Text("\(Int(set.weight)) кг × \(set.reps)".localized())
+                                    Text(String(format: "%1$d кг × %2$d".localized(), Int(set.weight), set.reps))
                                         .font(DesignSystem.Typography.body())
                                         .foregroundColor(DesignSystem.Colors.primaryText)
                                 }

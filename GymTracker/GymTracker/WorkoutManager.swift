@@ -472,45 +472,21 @@ class WorkoutManager: ObservableObject {
         if healthProvider.isAuthorized {
             let calories = await healthProvider.fetchCaloriesForWorkout(start: session.date, end: endDate)
             let avgHeartRate = await healthProvider.fetchAverageHeartRate(start: session.date, end: endDate)
-            
-            // Update with accurate data
+
             if avgHeartRate > 0 { session.averageHeartRate = Int(avgHeartRate) }
-            
-            // Smart Calorie Fallback
-            // If HealthKit returns unusually low calories (or 0) for a workout, we estimate them
-            // Formula: Calories/min = (-55.0969 + (0.6309 x HR) + (0.1988 x Weight) + (0.2017 x Age)) / 4.184
-            
-            let durationMinutes = session.endTime!.timeIntervalSince(session.date) / 60.0
-            var finalCalories = calories
-            
-            if durationMinutes > 5 && (calories < (durationMinutes * 2)) {
-                // Fetch user profile for weight/age
-                let descriptor = FetchDescriptor<UserProfile>()
-                if let profile = try? modelContext.fetch(descriptor).last {
-                    let weight = profile.currentWeight
-                    let age = Double(profile.age)
-                    let hr = Double(session.averageHeartRate ?? 0)
-                    
-                    if hr > 0 && weight > 0 {
-                        // Use extracted service (SRP)
-                        let estimatedTotal = CalorieCalculator.calculate(
-                            heartRate: hr,
-                            weightKg: weight,
-                            age: age,
-                            durationMinutes: durationMinutes
-                        )
-                        
-                        if estimatedTotal > 0 {
-                             // Use the larger value (HK or Estimate), but trust HK if it's substantial
-                            finalCalories = max(calories, estimatedTotal)
-                            #if DEBUG
-                            print("🔥 Low HK Calories (\(Int(calories))). Estimated fallback: \(Int(estimatedTotal))")
-                            #endif
-                        }
-                    }
-                }
+
+            var profile: WorkoutCaloriesResolver.Profile?
+            if let user = try? modelContext.fetch(FetchDescriptor<UserProfile>()).last {
+                profile = .init(weightKg: user.currentWeight, age: Double(user.age))
             }
-            
+
+            let finalCalories = WorkoutCaloriesResolver.resolve(
+                healthKitCalories: calories,
+                heartRate: Double(session.averageHeartRate ?? 0),
+                durationMinutes: endDate.timeIntervalSince(session.date) / 60.0,
+                profile: profile
+            )
+
             if finalCalories > 0 { session.calories = Int(finalCalories) }
         }
         
@@ -521,10 +497,6 @@ class WorkoutManager: ObservableObject {
             print("✅ Workout saved successfully. HR: \(session.averageHeartRate ?? 0), Calories: \(session.calories ?? 0)")
             #endif
             
-            // 5. Sync to Firestore in background
-            Task {
-                await SyncManager.shared.syncUnsyncedWorkouts(context: self.modelContext)
-            }
         } catch {
             #if DEBUG
             print("❌ Error saving workout: \(error.localizedDescription)")
@@ -532,7 +504,7 @@ class WorkoutManager: ObservableObject {
             // Even on error, we should transition to summary to not block user
         }
         
-        // 4.5 NEW: Sync to Firestore for cloud backup with offline support
+        // 5. Sync to Firestore; SyncManager retries automatically if offline
         let workout = Workout(from: session)
         Task {
             do {
@@ -554,12 +526,10 @@ class WorkoutManager: ObservableObject {
             }
         }
         
-        // 4.6 Auto-select next workout day for next session
+        // 6. Auto-select next workout day for next session
         selectNextWorkoutDay()
 
-        // 4.7 Kick off the AI Coach analysis in the background. The widget on
-        // the dashboard observes `AICoachStore.shared` and updates as soon as
-        // the response arrives. Done last so the UI transition isn't blocked.
+        // 7. AI Coach analysis in background — widget observes AICoachStore.shared
         if let healthMgr = healthProvider as? HealthManager {
             let ctx = modelContext
             let aiSession = session
@@ -572,7 +542,7 @@ class WorkoutManager: ObservableObject {
             }
         }
 
-        // 5. Only NOW transition UI to summary (after all data is saved)
+        // 8. Transition UI to summary
         self.workoutState = .summary
     }
     

@@ -75,7 +75,7 @@ struct ProgramEditorView: View {
                             .foregroundColor(DesignSystem.Colors.accent)
                     }
                 } header: {
-                    Text("Расписание дней (\(viewModel.workoutDays.count))".localized())
+                    Text(String(format: "Расписание дней (%d)".localized(), viewModel.workoutDays.count))
                         .font(DesignSystem.Typography.headline())
                 }
             }
@@ -141,7 +141,7 @@ struct DayRow: View {
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 } else {
-                    Text("\(day.exercises.count) упражнений".localized())
+                    Text(String(format: "%d упражнений".localized(), day.exercises.count))
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.accent)
                 }

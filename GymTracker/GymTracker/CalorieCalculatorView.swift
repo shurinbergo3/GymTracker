@@ -185,7 +185,7 @@ struct CalorieCalculatorView: View {
                             Text("Ваша норма:".localized())
                                 .font(DesignSystem.Typography.subheadline())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
-                            Text("\(calories) ккал".localized())
+                            Text(String(format: "%d ккал".localized(), calories))
                                 .font(.system(size: 32, weight: .bold, design: .rounded))
                                 .foregroundColor(DesignSystem.Colors.accent)
                                 .transition(.scale)

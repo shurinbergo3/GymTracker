@@ -43,7 +43,7 @@ struct MeasurementDetailView: View {
                                 .font(.system(size: 48, weight: .bold, design: .rounded))
                                 .foregroundColor(DesignSystem.Colors.accent)
                             
-                            Text("Обновлено: \(latest.date.formatted(date: .long, time: .omitted))".localized())
+                            Text(String(format: "Обновлено: %@".localized(), latest.date.formatted(date: .long, time: .omitted)))
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                         }

@@ -230,7 +230,7 @@ struct ExerciseCard: View {
                                     .font(.caption)
                                     .foregroundColor(.white)
                             } else {
-                                Text("\(set.weight.formatted())кг x \(set.reps)".localized())
+                                Text(String(format: "%@кг x %d".localized(), set.weight.formatted(), set.reps))
                                     .font(.caption)
                                     .foregroundColor(.white)
                             }
@@ -496,7 +496,7 @@ struct ExerciseCard: View {
                 // Inactive State Summary
                 if !completedSets.isEmpty {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Выполнено: \(completedSets.count) / \(exercise.plannedSets)".localized())
+                        Text(String(format: "Выполнено: %1$d / %2$d".localized(), completedSets.count, exercise.plannedSets))
                             .font(DesignSystem.Typography.monospaced(.caption, weight: .semibold))
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .padding(.horizontal, 16)

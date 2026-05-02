@@ -63,7 +63,7 @@ struct WorkoutCompletionView: View {
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
                             // Added Duration Display
-                            Text("Время: \(formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0))".localized())
+                            Text(String(format: "Время: %@".localized(), formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0)))
                                 .font(DesignSystem.Typography.headline())
                                 .foregroundColor(DesignSystem.Colors.neonGreen)
                                 .padding(.top, -8)
