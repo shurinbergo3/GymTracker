@@ -115,9 +115,14 @@ enum AICoachContextBuilder {
     /// Pulls the last `limit` completed workouts from SwiftData + sensor data
     /// from HealthKit + active program + body data + aggregate stats and
     /// packs them into an `AICoachContext`.
+    ///
+    /// Rendering is tiered to keep token cost low even with `limit = 10`:
+    /// • Index 0 (just-finished): full set-level detail + every comment.
+    /// • Index 1+ (older): compact per-exercise grouping, headers only,
+    ///   comments dropped unless they look like a pain/injury signal.
     static func build(modelContext: ModelContext,
                       healthManager: HealthManager,
-                      limit: Int = 4) async -> AICoachContext {
+                      limit: Int = 10) async -> AICoachContext {
 
         // --- Recent workouts ---------------------------------------------
         var workoutDescriptor = FetchDescriptor<WorkoutSession>(
@@ -480,28 +485,12 @@ enum AICoachContextBuilder {
         if ctx.workouts.isEmpty {
             out.append("RECENT WORKOUTS: empty (this is the first session).")
         } else {
-            out.append("RECENT WORKOUTS (newest → oldest, up to 4):")
+            out.append("RECENT WORKOUTS (newest → oldest, up to \(ctx.workouts.count)):")
             for (idx, w) in ctx.workouts.enumerated() {
-                let label = idx == 0 ? "JUST_NOW" : "T-\(idx)"
-                var head = "[\(label)] \(df.string(from: w.date)) — \(w.dayName)"
-                if let prog = w.programName { head += " · \(prog)" }
-                if let d = w.durationMinutes { head += " · \(d) min" }
-                if let c = w.calories { head += " · \(c) kcal" }
-                if let hr = w.averageHeartRate { head += " · avg HR \(hr)" }
-                head += " · vol \(Int(w.totalVolume)) kg·rep · sets \(w.completedSets)/\(w.totalSets)"
-                out.append(head)
-
-                for ex in w.exercises {
-                    let setStrs = ex.sets.map { s -> String in
-                        var base = "\(s.setNumber): \(formatWeight(s.weight))×\(s.reps)"
-                        if !s.isCompleted { base += " (incomplete)" }
-                        if let c = s.comment { base += " «\(c)»" }
-                        return base
-                    }
-                    out.append("  • \(ex.name) — " + setStrs.joined(separator: "; "))
-                }
-                if let n = w.notes {
-                    out.append("  Workout note: «\(n)»")
+                if idx == 0 {
+                    renderFullWorkout(w, label: "T0", df: dfDay, into: &out)
+                } else {
+                    renderCompactWorkout(w, label: "T-\(idx)", df: dfDay, into: &out)
                 }
             }
         }
@@ -509,8 +498,102 @@ enum AICoachContextBuilder {
         return out.joined(separator: "\n")
     }
 
+    // MARK: - Workout rendering tiers
+
+    /// Full detail — set-by-set, every comment preserved. Used for the
+    /// just-finished session that we're actively analysing.
+    private static func renderFullWorkout(_ w: AICoachContext.WorkoutSummary,
+                                          label: String,
+                                          df: DateFormatter,
+                                          into out: inout [String]) {
+        var head = "[\(label) JUST_NOW] \(df.string(from: w.date)) — \(w.dayName)"
+        if let d = w.durationMinutes { head += " · \(d)m" }
+        if let hr = w.averageHeartRate { head += " · HR \(hr)" }
+        if let c = w.calories { head += " · \(c)kcal" }
+        head += " · vol \(Int(w.totalVolume)) · \(w.completedSets)/\(w.totalSets)"
+        out.append(head)
+
+        for ex in w.exercises {
+            let setStrs = ex.sets.map { s -> String in
+                var base = "\(s.setNumber):\(formatWeight(s.weight))×\(s.reps)"
+                if !s.isCompleted { base += "✗" }
+                if let c = s.comment { base += " «\(c)»" }
+                return base
+            }
+            out.append("  • \(ex.name): " + setStrs.joined(separator: ", "))
+        }
+        if let n = w.notes {
+            out.append("  note: «\(n)»")
+        }
+    }
+
+    /// Compact format — exercises collapsed to grouped weight×reps notation,
+    /// comments dropped unless they look like a pain/injury signal.
+    /// Designed so each older workout fits in ~5 lines / ~120 tokens.
+    private static func renderCompactWorkout(_ w: AICoachContext.WorkoutSummary,
+                                             label: String,
+                                             df: DateFormatter,
+                                             into out: inout [String]) {
+        var head = "[\(label)] \(df.string(from: w.date)) \(w.dayName)"
+        if let d = w.durationMinutes { head += " \(d)m" }
+        head += " vol \(Int(w.totalVolume)) \(w.completedSets)/\(w.totalSets)"
+        out.append(head)
+
+        for ex in w.exercises {
+            let body = compactSets(ex.sets)
+            // Pull only pain-signal comments; everything else is dropped to save tokens.
+            let painSignals = ex.sets.compactMap { $0.comment }.filter { containsPainSignal($0) }
+            if painSignals.isEmpty {
+                out.append("  \(ex.name): \(body)")
+            } else {
+                let cmt = painSignals.joined(separator: " | ")
+                out.append("  \(ex.name): \(body) ⚠«\(cmt)»")
+            }
+        }
+        if let n = w.notes, containsPainSignal(n) {
+            out.append("  ⚠note: «\(n)»")
+        }
+    }
+
+    /// Groups consecutive same-weight sets into "weight×r1/r2/r3" notation
+    /// and joins with commas. Skips incomplete sets entirely (they bloat
+    /// the prompt and the just-finished session already shows them in full).
+    private static func compactSets(_ sets: [AICoachContext.SetSummary]) -> String {
+        let done = sets.filter { $0.isCompleted }
+        guard !done.isEmpty else { return "—" }
+
+        // Walk in order, batch contiguous runs of identical weight.
+        var groups: [(weight: Double, reps: [Int])] = []
+        for s in done {
+            if let last = groups.last, last.weight == s.weight {
+                groups[groups.count - 1].reps.append(s.reps)
+            } else {
+                groups.append((weight: s.weight, reps: [s.reps]))
+            }
+        }
+        return groups.map { g -> String in
+            "\(formatWeight(g.weight))×\(g.reps.map(String.init).joined(separator: "/"))"
+        }.joined(separator: ", ")
+    }
+
+    /// Keyword check — keeps it cheap; the goal is "don't lose pain context",
+    /// false positives are tolerable.
+    private static func containsPainSignal(_ text: String) -> Bool {
+        let lc = text.lowercased()
+        let needles = [
+            // RU
+            "боль", "болит", "болит ", "ноет", "защем", "прострел",
+            "щёлк", "щелк", "хруст", "тянет", "травм", "болезн",
+            "температур", "плохо себя",
+            // EN
+            "pain", "hurt", "ache", "sore", "tight", "sharp",
+            "pinched", "injur", "ill", "fever"
+        ]
+        return needles.contains { lc.contains($0) }
+    }
+
     private static func formatWeight(_ w: Double) -> String {
-        if w == 0 { return "0" }
+        if w == 0 { return "bw" }  // "bodyweight"
         if w.truncatingRemainder(dividingBy: 1) == 0 { return "\(Int(w))" }
         return String(format: "%.1f", w)
     }

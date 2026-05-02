@@ -51,9 +51,23 @@ struct AchievementsDetailView: View {
 
     // MARK: - Derived stats
 
-    private var level: Int { max(1, totalWorkouts / 5 + 1) }
-    private var xpInLevel: Int { totalWorkouts % 5 }
-    private var xpProgress: Double { Double(xpInLevel) / 5.0 }
+    private var lastWorkoutDate: Date? { history.map { $0.date }.max() }
+    private var daysOff: Int? { GamificationCalculator.daysSinceLastWorkout(from: lastWorkoutDate) }
+    private var level: Int { GamificationCalculator.currentLevel(totalWorkouts: totalWorkouts, daysSinceLastWorkout: daysOff) }
+    private var peakLevel: Int { GamificationCalculator.peakLevel(totalWorkouts: totalWorkouts) }
+    private var hasLostLevel: Bool { peakLevel > level }
+    private var rawXPInLevel: Int { GamificationCalculator.rawXPInLevel(totalWorkouts: totalWorkouts) }
+    private var formState: FormState { GamificationCalculator.formState(daysSinceLastWorkout: daysOff) }
+    private var effectiveXPInLevel: Double {
+        GamificationCalculator.effectiveXPInLevel(totalWorkouts: totalWorkouts, daysSinceLastWorkout: daysOff)
+    }
+    private var visibleDecay: Double {
+        GamificationCalculator.visibleDecay(totalWorkouts: totalWorkouts, daysSinceLastWorkout: daysOff)
+    }
+    private var xpProgress: Double {
+        GamificationCalculator.xpProgress(totalWorkouts: totalWorkouts, daysSinceLastWorkout: daysOff)
+    }
+    private var hasDecayWarning: Bool { visibleDecay > 0 }
     private var nextBadge: AchievementBadge? { badges.first { $0.workouts > totalWorkouts } }
 
     /// Total tonnage lifted across the cached history (kg).
@@ -138,6 +152,7 @@ struct AchievementsDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                         heroHeader
+                        formExplainerCard
                         howItWorksCard
                         statsGrid
                         streakCard
@@ -168,12 +183,29 @@ struct AchievementsDetailView: View {
                 AvatarView(size: 64, isEditable: true)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Уровень \(level)".localized().localizedUppercase)
-                        .font(DesignSystem.Typography.sectionHeader())
-                        .tracking(1.4)
-                        .foregroundStyle(Color(red: 1.0, green: 0.7, blue: 0.2))
+                    HStack(spacing: 6) {
+                        Text("Уровень \(level)".localized().localizedUppercase)
+                            .font(DesignSystem.Typography.sectionHeader())
+                            .tracking(1.4)
+                            .foregroundStyle(hasLostLevel ? formState.color : Color(red: 1.0, green: 0.7, blue: 0.2))
 
-                    Text(athleteTitle(for: level))
+                        if hasLostLevel {
+                            HStack(spacing: 3) {
+                                Image(systemName: "trophy.fill")
+                                    .font(.system(size: 9, weight: .heavy))
+                                Text("ПИК \(peakLevel)".localized())
+                                    .font(.system(size: 10, weight: .heavy, design: .rounded))
+                                    .tracking(0.8)
+                            }
+                            .foregroundStyle(Color(red: 0.85, green: 0.70, blue: 0.40))
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color(red: 0.85, green: 0.70, blue: 0.40).opacity(0.16)))
+                            .overlay(Capsule().stroke(Color(red: 0.85, green: 0.70, blue: 0.40).opacity(0.45), lineWidth: 0.5))
+                        }
+                    }
+
+                    Text(GamificationCalculator.athleteTitle(for: level))
                         .font(DesignSystem.Typography.title())
                         .foregroundColor(.white)
                 }
@@ -181,23 +213,51 @@ struct AchievementsDetailView: View {
                 Spacer()
             }
 
-            // XP bar
+            // XP bar with decay viz
             VStack(alignment: .leading, spacing: 6) {
-                HStack {
+                HStack(spacing: 6) {
                     Text("XP до следующего уровня".localized())
                         .font(.caption)
                         .foregroundColor(DesignSystem.Colors.secondaryText)
+
+                    if hasDecayWarning {
+                        HStack(spacing: 3) {
+                            Image(systemName: "arrow.down.right")
+                                .font(.system(size: 9, weight: .heavy))
+                            Text(decayChipLabel)
+                                .font(DesignSystem.Typography.monospaced(.caption2, weight: .bold))
+                        }
+                        .foregroundStyle(formState.color)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(formState.color.opacity(0.16)))
+                    }
+
                     Spacer()
-                    Text("\(xpInLevel)/5")
+
+                    Text(xpCounterLabel)
                         .font(DesignSystem.Typography.monospaced(.caption, weight: .bold))
                         .foregroundColor(Color(red: 1.0, green: 0.7, blue: 0.2))
                 }
 
                 GeometryReader { geo in
+                    let earnedW = max(0, geo.size.width * Double(rawXPInLevel) / 5.0)
+                    let effW = max(0, geo.size.width * xpProgress)
                     ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(Color.white.opacity(0.08))
-                            .frame(height: 12)
+                        Capsule().fill(Color.white.opacity(0.08)).frame(height: 12)
+
+                        // Ghost only meaningful when XP decayed within the SAME level.
+                        // If level itself dropped, ghost belongs to a different level — hide it.
+                        if hasDecayWarning && !hasLostLevel {
+                            Capsule()
+                                .fill(formState.color.opacity(0.30))
+                                .frame(width: earnedW, height: 12)
+                                .overlay(
+                                    Capsule().stroke(formState.color.opacity(0.4),
+                                                     style: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
+                                )
+                        }
+
                         Capsule()
                             .fill(
                                 LinearGradient(
@@ -210,7 +270,7 @@ struct AchievementsDetailView: View {
                                     endPoint: .trailing
                                 )
                             )
-                            .frame(width: max(10, geo.size.width * xpProgress), height: 12)
+                            .frame(width: max(xpProgress > 0 ? 10 : 0, effW), height: 12)
                             .shadow(color: Color(red: 1.0, green: 0.55, blue: 0.2).opacity(0.5), radius: 6)
                     }
                 }
@@ -273,6 +333,10 @@ struct AchievementsDetailView: View {
                               text: "Серия — сколько дней подряд ты тренируешься".localized())
                 HowItWorksRow(icon: "medal.fill", color: Color(red: 1.0, green: 0.82, blue: 0.20),
                               text: "Бэйджи открываются за общее число тренировок".localized())
+                HowItWorksRow(icon: "arrow.down.heart.fill", color: Color(red: 1.0, green: 0.27, blue: 0.30),
+                              text: "Без тренировок дольше 3 дней XP начинает падать. После 14 дней можно потерять и уровень — но «пик» останется как трофей.".localized())
+                HowItWorksRow(icon: "trophy.fill", color: Color(red: 0.85, green: 0.70, blue: 0.40),
+                              text: "Бэйдж «ПИК» хранит твой максимальный уровень — его можно вернуть, продолжив тренировки.".localized())
             }
         }
         .padding(DesignSystem.Spacing.lg)
@@ -417,17 +481,126 @@ struct AchievementsDetailView: View {
         }
     }
 
-    // MARK: - Helpers
+    // MARK: - Form / decay helpers + explainer card
 
-    private func athleteTitle(for level: Int) -> String {
-        switch level {
-        case 1...2:   return "Новичок".localized()
-        case 3...5:   return "Любитель".localized()
-        case 6...10:  return "Атлет".localized()
-        case 11...20: return "Профи".localized()
-        default:      return "Легенда".localized()
+    private var xpCounterLabel: String {
+        if hasDecayWarning {
+            return "\(String(format: "%.1f", effectiveXPInLevel))/\(GamificationCalculator.xpPerLevel)"
+        }
+        return "\(rawXPInLevel)/\(GamificationCalculator.xpPerLevel)"
+    }
+
+    private var decayChipLabel: String {
+        visibleDecay >= 0.95 ? "−\(Int(visibleDecay.rounded()))" : "−\(String(format: "%.1f", visibleDecay))"
+    }
+
+    private var decayInfoText: String {
+        let lost = decayChipLabel.replacingOccurrences(of: "−", with: "")
+        if hasLostLevel {
+            let drop = peakLevel - level
+            let lvlWord = drop == 1 ? "уровень" : "уровня"
+            return "Упал на \(drop) \(lvlWord) и \(lost) XP. Тренировка восстановит прогресс — и доведёт обратно к Уровню \(peakLevel).".localized()
+        }
+        return "Потеряно \(lost) XP — одна тренировка восстановит форму".localized()
+    }
+
+    private var daysOffLabel: String {
+        guard let d = daysOff else { return "—" }
+        switch d {
+        case 0:     return "сегодня".localized()
+        case 1:     return "вчера".localized()
+        case 2...4: return "\(d) " + "дня назад".localized()
+        default:    return "\(d) " + "дней назад".localized()
         }
     }
+
+    @ViewBuilder
+    private var formExplainerCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle()
+                        .fill(formState.color.opacity(0.20))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: formState.icon)
+                        .font(.system(size: 17, weight: .heavy))
+                        .foregroundStyle(formState.color)
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("ФОРМА".localized() + " · " + formState.title.localizedUppercase)
+                        .font(.system(.caption, design: .rounded, weight: .heavy))
+                        .tracking(1.2)
+                        .foregroundStyle(formState.color)
+                    Text(formState.subtitle)
+                        .font(DesignSystem.Typography.subheadline())
+                        .foregroundStyle(.white)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 0) {
+                    Text(daysOffLabel)
+                        .font(.system(.caption, design: .rounded, weight: .heavy))
+                        .foregroundStyle(.white)
+                    Text("последняя".localized().uppercased())
+                        .font(.system(size: 9, weight: .heavy, design: .rounded))
+                        .tracking(1.2)
+                        .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                }
+            }
+
+            // Decay timeline — visualises 4 phases
+            HStack(spacing: 4) {
+                decayPhase(label: "0-2 дн", state: .peak)
+                decayPhase(label: "3-7 дн", state: .stable)
+                decayPhase(label: "8-14 дн", state: .warning)
+                decayPhase(label: "15+ дн", state: .declining)
+            }
+
+            if hasDecayWarning {
+                HStack(spacing: 6) {
+                    Image(systemName: "info.circle.fill")
+                        .font(.system(size: 12, weight: .heavy))
+                        .foregroundStyle(formState.color)
+                    Text(decayInfoText)
+                        .font(.caption)
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            ZStack {
+                DesignSystem.Colors.cardBackground
+                LinearGradient(
+                    colors: [formState.color.opacity(0.15), .clear],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                .stroke(formState.color.opacity(0.30), lineWidth: 1)
+        )
+    }
+
+    private func decayPhase(label: String, state: FormState) -> some View {
+        let isCurrent = state == formState
+        return VStack(spacing: 4) {
+            Capsule()
+                .fill(isCurrent ? state.color : Color.white.opacity(0.06))
+                .frame(height: 4)
+                .shadow(color: isCurrent ? state.color.opacity(0.5) : .clear, radius: 4)
+            Text(label)
+                .font(.system(size: 9, weight: isCurrent ? .heavy : .semibold, design: .rounded))
+                .foregroundStyle(isCurrent ? state.color : DesignSystem.Colors.tertiaryText)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Stat helpers
 
     private func formatTonnage(_ kg: Double) -> String {
         if kg >= 1000 {

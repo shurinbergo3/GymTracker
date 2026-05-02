@@ -585,6 +585,21 @@ class WorkoutManager: ObservableObject {
     func closeWorkout() {
         // Final save just in case
         try? modelContext.save()
+
+        // Re-schedule decay warnings off the just-finished session.
+        let descriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.isCompleted == true },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        let completed = (try? modelContext.fetch(descriptor)) ?? []
+        if let latest = completed.first {
+            let peak = GamificationCalculator.peakLevel(totalWorkouts: completed.count)
+            InactivityNotificationService.rescheduleDecayWarnings(
+                lastWorkoutDate: latest.date,
+                peakLevel: peak
+            )
+        }
+
         currentSession = nil
         workoutState = .idle
     }

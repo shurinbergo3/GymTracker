@@ -36,10 +36,25 @@ struct AchievementsHubCard: View {
     let weeklyGoal: Int
     /// Set of normalized days (startOfDay) on which the user trained — used for streak.
     var trainedDays: Set<Date> = []
+    /// Most-recent workout date — drives form-state and XP-decay visualisation.
+    var lastWorkoutDate: Date? = nil
 
-    private var level: Int { max(1, totalWorkouts / 5 + 1) }
-    private var xpInLevel: Int { totalWorkouts % 5 }
-    private var xpProgress: Double { Double(xpInLevel) / 5.0 }
+    private var peakLevel: Int { GamificationCalculator.peakLevel(totalWorkouts: totalWorkouts) }
+    private var level: Int { GamificationCalculator.currentLevel(totalWorkouts: totalWorkouts, daysSinceLastWorkout: daysOff) }
+    private var hasLostLevel: Bool { peakLevel > level }
+    private var rawXPInLevel: Int { GamificationCalculator.rawXPInLevel(totalWorkouts: totalWorkouts) }
+    private var daysOff: Int? { GamificationCalculator.daysSinceLastWorkout(from: lastWorkoutDate) }
+    private var formState: FormState { GamificationCalculator.formState(daysSinceLastWorkout: daysOff) }
+    private var effectiveXPInLevel: Double {
+        GamificationCalculator.effectiveXPInLevel(totalWorkouts: totalWorkouts, daysSinceLastWorkout: daysOff)
+    }
+    private var xpProgress: Double {
+        GamificationCalculator.xpProgress(totalWorkouts: totalWorkouts, daysSinceLastWorkout: daysOff)
+    }
+    private var visibleDecay: Double {
+        GamificationCalculator.visibleDecay(totalWorkouts: totalWorkouts, daysSinceLastWorkout: daysOff)
+    }
+    private var hasDecayWarning: Bool { visibleDecay > 0 }
 
     private var nextMilestone: AchievementMilestone? {
         milestones.first { $0.workouts > totalWorkouts }
@@ -107,12 +122,18 @@ struct AchievementsHubCard: View {
             AvatarView(size: 50)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Уровень \(level)".localized().localizedUppercase)
-                    .font(DesignSystem.Typography.sectionHeader())
-                    .tracking(1.4)
-                    .foregroundStyle(Color(red: 1.0, green: 0.7, blue: 0.2))
+                HStack(spacing: 6) {
+                    Text("Уровень \(level)".localized().localizedUppercase)
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .tracking(1.4)
+                        .foregroundStyle(hasLostLevel ? formState.color : Color(red: 1.0, green: 0.7, blue: 0.2))
 
-                Text(athleteTitle(for: level))
+                    if hasLostLevel {
+                        peakBadge
+                    }
+                }
+
+                Text(GamificationCalculator.athleteTitle(for: level))
                     .font(DesignSystem.Typography.title2())
                     .foregroundStyle(DesignSystem.Colors.primaryText)
             }
@@ -131,25 +152,88 @@ struct AchievementsHubCard: View {
         }
     }
 
+    // MARK: - Peak badge
+
+    private var peakBadge: some View {
+        HStack(spacing: 3) {
+            Image(systemName: "trophy.fill")
+                .font(.system(size: 8, weight: .heavy))
+            Text("БЫЛ \(peakLevel)".localized())
+                .font(.system(size: 9, weight: .heavy, design: .rounded))
+                .tracking(0.8)
+        }
+        .foregroundStyle(Color(red: 0.85, green: 0.70, blue: 0.40))
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(
+            Capsule().fill(Color(red: 0.85, green: 0.70, blue: 0.40).opacity(0.16))
+        )
+        .overlay(
+            Capsule().stroke(Color(red: 0.85, green: 0.70, blue: 0.40).opacity(0.45), lineWidth: 0.5)
+        )
+    }
+
     // MARK: - XP bar
     private var xpBar: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
+            HStack(spacing: 6) {
                 Text("XP до следующего уровня".localized())
                     .font(.caption)
                     .foregroundStyle(DesignSystem.Colors.secondaryText)
+
+                if hasDecayWarning {
+                    HStack(spacing: 3) {
+                        Image(systemName: "arrow.down.right")
+                            .font(.system(size: 9, weight: .heavy))
+                        Text(decayLabel)
+                            .font(DesignSystem.Typography.monospaced(.caption2, weight: .bold))
+                    }
+                    .foregroundStyle(formState.color)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(formState.color.opacity(0.16)))
+                }
+
                 Spacer()
-                Text("\(xpInLevel)/5")
+                Text(xpCounterLabel)
                     .font(DesignSystem.Typography.monospaced(.caption, weight: .bold))
                     .foregroundStyle(Color(red: 1.0, green: 0.7, blue: 0.2))
             }
 
             GeometryReader { geo in
+                let totalWidth = geo.size.width
+                let earnedFraction = Double(rawXPInLevel) / 5.0
+                let effectiveFraction = xpProgress
+                let earnedWidth = max(0, totalWidth * earnedFraction)
+                let effectiveWidth = max(0, totalWidth * effectiveFraction)
+
                 ZStack(alignment: .leading) {
+                    // Track
                     RoundedRectangle(cornerRadius: 6)
                         .fill(Color.white.opacity(0.08))
                         .frame(height: 10)
 
+                    // Ghost only meaningful when decay is within the same level.
+                    if hasDecayWarning && !hasLostLevel {
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        formState.color.opacity(0.35),
+                                        formState.color.opacity(0.10)
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: max(0, earnedWidth), height: 10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(formState.color.opacity(0.3), style: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
+                            )
+                    }
+
+                    // Effective (kept) XP
                     RoundedRectangle(cornerRadius: 6)
                         .fill(
                             LinearGradient(
@@ -162,12 +246,26 @@ struct AchievementsHubCard: View {
                                 endPoint: .trailing
                             )
                         )
-                        .frame(width: max(8, geo.size.width * xpProgress), height: 10)
+                        .frame(width: max(effectiveFraction > 0 ? 8 : 0, effectiveWidth), height: 10)
                         .shadow(color: Color(red: 1.0, green: 0.55, blue: 0.2).opacity(0.5), radius: 6, x: 0, y: 2)
                 }
             }
             .frame(height: 10)
         }
+    }
+
+    /// "1.4/5" when decay reduced XP, otherwise "2/5".
+    private var xpCounterLabel: String {
+        if hasDecayWarning {
+            let formatted = String(format: "%.1f", effectiveXPInLevel)
+            return "\(formatted)/\(GamificationCalculator.xpPerLevel)"
+        }
+        return "\(rawXPInLevel)/\(GamificationCalculator.xpPerLevel)"
+    }
+
+    private var decayLabel: String {
+        let v = visibleDecay
+        return v >= 0.95 ? "−\(Int(v.rounded()))" : "−\(String(format: "%.1f", v))"
     }
 
     // MARK: - Milestones row
@@ -278,6 +376,28 @@ struct AchievementsHubCard: View {
     }
 
     private func motivationalMessage() -> MotivationMessage {
+        // Level loss is the loudest signal — surface it first
+        if hasLostLevel {
+            return MotivationMessage(
+                text: "Уровень упал до \(level) — верни \(peakLevel)".localized(),
+                icon: "arrow.down.heart.fill",
+                tint: formState.color
+            )
+        }
+        if formState == .declining {
+            return MotivationMessage(
+                text: "Теряешь форму — уровень под угрозой".localized(),
+                icon: formState.icon,
+                tint: formState.color
+            )
+        }
+        if formState == .warning {
+            return MotivationMessage(
+                text: "Форма снижается — пора в зал".localized(),
+                icon: formState.icon,
+                tint: formState.color
+            )
+        }
         if streakInDanger {
             return MotivationMessage(
                 text: "Серия в опасности — тренируйся сегодня".localized(),
@@ -311,16 +431,6 @@ struct AchievementsHubCard: View {
             icon: "chart.bar.fill",
             tint: DesignSystem.Colors.accentPurple
         )
-    }
-
-    private func athleteTitle(for level: Int) -> String {
-        switch level {
-        case 1...2:   return "Новичок".localized()
-        case 3...5:   return "Любитель".localized()
-        case 6...10:  return "Атлет".localized()
-        case 11...20: return "Профи".localized()
-        default:      return "Легенда".localized()
-        }
     }
 
     private var background: some View {
@@ -367,6 +477,10 @@ struct ActivityHeroSection: View {
         Set(history.map { Calendar.current.startOfDay(for: $0.date) })
     }
 
+    private var lastWorkoutDate: Date? {
+        history.map { $0.date }.max()
+    }
+
     var body: some View {
         Group {
             // Show rings only if user explicitly enabled Apple Watch and HealthKit has data.
@@ -392,7 +506,8 @@ struct ActivityHeroSection: View {
                 totalWorkouts: totalWorkouts,
                 workoutsThisWeek: workoutsThisWeek,
                 weeklyGoal: weeklyGoal,
-                trainedDays: trainedDays
+                trainedDays: trainedDays,
+                lastWorkoutDate: lastWorkoutDate
             )
         }
         .buttonStyle(.plain)

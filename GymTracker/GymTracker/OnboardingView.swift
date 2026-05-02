@@ -9,6 +9,8 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Binding var hasSeenOnboarding: Bool
+    @AppStorage("isAppleWatchEnabled") private var isAppleWatchEnabled: Bool = true
+    @AppStorage("hasAnsweredWatchQuestion") private var hasAnsweredWatchQuestion: Bool = false
 
     @State private var currentPage: Int = 0
     @State private var appear: Bool = false
@@ -48,6 +50,13 @@ struct OnboardingView: View {
             title: "СИНХРОНИЗАЦИЯ С APPLE ЗДОРОВЬЕ",
             subtitle: "Тренировки автоматически попадают в Apple Health. Кольца активности, пульс, калории — всё считается и хранится у тебя.",
             tint: Color(red: 1.0, green: 0.27, blue: 0.4)
+        ),
+        OnboardingPage(
+            kind: .watchQuestion,
+            iconSystem: "applewatch",
+            title: "ЕСТЬ APPLE WATCH?",
+            subtitle: "Если есть — покажем кольца активности и пульс. Если нет — скроем эти блоки, чтобы интерфейс был чище.",
+            tint: DesignSystem.Colors.neonGreen
         ),
         OnboardingPage(
             kind: .cta,
@@ -99,13 +108,29 @@ struct OnboardingView: View {
 
                 // Bottom CTA
                 VStack(spacing: 14) {
-                    GradientButton(
-                        title: currentPage == pages.count - 1 ? "Начать" : "Дальше",
-                        icon: currentPage == pages.count - 1 ? "checkmark" : "arrow.right"
-                    ) {
-                        advance()
+                    if pages[currentPage].kind == .watchQuestion {
+                        WatchChoiceRow(
+                            onYes: {
+                                isAppleWatchEnabled = true
+                                hasAnsweredWatchQuestion = true
+                                advance()
+                            },
+                            onNo: {
+                                isAppleWatchEnabled = false
+                                hasAnsweredWatchQuestion = true
+                                advance()
+                            }
+                        )
+                        .padding(.horizontal, 24)
+                    } else {
+                        GradientButton(
+                            title: currentPage == pages.count - 1 ? "Начать" : "Дальше",
+                            icon: currentPage == pages.count - 1 ? "checkmark" : "arrow.right"
+                        ) {
+                            advance()
+                        }
+                        .padding(.horizontal, 28)
                     }
-                    .padding(.horizontal, 28)
 
                     if currentPage > 0 {
                         Button(action: back) {
@@ -161,7 +186,7 @@ struct OnboardingView: View {
 
 private struct OnboardingPage: Identifiable {
     let id = UUID()
-    enum Kind { case hero, feature, health, cta }
+    enum Kind { case hero, feature, health, watchQuestion, cta }
     let kind: Kind
     let iconSystem: String?
     let title: String
@@ -212,8 +237,305 @@ private struct OnboardingPageView: View {
         case .health:
             HealthSyncVisual(tint: page.tint)
 
+        case .watchQuestion:
+            WatchQuestionVisual()
+
         case .cta:
             BrandLogoView(size: 110, showWordmark: false, animated: true)
+        }
+    }
+}
+
+// MARK: - Apple Watch question visual
+
+private struct WatchQuestionVisual: View {
+    @State private var ringPhase: Double = 0
+    @State private var pulse: Bool = false
+
+    private let moveColor   = Color(red: 1.00, green: 0.18, blue: 0.34)
+    private let exerciseColor = Color(red: 0.30, green: 0.95, blue: 0.45)
+    private let standColor  = Color(red: 0.10, green: 0.78, blue: 1.00)
+
+    var body: some View {
+        ZStack {
+            // Аура
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            DesignSystem.Colors.neonGreen.opacity(0.32),
+                            DesignSystem.Colors.accentPurple.opacity(0.18),
+                            .clear
+                        ],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 200
+                    )
+                )
+                .frame(width: 340, height: 340)
+                .blur(radius: 30)
+                .scaleEffect(pulse ? 1.06 : 0.94)
+                .animation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true), value: pulse)
+
+            // Декоративная пунктирная орбита
+            Circle()
+                .trim(from: 0, to: 0.82)
+                .stroke(Color.white.opacity(0.10), style: StrokeStyle(lineWidth: 1, dash: [3, 6]))
+                .frame(width: 250, height: 250)
+                .rotationEffect(.degrees(ringPhase))
+
+            // Три «кольца активности» вокруг часов
+            ringTriad
+
+            // Корпус Apple Watch
+            watchBody
+        }
+        .frame(height: 300)
+        .onAppear {
+            pulse = true
+            withAnimation(.linear(duration: 22).repeatForever(autoreverses: false)) {
+                ringPhase = 360
+            }
+        }
+    }
+
+    // MARK: Rings
+
+    private var ringTriad: some View {
+        ZStack {
+            activityRing(color: moveColor,    diameter: 210, lineWidth: 14, trim: 0.92, delay: 0.0)
+            activityRing(color: exerciseColor, diameter: 178, lineWidth: 14, trim: 0.78, delay: 0.15)
+            activityRing(color: standColor,   diameter: 146, lineWidth: 14, trim: 0.66, delay: 0.30)
+        }
+    }
+
+    private func activityRing(color: Color, diameter: CGFloat, lineWidth: CGFloat, trim: CGFloat, delay: Double) -> some View {
+        ZStack {
+            // фоновая дорожка
+            Circle()
+                .stroke(color.opacity(0.16), lineWidth: lineWidth)
+
+            // прогресс-дуга
+            Circle()
+                .trim(from: 0, to: trim)
+                .stroke(
+                    AngularGradient(
+                        gradient: Gradient(colors: [color.opacity(0.55), color, color.opacity(0.85)]),
+                        center: .center
+                    ),
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .shadow(color: color.opacity(0.55), radius: 10)
+                .opacity(pulse ? 1.0 : 0.6)
+                .animation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true).delay(delay), value: pulse)
+        }
+        .frame(width: diameter, height: diameter)
+    }
+
+    // MARK: Watch body
+
+    private var watchBody: some View {
+        ZStack {
+            // тёмная подложка-корпус
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [Color(white: 0.13), Color(white: 0.04)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 92, height: 116)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 26, style: .continuous)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(0.6), radius: 18, x: 0, y: 10)
+
+            // экран
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.black)
+                .frame(width: 76, height: 100)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(DesignSystem.Colors.neonGreen.opacity(0.25), lineWidth: 0.6)
+                )
+
+            // мини-кольца на циферблате
+            ZStack {
+                miniRing(color: moveColor,     diameter: 56, line: 5, trim: 0.92)
+                miniRing(color: exerciseColor, diameter: 42, line: 5, trim: 0.78)
+                miniRing(color: standColor,    diameter: 28, line: 5, trim: 0.66)
+            }
+
+            // боковые «выступы» корпуса часов (заводная коронка + кнопка)
+            HStack(spacing: 0) {
+                Spacer()
+                VStack(spacing: 16) {
+                    Capsule()
+                        .fill(Color(white: 0.32))
+                        .frame(width: 4, height: 18)
+                    Capsule()
+                        .fill(Color(white: 0.22))
+                        .frame(width: 3, height: 28)
+                }
+                .offset(x: 4)
+            }
+            .frame(width: 92, height: 116)
+        }
+    }
+
+    private func miniRing(color: Color, diameter: CGFloat, line: CGFloat, trim: CGFloat) -> some View {
+        ZStack {
+            Circle()
+                .stroke(color.opacity(0.18), lineWidth: line)
+            Circle()
+                .trim(from: 0, to: trim)
+                .stroke(color, style: StrokeStyle(lineWidth: line, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .shadow(color: color.opacity(0.7), radius: 4)
+        }
+        .frame(width: diameter, height: diameter)
+    }
+}
+
+// MARK: - Watch choice buttons (Yes / No)
+
+private struct WatchChoiceRow: View {
+    let onYes: () -> Void
+    let onNo: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            WatchChoiceButton(
+                label: "Да, есть",
+                sublabel: "Покажем кольца",
+                icon: "applewatch",
+                accent: DesignSystem.Colors.neonGreen,
+                isPrimary: true,
+                action: onYes
+            )
+
+            WatchChoiceButton(
+                label: "Нет",
+                sublabel: "Скроем рингы",
+                icon: "applewatch.slash",
+                accent: DesignSystem.Colors.accentPurple,
+                isPrimary: false,
+                action: onNo
+            )
+        }
+    }
+}
+
+private struct WatchChoiceButton: View {
+    let label: String
+    let sublabel: String
+    let icon: String
+    let accent: Color
+    let isPrimary: Bool
+    let action: () -> Void
+
+    @State private var pressed: Bool = false
+
+    var body: some View {
+        Button {
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.55)) { pressed = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+                withAnimation(.easeOut(duration: 0.18)) { pressed = false }
+                action()
+            }
+        } label: {
+            VStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [accent.opacity(0.55), .clear],
+                                center: .center,
+                                startRadius: 2,
+                                endRadius: 30
+                            )
+                        )
+                        .frame(width: 56, height: 56)
+                        .blur(radius: 6)
+                        .opacity(isPrimary ? 0.95 : 0.55)
+
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: isPrimary
+                                    ? [accent, accent.opacity(0.7)]
+                                    : [Color(white: 0.16), Color(white: 0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 44, height: 44)
+                        .overlay(
+                            Circle().stroke(accent.opacity(isPrimary ? 0 : 0.55), lineWidth: 1)
+                        )
+
+                    Image(systemName: icon)
+                        .font(.system(size: 19, weight: .heavy))
+                        .foregroundStyle(isPrimary ? Color.black : accent)
+                }
+
+                Text(label.localized())
+                    .font(.system(.headline, design: .rounded, weight: .heavy))
+                    .foregroundColor(.white)
+
+                Text(sublabel.localized().uppercased())
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .tracking(1.2)
+                    .foregroundColor(DesignSystem.Colors.tertiaryText)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+            .background(choiceBackground)
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .stroke(
+                        LinearGradient(
+                            colors: isPrimary
+                                ? [accent.opacity(0.7), accent.opacity(0.2), .clear]
+                                : [accent.opacity(0.45), Color.white.opacity(0.05), .clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .shadow(color: accent.opacity(isPrimary ? 0.35 : 0.18), radius: 18, x: 0, y: 8)
+            .scaleEffect(pressed ? 0.96 : 1.0)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var choiceBackground: some View {
+        ZStack {
+            LinearGradient(
+                colors: isPrimary
+                    ? [
+                        accent.opacity(0.22),
+                        Color(red: 0.05, green: 0.10, blue: 0.06)
+                      ]
+                    : [
+                        Color(red: 0.10, green: 0.08, blue: 0.16),
+                        Color(red: 0.05, green: 0.05, blue: 0.08)
+                      ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            RadialGradient(
+                colors: [accent.opacity(isPrimary ? 0.20 : 0.14), .clear],
+                center: .topLeading,
+                startRadius: 4,
+                endRadius: 160
+            )
         }
     }
 }

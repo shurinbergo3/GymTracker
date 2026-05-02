@@ -35,6 +35,10 @@ struct MeasurementsView: View {
         return completedSessions.filter { $0.date >= monday }.count
     }
 
+    private var trainedDays: Set<Date> {
+        Set(completedSessions.map { Calendar.current.startOfDay(for: $0.date) })
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -43,16 +47,22 @@ struct MeasurementsView: View {
                 
                 ScrollView {
                     VStack(spacing: DesignSystem.Spacing.lg) {
-                        // Уровень / геймификация — открывает Прогресс-хаб
-                        ActivityHeroSection(
-                            totalWorkouts: completedSessions.count,
-                            workoutsThisWeek: workoutsThisWeekCount,
-                            history: completedSessions,
-                            onTap: { showingProgressHub = true }
-                        )
+                        // 1. Уровень / геймификация — всегда первый блок, независимо от наличия часов.
+                        Button {
+                            showingProgressHub = true
+                        } label: {
+                            AchievementsHubCard(
+                                totalWorkouts: completedSessions.count,
+                                workoutsThisWeek: workoutsThisWeekCount,
+                                weeklyGoal: 4,
+                                trainedDays: trainedDays,
+                                lastWorkoutDate: completedSessions.first?.date
+                            )
+                        }
+                        .buttonStyle(.plain)
                         .padding(.horizontal, DesignSystem.Spacing.lg)
 
-                        // История тренировок (hero card)
+                        // 2. История тренировок (hero card)
                         NavigationLink(destination: WorkoutHistoryView(selectedTab: $selectedTab)) {
                             HistoryHeroCard(
                                 sessions: completedSessions,
@@ -62,7 +72,11 @@ struct MeasurementsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.horizontal, DesignSystem.Spacing.lg)
 
-                        // Apple Health — единый блок: активность + восстановление (сон, пульс, энергия)
+                        // 3. Кольца активности — авто-скрываются если Apple Watch выключены или нет данных.
+                        ActivityRingsSection()
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                        // 4. Apple Health — единый блок: активность + восстановление (сон, пульс, энергия)
                         HealthStatsCard(lastWorkoutSession: completedSessions.first)
                             .padding(.horizontal, DesignSystem.Spacing.lg)
 

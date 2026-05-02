@@ -122,11 +122,39 @@ struct WorkoutTrackerApp: App {
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     InactivityNotificationService.rescheduleOnAppOpen()
+                    rescheduleDecayWarningsFromLatestSession()
                 }
             }
         }
     }
     
+    /// Reads the most-recent completed session and re-schedules decay warnings.
+    /// Called on app foreground so notifications stay aligned with real workout history.
+    private func rescheduleDecayWarningsFromLatestSession() {
+        let context = sharedModelContainer.mainContext
+        var descriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.isCompleted == true },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+
+        guard let latest = try? context.fetch(descriptor).first else {
+            InactivityNotificationService.rescheduleDecayWarnings(lastWorkoutDate: nil, peakLevel: 1)
+            return
+        }
+
+        let countDescriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.isCompleted == true }
+        )
+        let total = (try? context.fetchCount(countDescriptor)) ?? 0
+        let peak = GamificationCalculator.peakLevel(totalWorkouts: total)
+
+        InactivityNotificationService.rescheduleDecayWarnings(
+            lastWorkoutDate: latest.date,
+            peakLevel: peak
+        )
+    }
+
     private func checkAuthStatus() {
         // Quick verification:
         // Use UserDefaults to know if we EXPECT to be logged in
