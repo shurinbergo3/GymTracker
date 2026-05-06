@@ -279,7 +279,7 @@ struct AICoachChatSheet: View {
                         .padding(.vertical, 4)
                         .frame(minHeight: 38, maxHeight: 110)
                         .foregroundStyle(DesignSystem.Colors.primaryText)
-                        .disabled(!store.canAskQuestion)
+                        .disabled(!store.canAskQuestion(mode: .post))
                 }
                 .background(Color.white.opacity(0.06))
                 .clipShape(RoundedRectangle(cornerRadius: 18))
@@ -307,14 +307,14 @@ struct AICoachChatSheet: View {
     }
 
     private var sendButtonEnabled: Bool {
-        store.canAskQuestion && !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        store.canAskQuestion(mode: .post) && !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private var placeholderText: String {
-        if !store.hasInsightForCurrentCycle {
+        if !store.hasInsight(for: .post) {
             return "Дождись разбора, потом задавай вопросы…".localized()
         }
-        if store.questionsRemaining == 0 {
+        if store.questionsRemaining(mode: .post) == 0 {
             return "Лимит вопросов исчерпан до следующей тренировки.".localized()
         }
         return "Спроси коуча…".localized()
@@ -325,7 +325,9 @@ struct AICoachChatSheet: View {
             HStack(spacing: 4) {
                 Image(systemName: "bubble.left.and.bubble.right.fill")
                     .font(.system(size: 9, weight: .bold))
-                Text(String(format: "%d/15 ".localized(), store.questionsRemaining) + "вопросов".localized())
+                Text(String(format: "%d/%d ".localized(),
+                            store.questionsRemaining(mode: .post),
+                            AICoachStore.maxPostQuestions) + "вопросов".localized())
                     .font(.system(size: 10, weight: .semibold))
             }
             .foregroundStyle(DesignSystem.Colors.neonGreen)
@@ -360,7 +362,7 @@ struct AICoachChatSheet: View {
         guard !text.isEmpty else { return }
         draft = ""
         inputFocused = false
-        Task { await store.askFollowUp(text) }
+        Task { await store.askFollowUp(text, mode: .post) }
     }
 }
 

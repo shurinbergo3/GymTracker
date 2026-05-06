@@ -6,11 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct OnboardingView: View {
     @Binding var hasSeenOnboarding: Bool
     @AppStorage("isAppleWatchEnabled") private var isAppleWatchEnabled: Bool = true
     @AppStorage("hasAnsweredWatchQuestion") private var hasAnsweredWatchQuestion: Bool = false
+    /// Stashed at onboarding time and read back the first time `AICoachStore`
+    /// creates the singleton profile — keeps onboarding free of SwiftData writes
+    /// that could conflict with the Login → Restore flow.
+    @AppStorage("onboarding.coachStyle") private var pickedCoachStyleRaw: String = AICoachStyle.friendly.rawValue
 
     @State private var currentPage: Int = 0
     @State private var appear: Bool = false
@@ -36,6 +41,13 @@ struct OnboardingView: View {
             title: "ИИ-ТРЕНЕР",
             subtitle: "Анализирует прогресс, отвечает на вопросы, корректирует план. Личный тренер, который всегда на связи.",
             tint: Color(red: 0.6, green: 0.4, blue: 1.0)
+        ),
+        OnboardingPage(
+            kind: .coachStyle,
+            iconSystem: "person.wave.2.fill",
+            title: "ВЫБЕРИ СТИЛЬ КОУЧА",
+            subtitle: "Любой стиль можно поменять в настройках. Тон ответов и пушей подстроится под тебя.",
+            tint: DesignSystem.Colors.neonGreen
         ),
         OnboardingPage(
             kind: .feature,
@@ -98,7 +110,10 @@ struct OnboardingView: View {
                 // Pages
                 TabView(selection: $currentPage) {
                     ForEach(pages.indices, id: \.self) { index in
-                        OnboardingPageView(page: pages[index])
+                        OnboardingPageView(
+                            page: pages[index],
+                            selectedCoachStyleRaw: $pickedCoachStyleRaw
+                        )
                             .tag(index)
                             .padding(.horizontal, 28)
                     }
@@ -186,7 +201,7 @@ struct OnboardingView: View {
 
 private struct OnboardingPage: Identifiable {
     let id = UUID()
-    enum Kind { case hero, feature, health, watchQuestion, cta }
+    enum Kind { case hero, feature, health, watchQuestion, coachStyle, cta }
     let kind: Kind
     let iconSystem: String?
     let title: String
@@ -198,6 +213,7 @@ private struct OnboardingPage: Identifiable {
 
 private struct OnboardingPageView: View {
     let page: OnboardingPage
+    @Binding var selectedCoachStyleRaw: String
 
     var body: some View {
         VStack(spacing: 28) {
@@ -221,6 +237,11 @@ private struct OnboardingPageView: View {
                     .padding(.horizontal, 8)
             }
 
+            if page.kind == .coachStyle {
+                CoachStylePicker(selectedRaw: $selectedCoachStyleRaw)
+                    .padding(.top, 4)
+            }
+
             Spacer(minLength: 0)
         }
     }
@@ -240,9 +261,86 @@ private struct OnboardingPageView: View {
         case .watchQuestion:
             WatchQuestionVisual()
 
+        case .coachStyle:
+            FeatureIcon(system: page.iconSystem ?? "person.wave.2.fill", tint: page.tint)
+
         case .cta:
             BrandLogoView(size: 110, showWordmark: false, animated: true)
         }
+    }
+}
+
+// MARK: - Coach style picker
+
+private struct CoachStylePicker: View {
+    @Binding var selectedRaw: String
+
+    private var selected: AICoachStyle {
+        AICoachStyle(rawValue: selectedRaw) ?? .friendly
+    }
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ForEach(AICoachStyle.allCases) { style in
+                Button {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+                        selectedRaw = style.rawValue
+                    }
+                } label: {
+                    StyleRow(style: style, isSelected: style == selected)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 4)
+    }
+}
+
+private struct StyleRow: View {
+    let style: AICoachStyle
+    let isSelected: Bool
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Text(style.emoji)
+                .font(.system(size: 28))
+                .frame(width: 44, height: 44)
+                .background(
+                    Circle().fill(Color.white.opacity(isSelected ? 0.10 : 0.04))
+                )
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(style.titleKey)
+                    .font(.system(.headline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(.white)
+                Text(style.subtitleKey)
+                    .font(.system(.footnote, design: .rounded))
+                    .foregroundStyle(DesignSystem.Colors.secondaryText)
+                    .lineLimit(2)
+            }
+
+            Spacer(minLength: 0)
+
+            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(isSelected ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.25))
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(isSelected
+                      ? DesignSystem.Colors.neonGreen.opacity(0.10)
+                      : Color.white.opacity(0.04))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(isSelected
+                        ? DesignSystem.Colors.neonGreen.opacity(0.55)
+                        : Color.white.opacity(0.08),
+                        lineWidth: 1)
+        )
     }
 }
 

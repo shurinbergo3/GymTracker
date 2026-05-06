@@ -97,6 +97,18 @@ struct AICoachContext {
         let avgWorkoutsPerWeekLast4Weeks: Double
         let totalVolumeLast30Days: Double
         let longestStreakDays: Int    // consecutive days with at least 1 completed workout
+        let currentStreakDays: Int    // active consecutive-day streak right now (back from today)
+    }
+
+    /// Detected stagnation on a specific exercise — the strongest weight×reps
+    /// load hasn't improved in N weeks across at least M sessions. The model
+    /// is asked to either propose a deload, a tempo/range change or a swap.
+    struct PlateauHint {
+        let exerciseName: String
+        let topWeightKg: Double
+        let topReps: Int
+        let weeksStuck: Int
+        let sessionsStuck: Int
     }
 
     let profile: ProfileSummary?
@@ -106,6 +118,7 @@ struct AICoachContext {
     let measurements: [MeasurementSummary]
     let weightTrend: WeightTrendSummary?
     let stats: AggregateStats
+    let plateaus: [PlateauHint]
     let userLocaleIdentifier: String
 }
 
@@ -179,6 +192,7 @@ enum AICoachContextBuilder {
         )
         let allCompleted = (try? modelContext.fetch(allCompletedDescriptor)) ?? []
         let stats = aggregateStats(from: allCompleted)
+        let plateaus = detectPlateaus(from: allCompleted)
 
         // --- Sensors -----------------------------------------------------
         var rhr: Int? = nil
@@ -229,6 +243,7 @@ enum AICoachContextBuilder {
             measurements: latestMeasurements,
             weightTrend: weightTrend,
             stats: stats,
+            plateaus: plateaus,
             userLocaleIdentifier: LanguageManager.shared.currentLocale.identifier
         )
     }
@@ -374,7 +389,7 @@ enum AICoachContextBuilder {
                 .reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
         }
 
-        // Longest streak of consecutive workout days
+        // Longest streak of consecutive workout days (historical max).
         let uniqueDays = Set(completed.map { cal.startOfDay(for: $0.date) })
         let sortedDays = uniqueDays.sorted()
         var longest = 0
@@ -392,13 +407,97 @@ enum AICoachContextBuilder {
             prev = day
         }
 
+        // Current active streak — counts back from today (or yesterday if not
+        // yet trained today), matching `WeeklyStreakStrip.streak`.
+        var currentStreak = 0
+        var cursor = cal.startOfDay(for: now)
+        if !uniqueDays.contains(cursor) {
+            cursor = cal.date(byAdding: .day, value: -1, to: cursor) ?? cursor
+        }
+        while uniqueDays.contains(cursor) {
+            currentStreak += 1
+            guard let prev = cal.date(byAdding: .day, value: -1, to: cursor) else { break }
+            cursor = prev
+        }
+
         return .init(
             totalCompletedWorkouts: total,
             workoutsThisWeek: thisWeek,
             avgWorkoutsPerWeekLast4Weeks: avgPerWeek,
             totalVolumeLast30Days: totalVolume30,
-            longestStreakDays: longest
+            longestStreakDays: longest,
+            currentStreakDays: currentStreak
         )
+    }
+
+    // MARK: - Plateau detection
+
+    /// Walks every (exercise, session) pair to flag named exercises whose
+    /// best top-set load (weight × reps) hasn't been beaten in a meaningful
+    /// stretch. Heuristic: "stuck" means
+    ///   • the exercise has been trained at least 3 separate sessions, AND
+    ///   • the top weight×reps observed in the last 4 weeks is ≤ the best
+    ///     observed in the prior 4 weeks, AND
+    ///   • the most recent best happened ≥ 14 days ago.
+    /// Returns at most the top 3 stuck exercises (by recency of last session)
+    /// to keep the prompt short.
+    private static func detectPlateaus(from completed: [WorkoutSession]) -> [AICoachContext.PlateauHint] {
+        let now = Date()
+        let fourWeeks: TimeInterval = 28 * 24 * 3600
+        let recentCutoff = now.addingTimeInterval(-fourWeeks)
+        let priorCutoff = now.addingTimeInterval(-2 * fourWeeks)
+
+        // Group: exercise name → [(date, score, weight, reps)] across all weighted sets.
+        struct Entry { let date: Date; let score: Double; let weight: Double; let reps: Int }
+        var byExercise: [String: [Entry]] = [:]
+
+        for session in completed where session.date >= priorCutoff {
+            let bestPerExercise = session.sets
+                .filter { $0.isCompleted && $0.weight > 0 && $0.reps > 0 }
+                .reduce(into: [String: Entry]()) { acc, set in
+                    let score = set.weight * Double(set.reps)
+                    let entry = Entry(date: session.date, score: score, weight: set.weight, reps: set.reps)
+                    if let prev = acc[set.exerciseName], prev.score >= score { return }
+                    acc[set.exerciseName] = entry
+                }
+            for (name, entry) in bestPerExercise {
+                byExercise[name, default: []].append(entry)
+            }
+        }
+
+        var hints: [AICoachContext.PlateauHint] = []
+        for (name, entries) in byExercise {
+            guard entries.count >= 3 else { continue }
+
+            let recent = entries.filter { $0.date >= recentCutoff }
+            let prior  = entries.filter { $0.date <  recentCutoff }
+            guard let bestPrior = prior.max(by: { $0.score < $1.score }),
+                  let bestRecent = recent.max(by: { $0.score < $1.score }) else { continue }
+
+            // Recent must not exceed prior best — otherwise progression is fine.
+            guard bestRecent.score <= bestPrior.score else { continue }
+
+            // Best result must be at least two weeks old.
+            let mostRecentBest = (recent + prior).max(by: { $0.score < $1.score })?.date ?? bestPrior.date
+            guard now.timeIntervalSince(mostRecentBest) >= 14 * 24 * 3600 else { continue }
+
+            let weeksStuck = Int(now.timeIntervalSince(mostRecentBest) / (7 * 24 * 3600))
+            hints.append(.init(
+                exerciseName: name,
+                topWeightKg: bestPrior.weight,
+                topReps: bestPrior.reps,
+                weeksStuck: weeksStuck,
+                sessionsStuck: recent.count
+            ))
+        }
+
+        // Sort by recency of any session in last 4 weeks (most-active plateaus first).
+        hints.sort { lhs, rhs in
+            let lhsDate = byExercise[lhs.exerciseName]?.map(\.date).max() ?? .distantPast
+            let rhsDate = byExercise[rhs.exerciseName]?.map(\.date).max() ?? .distantPast
+            return lhsDate > rhsDate
+        }
+        return Array(hints.prefix(3))
     }
 
     // MARK: - Rendering to plain text for the model
@@ -444,7 +543,30 @@ enum AICoachContextBuilder {
         statBits.append(String(format: "avg %.1f/wk (4w)", s.avgWorkoutsPerWeekLast4Weeks))
         statBits.append("vol30d \(Int(s.totalVolumeLast30Days)) kg·rep")
         statBits.append("longest streak \(s.longestStreakDays)d")
+        statBits.append("current streak \(s.currentStreakDays)d")
         out.append("STATS: " + statBits.joined(separator: "; ") + ".")
+
+        // Streak commentary hint — only when the streak is actually meaningful.
+        // The model is told to weave this into its tone naturally (celebrate
+        // milestones, use the streak as motivation, etc.).
+        if s.currentStreakDays >= 3 {
+            let near: String
+            switch s.currentStreakDays {
+            case 4:           near = "one day from a 5-day streak"
+            case 6:           near = "one day from a week-long streak"
+            case 9, 13:       near = "close to the next milestone (\(s.currentStreakDays + 1))"
+            default:          near = ""
+            }
+            out.append("STREAK NOTE: user has a live \(s.currentStreakDays)-day streak\(near.isEmpty ? "" : " — \(near)"). Acknowledge it briefly without making it the whole reply.")
+        }
+
+        // Plateau hints — drive deload / variation suggestions.
+        if !ctx.plateaus.isEmpty {
+            let lines = ctx.plateaus.map { p -> String in
+                "• \(p.exerciseName): stuck \(p.weeksStuck)w (\(p.sessionsStuck) sessions); top \(String(format: "%.1f", p.topWeightKg))kg × \(p.topReps)"
+            }
+            out.append("PLATEAU SIGNALS — propose a concrete deload, tempo change, range tweak or accessory swap for these:\n" + lines.joined(separator: "\n"))
+        }
 
         // Sensors
         var healthBits: [String] = []

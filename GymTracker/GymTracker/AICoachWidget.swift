@@ -226,11 +226,13 @@ struct AICoachWidget: View {
     private var footerRow: some View {
         HStack(spacing: 8) {
             if lastSession != nil, hasInsight {
-                let remaining = store.questionsRemaining
+                let remaining = store.questionsRemaining(mode: .post)
                 HStack(spacing: 4) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
                         .font(.system(size: 9, weight: .bold))
-                    Text(String(format: "%d/15 ".localized(), remaining) + "вопросов".localized())
+                    Text(String(format: "%d/%d ".localized(),
+                                remaining,
+                                AICoachStore.maxPostQuestions) + "вопросов".localized())
                         .font(.system(size: 10, weight: .semibold))
                 }
                 .foregroundStyle(DesignSystem.Colors.neonGreen)

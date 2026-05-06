@@ -80,7 +80,8 @@ struct WorkoutTrackerApp: App {
             WorkoutDay.self,
             ExerciseTemplate.self,
             AICoachMessage.self,
-            AICoachWeeklySummary.self
+            AICoachWeeklySummary.self,
+            AICoachUserProfile.self
         ])
 
         do {
@@ -183,6 +184,15 @@ struct WorkoutTrackerApp: App {
                 // алерт не появлялся одновременно со сплешем (это создаёт ощущение зависона).
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                     InactivityNotificationService.requestAuthorizationIfNeeded()
+                    // After the OS prompt, schedule any AI-coach pushes that history allows.
+                    let ctx = sharedModelContainer.mainContext
+                    Task { @MainActor in
+                        await AICoachNotificationService.rescheduleSmartReminder(modelContext: ctx)
+                        await AICoachNotificationService.rescheduleRecoveryAlertIfNeeded(
+                            healthManager: HealthManager.shared
+                        )
+                        await AICoachNotificationService.rescheduleWeeklyWrappedPush()
+                    }
                 }
             }
             .onChange(of: authManager.isLoggedIn) { _, isLoggedIn in

@@ -15,6 +15,7 @@ import HealthKit
 
 enum WorkoutState {
     case idle       // Dashboard - ready to start
+    case briefing   // Pre-workout AI brief — shows targets and lets the user ask up to 5 Qs
     case countdown  // 3-2-1 Countdown
     case active     // Workout in progress
     case summary    // Finished, showing results
@@ -342,7 +343,43 @@ class WorkoutManager: ObservableObject {
         guard let day = selectedDay else { return }
         // Store ID safely before countdown starts
         self.pendingWorkoutDayID = day.persistentModelID
+
+        // Establish the pre-brief signature SYNCHRONOUSLY before the view is
+        // mounted — PreWorkoutBriefView captures this signature at init time
+        // for its @Query filter. If we let `generatePreWorkoutBrief` set it
+        // asynchronously the view would init with a stale value and never
+        // show the incoming assistant message.
+        AICoachStore.shared.attach(modelContext)
+        _ = AICoachStore.shared.prepareBriefSignature(plannedDay: day, program: activeProgram)
+
+        // Route through the AI brief first; the brief screen calls
+        // `proceedToCountdown()` (or `cancelBriefing()`) when the user is ready.
+        workoutState = .briefing
+
+        // Kick off the brief generation in parallel with the screen transition.
+        // generatePreWorkoutBrief is idempotent per (program, day, calendar-day),
+        // so reopening the same brief the same day reuses the cached one.
+        let healthMgr = (healthProvider as? HealthManager) ?? HealthManager.shared
+        Task { [weak self] in
+            guard let self else { return }
+            await AICoachStore.shared.generatePreWorkoutBrief(
+                plannedDay: day,
+                program: self.activeProgram,
+                modelContext: self.modelContext,
+                healthManager: healthMgr
+            )
+        }
+    }
+
+    /// Called from `PreWorkoutBriefView` when the user taps "Поехали".
+    func proceedToCountdown() {
         workoutState = .countdown
+    }
+
+    /// User backed out of the brief — go back to dashboard, do nothing else.
+    func cancelBriefing() {
+        pendingWorkoutDayID = nil
+        workoutState = .idle
     }
     
     func beginActiveSession() {
@@ -606,6 +643,18 @@ class WorkoutManager: ObservableObject {
                 lastWorkoutDate: latest.date,
                 peakLevel: peak
             )
+        }
+
+        // AI-coach pushes: smart reminder + recovery alert + streak celebration.
+        let ctx = modelContext
+        let healthMgr = healthProvider as? HealthManager
+        Task { @MainActor in
+            await AICoachNotificationService.rescheduleSmartReminder(modelContext: ctx)
+            if let h = healthMgr {
+                await AICoachNotificationService.rescheduleRecoveryAlertIfNeeded(healthManager: h)
+            }
+            let days = AICoachNotificationService.currentStreakDays(modelContext: ctx)
+            await AICoachNotificationService.celebrateStreakIfMilestone(streakDays: days)
         }
 
         currentSession = nil

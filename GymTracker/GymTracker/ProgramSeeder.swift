@@ -16,40 +16,48 @@ struct ProgramSeeder {
     /// Генерирует и обновляет список программ
     nonisolated static func generateDefaultPrograms(context: ModelContext) -> [Program] {
         var allPrograms: [Program] = []
-        
-        // 1. Simple / Beginners
-        let prog1 = createFundamental2Day(); prog1.displayOrder = 1
-        allPrograms.append(prog1)
-        
-        let prog2 = createStreetWorkoutBeginner(); prog2.displayOrder = 2
-        allPrograms.append(prog2)
-        
-        // 2. Popular Splits
-        let prog3 = createHighFrequency3Day(); prog3.displayOrder = 3
-        allPrograms.append(prog3)
-        
-        let prog4 = createStreetWorkoutIntermediate(); prog4.displayOrder = 4
-        allPrograms.append(prog4)
-        
-        let prog5 = create531Beginner(); prog5.displayOrder = 5
-        allPrograms.append(prog5)
-        
-        let prog6 = createAestheticsBalance(); prog6.displayOrder = 6
-        allPrograms.append(prog6)
-        
-        let prog7 = createUpperLowerStrength(); prog7.displayOrder = 7
-        allPrograms.append(prog7)
-        
-        let prog8 = createGZCLP(); prog8.displayOrder = 8
-        allPrograms.append(prog8)
-        
-        // 3. Cardio Focus
-        let prog9 = createHIITPyramid(); prog9.displayOrder = 9
-        allPrograms.append(prog9)
-        
-        let prog10 = createLISSElliptical(); prog10.displayOrder = 10
-        allPrograms.append(prog10)
-        
+        var order = 1
+
+        func add(_ program: Program) {
+            program.displayOrder = order
+            allPrograms.append(program)
+            order += 1
+        }
+
+        // 1. Beginner-friendly Full Body
+        add(createFundamental2Day())
+        add(createHighFrequency3Day())
+        add(createStrongLifts5x5())
+
+        // 2. Mass / Hypertrophy splits
+        add(createPushPullLegs())
+        add(createBroSplit())
+        add(createUpperLowerStrength())
+        add(createAestheticsBalance())
+        add(createArnoldSplit())
+        add(createPowerbuilding4Day())
+
+        // 3. Strength
+        add(create531Beginner())
+        add(createGZCLP())
+        add(createMadcow5x5())
+        add(createNSuns531LP())
+
+        // 4. Cardio / Conditioning / Fat Loss
+        add(createHIITPyramid())
+        add(createTabataTotalBody())
+        add(createEMOMConditioning())
+        add(createLISSElliptical())
+
+        // 5. Specials
+        add(createGluteBuilder())
+        add(createCoreCrusher())
+        add(createMobilityFlow())
+
+        // 6. Calisthenics
+        add(createStreetWorkoutBeginner())
+        add(createStreetWorkoutIntermediate())
+
         return allPrograms
     }
     
@@ -608,6 +616,474 @@ struct ProgramSeeder {
 
     // MARK: - Helper
     
+    // MARK: - Category VII: Modern Hypertrophy Splits
+
+    private nonisolated static func createPushPullLegs() -> Program {
+        let program = Program(
+            name: "Push Pull Legs (PPL)",
+            desc: "Classic 6-day split: push, pull, legs — twice a week. The most popular intermediate program."
+        )
+
+        let push1 = WorkoutDay(name: "Push (Грудь+Плечи+Трицепс)", orderIndex: 0, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: push1, name: "Жим штанги лежа", sets: 4, order: 0)
+        addExercise(to: push1, name: "Жим гантелей на наклонной", sets: 3, order: 1)
+        addExercise(to: push1, name: "Армейский жим", sets: 3, order: 2)
+        addExercise(to: push1, name: "Махи гантелями в стороны", sets: 3, order: 3)
+        addExercise(to: push1, name: "Разгибание на трицепс на блоке", sets: 3, order: 4)
+        addExercise(to: push1, name: "Французский жим", sets: 3, order: 5)
+        push1.program = program
+        program.days.append(push1)
+
+        let pull1 = WorkoutDay(name: "Pull (Спина+Бицепс)", orderIndex: 1, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: pull1, name: "Подтягивания", sets: 4, order: 0, type: .repsOnly)
+        addExercise(to: pull1, name: "Тяга штанги в наклоне", sets: 4, order: 1)
+        addExercise(to: pull1, name: "Тяга верхнего блока", sets: 3, order: 2)
+        addExercise(to: pull1, name: "Тяга горизонтального блока", sets: 3, order: 3)
+        addExercise(to: pull1, name: "Подъем штанги на бицепс", sets: 3, order: 4)
+        addExercise(to: pull1, name: "Молотки на бицепс", sets: 3, order: 5)
+        pull1.program = program
+        program.days.append(pull1)
+
+        let legs1 = WorkoutDay(name: "Legs (Ноги+Пресс)", orderIndex: 2, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: legs1, name: "Приседания со штангой", sets: 4, order: 0)
+        addExercise(to: legs1, name: "Румынская тяга", sets: 4, order: 1)
+        addExercise(to: legs1, name: "Жим ногами", sets: 3, order: 2)
+        addExercise(to: legs1, name: "Сгибание ног лежа", sets: 3, order: 3)
+        addExercise(to: legs1, name: "Подъем на носки", sets: 4, order: 4)
+        addExercise(to: legs1, name: "Подъем ног в висе", sets: 3, order: 5, type: .repsOnly)
+        legs1.program = program
+        program.days.append(legs1)
+
+        let push2 = WorkoutDay(name: "Push (вариация)", orderIndex: 3, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: push2, name: "Жим гантелей лежа", sets: 4, order: 0)
+        addExercise(to: push2, name: "Жим лежа на наклонной", sets: 3, order: 1)
+        addExercise(to: push2, name: "Жим Арнольда", sets: 3, order: 2)
+        addExercise(to: push2, name: "Махи на блоке", sets: 3, order: 3)
+        addExercise(to: push2, name: "Отжимания на брусьях", sets: 3, order: 4, type: .repsOnly)
+        addExercise(to: push2, name: "Разгибание над головой", sets: 3, order: 5)
+        push2.program = program
+        program.days.append(push2)
+
+        let pull2 = WorkoutDay(name: "Pull (вариация)", orderIndex: 4, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: pull2, name: "Становая тяга", sets: 4, order: 0)
+        addExercise(to: pull2, name: "Тяга Т-грифа", sets: 3, order: 1)
+        addExercise(to: pull2, name: "Тяга одной рукой", sets: 3, order: 2)
+        addExercise(to: pull2, name: "Лицевая тяга", sets: 3, order: 3)
+        addExercise(to: pull2, name: "Сгибание Паук", sets: 3, order: 4)
+        addExercise(to: pull2, name: "Подъем гантелей на бицепс", sets: 3, order: 5)
+        pull2.program = program
+        program.days.append(pull2)
+
+        let legs2 = WorkoutDay(name: "Legs (вариация)", orderIndex: 5, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: legs2, name: "Фронтальные приседания", sets: 4, order: 0)
+        addExercise(to: legs2, name: "Болгарские выпады", sets: 3, order: 1)
+        addExercise(to: legs2, name: "Ягодичный мост", sets: 4, order: 2)
+        addExercise(to: legs2, name: "Разгибание ног", sets: 3, order: 3)
+        addExercise(to: legs2, name: "Сгибание ног сидя", sets: 3, order: 4)
+        addExercise(to: legs2, name: "Подъем на носки сидя", sets: 4, order: 5)
+        legs2.program = program
+        program.days.append(legs2)
+
+        return program
+    }
+
+    private nonisolated static func createBroSplit() -> Program {
+        let program = Program(
+            name: "Bro Split",
+            desc: "Classic 5-day bodybuilder split: one muscle group per day. High volume per session."
+        )
+
+        let chest = WorkoutDay(name: "Грудь", orderIndex: 0, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: chest, name: "Жим штанги лежа", sets: 4, order: 0)
+        addExercise(to: chest, name: "Жим гантелей на наклонной", sets: 4, order: 1)
+        addExercise(to: chest, name: "Сведения (Flyes)", sets: 3, order: 2)
+        addExercise(to: chest, name: "Отжимания на брусьях", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: chest, name: "Пуловер", sets: 3, order: 4)
+        chest.program = program
+        program.days.append(chest)
+
+        let back = WorkoutDay(name: "Спина", orderIndex: 1, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: back, name: "Подтягивания", sets: 4, order: 0, type: .repsOnly)
+        addExercise(to: back, name: "Тяга штанги в наклоне", sets: 4, order: 1)
+        addExercise(to: back, name: "Тяга верхнего блока", sets: 3, order: 2)
+        addExercise(to: back, name: "Тяга одной рукой", sets: 3, order: 3)
+        addExercise(to: back, name: "Лицевая тяга", sets: 3, order: 4)
+        back.program = program
+        program.days.append(back)
+
+        let legs = WorkoutDay(name: "Ноги", orderIndex: 2, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: legs, name: "Приседания со штангой", sets: 4, order: 0)
+        addExercise(to: legs, name: "Жим ногами", sets: 4, order: 1)
+        addExercise(to: legs, name: "Румынская тяга", sets: 3, order: 2)
+        addExercise(to: legs, name: "Сгибание ног лежа", sets: 3, order: 3)
+        addExercise(to: legs, name: "Подъем на носки", sets: 4, order: 4)
+        legs.program = program
+        program.days.append(legs)
+
+        let shoulders = WorkoutDay(name: "Плечи", orderIndex: 3, workoutType: .strength, defaultRestTime: 75)
+        addExercise(to: shoulders, name: "Армейский жим", sets: 4, order: 0)
+        addExercise(to: shoulders, name: "Жим гантелей стоя", sets: 4, order: 1)
+        addExercise(to: shoulders, name: "Махи гантелями в стороны", sets: 4, order: 2)
+        addExercise(to: shoulders, name: "Тяга к подбородку", sets: 3, order: 3)
+        addExercise(to: shoulders, name: "Обратные разведения", sets: 3, order: 4)
+        shoulders.program = program
+        program.days.append(shoulders)
+
+        let arms = WorkoutDay(name: "Руки", orderIndex: 4, workoutType: .strength, defaultRestTime: 60)
+        addExercise(to: arms, name: "Подъем штанги на бицепс", sets: 4, order: 0)
+        addExercise(to: arms, name: "Молотки на бицепс", sets: 3, order: 1)
+        addExercise(to: arms, name: "Жим узким хватом", sets: 4, order: 2)
+        addExercise(to: arms, name: "Французский жим", sets: 3, order: 3)
+        addExercise(to: arms, name: "Разгибание на трицепс на блоке", sets: 3, order: 4)
+        arms.program = program
+        program.days.append(arms)
+
+        return program
+    }
+
+    private nonisolated static func createArnoldSplit() -> Program {
+        let program = Program(
+            name: "Arnold Split",
+            desc: "Arnold Schwarzenegger's 6-day double split: push pairings hit each muscle 2x/week with high volume."
+        )
+
+        let cb1 = WorkoutDay(name: "Грудь+Спина", orderIndex: 0, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: cb1, name: "Жим штанги лежа", sets: 5, order: 0)
+        addExercise(to: cb1, name: "Тяга штанги в наклоне", sets: 5, order: 1)
+        addExercise(to: cb1, name: "Жим гантелей на наклонной", sets: 4, order: 2)
+        addExercise(to: cb1, name: "Подтягивания", sets: 4, order: 3, type: .repsOnly)
+        addExercise(to: cb1, name: "Сведения (Flyes)", sets: 3, order: 4)
+        addExercise(to: cb1, name: "Пуловер", sets: 3, order: 5)
+        cb1.program = program
+        program.days.append(cb1)
+
+        let sa1 = WorkoutDay(name: "Плечи+Руки", orderIndex: 1, workoutType: .strength, defaultRestTime: 75)
+        addExercise(to: sa1, name: "Жим Арнольда", sets: 5, order: 0)
+        addExercise(to: sa1, name: "Махи гантелями в стороны", sets: 4, order: 1)
+        addExercise(to: sa1, name: "Тяга к подбородку", sets: 3, order: 2)
+        addExercise(to: sa1, name: "Подъем штанги на бицепс", sets: 4, order: 3)
+        addExercise(to: sa1, name: "Французский жим", sets: 4, order: 4)
+        addExercise(to: sa1, name: "Молотки на бицепс", sets: 3, order: 5)
+        sa1.program = program
+        program.days.append(sa1)
+
+        let legs = WorkoutDay(name: "Ноги", orderIndex: 2, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: legs, name: "Приседания со штангой", sets: 5, order: 0)
+        addExercise(to: legs, name: "Выпады", sets: 4, order: 1)
+        addExercise(to: legs, name: "Сгибание ног лежа", sets: 4, order: 2)
+        addExercise(to: legs, name: "Разгибание ног", sets: 3, order: 3)
+        addExercise(to: legs, name: "Подъем на носки", sets: 5, order: 4)
+        legs.program = program
+        program.days.append(legs)
+
+        let cb2 = WorkoutDay(name: "Грудь+Спина (вариация)", orderIndex: 3, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: cb2, name: "Жим лежа на наклонной", sets: 4, order: 0)
+        addExercise(to: cb2, name: "Тяга Т-грифа", sets: 4, order: 1)
+        addExercise(to: cb2, name: "Жим гантелей лежа", sets: 4, order: 2)
+        addExercise(to: cb2, name: "Тяга верхнего блока", sets: 4, order: 3)
+        addExercise(to: cb2, name: "Сведение рук", sets: 3, order: 4)
+        addExercise(to: cb2, name: "Тяга одной рукой", sets: 3, order: 5)
+        cb2.program = program
+        program.days.append(cb2)
+
+        let sa2 = WorkoutDay(name: "Плечи+Руки (вариация)", orderIndex: 4, workoutType: .strength, defaultRestTime: 75)
+        addExercise(to: sa2, name: "Армейский жим", sets: 4, order: 0)
+        addExercise(to: sa2, name: "Махи на блоке", sets: 4, order: 1)
+        addExercise(to: sa2, name: "Обратные разведения", sets: 3, order: 2)
+        addExercise(to: sa2, name: "Подъем гантелей на бицепс", sets: 4, order: 3)
+        addExercise(to: sa2, name: "Жим узким хватом", sets: 4, order: 4)
+        addExercise(to: sa2, name: "Сгибание Паук", sets: 3, order: 5)
+        sa2.program = program
+        program.days.append(sa2)
+
+        let legs2 = WorkoutDay(name: "Ноги (вариация)", orderIndex: 5, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: legs2, name: "Фронтальные приседания", sets: 4, order: 0)
+        addExercise(to: legs2, name: "Болгарские выпады", sets: 4, order: 1)
+        addExercise(to: legs2, name: "Румынская тяга", sets: 4, order: 2)
+        addExercise(to: legs2, name: "Сгибание ног сидя", sets: 3, order: 3)
+        addExercise(to: legs2, name: "Подъем на носки сидя", sets: 5, order: 4)
+        legs2.program = program
+        program.days.append(legs2)
+
+        return program
+    }
+
+    private nonisolated static func createPowerbuilding4Day() -> Program {
+        let program = Program(
+            name: "Powerbuilding 4-Day",
+            desc: "Power + bodybuilding hybrid. Heavy compound first, hypertrophy work second. 4 days/week."
+        )
+
+        let upperHeavy = WorkoutDay(name: "Верх (Тяжёлый)", orderIndex: 0, workoutType: .strength, defaultRestTime: 180)
+        addExercise(to: upperHeavy, name: "Жим штанги лежа", sets: 5, order: 0)
+        addExercise(to: upperHeavy, name: "Тяга штанги в наклоне", sets: 5, order: 1)
+        addExercise(to: upperHeavy, name: "Жим гантелей на наклонной", sets: 3, order: 2)
+        addExercise(to: upperHeavy, name: "Подтягивания с весом", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: upperHeavy, name: "Махи гантелями в стороны", sets: 3, order: 4)
+        upperHeavy.program = program
+        program.days.append(upperHeavy)
+
+        let lowerHeavy = WorkoutDay(name: "Низ (Тяжёлый)", orderIndex: 1, workoutType: .strength, defaultRestTime: 180)
+        addExercise(to: lowerHeavy, name: "Приседания со штангой", sets: 5, order: 0)
+        addExercise(to: lowerHeavy, name: "Становая тяга", sets: 3, order: 1)
+        addExercise(to: lowerHeavy, name: "Жим ногами", sets: 3, order: 2)
+        addExercise(to: lowerHeavy, name: "Ягодичный мост", sets: 3, order: 3)
+        addExercise(to: lowerHeavy, name: "Подъем на носки", sets: 4, order: 4)
+        lowerHeavy.program = program
+        program.days.append(lowerHeavy)
+
+        let upperVol = WorkoutDay(name: "Верх (Объём)", orderIndex: 2, workoutType: .strength, defaultRestTime: 75)
+        addExercise(to: upperVol, name: "Армейский жим", sets: 4, order: 0)
+        addExercise(to: upperVol, name: "Тяга верхнего блока", sets: 4, order: 1)
+        addExercise(to: upperVol, name: "Жим лежа на наклонной", sets: 3, order: 2)
+        addExercise(to: upperVol, name: "Тяга Т-грифа", sets: 3, order: 3)
+        addExercise(to: upperVol, name: "Подъем штанги на бицепс", sets: 3, order: 4)
+        addExercise(to: upperVol, name: "Французский жим", sets: 3, order: 5)
+        upperVol.program = program
+        program.days.append(upperVol)
+
+        let lowerVol = WorkoutDay(name: "Низ (Объём)", orderIndex: 3, workoutType: .strength, defaultRestTime: 75)
+        addExercise(to: lowerVol, name: "Фронтальные приседания", sets: 4, order: 0)
+        addExercise(to: lowerVol, name: "Румынская тяга", sets: 4, order: 1)
+        addExercise(to: lowerVol, name: "Болгарские выпады", sets: 3, order: 2)
+        addExercise(to: lowerVol, name: "Сгибание ног лежа", sets: 3, order: 3)
+        addExercise(to: lowerVol, name: "Подъем на носки сидя", sets: 4, order: 4)
+        lowerVol.program = program
+        program.days.append(lowerVol)
+
+        return program
+    }
+
+    // MARK: - Category VIII: Strength Classics
+
+    private nonisolated static func createStrongLifts5x5() -> Program {
+        let program = Program(
+            name: "StrongLifts 5x5",
+            desc: "Classic linear progression for beginners. 5 sets of 5 reps, 3 days a week. Two alternating workouts."
+        )
+
+        let dayA = WorkoutDay(name: "Workout A", orderIndex: 0, workoutType: .strength, defaultRestTime: 180)
+        addExercise(to: dayA, name: "Приседания со штангой", sets: 5, order: 0)
+        addExercise(to: dayA, name: "Жим штанги лежа", sets: 5, order: 1)
+        addExercise(to: dayA, name: "Тяга штанги в наклоне", sets: 5, order: 2)
+        dayA.program = program
+        program.days.append(dayA)
+
+        let dayB = WorkoutDay(name: "Workout B", orderIndex: 1, workoutType: .strength, defaultRestTime: 180)
+        addExercise(to: dayB, name: "Приседания со штангой", sets: 5, order: 0)
+        addExercise(to: dayB, name: "Армейский жим", sets: 5, order: 1)
+        addExercise(to: dayB, name: "Становая тяга", sets: 1, order: 2)
+        dayB.program = program
+        program.days.append(dayB)
+
+        return program
+    }
+
+    private nonisolated static func createMadcow5x5() -> Program {
+        let program = Program(
+            name: "Madcow 5x5",
+            desc: "Intermediate 5x5 with weekly periodization. Heavy Mon, Light Wed, Volume Fri."
+        )
+
+        let mon = WorkoutDay(name: "Понедельник (Тяжёлый)", orderIndex: 0, workoutType: .strength, defaultRestTime: 180)
+        addExercise(to: mon, name: "Приседания со штангой", sets: 5, order: 0)
+        addExercise(to: mon, name: "Жим штанги лежа", sets: 5, order: 1)
+        addExercise(to: mon, name: "Тяга штанги в наклоне", sets: 5, order: 2)
+        mon.program = program
+        program.days.append(mon)
+
+        let wed = WorkoutDay(name: "Среда (Лёгкий)", orderIndex: 1, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: wed, name: "Приседания со штангой", sets: 4, order: 0)
+        addExercise(to: wed, name: "Армейский жим", sets: 4, order: 1)
+        addExercise(to: wed, name: "Становая тяга", sets: 4, order: 2)
+        wed.program = program
+        program.days.append(wed)
+
+        let fri = WorkoutDay(name: "Пятница (Объём)", orderIndex: 2, workoutType: .strength, defaultRestTime: 180)
+        addExercise(to: fri, name: "Приседания со штангой", sets: 4, order: 0)
+        addExercise(to: fri, name: "Жим штанги лежа", sets: 4, order: 1)
+        addExercise(to: fri, name: "Тяга штанги в наклоне", sets: 4, order: 2)
+        addExercise(to: fri, name: "Жим лежа (1×3)", sets: 3, order: 3)
+        fri.program = program
+        program.days.append(fri)
+
+        return program
+    }
+
+    private nonisolated static func createNSuns531LP() -> Program {
+        let program = Program(
+            name: "nSuns 5/3/1 LP",
+            desc: "Aggressive 5/3/1 LP variant. 9 sets on the main lift with progressive intensity. 6 days/week."
+        )
+
+        let benchDay = WorkoutDay(name: "Жим / Армейский", orderIndex: 0, workoutType: .strength, defaultRestTime: 150)
+        addExercise(to: benchDay, name: "Жим штанги лежа (T1: 8×5/3/1+)", sets: 8, order: 0)
+        addExercise(to: benchDay, name: "Армейский жим (T2: 8×6)", sets: 8, order: 1)
+        addExercise(to: benchDay, name: "Тяга верхнего блока", sets: 3, order: 2)
+        addExercise(to: benchDay, name: "Махи гантелями в стороны", sets: 3, order: 3)
+        benchDay.program = program
+        program.days.append(benchDay)
+
+        let squatDay = WorkoutDay(name: "Присед / Становая", orderIndex: 1, workoutType: .strength, defaultRestTime: 180)
+        addExercise(to: squatDay, name: "Приседания (T1: 8×5/3/1+)", sets: 8, order: 0)
+        addExercise(to: squatDay, name: "Становая тяга (T2: 8×6)", sets: 8, order: 1)
+        addExercise(to: squatDay, name: "Сгибание ног лежа", sets: 3, order: 2)
+        addExercise(to: squatDay, name: "Подъем на носки", sets: 3, order: 3)
+        squatDay.program = program
+        program.days.append(squatDay)
+
+        let ohpDay = WorkoutDay(name: "Армейский / Жим", orderIndex: 2, workoutType: .strength, defaultRestTime: 150)
+        addExercise(to: ohpDay, name: "Армейский жим (T1: 8×5/3/1+)", sets: 8, order: 0)
+        addExercise(to: ohpDay, name: "Жим лежа (T2: 8×6)", sets: 8, order: 1)
+        addExercise(to: ohpDay, name: "Подтягивания", sets: 3, order: 2, type: .repsOnly)
+        addExercise(to: ohpDay, name: "Подъем штанги на бицепс", sets: 3, order: 3)
+        ohpDay.program = program
+        program.days.append(ohpDay)
+
+        let dlDay = WorkoutDay(name: "Становая / Присед", orderIndex: 3, workoutType: .strength, defaultRestTime: 180)
+        addExercise(to: dlDay, name: "Становая тяга (T1: 8×5/3/1+)", sets: 8, order: 0)
+        addExercise(to: dlDay, name: "Фронтальные приседания (T2: 8×6)", sets: 8, order: 1)
+        addExercise(to: dlDay, name: "Тяга штанги в наклоне", sets: 3, order: 2)
+        addExercise(to: dlDay, name: "Подъем ног в висе", sets: 3, order: 3, type: .repsOnly)
+        dlDay.program = program
+        program.days.append(dlDay)
+
+        return program
+    }
+
+    // MARK: - Category IX: Conditioning / Fat Loss
+
+    private nonisolated static func createTabataTotalBody() -> Program {
+        let program = Program(
+            name: "Tabata Total Body",
+            desc: "8 rounds × 20s work / 10s rest. 4 minutes of intense conditioning per block, 4-6 blocks total."
+        )
+
+        let day1 = WorkoutDay(name: "Tabata Block 1", orderIndex: 0, workoutType: .duration, defaultRestTime: 60, restTimerEnabled: true)
+        addExercise(to: day1, name: "Burpees (Берпи)", sets: 8, order: 0, type: .duration)
+        addExercise(to: day1, name: "Прыжки на скакалке", sets: 8, order: 1, type: .duration)
+        addExercise(to: day1, name: "Приседания с прыжком", sets: 8, order: 2, type: .duration)
+        addExercise(to: day1, name: "Mountain Climbers (Скалолаз)", sets: 8, order: 3, type: .duration)
+        day1.program = program
+        program.days.append(day1)
+
+        let day2 = WorkoutDay(name: "Tabata Block 2", orderIndex: 1, workoutType: .duration, defaultRestTime: 60, restTimerEnabled: true)
+        addExercise(to: day2, name: "Отжимания", sets: 8, order: 0, type: .duration)
+        addExercise(to: day2, name: "Махи гирей", sets: 8, order: 1, type: .duration)
+        addExercise(to: day2, name: "Приседания", sets: 8, order: 2, type: .duration)
+        addExercise(to: day2, name: "Планка", sets: 8, order: 3, type: .duration)
+        day2.program = program
+        program.days.append(day2)
+
+        return program
+    }
+
+    private nonisolated static func createEMOMConditioning() -> Program {
+        let program = Program(
+            name: "EMOM Conditioning",
+            desc: "Every Minute On the Minute. Complete prescribed reps within 60 seconds, rest the remainder."
+        )
+
+        let day1 = WorkoutDay(name: "EMOM 20", orderIndex: 0, workoutType: .duration, defaultRestTime: 0)
+        addExercise(to: day1, name: "Махи гирей (15 раз)", sets: 5, order: 0, type: .repsOnly)
+        addExercise(to: day1, name: "Burpees (10 раз)", sets: 5, order: 1, type: .repsOnly)
+        addExercise(to: day1, name: "Воздушные приседания (20 раз)", sets: 5, order: 2, type: .repsOnly)
+        addExercise(to: day1, name: "Подъем ног в висе (10 раз)", sets: 5, order: 3, type: .repsOnly)
+        day1.program = program
+        program.days.append(day1)
+
+        return program
+    }
+
+    // MARK: - Category X: Specials (Glutes / Core / Mobility)
+
+    private nonisolated static func createGluteBuilder() -> Program {
+        let program = Program(
+            name: "Glute Builder",
+            desc: "Glute-focused program. 3 sessions/week with hip thrusts as the cornerstone."
+        )
+
+        let dayHeavy = WorkoutDay(name: "Тяжёлый ягодичный", orderIndex: 0, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: dayHeavy, name: "Ягодичный мост (Hip Thrust)", sets: 5, order: 0)
+        addExercise(to: dayHeavy, name: "Румынская тяга", sets: 4, order: 1)
+        addExercise(to: dayHeavy, name: "Болгарские выпады", sets: 3, order: 2)
+        addExercise(to: dayHeavy, name: "Отведение ноги на блоке", sets: 3, order: 3)
+        addExercise(to: dayHeavy, name: "Подъем на носки сидя", sets: 4, order: 4)
+        dayHeavy.program = program
+        program.days.append(dayHeavy)
+
+        let dayPump = WorkoutDay(name: "Памп ягодиц", orderIndex: 1, workoutType: .strength, defaultRestTime: 45)
+        addExercise(to: dayPump, name: "Hip Thrust (с резинкой)", sets: 4, order: 0, type: .repsOnly)
+        addExercise(to: dayPump, name: "Ягодичный мост одной ногой", sets: 3, order: 1, type: .repsOnly)
+        addExercise(to: dayPump, name: "Отведение ноги (Cable Kickback)", sets: 3, order: 2)
+        addExercise(to: dayPump, name: "Step Up на платформу", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: dayPump, name: "Frog Pump (Лягушка)", sets: 3, order: 4, type: .repsOnly)
+        dayPump.program = program
+        program.days.append(dayPump)
+
+        let dayFunc = WorkoutDay(name: "Функциональный день", orderIndex: 2, workoutType: .strength, defaultRestTime: 60)
+        addExercise(to: dayFunc, name: "Гоблет приседания", sets: 4, order: 0)
+        addExercise(to: dayFunc, name: "Выпады назад", sets: 3, order: 1)
+        addExercise(to: dayFunc, name: "Становая сумо", sets: 4, order: 2)
+        addExercise(to: dayFunc, name: "Махи гирей", sets: 3, order: 3)
+        dayFunc.program = program
+        program.days.append(dayFunc)
+
+        return program
+    }
+
+    private nonisolated static func createCoreCrusher() -> Program {
+        let program = Program(
+            name: "Core Crusher",
+            desc: "Quick core finisher. 3 short sessions/week — perfect after main workouts."
+        )
+
+        let day1 = WorkoutDay(name: "Core A", orderIndex: 0, workoutType: .strength, defaultRestTime: 30)
+        addExercise(to: day1, name: "Планка", sets: 3, order: 0, type: .duration)
+        addExercise(to: day1, name: "Подъем ног в висе", sets: 3, order: 1, type: .repsOnly)
+        addExercise(to: day1, name: "Скручивания на блоке", sets: 3, order: 2)
+        addExercise(to: day1, name: "Russian Twist", sets: 3, order: 3, type: .repsOnly)
+        day1.program = program
+        program.days.append(day1)
+
+        let day2 = WorkoutDay(name: "Core B", orderIndex: 1, workoutType: .strength, defaultRestTime: 30)
+        addExercise(to: day2, name: "Боковая планка", sets: 3, order: 0, type: .duration)
+        addExercise(to: day2, name: "Hollow Body Hold", sets: 3, order: 1, type: .duration)
+        addExercise(to: day2, name: "Toes to Bar", sets: 3, order: 2, type: .repsOnly)
+        addExercise(to: day2, name: "V-ups", sets: 3, order: 3, type: .repsOnly)
+        day2.program = program
+        program.days.append(day2)
+
+        let day3 = WorkoutDay(name: "Core C", orderIndex: 2, workoutType: .strength, defaultRestTime: 30)
+        addExercise(to: day3, name: "Уголок (L-sit) на брусьях", sets: 3, order: 0, type: .duration)
+        addExercise(to: day3, name: "Велосипед", sets: 3, order: 1, type: .repsOnly)
+        addExercise(to: day3, name: "Dead Bug", sets: 3, order: 2, type: .repsOnly)
+        addExercise(to: day3, name: "Bird Dog", sets: 3, order: 3, type: .repsOnly)
+        day3.program = program
+        program.days.append(day3)
+
+        return program
+    }
+
+    private nonisolated static func createMobilityFlow() -> Program {
+        let program = Program(
+            name: "Mobility Flow",
+            desc: "Daily mobility routine. 15-20 minutes for joints and recovery."
+        )
+
+        let day1 = WorkoutDay(name: "Утренний поток", orderIndex: 0, workoutType: .duration, defaultRestTime: 15)
+        addExercise(to: day1, name: "Cat-Cow (Кошка-Корова)", sets: 2, order: 0, type: .duration)
+        addExercise(to: day1, name: "World's Greatest Stretch", sets: 2, order: 1, type: .duration)
+        addExercise(to: day1, name: "Hip 90/90", sets: 2, order: 2, type: .duration)
+        addExercise(to: day1, name: "Cossack Squat", sets: 2, order: 3, type: .duration)
+        addExercise(to: day1, name: "Thoracic Bridge", sets: 2, order: 4, type: .duration)
+        addExercise(to: day1, name: "Down Dog → Up Dog", sets: 2, order: 5, type: .duration)
+        day1.program = program
+        program.days.append(day1)
+
+        return program
+    }
+
     private nonisolated static func addExercise(to day: WorkoutDay, name: String, sets: Int, order: Int, type: WorkoutType? = nil) {
         let exercise = ExerciseTemplate(name: name, plannedSets: sets, orderIndex: order, type: type)
         day.exercises.append(exercise)

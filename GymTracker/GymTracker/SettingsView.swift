@@ -15,6 +15,14 @@ struct SettingsView: View {
     @AppStorage("isHealthSyncEnabled") private var isHealthSyncEnabled = true
     @AppStorage("isAppleWatchEnabled") private var isAppleWatchEnabled = true
     @AppStorage("appLanguage") private var appLanguage: String = "system"
+    @AppStorage(AICoachPrefs.kAIPushEnabled) private var aiPushEnabled = true
+
+    /// Singleton AI coach profile — used to drive the coach-style picker. Writes
+    /// go through `AICoachStore.shared.updateCoachStyle` so other observers
+    /// (Pre-Workout Brief, push, etc.) see the change immediately. We don't
+    /// filter on `singletonID` here because SwiftData's @Query macro can't
+    /// reference a static UUID; the table holds at most one row anyway.
+    @Query private var coachProfiles: [AICoachUserProfile]
 
     // Use EnvironmentObject provided by WorkoutTrackerApp
     @EnvironmentObject var authManager: AuthManager
@@ -368,21 +376,92 @@ struct SettingsView: View {
             footer: String(localized: "Удалит все диалоги, разборы и кеш дайджеста — локально и в облаке. Следующая тренировка начнёт историю с чистого листа.")
         ) {
             SettingsCard {
-                Button {
-                    showingWipeCoachConfirmation = true
-                } label: {
-                    SettingsRowContent(
-                        icon: "sparkles",
-                        iconTint: DesignSystem.Colors.accentPurple,
-                        iconBackground: DesignSystem.Colors.accentPurple.opacity(0.18),
-                        title: String(localized: "Очистить историю AI Coach"),
-                        subtitle: nil,
-                        accessory: isWipingCoach ? .progress : .destructiveIcon("trash")
+                VStack(spacing: 0) {
+                    coachStyleRow
+                    SettingsInnerDivider()
+                    SettingsToggleRow(
+                        icon: "bell.badge.fill",
+                        iconColor: DesignSystem.Colors.accentPurple,
+                        title: String(localized: "Push-уведомления от ИИ"),
+                        subtitle: String(localized: "Напоминания, разборы и инсайты от коуча"),
+                        isOn: $aiPushEnabled
                     )
+                    .onChange(of: aiPushEnabled) { _, isOn in
+                        if isOn {
+                            let ctx = modelContext
+                            Task { @MainActor in
+                                await AICoachNotificationService.rescheduleSmartReminder(modelContext: ctx)
+                                await AICoachNotificationService.rescheduleRecoveryAlertIfNeeded(
+                                    healthManager: HealthManager.shared
+                                )
+                                await AICoachNotificationService.rescheduleWeeklyWrappedPush()
+                            }
+                        } else {
+                            AICoachNotificationService.cancelAll()
+                        }
+                    }
+                    SettingsInnerDivider()
+                    Button {
+                        showingWipeCoachConfirmation = true
+                    } label: {
+                        SettingsRowContent(
+                            icon: "sparkles",
+                            iconTint: DesignSystem.Colors.accentPurple,
+                            iconBackground: DesignSystem.Colors.accentPurple.opacity(0.18),
+                            title: String(localized: "Очистить историю AI Coach"),
+                            subtitle: nil,
+                            accessory: isWipingCoach ? .progress : .destructiveIcon("trash")
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isWipingCoach)
                 }
-                .buttonStyle(.plain)
-                .disabled(isWipingCoach)
             }
+        }
+    }
+
+    /// Picker for the coach persona. Persists through `AICoachStore` so the
+    /// next reply (pre-brief, post-analysis, follow-up) immediately uses the
+    /// new tone without a relaunch.
+    private var coachStyleRow: some View {
+        let current = coachProfiles.first?.coachStyle ?? .friendly
+        return Menu {
+            ForEach(AICoachStyle.allCases) { style in
+                Button {
+                    AICoachStore.shared.attach(modelContext)
+                    AICoachStore.shared.updateCoachStyle(style)
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                } label: {
+                    Label {
+                        Text(style.titleKey)
+                    } icon: {
+                        if style == current {
+                            Image(systemName: "checkmark")
+                        } else {
+                            Text(style.emoji)
+                        }
+                    }
+                }
+            }
+        } label: {
+            SettingsRowContent(
+                icon: "person.wave.2.fill",
+                iconTint: DesignSystem.Colors.neonGreen,
+                iconBackground: DesignSystem.Colors.neonGreen.opacity(0.18),
+                title: String(localized: "Стиль коуча"),
+                subtitle: localizedTitle(for: current),
+                accessory: .text(current.emoji)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func localizedTitle(for style: AICoachStyle) -> String {
+        switch style {
+        case .strict:    return String(localized: "Жёсткий")
+        case .friendly:  return String(localized: "Дружелюбный")
+        case .technical: return String(localized: "Технарь")
+        case .motivator: return String(localized: "Мотиватор")
         }
     }
 
@@ -608,6 +687,7 @@ private enum SettingsRowAccessory {
     case external
     case progress
     case destructiveIcon(String)
+    case text(String)
     case none
 }
 
@@ -660,6 +740,15 @@ private struct SettingsRowContent: View {
                 Image(systemName: name)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(DesignSystem.Colors.tertiaryText)
+            case .text(let value):
+                HStack(spacing: 6) {
+                    Text(value)
+                        .font(DesignSystem.Typography.body())
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                }
             case .none:
                 EmptyView()
             }

@@ -631,6 +631,7 @@ struct DashboardView: View {
     // CRITICAL FIX: Limit query to prevent freeze with large datasets
     @State private var history: [WorkoutSession] = []
     @State private var totalCompletedCount: Int = 0
+    @State private var weeklyWrapped: WeeklyWrappedSnapshot?
 
     private var recentHistory: [WorkoutSession] {
         Array(history.prefix(1))
@@ -666,6 +667,16 @@ struct DashboardView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                // Weekly Wrapped — Spotify-style end-of-week recap. Only surfaces
+                // once there's at least one workout in the current week, so a
+                // brand-new user doesn't see an empty stat reel.
+                if workoutsThisWeek > 0 {
+                    WeeklyWrappedTeaser {
+                        weeklyWrapped = WeeklyWrappedGenerator.make(modelContext: modelContext)
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                }
 
                 // MARK: - Today's Plan (Action Hero Card)
                 TodayWorkoutCard(
@@ -738,6 +749,9 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $showingAchievementsSheet) {
             ProgressHubView()
+        }
+        .fullScreenCover(item: $weeklyWrapped) { snapshot in
+            WeeklyWrappedView(snapshot: snapshot, onClose: { weeklyWrapped = nil })
         }
         .background(DesignSystem.Colors.background.ignoresSafeArea())
     }
