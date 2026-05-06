@@ -37,6 +37,7 @@ struct ExerciseCard: View {
     @State private var isWeighted: Bool = false
     @State private var showRestTimer: Bool = false
     @State private var isTimerEnabledForExercise: Bool = true // Timer toggle state
+    @State private var showingE1RMInfo: Bool = false
     
     @State private var timer: Timer? = nil
     
@@ -207,13 +208,25 @@ struct ExerciseCard: View {
                             .foregroundColor(.gray)
                         Spacer()
                         if personalBestE1RM > 0 {
-                            HStack(spacing: 4) {
-                                Image(systemName: "trophy.fill")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(DesignSystem.Colors.neonGreen)
-                                Text("\("Макс.".localized()) \(formatBest(personalBestE1RM)) \("кг".localized()) e1RM")
-                                    .font(.caption2)
-                                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                            Button(action: { showingE1RMInfo = true }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "trophy.fill")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                                    Text("\("Макс.".localized()) \(formatBest(personalBestE1RM)) \("кг".localized()) e1RM")
+                                        .font(.caption2)
+                                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                                    Image(systemName: "info.circle")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(DesignSystem.Colors.neonGreen.opacity(0.7))
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .popover(isPresented: $showingE1RMInfo,
+                                     attachmentAnchor: .point(.top),
+                                     arrowEdge: .bottom) {
+                                E1RMInfoPopover(value: personalBestE1RM)
+                                    .presentationCompactAdaptation(.popover)
                             }
                         }
                     }
@@ -541,42 +554,7 @@ struct ExerciseCard: View {
             )
         }
         .onAppear {
-            // Compute previousSets once (expensive: filters all sessions)
-            // Subsequent renders use cachedPreviousSets instead of recomputing
-            let sessionsWithExercise = allCompletedSessions
-                .filter { session in
-                    guard session.id != self.session?.id else { return false }
-                    return session.sets.contains { $0.exerciseName == exercise.name }
-                }
-                .sorted { $0.date > $1.date }
-            if let lastSession = sessionsWithExercise.first {
-                cachedPreviousSets = lastSession.sets
-                    .filter { $0.exerciseName == exercise.name }
-                    .sorted {
-                        if $0.date != $1.date { return $0.date < $1.date }
-                        return $0.setNumber < $1.setNumber
-                    }
-            }
-            if sessionsWithExercise.count >= 2 {
-                let penultimate = sessionsWithExercise[1]
-                cachedPenultimateSets = penultimate.sets
-                    .filter { $0.exerciseName == exercise.name }
-                    .sorted {
-                        if $0.date != $1.date { return $0.date < $1.date }
-                        return $0.setNumber < $1.setNumber
-                    }
-            }
-            // All-time best estimated 1RM across every prior session.
-            var best: Double = 0
-            for session in sessionsWithExercise {
-                for set in session.sets where set.exerciseName == exercise.name {
-                    guard set.weight > 0, set.reps > 0 else { continue }
-                    let e1RM = set.weight * (1.0 + Double(set.reps) / 30.0)
-                    if e1RM > best { best = e1RM }
-                }
-            }
-            personalBestE1RM = best
-            
+            reloadHistoryForCurrentExercise()
             if let firstSet = completedSets.first, let comment = firstSet.comment {
                 exerciseComment = comment
             }
@@ -681,11 +659,73 @@ struct ExerciseCard: View {
     }
     
     private func replaceExercise(with newExercise: LibraryExercise) {
-        // Logic to update template name
+        // Меняем имя и тип упражнения. Старые подходы текущей сессии НЕ переименовываем —
+        // они останутся в истории под старым названием (это другое движение).
+        // Кеш «прошлая тренировка» / e1RM пересчитываем под НОВОЕ упражнение,
+        // иначе пользователь видит данные за чужое движение.
         exercise.name = newExercise.name
-        // Update existing sets name ? Not strictly required if sets are by name, but good for consistency
-        for set in completedSets { set.exerciseName = newExercise.name }
+        exercise.resolvedWorkoutType = newExercise.defaultType
+        currentWorkoutType = newExercise.defaultType
+
+        // Инпуты обнуляем — у нового упражнения свой стартовый вес.
+        weight = ""
+        reps = ""
+        duration = ""
+        elapsedTime = 0
+
         try? modelContext.save()
+        reloadHistoryForCurrentExercise()
+
+        // Подставим стартовый вес из прошлой тренировки нового упражнения.
+        if isActive, let lastSet = cachedPreviousSets.last, lastSet.weight > 0 {
+            let w = lastSet.weight
+            weight = w.truncatingRemainder(dividingBy: 1) == 0
+                ? String(format: "%.0f", w)
+                : String(format: "%.1f", w)
+        }
+    }
+
+    /// Перечитывает кеш «прошлая тренировка», предпоследняя тренировка и e1RM
+    /// под текущее `exercise.name`. Вызывается на onAppear и после замены упражнения.
+    private func reloadHistoryForCurrentExercise() {
+        let sessionsWithExercise = allCompletedSessions
+            .filter { session in
+                guard session.id != self.session?.id else { return false }
+                return session.sets.contains { $0.exerciseName == exercise.name }
+            }
+            .sorted { $0.date > $1.date }
+
+        if let lastSession = sessionsWithExercise.first {
+            cachedPreviousSets = lastSession.sets
+                .filter { $0.exerciseName == exercise.name }
+                .sorted {
+                    if $0.date != $1.date { return $0.date < $1.date }
+                    return $0.setNumber < $1.setNumber
+                }
+        } else {
+            cachedPreviousSets = []
+        }
+
+        if sessionsWithExercise.count >= 2 {
+            cachedPenultimateSets = sessionsWithExercise[1].sets
+                .filter { $0.exerciseName == exercise.name }
+                .sorted {
+                    if $0.date != $1.date { return $0.date < $1.date }
+                    return $0.setNumber < $1.setNumber
+                }
+        } else {
+            cachedPenultimateSets = []
+        }
+
+        var best: Double = 0
+        for session in sessionsWithExercise {
+            for set in session.sets where set.exerciseName == exercise.name {
+                guard set.weight > 0, set.reps > 0 else { continue }
+                let e1RM = set.weight * (1.0 + Double(set.reps) / 30.0)
+                if e1RM > best { best = e1RM }
+            }
+        }
+        personalBestE1RM = best
     }
     
     private func toggleTimer() {
@@ -818,5 +858,77 @@ struct CompletedSetChip: View {
         } else {
             return String(format: "%.1f", w)
         }
+    }
+}
+
+// MARK: - e1RM Info Popover
+
+struct E1RMInfoPopover: View {
+    let value: Double
+
+    private var formattedValue: String {
+        if value.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f", value)
+        }
+        return String(format: "%.1f", value)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle()
+                        .fill(DesignSystem.Colors.neonGreen.opacity(0.15))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("e1RM").font(.headline).foregroundColor(.white)
+                    Text("Estimated 1 Rep Max")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+            }
+
+            Text("Расчётный максимум на одно повторение — оценка веса, который ты теоретически осилил бы один раз с правильной техникой.")
+                .font(.system(size: 13))
+                .foregroundColor(.white.opacity(0.85))
+                .fixedSize(horizontal: false, vertical: true)
+
+            Divider().background(Color.white.opacity(0.1))
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Формула Эпли")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                Text("e1RM = вес × (1 + повторы / 30)")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.9))
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Зачем смотреть")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                Text("Видно прогресс силы, даже если меняешь веса/повторы. Подход 80×10 и 100×5 сравнимы между собой через e1RM.")
+                    .font(.system(size: 12))
+                    .foregroundColor(.white.opacity(0.85))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            HStack {
+                Spacer()
+                Text("Личный максимум: \(formattedValue) кг")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                Spacer()
+            }
+            .padding(.top, 4)
+        }
+        .padding(16)
+        .frame(width: 280)
+        .background(DesignSystem.Colors.cardBackground)
     }
 }

@@ -46,6 +46,47 @@ class WorkoutManager: ObservableObject {
     
     // HealthKit workout type selection
     private var selectedActivityType: HKWorkoutActivityType = .functionalStrengthTraining
+
+    /// Подбирает HKWorkoutActivityType исходя из РЕАЛЬНОГО состава упражнений дня:
+    /// - все силовые → functionalStrengthTraining
+    /// - все кардио → конкретный кардио-тип по имени упражнения / дня (бег, велик, ходьба) либо mixedCardio
+    /// - смешанный (силовая + кардио) → mixedCardio (даёт более честную оценку калорий)
+    nonisolated static func resolveActivityType(
+        for day: WorkoutDay?,
+        sessionName: String
+    ) -> HKWorkoutActivityType {
+        guard let day else { return .functionalStrengthTraining }
+
+        let exerciseTypes = day.exercises.map { $0.resolvedWorkoutType }
+        let hasCardio = exerciseTypes.contains(.duration)
+        let hasStrength = exerciseTypes.contains { $0 == .strength || $0 == .repsOnly }
+
+        // Смешанный день — пусть HealthKit считает по mixedCardio (учитывает HR-зоны).
+        if hasCardio && hasStrength { return .mixedCardio }
+
+        // Чистое кардио — попробуем определить конкретный вид по названиям упражнений.
+        if hasCardio {
+            let names = day.exercises
+                .filter { $0.resolvedWorkoutType == .duration }
+                .map { $0.name.lowercased() }
+                .joined(separator: " ")
+            let combined = (names + " " + sessionName.lowercased())
+            if combined.contains("run") || combined.contains("бег") { return .running }
+            if combined.contains("walk") || combined.contains("ходьб") { return .walking }
+            if combined.contains("bike") || combined.contains("cycl") || combined.contains("велосип") || combined.contains("вело") {
+                return .cycling
+            }
+            if combined.contains("row") || combined.contains("греб") { return .rowing }
+            if combined.contains("swim") || combined.contains("плав") { return .swimming }
+            if combined.contains("elliptical") || combined.contains("эллипс") { return .elliptical }
+            if combined.contains("stair") || combined.contains("степ") { return .stairs }
+            if combined.contains("jump") || combined.contains("скакалк") { return .jumpRope }
+            return .mixedCardio
+        }
+
+        // Чистая силовая.
+        return .functionalStrengthTraining
+    }
     
     private var liveActivityTimer: Timer?
     private var programObserver: NSObjectProtocol?
@@ -374,29 +415,17 @@ class WorkoutManager: ObservableObject {
         let shouldSync = UserDefaults.standard.object(forKey: "isHealthSyncEnabled") as? Bool ?? true
         if shouldSync {
             Task {
-                // Smart workout type selection
-                var type: HKWorkoutActivityType = .functionalStrengthTraining
-                
-                if let dayType = self.selectedDay?.workoutType {
-                    switch dayType {
-                    case .strength, .repsOnly:
-                        // Use functional for bodyweight + free weights (better calorie estimation)
-                        type = .functionalStrengthTraining
-                    case .duration:
-                        let name = session.workoutDayName.lowercased()
-                        if name.contains("run") || name.contains("бег") {
-                            type = .running
-                        } else if name.contains("walk") || name.contains("ходьба") {
-                            type = .walking
-                        } else {
-                            type = .mixedCardio
-                        }
-                    }
-                }
-                
+                // Smart workout type selection — анализируем РЕАЛЬНЫЕ упражнения дня,
+                // а не общий тип, чтобы Apple Fitness корректно считал калории
+                // (mixedCardio учитывает вариативный пульс, тогда как strength занижает).
+                let type = Self.resolveActivityType(
+                    for: self.selectedDay,
+                    sessionName: session.workoutDayName
+                )
+
                 // Save for later use in finishWorkout
                 self.selectedActivityType = type
-                
+
                 await self.healthProvider.startWorkout(workoutType: type)
             }
             
