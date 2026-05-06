@@ -11,22 +11,6 @@
         }
       }
     },
-    "--": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "--"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "--"
-          }
-        }
-      }
-    },
     "—": {
       "localizations": {
         "en": {
