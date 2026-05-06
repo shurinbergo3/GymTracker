@@ -113,43 +113,49 @@ struct WorkoutTrackerApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
+                // Главный контент — ВСЕГДА присутствует, чтобы splash не блокировал переход.
+                Group {
+                    if authManager.isLoggedIn {
+                        if isRestoringData {
+                            RestoringDataView(isRestoring: $isRestoringData, onFinish: {
+                                isRestoringData = false
+                            })
+                        } else {
+                            ContentViewWrapper()
+                                .environmentObject(authManager)
+                        }
+                    } else {
+                        if !hasSeenOnboarding {
+                            OnboardingView(hasSeenOnboarding: Binding(
+                                get: { hasSeenOnboarding },
+                                set: { hasSeenOnboarding = $0 }
+                            ))
+                        } else {
+                            LoginView()
+                        }
+                    }
+                }
+
+                // Сплеш — поверх контента, исчезает по таймеру.
+                // Мы НЕ ждём auth listener — он отрабатывает в фоне и поменяет isLoggedIn,
+                // а контент под сплешем уже готов отрисоваться сразу как сплеш уйдёт.
                 if isCheckingAuth {
                     LaunchScreenView()
                         .transition(.opacity)
-                } else {
-                    Group {
-                        if authManager.isLoggedIn {
-                            if isRestoringData {
-                                RestoringDataView(isRestoring: $isRestoringData, onFinish: {
-                                    // Transition to content
-                                    isRestoringData = false
-                                })
-                                .transition(.opacity)
-                            } else {
-                                ContentViewWrapper()
-                                    .environmentObject(authManager)
-                                    .transition(.opacity)
-                            }
-                        } else {
-                            if !hasSeenOnboarding {
-                                OnboardingView(hasSeenOnboarding: Binding(
-                                    get: { hasSeenOnboarding },
-                                    set: { hasSeenOnboarding = $0 }
-                                ))
-                                .transition(.opacity)
-                            } else {
-                                LoginView()
-                                    .transition(.opacity)
-                            }
-                        }
-                    }
+                        .zIndex(1)
                 }
             }
             .preferredColorScheme(.dark)
             .id(languageManager.refreshID)
             .modelContainer(sharedModelContainer)
+            .task {
+                // Гарантированный таймер: сплеш живёт максимум 1.2с, не зависит от Firebase.
+                try? await Task.sleep(nanoseconds: 1_200_000_000)
+                withAnimation(.easeOut(duration: 0.35)) {
+                    isCheckingAuth = false
+                }
+            }
             .onAppear {
-                checkAuthStatus()
                 InactivityNotificationService.requestAuthorizationIfNeeded()
             }
             .onChange(of: authManager.isLoggedIn) { _, isLoggedIn in
@@ -193,29 +199,9 @@ struct WorkoutTrackerApp: App {
         )
     }
 
-    private func checkAuthStatus() {
-        // Quick verification:
-        // Use UserDefaults to know if we EXPECT to be logged in
-        let hasPreviousSession = UserDefaults.standard.bool(forKey: "isLoggedIn")
-
-        if !hasPreviousSession {
-            // No previous session, go straight to Login
-            withAnimation { isCheckingAuth = false }
-        } else {
-            // We expect a session, wait a moment for Firebase/AuthManager to sync
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation { isCheckingAuth = false }
-            }
-        }
-
-        // Safety net: на случай любых блокировок (Firebase/Firestore offline cache,
-        // отсутствие сети, повреждённое состояние) сплеш не должен висеть дольше 2.5с.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            if self.isCheckingAuth {
-                withAnimation { self.isCheckingAuth = false }
-            }
-        }
-    }
+    // checkAuthStatus() удалён — splash теперь снимается через `.task` с фиксированным
+    // таймером 1.2с. Auth-listener работает параллельно и обновляет isLoggedIn в фоне,
+    // что переключает контент под уже снятым сплешем.
     
     /// Check if DB is empty on login to trigger auto-restore
     private func checkForFreshInstall() {

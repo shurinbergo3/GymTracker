@@ -18,14 +18,18 @@ struct LaunchScreenView: View {
             )
             .ignoresSafeArea()
 
-            // Картинка на весь экран. .fill заполняет всю площадь, обрезая по краям;
-            // SwiftUI центрирует автоматически — название "Body Forge" остаётся в центре.
-            Image("LaunchScreen")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-                .ignoresSafeArea()
+            // Картинка на весь экран. Используем GeometryReader, чтобы явно задать
+            // размер кадра — иначе .aspectRatio(.fill) может не отцентрироваться корректно
+            // в ZStack-композиции. Asset 1536×2752, телефон ~9:19.5 → масштабируем по высоте,
+            // боковины слегка обрезаются, "Body Forge" остаётся ровно посередине.
+            GeometryReader { geo in
+                Image("LaunchScreen")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+            }
+            .ignoresSafeArea()
 
             if showLoader {
                 VStack {
