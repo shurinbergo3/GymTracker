@@ -230,7 +230,7 @@ struct AICoachWidget: View {
                 HStack(spacing: 4) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
                         .font(.system(size: 9, weight: .bold))
-                    Text(String(format: "%d/%d ".localized(),
+                    Text(String(format: "%d/%d ",
                                 remaining,
                                 AICoachStore.maxPostQuestions) + "вопросов".localized())
                         .font(.system(size: 10, weight: .semibold))
