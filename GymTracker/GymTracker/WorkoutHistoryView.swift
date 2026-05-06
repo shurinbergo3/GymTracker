@@ -161,14 +161,30 @@ struct SessionHistoryView: View {
     @State private var sessionToDelete: WorkoutSession?
     @State private var showingDeleteConfirmation = false
     @State private var selectedSession: WorkoutSession?
-    
+    @State private var externalWorkouts: [ExternalWorkout] = []
+    @State private var showingAppleHealthSheet = false
+
+    /// Last 30 days of Apple Health workouts that did not originate from
+    /// Body Forge — surfaced as a separate group so the user can see their
+    /// full activity at a glance without polluting strength-session stats.
+    private var externalWindowDays: Int { 30 }
+
     var body: some View {
         ScrollView {
             VStack(spacing: DesignSystem.Spacing.lg) {
                 // Календарь
-                ExpandableCalendarView()
+                ExpandableCalendarView(externalWorkoutDays: externalDays)
                     .padding(.horizontal, DesignSystem.Spacing.lg)
-                
+
+                // Apple Health (внешние тренировки)
+                if !externalWorkouts.isEmpty {
+                    AppleHealthHistorySection(
+                        workouts: externalWorkouts,
+                        onTapAll: { showingAppleHealthSheet = true }
+                    )
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                }
+
                 // Список тренировок
                 LazyVStack(spacing: DesignSystem.Spacing.md) {
                     ForEach(completedSessions, id: \.self) { session in
@@ -197,8 +213,19 @@ struct SessionHistoryView: View {
                 .padding(.horizontal, DesignSystem.Spacing.lg)
             }
         }
+        .task {
+            let end = Date()
+            guard let start = Calendar.current.date(byAdding: .day, value: -externalWindowDays, to: end) else { return }
+            let fetched = await HealthManager.shared.fetchExternalWorkouts(from: start, to: end)
+            await MainActor.run {
+                self.externalWorkouts = fetched
+            }
+        }
         .navigationDestination(item: $selectedSession) { session in
             WorkoutHistoryDetailView(session: session)
+        }
+        .sheet(isPresented: $showingAppleHealthSheet) {
+            AppleHealthWorkoutsSheet(workouts: externalWorkouts)
         }
         .alert(Text("Удалить тренировку?".localized()), isPresented: $showingDeleteConfirmation) {
             Button("Отмена".localized(), role: .cancel) {
@@ -216,21 +243,26 @@ struct SessionHistoryView: View {
             }
         }
     }
-    
+
+    private var externalDays: Set<Date> {
+        let cal = Calendar.current
+        return Set(externalWorkouts.map { cal.startOfDay(for: $0.startDate) })
+    }
+
     private func deleteWorkout(_ session: WorkoutSession) {
         withAnimation {
             modelContext.delete(session)
             try? modelContext.save()
         }
     }
-    
+
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         // formatter.locale = Locale(identifier: "ru_RU")
         formatter.setLocalizedDateFormatFromTemplate("dMMMMyyyy")
         return formatter.string(from: date)
     }
-    
+
     private func calculateProgress(for session: WorkoutSession) -> ProgressState? {
         // Найти ближайшую предыдущую сессию того же типа дня
         let previousSession = completedSessions
@@ -245,6 +277,68 @@ struct SessionHistoryView: View {
         if currentVolume > previousVolume { return .improved }
         if currentVolume >= previousVolume * 0.9 { return .same }
         return .declined
+    }
+}
+
+// MARK: - Apple Health history section
+
+private struct AppleHealthHistorySection: View {
+    let workouts: [ExternalWorkout]
+    let onTapAll: () -> Void
+
+    private var preview: [ExternalWorkout] { Array(workouts.prefix(3)) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "heart.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Color.pink)
+                Text("Из Apple Health".localized())
+                    .font(DesignSystem.Typography.headline())
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                Spacer()
+                Button(action: onTapAll) {
+                    HStack(spacing: 4) {
+                        Text("Все".localized())
+                            .font(.caption.weight(.semibold))
+                        Image(systemName: "chevron.right")
+                            .font(.caption2.weight(.bold))
+                    }
+                    .foregroundStyle(DesignSystem.Colors.secondaryText)
+                }
+                .buttonStyle(.plain)
+            }
+
+            VStack(spacing: 8) {
+                ForEach(preview) { w in
+                    ExternalWorkoutRow(workout: w, dense: false)
+                        .padding(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(Color.white.opacity(0.04))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(w.tint.opacity(0.15), lineWidth: 1)
+                        )
+                }
+                if workouts.count > preview.count {
+                    Button(action: onTapAll) {
+                        Text(String(format: "Показать ещё %d".localized(), workouts.count - preview.count))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Color.pink)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.pink.opacity(0.10))
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
     }
 }
 

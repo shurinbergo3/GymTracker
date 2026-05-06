@@ -208,15 +208,23 @@ struct WeeklyWrappedView: View {
                     .font(.system(size: 15, weight: .heavy))
                 Text("Поделиться".localized())
                     .font(.system(.headline, design: .rounded, weight: .heavy))
+                    .tracking(0.4)
             }
             .foregroundStyle(.black)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(
                 ZStack {
-                    Color.white
                     LinearGradient(
-                        colors: [Color.white.opacity(0.6), .clear],
+                        colors: [
+                            DesignSystem.Colors.neonGreen,
+                            Color(red: 0.6, green: 0.9, blue: 0.15)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.32), .clear],
                         startPoint: .top,
                         endPoint: .center
                     )
@@ -225,10 +233,10 @@ struct WeeklyWrappedView: View {
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.white.opacity(0.5), lineWidth: 0.5)
+                    .stroke(Color.white.opacity(0.35), lineWidth: 0.5)
             )
-            .shadow(color: .white.opacity(0.35), radius: 24, y: 10)
-            .shadow(color: .white.opacity(0.20), radius: 6, y: 2)
+            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 24, y: 12)
+            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.30), radius: 6, y: 2)
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 22)
@@ -246,39 +254,47 @@ struct WeeklyWrappedView: View {
     }
 }
 
-// MARK: - Background mesh
+// MARK: - Background
 
+/// Brand launch image, heavily darkened so text remains legible,
+/// with subtle neon-green ambient accents matching the rest of the app.
 private struct WeeklyWrappedBackground: View {
     var body: some View {
         ZStack {
             Color.black
 
-            // Top-right purple
-            Circle()
-                .fill(Color(red: 0.55, green: 0.30, blue: 1.0))
-                .frame(width: 460, height: 460)
-                .blur(radius: 110)
-                .offset(x: 140, y: -240)
-                .opacity(0.85)
+            Image("LaunchScreen")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .blur(radius: 6)
+                .opacity(0.38)
 
-            // Mid-left pink
-            Circle()
-                .fill(Color(red: 1.0, green: 0.30, blue: 0.65))
-                .frame(width: 360, height: 360)
-                .blur(radius: 110)
-                .offset(x: -130, y: 60)
-                .opacity(0.65)
+            // Vertical dim — readable text on hero/middle, slightly lighter at edges
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0.55),
+                    Color.black.opacity(0.78),
+                    Color.black.opacity(0.70)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
 
-            // Bottom warm
+            // Brand neon ambient — top
             Circle()
-                .fill(Color(red: 1.0, green: 0.55, blue: 0.20))
-                .frame(width: 340, height: 340)
-                .blur(radius: 110)
-                .offset(x: 110, y: 380)
-                .opacity(0.55)
+                .fill(DesignSystem.Colors.neonGreen)
+                .frame(width: 380, height: 380)
+                .blur(radius: 140)
+                .offset(x: 120, y: -220)
+                .opacity(0.18)
 
-            // Subtle dimmer
-            Color.black.opacity(0.18)
+            // Brand neon ambient — bottom
+            Circle()
+                .fill(DesignSystem.Colors.neonGreen)
+                .frame(width: 280, height: 280)
+                .blur(radius: 130)
+                .offset(x: -110, y: 320)
+                .opacity(0.10)
         }
     }
 }
@@ -338,24 +354,24 @@ struct WeeklyWrappedSummaryCard: View {
     private var sparkleHero: some View {
         ZStack {
             Circle()
-                .fill(Color(red: 0.85, green: 0.55, blue: 1.0).opacity(0.55))
+                .fill(DesignSystem.Colors.neonGreen.opacity(0.45))
                 .frame(width: 170, height: 170)
                 .blur(radius: 50)
             Circle()
-                .fill(Color(red: 1.0, green: 0.55, blue: 0.85).opacity(0.35))
-                .frame(width: 130, height: 130)
-                .blur(radius: 30)
-                .offset(x: 24, y: 12)
+                .fill(DesignSystem.Colors.neonGreen.opacity(0.25))
+                .frame(width: 120, height: 120)
+                .blur(radius: 28)
+                .offset(x: 20, y: 10)
             Image(systemName: "sparkles")
                 .font(.system(size: 64, weight: .heavy))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.white, Color(red: 1.0, green: 0.92, blue: 1.0)],
+                        colors: [.white, DesignSystem.Colors.neonGreen],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
-                .shadow(color: .white.opacity(0.6), radius: 18)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.7), radius: 20)
         }
         .frame(height: 130)
     }
@@ -373,7 +389,7 @@ struct WeeklyWrappedSummaryCard: View {
                 .font(.system(size: 26, weight: .heavy, design: .rounded))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.white, Color(red: 1.0, green: 0.88, blue: 1.0)],
+                        colors: [.white, DesignSystem.Colors.neonGreen.opacity(0.9)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -393,12 +409,12 @@ struct WeeklyWrappedSummaryCard: View {
                 .font(.system(size: 76, weight: .black, design: .rounded))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.white, Color(red: 1.0, green: 0.82, blue: 0.55)],
+                        colors: [.white, DesignSystem.Colors.neonGreen],
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
-                .shadow(color: Color(red: 1.0, green: 0.65, blue: 0.30).opacity(0.45), radius: 24)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 26)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
 
@@ -593,28 +609,39 @@ private struct WeeklyWrappedShareRender: View {
 
     var body: some View {
         ZStack {
-            // Bigger bleed of the same mesh, scaled for 1080x1920
+            // Brand launch image, darkened, with neon-green ambient — scaled for 1080x1920
             ZStack {
                 Color.black
+
+                Image("LaunchScreen")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .blur(radius: 14)
+                    .opacity(0.36)
+
+                LinearGradient(
+                    colors: [
+                        Color.black.opacity(0.55),
+                        Color.black.opacity(0.78),
+                        Color.black.opacity(0.70)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
                 Circle()
-                    .fill(Color(red: 0.55, green: 0.30, blue: 1.0))
-                    .frame(width: 900, height: 900)
-                    .blur(radius: 220)
-                    .offset(x: 280, y: -480)
-                    .opacity(0.85)
+                    .fill(DesignSystem.Colors.neonGreen)
+                    .frame(width: 760, height: 760)
+                    .blur(radius: 280)
+                    .offset(x: 240, y: -440)
+                    .opacity(0.18)
+
                 Circle()
-                    .fill(Color(red: 1.0, green: 0.30, blue: 0.65))
-                    .frame(width: 720, height: 720)
-                    .blur(radius: 220)
-                    .offset(x: -240, y: 220)
-                    .opacity(0.70)
-                Circle()
-                    .fill(Color(red: 1.0, green: 0.55, blue: 0.20))
-                    .frame(width: 720, height: 720)
-                    .blur(radius: 220)
-                    .offset(x: 200, y: 760)
-                    .opacity(0.55)
-                Color.black.opacity(0.15)
+                    .fill(DesignSystem.Colors.neonGreen)
+                    .frame(width: 560, height: 560)
+                    .blur(radius: 260)
+                    .offset(x: -220, y: 640)
+                    .opacity(0.10)
             }
 
             VStack(spacing: 0) {

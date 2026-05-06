@@ -19,9 +19,17 @@ struct ExpandableCalendarView: View {
     /// would leave most of the screen empty.
     private let lockedExpanded: Bool
 
-    init(initiallyExpanded: Bool = false, lockedExpanded: Bool = false) {
+    /// Days that have an Apple Health workout but NO Body Forge session.
+    /// Rendered with a different marker so the user can see external
+    /// activity (walks, cycling, etc.) at a glance.
+    private let externalWorkoutDays: Set<Date>
+
+    init(initiallyExpanded: Bool = false,
+         lockedExpanded: Bool = false,
+         externalWorkoutDays: Set<Date> = []) {
         self._isExpanded = State(initialValue: initiallyExpanded || lockedExpanded)
         self.lockedExpanded = lockedExpanded
+        self.externalWorkoutDays = externalWorkoutDays
     }
 
     var body: some View {
@@ -43,12 +51,14 @@ struct ExpandableCalendarView: View {
                     FullMonthView(
                         month: selectedMonth,
                         completedDates: completedDates,
+                        externalDates: externalOnlyDates,
                         onDaySelected: handleDaySelection
                     )
                 } else {
                     WeekView(
                         date: Date(),
                         completedDates: completedDates,
+                        externalDates: externalOnlyDates,
                         onDaySelected: handleDaySelection
                     )
                 }
@@ -64,7 +74,7 @@ struct ExpandableCalendarView: View {
             WorkoutHistoryDetailView(session: session)
         }
     }
-    
+
     // Cache normalized dates for O(1) lookup
     private var completedDates: Set<Date> {
         let calendar = Calendar.current
@@ -73,14 +83,20 @@ struct ExpandableCalendarView: View {
             return calendar.startOfDay(for: session.date)
         })
     }
-    
+
+    /// Days with an external (Apple Health) workout that don't already
+    /// contain a Body Forge session — avoids overlapping markers.
+    private var externalOnlyDates: Set<Date> {
+        externalWorkoutDays.subtracting(completedDates)
+    }
+
     private func handleDaySelection(_ date: Date) {
         // Find session for this date
         if let session = allSessions.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) && $0.isCompleted }) {
             selectedSession = session
         }
     }
-    
+
     private func previousMonth() {
         withAnimation {
             if let newDate = Calendar.current.date(byAdding: .month, value: -1, to: selectedMonth) {
@@ -88,7 +104,7 @@ struct ExpandableCalendarView: View {
             }
         }
     }
-    
+
     private func nextMonth() {
         withAnimation {
             if let newDate = Calendar.current.date(byAdding: .month, value: 1, to: selectedMonth) {
@@ -154,23 +170,24 @@ struct MonthHeaderView: View {
 struct WeekView: View {
     let date: Date
     let completedDates: Set<Date>
+    var externalDates: Set<Date> = []
     let onDaySelected: (Date) -> Void
-    
+
     private var weekDates: [Date] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: date)
         let weekday = calendar.component(.weekday, from: today)
         let daysFromMonday = (weekday + 5) % 7
-        
+
         guard let weekStart = calendar.date(byAdding: .day, value: -daysFromMonday, to: today) else {
             return []
         }
-        
+
         return (0..<7).compactMap { day in
             calendar.date(byAdding: .day, value: day, to: weekStart)
         }
     }
-    
+
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.sm) {
             ForEach(weekDates, id: \.self) { date in
@@ -178,7 +195,8 @@ struct WeekView: View {
                     DayCell(
                         date: date,
                         isToday: Calendar.current.isDateInToday(date),
-                        hasWorkout: completedDates.contains(Calendar.current.startOfDay(for: date))
+                        hasWorkout: completedDates.contains(Calendar.current.startOfDay(for: date)),
+                        hasExternal: externalDates.contains(Calendar.current.startOfDay(for: date))
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -192,42 +210,43 @@ struct WeekView: View {
 struct FullMonthView: View {
     let month: Date
     let completedDates: Set<Date>
+    var externalDates: Set<Date> = []
     let onDaySelected: (Date) -> Void
-    
+
     private var monthDates: [[Date?]] {
         let calendar = Calendar.current
         guard let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: month)),
               let monthRange = calendar.range(of: .day, in: .month, for: monthStart) else {
             return []
         }
-        
+
         let firstWeekday = calendar.component(.weekday, from: monthStart)
         let daysFromMonday = (firstWeekday + 5) % 7
-        
+
         var weeks: [[Date?]] = []
         var currentWeek: [Date?] = Array(repeating: nil, count: daysFromMonday)
-        
+
         for day in monthRange {
             if let date = calendar.date(byAdding: .day, value: day - 1, to: monthStart) {
                 currentWeek.append(date)
-                
+
                 if currentWeek.count == 7 {
                     weeks.append(currentWeek)
                     currentWeek = []
                 }
             }
         }
-        
+
         if !currentWeek.isEmpty {
             while currentWeek.count < 7 {
                 currentWeek.append(nil)
             }
             weeks.append(currentWeek)
         }
-        
+
         return weeks
     }
-    
+
     var body: some View {
         VStack(spacing: DesignSystem.Spacing.xs) {
             // День недели заголовки
@@ -239,7 +258,7 @@ struct FullMonthView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            
+
             // Недели
             ForEach(Array(monthDates.enumerated()), id: \.offset) { _, week in
                 HStack(spacing: DesignSystem.Spacing.sm) {
@@ -249,7 +268,8 @@ struct FullMonthView: View {
                                 DayCell(
                                     date: date,
                                     isToday: Calendar.current.isDateInToday(date),
-                                    hasWorkout: completedDates.contains(Calendar.current.startOfDay(for: date))
+                                    hasWorkout: completedDates.contains(Calendar.current.startOfDay(for: date)),
+                                    hasExternal: externalDates.contains(Calendar.current.startOfDay(for: date))
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -270,21 +290,22 @@ struct DayCell: View {
     let date: Date
     let isToday: Bool
     let hasWorkout: Bool
-    
+    var hasExternal: Bool = false
+
     private var dayName: String {
         let formatter = DateFormatter()
         formatter.locale = LanguageManager.shared.currentLocale
         formatter.dateFormat = "E"
         return formatter.string(from: date).prefix(1).uppercased()
     }
-    
+
     private var dayNumber: String {
         let formatter = DateFormatter()
         formatter.locale = LanguageManager.shared.currentLocale
         formatter.dateFormat = "d"
         return formatter.string(from: date)
     }
-    
+
     var body: some View {
         VStack(spacing: 4) {
             Text(dayNumber)
@@ -302,17 +323,26 @@ struct DayCell: View {
                         } else if hasWorkout {
                             Circle()
                                 .stroke(DesignSystem.Colors.accent.opacity(0.5), lineWidth: 2)
+                        } else if hasExternal {
+                            // Apple Health-only: розовое кольцо помягче.
+                            Circle()
+                                .stroke(Color.pink.opacity(0.55), lineWidth: 2)
                         }
                     }
                 )
                 .cornerRadius(18)
-            
+
             // Иконка тренировки или отдыха
             if hasWorkout {
-                // Иконка гантели для дня с тренировкой
+                // Иконка гантели для дня с тренировкой Body Forge
                 Image(systemName: "dumbbell.fill")
                     .font(.system(size: 10))
                     .foregroundColor(DesignSystem.Colors.neonGreen)
+            } else if hasExternal {
+                // Иконка сердца для дня только с Apple Health активностью
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 10))
+                    .foregroundColor(Color.pink)
             } else {
                 // Иконка релакса для дня отдыха
                 Image(systemName: "figure.mind.and.body")

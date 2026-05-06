@@ -505,6 +505,90 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
         return result
     }
 
+
+    // MARK: - External (Apple Health) workouts
+
+    /// Fetch HKWorkouts in the given date window that did NOT originate
+    /// from Body Forge itself. These are workouts the user logged in Apple
+    /// Fitness, Apple Watch, Strava, Nike Run Club, etc. — used to feed
+    /// dashboard / history / calendar / AI context so the user gets a
+    /// holistic picture of their training load.
+    func fetchExternalWorkouts(from start: Date, to end: Date) async -> [ExternalWorkout] {
+        guard isAuthorized else { return [] }
+        let store = self.healthStore
+        let ownBundleId = Bundle.main.bundleIdentifier ?? ""
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        let sort = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+
+        let samples: [HKWorkout] = await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: HKObjectType.workoutType(),
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: [sort]
+            ) { _, samples, _ in
+                continuation.resume(returning: (samples as? [HKWorkout]) ?? [])
+            }
+            store.execute(query)
+        }
+
+        return samples.compactMap { sample in
+            // Skip workouts authored by this app — those are already in
+            // the app's own SwiftData history and would double-count.
+            let bundle = sample.sourceRevision.source.bundleIdentifier
+            if !ownBundleId.isEmpty, bundle == ownBundleId { return nil }
+            // Defensive: HK can sometimes return zero-duration phantoms
+            // imported from older devices.
+            guard sample.duration > 0 else { return nil }
+
+            let calories: Double?
+            if #available(iOS 16.0, *) {
+                calories = sample.statistics(for: HKQuantityType(.activeEnergyBurned))?
+                    .sumQuantity()?.doubleValue(for: .kilocalorie())
+            } else {
+                calories = sample.totalEnergyBurned?.doubleValue(for: .kilocalorie())
+            }
+
+            let distance: Double?
+            if #available(iOS 16.0, *) {
+                distance = sample.statistics(for: HKQuantityType(.distanceWalkingRunning))?
+                    .sumQuantity()?.doubleValue(for: .meter())
+                    ?? sample.statistics(for: HKQuantityType(.distanceCycling))?
+                    .sumQuantity()?.doubleValue(for: .meter())
+            } else {
+                distance = sample.totalDistance?.doubleValue(for: .meter())
+            }
+
+            return ExternalWorkout(
+                id: sample.uuid,
+                activityType: sample.workoutActivityType,
+                startDate: sample.startDate,
+                endDate: sample.endDate,
+                duration: sample.duration,
+                totalEnergyBurnedKcal: calories,
+                totalDistanceMeters: distance,
+                sourceName: sample.sourceRevision.source.name,
+                sourceBundleId: bundle ?? ""
+            )
+        }
+    }
+
+    /// Convenience: external workouts in the last 7 days (rolling window),
+    /// most recent first.
+    func fetchExternalWorkoutsThisWeek() async -> [ExternalWorkout] {
+        let end = Date()
+        guard let start = Calendar.current.date(byAdding: .day, value: -7, to: end) else { return [] }
+        return await fetchExternalWorkouts(from: start, to: end)
+    }
+
+    /// Convenience: external workouts on a specific calendar day.
+    func fetchExternalWorkouts(on day: Date) async -> [ExternalWorkout] {
+        let cal = Calendar.current
+        let dayStart = cal.startOfDay(for: day)
+        guard let dayEnd = cal.date(byAdding: .day, value: 1, to: dayStart) else { return [] }
+        return await fetchExternalWorkouts(from: dayStart, to: dayEnd)
+    }
+
     // MARK: - Private statistics-collection helper
 
     private func fetchDailySumStatistics(type: HKQuantityType, unit: HKUnit, days: Int) async -> [DailyHealthValue] {

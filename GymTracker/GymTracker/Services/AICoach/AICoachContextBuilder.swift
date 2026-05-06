@@ -55,6 +55,18 @@ struct AICoachContext {
         let weeklySleepAvgHours: Double?
     }
 
+    /// Workouts the user logged outside Body Forge — Apple Watch fitness,
+    /// Strava, Nike Run Club, etc. Surfaced so the coach can reason about
+    /// total weekly load (e.g. "you ran 3× this week, deload upper body").
+    struct ExternalActivitySummary {
+        let date: Date
+        let typeName: String          // e.g. "Running", "Cycling"
+        let durationMinutes: Int
+        let calories: Int?
+        let distanceMeters: Double?
+        let sourceName: String        // e.g. "Apple Watch", "Strava"
+    }
+
     struct ProgramExerciseSummary {
         let name: String
         let plannedSets: Int
@@ -114,6 +126,7 @@ struct AICoachContext {
     let profile: ProfileSummary?
     let workouts: [WorkoutSummary]                // most recent first
     let health: HealthSummary
+    let externalActivities: [ExternalActivitySummary]   // last ~14 days, recent first
     let program: ProgramSummary?
     let measurements: [MeasurementSummary]
     let weightTrend: WeightTrendSummary?
@@ -200,12 +213,20 @@ enum AICoachContextBuilder {
         var weeklyWorkouts: Int? = nil
         var lastNightSleep: Double? = nil
         var weeklySleepAvg: Double? = nil
+        var externalActivities: [AICoachContext.ExternalActivitySummary] = []
 
         if healthManager.isAuthorized {
             async let rhrVal = healthManager.fetchRestingHeartRate()
             async let stepsVal = healthManager.fetchWeeklyStepsTotal()
             async let workoutsVal = healthManager.fetchWorkoutsThisWeek()
             async let sleepHist = SleepService.shared.fetchSleepHistory(for: .week)
+
+            // External (Apple Health) workouts — last 14 days. Provides the
+            // coach with kardio / recovery / cross-training context that
+            // never lands in SwiftData.
+            let extEnd = Date()
+            let extStart = Calendar.current.date(byAdding: .day, value: -14, to: extEnd) ?? extEnd
+            async let externalRaw = healthManager.fetchExternalWorkouts(from: extStart, to: extEnd)
 
             let rhrD = await rhrVal
             if rhrD > 0 { rhr = Int(rhrD) }
@@ -225,6 +246,17 @@ enum AICoachContextBuilder {
                 let avg = sleep.map { $0.totalDuration }.reduce(0, +) / Double(sleep.count)
                 if avg > 0 { weeklySleepAvg = avg / 3600 }
             }
+
+            externalActivities = (await externalRaw).map { w in
+                AICoachContext.ExternalActivitySummary(
+                    date: w.startDate,
+                    typeName: ExternalWorkout.localizedName(for: w.activityType),
+                    durationMinutes: w.durationMinutes,
+                    calories: w.totalEnergyBurnedKcal.map { Int($0) },
+                    distanceMeters: w.totalDistanceMeters,
+                    sourceName: w.sourceName
+                )
+            }
         }
 
         let health = AICoachContext.HealthSummary(
@@ -239,6 +271,7 @@ enum AICoachContextBuilder {
             profile: profile,
             workouts: workouts,
             health: health,
+            externalActivities: externalActivities,
             program: programSummary,
             measurements: latestMeasurements,
             weightTrend: weightTrend,
@@ -577,6 +610,24 @@ enum AICoachContextBuilder {
         if let a = ctx.health.weeklySleepAvgHours { healthBits.append(String(format: "sleep avg 7d: %.1f h", a)) }
         if !healthBits.isEmpty {
             out.append("SENSORS: " + healthBits.joined(separator: "; ") + ".")
+        }
+
+        // External (non-Body Forge) activity from Apple Health — informs
+        // total weekly load so the coach can balance recovery against gym
+        // sessions. Compact one-line per activity, newest first.
+        if !ctx.externalActivities.isEmpty {
+            let dfShort = DateFormatter()
+            dfShort.dateFormat = "MM-dd"
+            let lines = ctx.externalActivities.prefix(20).map { a -> String in
+                var line = "• \(dfShort.string(from: a.date)) \(a.typeName) \(a.durationMinutes)m"
+                if let c = a.calories, c > 0 { line += " · \(c)kcal" }
+                if let d = a.distanceMeters, d > 0 {
+                    line += d >= 1000 ? String(format: " · %.1fkm", d / 1000) : " · \(Int(d))m"
+                }
+                line += " (\(a.sourceName))"
+                return line
+            }
+            out.append("APPLE HEALTH ACTIVITY (external, last 14d, newest→oldest) — factor into recovery & weekly load:\n" + lines.joined(separator: "\n"))
         }
 
         // Active program (the planned routine)

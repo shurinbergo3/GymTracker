@@ -12,6 +12,8 @@ import SwiftData
 struct CalendarSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \WorkoutSession.date, order: .reverse) private var allSessions: [WorkoutSession]
+    @State private var externalWorkouts: [ExternalWorkout] = []
+    @State private var showingAppleHealthSheet = false
 
     private var completedSessions: [WorkoutSession] {
         allSessions.filter { $0.isCompleted }
@@ -22,6 +24,12 @@ struct CalendarSheet: View {
         return Set(completedSessions.map { cal.startOfDay(for: $0.date) })
     }
 
+    private var externalOnlyDays: Set<Date> {
+        let cal = Calendar.current
+        return Set(externalWorkouts.map { cal.startOfDay(for: $0.startDate) })
+            .subtracting(trainedDays)
+    }
+
     private var workoutsThisMonth: Int {
         let cal = Calendar.current
         let now = Date()
@@ -29,25 +37,38 @@ struct CalendarSheet: View {
         return completedSessions.filter { $0.date >= monthStart }.count
     }
 
+    private var externalThisMonth: Int {
+        let cal = Calendar.current
+        let now = Date()
+        guard let monthStart = cal.date(from: cal.dateComponents([.year, .month], from: now)) else { return 0 }
+        return externalWorkouts.filter { $0.startDate >= monthStart }.count
+    }
+
     private var activeDaysThisMonth: Int {
         let cal = Calendar.current
         let now = Date()
         guard let monthStart = cal.date(from: cal.dateComponents([.year, .month], from: now)) else { return 0 }
-        let days = completedSessions
+        let appDays = completedSessions
             .filter { $0.date >= monthStart }
             .map { cal.startOfDay(for: $0.date) }
-        return Set(days).count
+        let extDays = externalWorkouts
+            .filter { $0.startDate >= monthStart }
+            .map { cal.startOfDay(for: $0.startDate) }
+        return Set(appDays + extDays).count
     }
 
     private var currentStreak: Int {
         let cal = Calendar.current
+        // Streak считаем по любой активности (своей или из Apple Health) —
+        // так пользователю проще удержать серию, не пропуская кардио-дни.
+        let activeDays = trainedDays.union(externalOnlyDays)
         var current = cal.startOfDay(for: Date())
         var count = 0
-        if !trainedDays.contains(current) {
+        if !activeDays.contains(current) {
             guard let y = cal.date(byAdding: .day, value: -1, to: current) else { return 0 }
             current = y
         }
-        while trainedDays.contains(current) {
+        while activeDays.contains(current) {
             count += 1
             guard let prev = cal.date(byAdding: .day, value: -1, to: current) else { break }
             current = prev
@@ -66,8 +87,39 @@ struct CalendarSheet: View {
                             .padding(.horizontal, DesignSystem.Spacing.lg)
                             .padding(.top, DesignSystem.Spacing.md)
 
-                        ExpandableCalendarView(lockedExpanded: true)
+                        ExpandableCalendarView(
+                            lockedExpanded: true,
+                            externalWorkoutDays: externalOnlyDays
+                        )
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                        if !externalWorkouts.isEmpty {
+                            Button { showingAppleHealthSheet = true } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "heart.fill")
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(Color.pink)
+                                    Text(String(format: "Apple Health: %d тренировок".localized(), externalWorkouts.count))
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(DesignSystem.Colors.primaryText)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption2.weight(.bold))
+                                        .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                                }
+                                .padding(14)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(Color.pink.opacity(0.10))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(Color.pink.opacity(0.25), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(.plain)
                             .padding(.horizontal, DesignSystem.Spacing.lg)
+                        }
 
                         legend
                             .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -75,6 +127,15 @@ struct CalendarSheet: View {
                         Spacer().frame(height: 60)
                     }
                 }
+            }
+            .task {
+                let end = Date()
+                guard let start = Calendar.current.date(byAdding: .day, value: -90, to: end) else { return }
+                let fetched = await HealthManager.shared.fetchExternalWorkouts(from: start, to: end)
+                await MainActor.run { self.externalWorkouts = fetched }
+            }
+            .sheet(isPresented: $showingAppleHealthSheet) {
+                AppleHealthWorkoutsSheet(workouts: externalWorkouts)
             }
             .navigationTitle("Календарь тренировок".localized())
             .navigationBarTitleDisplayMode(.inline)
@@ -143,8 +204,9 @@ struct CalendarSheet: View {
     // MARK: - Legend
 
     private var legend: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 16) {
             legendItem(icon: "dumbbell.fill", color: DesignSystem.Colors.neonGreen, text: String(localized: "Тренировка"))
+            legendItem(icon: "heart.fill", color: Color.pink, text: "Apple Health")
             legendItem(icon: "figure.mind.and.body", color: DesignSystem.Colors.secondaryText.opacity(0.6), text: String(localized: "Отдых"))
             Spacer()
         }

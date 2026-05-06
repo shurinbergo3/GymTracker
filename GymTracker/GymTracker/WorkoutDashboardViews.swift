@@ -138,26 +138,24 @@ struct TodayWorkoutCard: View {
                     )
                 }
 
-                // Start Button (premium neon CTA)
+                // Start Button — compact neon CTA
                 Button(action: { workoutManager.startWorkout() }) {
-                    HStack(spacing: 14) {
-                        Spacer(minLength: 0)
-                        ZStack {
-                            Circle()
-                                .fill(.black.opacity(0.22))
-                                .frame(width: 36, height: 36)
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 15, weight: .heavy))
-                                .foregroundStyle(.black)
-                                .offset(x: 1)
-                        }
+                    HStack(spacing: 10) {
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 11, weight: .black))
+                            .foregroundStyle(.black)
+                            .frame(width: 24, height: 24)
+                            .background(Circle().fill(.black.opacity(0.18)))
+                            .offset(x: 0.5)
                         Text(workoutManager.selectedDay == nil ? "select_program_button".localized() : "start_workout_button".localized())
-                            .font(.system(.title3, design: .rounded, weight: .heavy))
-                            .tracking(0.5)
-                        Spacer(minLength: 0)
+                            .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                            .tracking(0.3)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
                     }
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 18)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 16)
                     .background(
                         ZStack {
                             LinearGradient(
@@ -168,22 +166,20 @@ struct TodayWorkoutCard: View {
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
-                            // Glossy top highlight
                             LinearGradient(
-                                colors: [Color.white.opacity(0.32), .clear],
+                                colors: [Color.white.opacity(0.28), .clear],
                                 startPoint: .top,
                                 endPoint: .center
                             )
                         }
                     )
-                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 22, style: .continuous)
-                            .stroke(Color.white.opacity(0.35), lineWidth: 0.5)
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Color.white.opacity(0.30), lineWidth: 0.5)
                     )
                     .foregroundStyle(.black)
-                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 22, x: 0, y: 12)
-                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.30), radius: 6, x: 0, y: 2)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.40), radius: 14, x: 0, y: 6)
                 }
                 .disabled(workoutManager.selectedDay == nil)
                 .opacity(workoutManager.selectedDay == nil ? 0.55 : 1)
@@ -651,12 +647,14 @@ struct DashboardView: View {
     @State private var showingDaySelection = false
     @State private var showingCalendarSheet = false
     @State private var showingAchievementsSheet = false
+    @State private var showingAppleHealthSheet = false
     @Environment(\.modelContext) private var modelContext
 
     // CRITICAL FIX: Limit query to prevent freeze with large datasets
     @State private var history: [WorkoutSession] = []
     @State private var totalCompletedCount: Int = 0
     @State private var weeklyWrapped: WeeklyWrappedSnapshot?
+    @State private var externalWorkouts: [ExternalWorkout] = []
 
     private var recentHistory: [WorkoutSession] {
         Array(history.prefix(1))
@@ -725,6 +723,16 @@ struct DashboardView: View {
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                     .transition(.move(edge: .top).combined(with: .opacity))
 
+                // Apple Health — non-app workouts (walks, cycling, yoga,
+                // third-party trackers). Hidden if user revoked HK access
+                // OR has no external workouts in the last 7 days.
+                if !externalWorkouts.isEmpty {
+                    AppleHealthActivityCard(workouts: externalWorkouts) {
+                        showingAppleHealthSheet = true
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                }
+
                 // Last Workout Preview (moved to main column)
                 if let lastSession = recentHistory.first {
                     NavigationLink(destination: WorkoutHistoryDetailView(session: lastSession)) {
@@ -759,6 +767,15 @@ struct DashboardView: View {
                     self.totalCompletedCount = total
                 }
             }
+
+            // Apple Health external workouts (last 7 days). Reads only —
+            // never writes, so safe to call even if user has limited
+            // permissions. HealthManager itself short-circuits when not
+            // authorized.
+            let external = await HealthManager.shared.fetchExternalWorkoutsThisWeek()
+            await MainActor.run {
+                self.externalWorkouts = external
+            }
         }
         .sheet(isPresented: $showingDaySelection) {
             if let program = workoutManager.activeProgram {
@@ -774,6 +791,9 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $showingAchievementsSheet) {
             ProgressHubView()
+        }
+        .sheet(isPresented: $showingAppleHealthSheet) {
+            AppleHealthWorkoutsSheet(workouts: externalWorkouts)
         }
         .fullScreenCover(item: $weeklyWrapped) { snapshot in
             WeeklyWrappedView(snapshot: snapshot, onClose: { weeklyWrapped = nil })
