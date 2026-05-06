@@ -69,6 +69,7 @@ struct WorkoutTrackerApp: App {
     }
     
     var sharedModelContainer: ModelContainer = {
+        let t0 = CFAbsoluteTimeGetCurrent()
         let schema = Schema([
             UserProfile.self,
             WorkoutSession.self,
@@ -81,11 +82,12 @@ struct WorkoutTrackerApp: App {
             AICoachMessage.self,
             AICoachWeeklySummary.self
         ])
-        
+
         do {
             let container = try ModelContainer(for: schema)
             #if DEBUG
-            print("✅ ModelContainer initialized")
+            let dt = (CFAbsoluteTimeGetCurrent() - t0) * 1000
+            print(String(format: "✅ ModelContainer initialized in %.0fms", dt))
             #endif
             return container
         } catch {

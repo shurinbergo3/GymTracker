@@ -106,18 +106,23 @@ class WorkoutManager: ObservableObject {
         healthProvider: HealthProvider,
         activityProvider: ActivityProvider
     ) {
+        let t0 = CFAbsoluteTimeGetCurrent()
         self.modelContext = modelContext
         self.healthProvider = healthProvider
         self.activityProvider = activityProvider
 
+        let tLoad = CFAbsoluteTimeGetCurrent()
         loadActiveProgram()
-        
-        
-        // Cleanup disabled by user request (data already cleaned)
-        // Task { ... }
-        
+        #if DEBUG
+        print(String(format: "  └─ loadActiveProgram %.0fms", (CFAbsoluteTimeGetCurrent() - tLoad) * 1000))
+        #endif
+
+        let tInit = CFAbsoluteTimeGetCurrent()
         initializeSelectedDay()
-        
+        #if DEBUG
+        print(String(format: "  └─ initializeSelectedDay %.0fms", (CFAbsoluteTimeGetCurrent() - tInit) * 1000))
+        #endif
+
         // Listen for active program changes
         programObserver = NotificationCenter.default.addObserver(
             forName: Notification.Name("ActiveProgramChanged"),
@@ -127,7 +132,7 @@ class WorkoutManager: ObservableObject {
             guard let self else { return }
             Task { @MainActor in
                 self.refreshActiveProgram()
-                
+
                 // Trigger Cloud Sync for Active Program persistence
                 if let profile = try? self.modelContext.fetch(FetchDescriptor<UserProfile>()).last {
                     await SyncManager.shared.syncUserProfile(
@@ -138,11 +143,15 @@ class WorkoutManager: ObservableObject {
                 }
             }
         }
-        
-        
-        
+
+        let tRestore = CFAbsoluteTimeGetCurrent()
         restoreActiveSession()
-        
+        #if DEBUG
+        print(String(format: "  └─ restoreActiveSession %.0fms", (CFAbsoluteTimeGetCurrent() - tRestore) * 1000))
+        let total = (CFAbsoluteTimeGetCurrent() - t0) * 1000
+        print(String(format: "⏱ WorkoutManager.init total %.0fms", total))
+        #endif
+
         // requestHealthAccess() - Removed from init to prevent UI freeze (called in onAppear instead)
     }
     
