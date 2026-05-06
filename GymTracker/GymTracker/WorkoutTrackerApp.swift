@@ -29,16 +29,26 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
+/// Гарантированно конфигурим Firebase ДО того, как любой код в App обратится к Auth/Firestore.
+/// Static let вычисляется один раз при первом обращении — мы дёргаем его в init() ПЕРВОЙ строкой,
+/// до того как @StateObject AuthManager.shared триггерит Auth.auth().
+private let _firebaseBootstrap: Void = {
+    if FirebaseApp.app() == nil {
+        FirebaseApp.configure()
+    }
+}()
+
 @main
 struct WorkoutTrackerApp: App {
 
-    // Подключаем AppDelegate к SwiftUI App — без этого Firebase swizzler ругается и
-    // в редких случаях Auth state-listener не успевает подняться, что приводит к зависанию на сплеше.
+    // Подключаем AppDelegate к SwiftUI App — без этого Firebase swizzler ругается.
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
-    // Use shared instance to ensure consistent state across the app
-    @StateObject private var authManager = AuthManager.shared
-    @StateObject private var languageManager = LanguageManager.shared
+    // ВАЖНО: эти @StateObject объявлены БЕЗ default-значения, чтобы их инициализация
+    // случилась внутри init() — после FirebaseApp.configure(). Иначе AuthManager.shared
+    // дёрнет Auth.auth() ДО конфигурации Firebase и приложение виснет.
+    @StateObject private var authManager: AuthManager
+    @StateObject private var languageManager: LanguageManager
     @Environment(\.scenePhase) private var scenePhase
     @State private var isCheckingAuth = true
     @State private var isRestoringData = false
@@ -46,11 +56,11 @@ struct WorkoutTrackerApp: App {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
 
     init() {
-        // Конфигурим Firebase здесь же, до того как @StateObject AuthManager
-        // обратится к Auth.auth() — иначе SDK падает.
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
+        // 1) Сначала Firebase — обращение к static let форсит configure() до всего остального.
+        _ = _firebaseBootstrap
+        // 2) Только теперь поднимаем менеджеры, которые используют Firebase.
+        _authManager = StateObject(wrappedValue: AuthManager.shared)
+        _languageManager = StateObject(wrappedValue: LanguageManager.shared)
     }
     
     var sharedModelContainer: ModelContainer = {
