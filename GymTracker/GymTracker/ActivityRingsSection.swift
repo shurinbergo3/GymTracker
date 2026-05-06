@@ -29,12 +29,8 @@ struct ActivityRingsSection: View {
                 .transition(.opacity.combined(with: .scale(scale: 0.97)))
             }
         }
-        .task {
-            // Прогреваем авторизацию HealthKit, если её ещё нет —
-            // тогда кольца сразу подтянут данные без пере-открытия экрана.
-            if !HealthManager.shared.isAuthorized {
-                _ = await HealthManager.shared.requestAuthorization()
-            }
-        }
+        // Авторизацию HealthKit НЕ запрашиваем здесь — это вызывает системный
+        // алерт сразу при первом рендере дашборда и создаёт ощущение зависания.
+        // Запрос идёт из WorkoutView.task при первом открытии вкладки тренировки.
     }
 }

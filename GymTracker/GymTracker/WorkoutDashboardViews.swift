@@ -687,22 +687,7 @@ struct DashboardView: View {
                 // сам отрисует пустые кольца до прихода данных).
                 ActivityRingsSection()
                     .padding(.horizontal, DesignSystem.Spacing.lg)
-
-                // Achievements / Level — теперь всегда отдельным блоком, не «или/или» с кольцами.
-                Button {
-                    showingAchievementsSheet = true
-                } label: {
-                    AchievementsHubCard(
-                        totalWorkouts: totalCompletedCount,
-                        workoutsThisWeek: workoutsThisWeek,
-                        weeklyGoal: 4,
-                        trainedDays: Set(history.map { Calendar.current.startOfDay(for: $0.date) }),
-                        lastWorkoutDate: history.first?.date
-                    )
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, DesignSystem.Spacing.lg)
-                .transition(.move(edge: .top).combined(with: .opacity))
+                    .transition(.move(edge: .top).combined(with: .opacity))
 
                 // Last Workout Preview (moved to main column)
                 if let lastSession = recentHistory.first {

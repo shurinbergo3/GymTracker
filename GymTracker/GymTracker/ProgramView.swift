@@ -69,11 +69,6 @@ struct ProgramView: View {
                                 // Content
                                 VStack(spacing: DesignSystem.Spacing.xxl) {
 
-                                    // Activity Rings — shown only when Apple Watch / HealthKit
-                                    // returns real data. Otherwise the section auto-hides.
-                                    ActivityRingsSection()
-                                        .padding(.horizontal, DesignSystem.Spacing.lg)
-
                                     // Active Program Section
                                     if let active = activeProgram {
                                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {

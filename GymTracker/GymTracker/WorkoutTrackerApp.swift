@@ -56,11 +56,16 @@ struct WorkoutTrackerApp: App {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
 
     init() {
+        let t0 = CFAbsoluteTimeGetCurrent()
         // 1) Сначала Firebase — обращение к static let форсит configure() до всего остального.
         _ = _firebaseBootstrap
         // 2) Только теперь поднимаем менеджеры, которые используют Firebase.
         _authManager = StateObject(wrappedValue: AuthManager.shared)
         _languageManager = StateObject(wrappedValue: LanguageManager.shared)
+        #if DEBUG
+        let dt = (CFAbsoluteTimeGetCurrent() - t0) * 1000
+        print(String(format: "⏱ App.init() took %.1fms", dt))
+        #endif
     }
     
     var sharedModelContainer: ModelContainer = {
@@ -149,14 +154,34 @@ struct WorkoutTrackerApp: App {
             .id(languageManager.refreshID)
             .modelContainer(sharedModelContainer)
             .task {
-                // Гарантированный таймер: сплеш живёт максимум 1.2с, не зависит от Firebase.
-                try? await Task.sleep(nanoseconds: 1_200_000_000)
-                withAnimation(.easeOut(duration: 0.35)) {
+                // Гарантированный таймер на 0.8с — даже если Task будет cancelled
+                // (resume из background и пр.), DispatchQueue ниже всё равно сработает.
+                try? await Task.sleep(nanoseconds: 800_000_000)
+                #if DEBUG
+                print("⏱ Splash dismiss via .task")
+                #endif
+                withAnimation(.easeOut(duration: 0.3)) {
                     isCheckingAuth = false
                 }
             }
             .onAppear {
-                InactivityNotificationService.requestAuthorizationIfNeeded()
+                // Дублирующий путь сброса сплеша — DispatchQueue не зависит от
+                // SwiftUI Task lifecycle, гарантированно фаерится через 1.5с.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    if isCheckingAuth {
+                        #if DEBUG
+                        print("⏱ Splash dismiss via DispatchQueue fallback")
+                        #endif
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            isCheckingAuth = false
+                        }
+                    }
+                }
+                // Notifications-разрешение запрашиваем СПУСТЯ задержку, чтобы системный
+                // алерт не появлялся одновременно со сплешем (это создаёт ощущение зависона).
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    InactivityNotificationService.requestAuthorizationIfNeeded()
+                }
             }
             .onChange(of: authManager.isLoggedIn) { _, isLoggedIn in
                 if isLoggedIn {
