@@ -141,57 +141,45 @@ enum WeeklyWrappedGenerator {
     }
 }
 
-// MARK: - View (single-slide summary)
+// MARK: - View (single-slide summary, no scroll, staggered reveal)
 
+/// One-frame "credits roll" summary. Designed to fit a single screen on every
+/// iPhone from SE to Pro Max — `Spacer`s soak any extra room, every block has a
+/// `minimumScaleFactor` so type bends rather than overflows.
+///
+/// Animation: each block enters on its own delay, riding a unified spring.
+/// Together they read like the final frame of a sports documentary — name, date,
+/// the headline number, supporting stats, then the call to action drops in last.
 struct WeeklyWrappedView: View {
     let snapshot: WeeklyWrappedSnapshot
     let onClose: () -> Void
 
     @State private var sharePayload: SharePayload?
+    @State private var revealed = false
+
+    /// Master spring for every reveal — keeps the stagger feeling "on the same beat".
+    private static let revealSpring = Animation.spring(response: 0.6, dampingFraction: 0.78)
 
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack {
             WeeklyWrappedBackground()
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Top bar
-                HStack {
-                    HStack(spacing: 10) {
-                        Image("BrandLogo")
-                            .resizable()
-                            .interpolation(.high)
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 30, height: 30)
-                            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                        Text("Body Forge")
-                            .font(.system(.subheadline, design: .rounded, weight: .heavy))
-                            .foregroundStyle(.white)
-                    }
+                topBar
+                    .padding(.horizontal, 18)
+                    .padding(.top, 10)
 
-                    Spacer()
+                Spacer(minLength: 4)
 
-                    Button(action: onClose) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 13, weight: .heavy))
-                            .foregroundStyle(.white)
-                            .frame(width: 32, height: 32)
-                            .background(Color.white.opacity(0.18))
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 0.5))
-                    }
-                }
-                .padding(.horizontal, 18)
-                .padding(.top, 10)
+                content
 
-                ScrollView(showsIndicators: false) {
-                    WeeklyWrappedSummaryCard(snapshot: snapshot)
-                        .padding(.horizontal, 18)
-                        .padding(.top, 16)
-                        .padding(.bottom, 16)
-                }
+                Spacer(minLength: 6)
 
                 shareButton
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 22)
+                    .reveal(at: 0.95, revealed: revealed, animation: Self.revealSpring)
             }
         }
         .preferredColorScheme(.dark)
@@ -199,7 +187,316 @@ struct WeeklyWrappedView: View {
             ActivityShareSheet(items: [payload.image])
                 .ignoresSafeArea()
         }
+        .onAppear {
+            // Tiny delay so SwiftUI commits the initial (hidden) layout *before*
+            // we flip the flag — otherwise the spring snaps with no animation.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                revealed = true
+            }
+        }
     }
+
+    // MARK: - Top bar
+
+    /// Centered brand mark + a floating close button on the trailing edge.
+    /// The HStack with two `Spacer`s keeps the logo perfectly centered even
+    /// when the close button has different padding/size on different devices.
+    private var topBar: some View {
+        ZStack {
+            HStack(spacing: 10) {
+                Image("BrandLogo")
+                    .resizable()
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 28, height: 28)
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                Text("Body Forge")
+                    .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                    .foregroundStyle(.white)
+                    .tracking(0.3)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .reveal(at: 0.0, revealed: revealed, animation: Self.revealSpring)
+
+            HStack {
+                Spacer()
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    onClose()
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .heavy))
+                        .foregroundStyle(.white)
+                        .frame(width: 30, height: 30)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 0.5))
+                }
+                .opacity(revealed ? 1 : 0)
+                .animation(Self.revealSpring.delay(0.1), value: revealed)
+            }
+        }
+    }
+
+    // MARK: - Static content (no scroll)
+
+    private var content: some View {
+        VStack(spacing: 14) {
+            sparkleHero
+                .reveal(at: 0.05, revealed: revealed, animation: Self.revealSpring, scaleFrom: 0.6)
+
+            headerBlock
+                .reveal(at: 0.15, revealed: revealed, animation: Self.revealSpring)
+
+            tonnageHero
+                .reveal(at: 0.25, revealed: revealed, animation: Self.revealSpring)
+
+            statsGrid
+                .reveal(at: 0.35, revealed: revealed, animation: Self.revealSpring)
+
+            highlightsStack
+        }
+        .padding(.horizontal, 18)
+    }
+
+    // MARK: Hero sparkle — slightly smaller than before so the rest fits
+
+    private var sparkleHero: some View {
+        ZStack {
+            Circle()
+                .fill(DesignSystem.Colors.neonGreen.opacity(0.45))
+                .frame(width: 130, height: 130)
+                .blur(radius: 44)
+            Circle()
+                .fill(DesignSystem.Colors.neonGreen.opacity(0.22))
+                .frame(width: 96, height: 96)
+                .blur(radius: 24)
+                .offset(x: 16, y: 8)
+            Image(systemName: "sparkles")
+                .font(.system(size: 50, weight: .heavy))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, DesignSystem.Colors.neonGreen],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.7), radius: 18)
+                // Subtle constant breathing keeps the screen alive even after the reveal.
+                .scaleEffect(revealed ? 1.0 : 0.9)
+        }
+        .frame(height: 96)
+    }
+
+    // MARK: Eyebrow + week range
+
+    private var headerBlock: some View {
+        VStack(spacing: 6) {
+            Text("Твоя неделя".localized().localizedUppercase)
+                .font(.system(.caption, design: .rounded, weight: .heavy))
+                .tracking(3.6)
+                .foregroundStyle(.white.opacity(0.7))
+
+            Text(weekRangeText)
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, DesignSystem.Colors.neonGreen.opacity(0.9)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .tracking(0.5)
+        }
+    }
+
+    // MARK: Tonnage block
+
+    private var tonnageHero: some View {
+        VStack(spacing: 8) {
+            Text(heroTonnage)
+                .font(.system(size: 64, weight: .black, design: .rounded))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, DesignSystem.Colors.neonGreen],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 22)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+
+            HStack(spacing: 8) {
+                Text("Поднято за неделю".localized().localizedUppercase)
+                    .font(.system(.caption2, design: .rounded, weight: .heavy))
+                    .tracking(2)
+                    .foregroundStyle(.white.opacity(0.72))
+
+                if let delta = heroDelta {
+                    HStack(spacing: 3) {
+                        Image(systemName: delta.icon)
+                            .font(.system(size: 9, weight: .heavy))
+                        Text(delta.text)
+                            .font(.system(.caption2, design: .rounded, weight: .heavy))
+                    }
+                    .foregroundStyle(delta.color)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(delta.color.opacity(0.22))
+                    .overlay(Capsule().stroke(delta.color.opacity(0.4), lineWidth: 0.5))
+                    .clipShape(Capsule())
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 18)
+        .padding(.horizontal, 20)
+        .background(GlassPanel(cornerRadius: 24))
+    }
+
+    // MARK: 3-up stats
+
+    private var statsGrid: some View {
+        HStack(spacing: 0) {
+            statColumn(value: "\(snapshot.workoutCount)", label: "трен.".localized())
+            statDivider
+            statColumn(
+                value: snapshot.totalActiveMinutes > 0 ? "\(snapshot.totalActiveMinutes)" : "—",
+                label: "мин".localized()
+            )
+            statDivider
+            statColumn(
+                value: snapshot.totalCalories > 0 ? "\(snapshot.totalCalories)" : "—",
+                label: "ккал".localized()
+            )
+        }
+        .padding(.vertical, 14)
+        .padding(.horizontal, 12)
+        .background(GlassPanel(cornerRadius: 20))
+    }
+
+    private func statColumn(value: String, label: String) -> some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.system(size: 24, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.55)
+            Text(label.localizedUppercase)
+                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                .tracking(1.4)
+                .foregroundStyle(.white.opacity(0.55))
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var statDivider: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.14))
+            .frame(width: 1, height: 30)
+    }
+
+    // MARK: Highlight rows — only the ones we actually have data for, each
+    // fading in on its own beat so the screen "completes itself" smoothly.
+
+    @ViewBuilder
+    private var highlightsStack: some View {
+        let rows = highlightRows
+        VStack(spacing: 8) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { idx, row in
+                highlightRow(row)
+                    .reveal(
+                        at: 0.45 + Double(idx) * 0.08,
+                        revealed: revealed,
+                        animation: Self.revealSpring
+                    )
+            }
+        }
+    }
+
+    private func highlightRow(_ row: HighlightRow) -> some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(row.iconColor.opacity(0.22))
+                    .frame(width: 38, height: 38)
+                Circle()
+                    .stroke(row.iconColor.opacity(0.4), lineWidth: 0.6)
+                    .frame(width: 38, height: 38)
+                Image(systemName: row.icon)
+                    .font(.system(size: 15, weight: .heavy))
+                    .foregroundStyle(row.iconColor)
+                    .shadow(color: row.iconColor.opacity(0.6), radius: 6)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(row.title.localizedUppercase)
+                    .font(.system(.caption2, design: .rounded, weight: .heavy))
+                    .tracking(1.2)
+                    .foregroundStyle(.white.opacity(0.65))
+                Text(row.detail)
+                    .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(GlassPanel(cornerRadius: 16))
+    }
+
+    private struct HighlightRow {
+        let icon: String
+        let iconColor: Color
+        let title: String
+        let detail: String
+    }
+
+    private var highlightRows: [HighlightRow] {
+        var rows: [HighlightRow] = []
+        if let top = snapshot.topExerciseName, snapshot.topExerciseVolumeKg > 0 {
+            rows.append(.init(
+                icon: "crown.fill",
+                iconColor: Color(red: 1.0, green: 0.85, blue: 0.20),
+                title: "Чемпион недели".localized(),
+                detail: "\(top) · \(Int(snapshot.topExerciseVolumeKg)) кг"
+            ))
+        }
+        if snapshot.prCount > 0 {
+            rows.append(.init(
+                icon: "trophy.fill",
+                iconColor: Color(red: 1.0, green: 0.40, blue: 0.50),
+                title: "Новые рекорды".localized(),
+                detail: snapshot.topPRName.map { String(format: "%d PR · %@".localized(), snapshot.prCount, $0) }
+                    ?? String(format: "%d PR".localized(), snapshot.prCount)
+            ))
+        }
+        if snapshot.currentStreakDays > 0 {
+            rows.append(.init(
+                icon: "flame.fill",
+                iconColor: Color(red: 1.0, green: 0.55, blue: 0.10),
+                title: "Серия".localized(),
+                detail: String(format: "%d дней подряд".localized(), snapshot.currentStreakDays)
+            ))
+        }
+        if let hr = snapshot.avgHeartRate, hr > 0 {
+            rows.append(.init(
+                icon: "heart.fill",
+                iconColor: Color(red: 1.0, green: 0.30, blue: 0.45),
+                title: "Средний пульс".localized(),
+                detail: String(format: "%d уд./мин".localized(), hr)
+            ))
+        }
+        // Hard cap at 4 — anything more would force scrolling on smaller phones.
+        return Array(rows.prefix(4))
+    }
+
+    // MARK: Share button
 
     private var shareButton: some View {
         Button(action: share) {
@@ -238,8 +535,37 @@ struct WeeklyWrappedView: View {
             .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 24, y: 12)
             .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.30), radius: 6, y: 2)
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 22)
+    }
+
+    // MARK: - Helpers
+
+    private static let weekFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "ru_RU")
+        df.dateFormat = "d MMMM"
+        return df
+    }()
+
+    private var weekRangeText: String {
+        let start = Self.weekFormatter.string(from: snapshot.weekStart)
+        let end = Self.weekFormatter.string(from: snapshot.weekEnd)
+        return "\(start) — \(end)".uppercased()
+    }
+
+    private var heroTonnage: String {
+        if snapshot.totalVolumeKg >= 1000 {
+            return String(format: "%.1f т", snapshot.totalVolumeKg / 1000)
+        }
+        return "\(Int(snapshot.totalVolumeKg)) кг"
+    }
+
+    private var heroDelta: (text: String, icon: String, color: Color)? {
+        let pct = snapshot.volumeDeltaPercent
+        guard pct != 0 else { return nil }
+        if pct > 0 {
+            return ("+\(pct)%", "arrow.up.right", Color(red: 0.30, green: 0.95, blue: 0.45))
+        }
+        return ("\(pct)%", "arrow.down.right", Color(red: 1.0, green: 0.42, blue: 0.42))
     }
 
     private func share() {
@@ -251,6 +577,72 @@ struct WeeklyWrappedView: View {
         if let img = renderer.uiImage {
             sharePayload = SharePayload(image: img)
         }
+    }
+}
+
+// MARK: - Reusable glass panel
+
+/// Frosted-glass card body. Same recipe used by every block on the wrap so
+/// the screen reads as one coherent material rather than four different ones.
+private struct GlassPanel: View {
+    let cornerRadius: CGFloat
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(Color.white.opacity(0.06))
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.10), .clear],
+                        startPoint: .top,
+                        endPoint: .center
+                    )
+                )
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.28), Color.white.opacity(0.05)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        }
+    }
+}
+
+// MARK: - Reveal modifier
+
+/// Common entrance — fade up + tiny scale, all riding the same spring with a
+/// per-element delay. Centralised here so every block on the wrap is on tempo.
+private struct RevealModifier: ViewModifier {
+    let delay: Double
+    let revealed: Bool
+    let animation: Animation
+    let scaleFrom: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(revealed ? 1 : 0)
+            .scaleEffect(revealed ? 1 : scaleFrom, anchor: .center)
+            .offset(y: revealed ? 0 : 14)
+            .animation(animation.delay(delay), value: revealed)
+    }
+}
+
+private extension View {
+    func reveal(
+        at delay: Double,
+        revealed: Bool,
+        animation: Animation,
+        scaleFrom: CGFloat = 0.92
+    ) -> some View {
+        modifier(RevealModifier(
+            delay: delay,
+            revealed: revealed,
+            animation: animation,
+            scaleFrom: scaleFrom
+        ))
     }
 }
 
