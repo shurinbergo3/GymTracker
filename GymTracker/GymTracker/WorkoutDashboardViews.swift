@@ -682,13 +682,25 @@ struct DashboardView: View {
                 )
                 .padding(.horizontal, DesignSystem.Spacing.lg)
 
-                // Activity / Achievements (smart: rings if Apple Watch, achievements otherwise)
-                ActivityHeroSection(
-                    totalWorkouts: totalCompletedCount,
-                    workoutsThisWeek: workoutsThisWeek,
-                    history: history,
-                    onTap: { showingAchievementsSheet = true }
-                )
+                // Кольца активности — отдельной секцией. Показываются всегда,
+                // пока Apple Watch включены в настройках (нативный HKActivityRingView
+                // сам отрисует пустые кольца до прихода данных).
+                ActivityRingsSection()
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                // Achievements / Level — теперь всегда отдельным блоком, не «или/или» с кольцами.
+                Button {
+                    showingAchievementsSheet = true
+                } label: {
+                    AchievementsHubCard(
+                        totalWorkouts: totalCompletedCount,
+                        workoutsThisWeek: workoutsThisWeek,
+                        weeklyGoal: 4,
+                        trainedDays: Set(history.map { Calendar.current.startOfDay(for: $0.date) }),
+                        lastWorkoutDate: history.first?.date
+                    )
+                }
+                .buttonStyle(.plain)
                 .padding(.horizontal, DesignSystem.Spacing.lg)
                 .transition(.move(edge: .top).combined(with: .opacity))
 

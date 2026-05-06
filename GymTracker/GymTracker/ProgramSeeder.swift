@@ -56,14 +56,18 @@ struct ProgramSeeder {
     /// Проверяет и создает программы, удаляет устаревшие
     nonisolated static func seedProgramsIfNeeded(context: ModelContext) {
         let descriptor = FetchDescriptor<Program>()
-        
-        // MIGRATION: Delete all programs once to switch to key-based localization
-        let migrationKey = "DidMigrateProgramsToKeys_v2"
+
+        // MIGRATION v3: Удаляем все программы и пере-сидим, чтобы убрать дубликаты,
+        // которые накопились из-за разных стор-имён (локализованных vs ключей),
+        // приходящих из Firestore-restore.
+        let migrationKey = "DidMigrateProgramsToKeys_v3"
         if !UserDefaults.standard.bool(forKey: migrationKey) {
             deleteAllPrograms(context: context)
             UserDefaults.standard.set(true, forKey: migrationKey)
+            // Сбрасываем старый флаг чтобы не путаться при следующих миграциях
+            UserDefaults.standard.set(true, forKey: "DidMigrateProgramsToKeys_v2")
             #if DEBUG
-            print("🔄 Migration: Deleted all programs to switch to key-based localization")
+            print("🔄 Migration v3: Wiped all programs to dedupe localization-key collisions")
             #endif
         }
         
@@ -81,15 +85,26 @@ struct ProgramSeeder {
         do {
             let existingPrograms = try context.fetch(descriptor)
             
-            // 0. Remove Duplicates — keep only the first occurrence of each name
-            var seenNames = Set<String>()
+            // 0. Remove Duplicates — дедупим по ЛОКАЛИЗОВАННОМУ имени.
+            // Раньше две программы с разными raw-именами ("GZCLP Linear Progression"
+            // и "GZCLP Линейная прогрессия") обе локализовались в "GZCLP Линейная"
+            // и обе оставались в списке. Теперь лишние удаляются.
+            var seenLocalizedNames = Set<String>()
             var duplicatesToDelete: [Program] = []
-            
-            for prog in existingPrograms {
-                if seenNames.contains(prog.name) {
+
+            // Сортируем так, чтобы оставлять программы с активными статусом или
+            // user-modified (приоритет) — остальные отбрасываются.
+            let sorted = existingPrograms.sorted { lhs, rhs in
+                if lhs.isActive != rhs.isActive { return lhs.isActive }
+                if lhs.isUserModified != rhs.isUserModified { return lhs.isUserModified }
+                return lhs.name < rhs.name
+            }
+            for prog in sorted {
+                let key = prog.name.localized()
+                if seenLocalizedNames.contains(key) {
                     duplicatesToDelete.append(prog)
                 } else {
-                    seenNames.insert(prog.name)
+                    seenLocalizedNames.insert(key)
                 }
             }
             

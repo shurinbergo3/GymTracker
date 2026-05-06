@@ -11,11 +11,13 @@ import SwiftUI
 
 struct ActivityRingsSection: View {
     @AppStorage("isAppleWatchEnabled") private var isAppleWatchEnabled = true
-    @State private var hasData: Bool? = nil
 
     var body: some View {
         Group {
-            if isAppleWatchEnabled, hasData == true {
+            // Показываем всегда, пока пользователь не выключил Apple Watch в настройках.
+            // Если HealthKit ещё не авторизован или нет данных за день — нативный
+            // HKActivityRingView сам покажет пустые кольца, что лучше чем пропадание блока.
+            if isAppleWatchEnabled {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                     Label("КОЛЬЦА АКТИВНОСТИ".localized(), systemImage: "applewatch")
                         .font(DesignSystem.Typography.caption())
@@ -28,38 +30,10 @@ struct ActivityRingsSection: View {
             }
         }
         .task {
-            await detect()
-        }
-        .onChange(of: isAppleWatchEnabled) { _, newValue in
-            if newValue {
-                Task { await detect(force: true) }
-            } else {
-                hasData = false
-            }
-        }
-    }
-
-    private func detect(force: Bool = false) async {
-        if !force, hasData != nil { return }
-        guard isAppleWatchEnabled else {
-            await MainActor.run { self.hasData = false }
-            return
-        }
-        guard HealthManager.shared.isAuthorized else {
-            await MainActor.run { self.hasData = false }
-            return
-        }
-
-        let summary = await HealthManager.shared.fetchActivitySummary()
-        let any = (summary.map { s in
-            s.activeEnergyBurned.doubleValue(for: .kilocalorie()) > 1
-                || s.appleStandHours.doubleValue(for: .count()) > 0
-                || s.appleExerciseTime.doubleValue(for: .minute()) > 0
-        }) ?? false
-
-        await MainActor.run {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                self.hasData = any
+            // Прогреваем авторизацию HealthKit, если её ещё нет —
+            // тогда кольца сразу подтянут данные без пере-открытия экрана.
+            if !HealthManager.shared.isAuthorized {
+                _ = await HealthManager.shared.requestAuthorization()
             }
         }
     }
