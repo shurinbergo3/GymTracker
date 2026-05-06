@@ -543,11 +543,11 @@ struct ActiveProgramCard: View {
         HStack(spacing: 0) {
             statBlock(value: "\(program.days.count)", label: "ДНЕЙ".localized())
             statDivider
-            statBlock(value: "~\(meta.estimatedMinutes)", label: "МИН".localized())
+            statBlock(value: "~\(meta.estimatedMinutes)", label: "мин".localized().uppercased())
             statDivider
             statBlock(
                 value: meta.level.displayName.uppercased(),
-                label: "УРОВЕНЬ".localized(),
+                label: "Уровень".localized().uppercased(),
                 valueColor: meta.level.color,
                 compact: true
             )
