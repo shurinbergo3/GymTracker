@@ -5,8 +5,7 @@ struct LaunchScreenView: View {
 
     var body: some View {
         ZStack {
-            // Тёмно-синий радиальный градиент — фон, который заполняет всё за картинкой.
-            // Сверху чуть светлее (deep navy), к низу/краям — почти чёрный, чтобы лого светилось.
+            // Тёмно-синий радиальный градиент — фон под/вокруг картинки.
             RadialGradient(
                 colors: [
                     Color(red: 0.10, green: 0.16, blue: 0.30),  // deep navy
@@ -15,19 +14,18 @@ struct LaunchScreenView: View {
                 ],
                 center: .center,
                 startRadius: 80,
-                endRadius: 700
+                endRadius: 900
             )
             .ignoresSafeArea()
 
-            // Картинка — .fit, чтобы вся помещалась без обрезки. Центрируется автоматически.
-            GeometryReader { geo in
-                Image("LaunchScreen")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: geo.size.width, height: geo.size.height)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            }
-            .ignoresSafeArea()
+            // Картинка на весь экран. .fill заполняет всю площадь, обрезая по краям;
+            // SwiftUI центрирует автоматически — название "Body Forge" остаётся в центре.
+            Image("LaunchScreen")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
+                .ignoresSafeArea()
 
             if showLoader {
                 VStack {

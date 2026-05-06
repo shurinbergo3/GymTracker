@@ -197,19 +197,22 @@ struct WorkoutTrackerApp: App {
         // Quick verification:
         // Use UserDefaults to know if we EXPECT to be logged in
         let hasPreviousSession = UserDefaults.standard.bool(forKey: "isLoggedIn")
-        
+
         if !hasPreviousSession {
             // No previous session, go straight to Login
-            withAnimation {
-                isCheckingAuth = false
-            }
+            withAnimation { isCheckingAuth = false }
         } else {
             // We expect a session, wait a moment for Firebase/AuthManager to sync
-            // AuthManager listener fires async.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation {
-                    isCheckingAuth = false
-                }
+                withAnimation { isCheckingAuth = false }
+            }
+        }
+
+        // Safety net: на случай любых блокировок (Firebase/Firestore offline cache,
+        // отсутствие сети, повреждённое состояние) сплеш не должен висеть дольше 2.5с.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            if self.isCheckingAuth {
+                withAnimation { self.isCheckingAuth = false }
             }
         }
     }
