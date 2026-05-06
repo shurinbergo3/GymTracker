@@ -5,13 +5,29 @@ struct LaunchScreenView: View {
 
     var body: some View {
         ZStack {
-            Color.black
-                .ignoresSafeArea()
+            // Тёмно-синий радиальный градиент — фон, который заполняет всё за картинкой.
+            // Сверху чуть светлее (deep navy), к низу/краям — почти чёрный, чтобы лого светилось.
+            RadialGradient(
+                colors: [
+                    Color(red: 0.10, green: 0.16, blue: 0.30),  // deep navy
+                    Color(red: 0.04, green: 0.07, blue: 0.16),  // midnight
+                    Color(red: 0.01, green: 0.02, blue: 0.06)   // near-black
+                ],
+                center: .center,
+                startRadius: 80,
+                endRadius: 700
+            )
+            .ignoresSafeArea()
 
-            Image("LaunchScreen")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .ignoresSafeArea()
+            // Картинка — .fit, чтобы вся помещалась без обрезки. Центрируется автоматически.
+            GeometryReader { geo in
+                Image("LaunchScreen")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            }
+            .ignoresSafeArea()
 
             if showLoader {
                 VStack {

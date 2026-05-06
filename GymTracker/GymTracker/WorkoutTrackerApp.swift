@@ -8,10 +8,34 @@ import SwiftUI
 import SwiftData
 import FirebaseCore
 import FirebaseAuth
+import UIKit
+
+// MARK: - AppDelegate
+
+/// Минимальный AppDelegate. Нужен чтобы убрать предупреждение
+/// `[GoogleUtilities/AppDelegateSwizzler] App Delegate does not conform to UIApplicationDelegate protocol`
+/// и дать Firebase правильную точку инициализации (важно для Auth listener'ов и URL handling).
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        // FirebaseApp уже сконфигурирован в WorkoutTrackerApp.init() — не дублируем,
+        // иначе будет лог "Default app has already been configured".
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+        }
+        return true
+    }
+}
 
 @main
 struct WorkoutTrackerApp: App {
-    
+
+    // Подключаем AppDelegate к SwiftUI App — без этого Firebase swizzler ругается и
+    // в редких случаях Auth state-listener не успевает подняться, что приводит к зависанию на сплеше.
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     // Use shared instance to ensure consistent state across the app
     @StateObject private var authManager = AuthManager.shared
     @StateObject private var languageManager = LanguageManager.shared
@@ -20,9 +44,13 @@ struct WorkoutTrackerApp: App {
     @State private var isRestoringData = false
     @State private var dbError: Error? = nil
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
-    
+
     init() {
-        FirebaseApp.configure()
+        // Конфигурим Firebase здесь же, до того как @StateObject AuthManager
+        // обратится к Auth.auth() — иначе SDK падает.
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+        }
     }
     
     var sharedModelContainer: ModelContainer = {
