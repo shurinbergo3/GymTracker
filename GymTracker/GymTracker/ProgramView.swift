@@ -411,6 +411,7 @@ struct ActiveProgramCard: View {
     let program: Program
     var isHighlighted: Bool = false
     @State private var showingEditor = false
+    @State private var pulse: Bool = false
 
     private var typeSummary: [(type: WorkoutType, count: Int)] {
         Dictionary(grouping: program.days, by: { $0.workoutType })
@@ -425,112 +426,235 @@ struct ActiveProgramCard: View {
 
     var body: some View {
         NavigationLink(destination: ProgramDetailView(program: program)) {
-            CardView {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                    // Header
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                            // Category badge
-                            HStack(spacing: 4) {
-                                Image(systemName: meta.category.icon)
-                                    .font(.system(size: 10, weight: .bold))
-                                Text(meta.category.displayName.uppercased())
-                                    .font(DesignSystem.Typography.caption())
-                                    .fontWeight(.bold)
-                                    .tracking(1)
-                            }
-                            .foregroundColor(meta.category.color)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(meta.category.color.opacity(0.18))
-                            .clipShape(Capsule())
-
-                            Text(program.name.localized())
-                                .font(DesignSystem.Typography.title())
-                                .foregroundColor(DesignSystem.Colors.primaryText)
-
-                            if !program.desc.isEmpty {
-                                Text(program.desc.localized())
-                                    .font(DesignSystem.Typography.body())
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    .lineLimit(2)
-                            }
-                        }
-
-                        Spacer()
-
-                        Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                            .font(.system(size: 32))
-                    }
-
-                    // Metadata strip
-                    HStack(spacing: DesignSystem.Spacing.sm) {
-                        metaPill(icon: meta.level.icon, text: meta.level.displayName, color: meta.level.color)
-                        metaPill(icon: "calendar", text: String(format: "%d дней".localized(), program.days.count), color: DesignSystem.Colors.secondaryText)
-                        metaPill(icon: "clock", text: String(format: "~%d мин".localized(), meta.estimatedMinutes), color: DesignSystem.Colors.secondaryText)
-                    }
-
-                    Divider().background(DesignSystem.Colors.secondaryText.opacity(0.3))
-
-                    // Workout type breakdown
-                    HStack(spacing: DesignSystem.Spacing.md) {
-                        HStack(spacing: DesignSystem.Spacing.xs) {
-                            ForEach(typeSummary, id: \.type) { item in
-                                HStack(spacing: 4) {
-                                    Image(systemName: item.type.icon)
-                                        .foregroundColor(colorForWorkoutType(item.type))
-                                    Text("\(item.count)")
-                                        .font(DesignSystem.Typography.caption())
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                }
-                            }
-                        }
-                        Spacer()
-                    }
-
-                    // Edit button
-                    Button(action: { showingEditor = true }) {
-                        HStack(spacing: DesignSystem.Spacing.sm) {
-                            Image(systemName: "pencil")
-                            Text("Редактировать программу".localized())
-                        }
-                        .font(DesignSystem.Typography.headline())
-                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, DesignSystem.Spacing.md)
-                        .background(DesignSystem.Colors.neonGreen.opacity(0.15))
-                        .cornerRadius(DesignSystem.CornerRadius.medium)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                .padding(DesignSystem.Spacing.xl)
-            }
+            cardContent
         }
         .buttonStyle(PlainButtonStyle())
-        .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                .stroke(isHighlighted ? DesignSystem.Colors.neonGreen : Color.clear, lineWidth: 3)
-                .shadow(color: isHighlighted ? DesignSystem.Colors.neonGreen.opacity(0.5) : Color.clear, radius: 10)
-        )
         .sheet(isPresented: $showingEditor) {
             ProgramEditorView(existingProgram: program)
         }
+        .onAppear { pulse = true }
     }
 
-    private func metaPill(icon: String, text: String, color: Color) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.system(size: 11, weight: .semibold))
-            Text(text)
-                .font(DesignSystem.Typography.caption())
-                .fontWeight(.semibold)
+    // MARK: - Card
+
+    private var cardContent: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            topRow
+                .padding(.bottom, DesignSystem.Spacing.lg)
+
+            Text(program.name.localized())
+                .font(.system(.title2, design: .rounded, weight: .heavy))
+                .foregroundColor(DesignSystem.Colors.primaryText)
+                .lineLimit(3)
+                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
+
+            if !program.desc.isEmpty {
+                Text(program.desc.localized())
+                    .font(DesignSystem.Typography.subheadline())
+                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                    .lineLimit(2)
+                    .padding(.top, 6)
+            }
+
+            statsRow
+                .padding(.top, DesignSystem.Spacing.lg)
+
+            footerRow
+                .padding(.top, DesignSystem.Spacing.md)
         }
-        .foregroundColor(color)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(color.opacity(0.12))
+        .padding(DesignSystem.Spacing.xl)
+        .background(cardBackground)
+        .overlay(highlightStroke)
+        .shadow(color: DesignSystem.Colors.neonGreen.opacity(isHighlighted ? 0.0 : 0.18), radius: 24, x: 0, y: 12)
+        .shadow(color: Color.black.opacity(0.45), radius: 14, x: 0, y: 8)
+    }
+
+    // MARK: - Top row
+
+    private var topRow: some View {
+        HStack(spacing: DesignSystem.Spacing.sm) {
+            activeIndicator
+            categoryBadge
+            Spacer(minLength: 8)
+            editButton
+        }
+    }
+
+    private var activeIndicator: some View {
+        HStack(spacing: 6) {
+            ZStack {
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen.opacity(0.45))
+                    .frame(width: 14, height: 14)
+                    .scaleEffect(pulse ? 1.8 : 1.0)
+                    .opacity(pulse ? 0.0 : 0.9)
+                    .animation(.easeOut(duration: 1.6).repeatForever(autoreverses: false), value: pulse)
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen)
+                    .frame(width: 8, height: 8)
+                    .shadow(color: DesignSystem.Colors.neonGreen, radius: 5)
+            }
+            Text("АКТИВНА".localized())
+                .font(.system(.caption2, design: .rounded, weight: .heavy))
+                .tracking(1.4)
+                .foregroundColor(DesignSystem.Colors.neonGreen)
+        }
+    }
+
+    private var categoryBadge: some View {
+        HStack(spacing: 4) {
+            Image(systemName: meta.category.icon)
+                .font(.system(size: 10, weight: .bold))
+            Text(meta.category.displayName.uppercased())
+                .font(.system(.caption2, design: .rounded, weight: .heavy))
+                .tracking(1)
+        }
+        .foregroundColor(meta.category.color)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        .background(meta.category.color.opacity(0.18))
         .clipShape(Capsule())
+        .overlay(
+            Capsule().stroke(meta.category.color.opacity(0.35), lineWidth: 0.5)
+        )
+    }
+
+    private var editButton: some View {
+        Button(action: { showingEditor = true }) {
+            Image(systemName: "pencil")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(DesignSystem.Colors.neonGreen)
+                .frame(width: 36, height: 36)
+                .background(DesignSystem.Colors.neonGreen.opacity(0.15))
+                .clipShape(Circle())
+                .overlay(
+                    Circle().stroke(DesignSystem.Colors.neonGreen.opacity(0.35), lineWidth: 1)
+                )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel(Text("Редактировать программу".localized()))
+    }
+
+    // MARK: - Stats
+
+    private var statsRow: some View {
+        HStack(spacing: 0) {
+            statBlock(value: "\(program.days.count)", label: "ДНЕЙ".localized())
+            statDivider
+            statBlock(value: "~\(meta.estimatedMinutes)", label: "МИН".localized())
+            statDivider
+            statBlock(
+                value: meta.level.displayName.uppercased(),
+                label: "УРОВЕНЬ".localized(),
+                valueColor: meta.level.color,
+                compact: true
+            )
+        }
+    }
+
+    private func statBlock(value: String, label: String, valueColor: Color = DesignSystem.Colors.primaryText, compact: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(value)
+                .font(.system(compact ? .callout : .title2, design: .rounded, weight: .heavy))
+                .foregroundColor(valueColor)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(label)
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .tracking(0.8)
+                .foregroundColor(DesignSystem.Colors.tertiaryText)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var statDivider: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.08))
+            .frame(width: 1, height: 28)
+    }
+
+    // MARK: - Footer
+
+    private var footerRow: some View {
+        HStack(spacing: 8) {
+            ForEach(typeSummary, id: \.type) { item in
+                HStack(spacing: 4) {
+                    Image(systemName: item.type.icon)
+                        .font(.system(size: 10, weight: .bold))
+                    Text("\(item.count)")
+                        .font(.system(.caption2, design: .rounded, weight: .heavy))
+                }
+                .foregroundColor(colorForWorkoutType(item.type))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(colorForWorkoutType(item.type).opacity(0.14))
+                .clipShape(Capsule())
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(DesignSystem.Colors.tertiaryText)
+        }
+    }
+
+    // MARK: - Background
+
+    private var cardBackground: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(Color(white: 0.08))
+
+            // Neon glow — top-left
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            DesignSystem.Colors.neonGreen.opacity(0.20),
+                            Color.clear
+                        ],
+                        center: .topLeading,
+                        startRadius: 5,
+                        endRadius: 260
+                    )
+                )
+
+            // Category tint — bottom-right
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            meta.category.color.opacity(0.12),
+                            Color.clear
+                        ],
+                        center: .bottomTrailing,
+                        startRadius: 5,
+                        endRadius: 240
+                    )
+                )
+
+            // Inner gradient stroke
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.neonGreen.opacity(0.55),
+                            Color.white.opacity(0.04),
+                            meta.category.color.opacity(0.35)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        }
+    }
+
+    private var highlightStroke: some View {
+        RoundedRectangle(cornerRadius: 28, style: .continuous)
+            .stroke(isHighlighted ? DesignSystem.Colors.neonGreen : Color.clear, lineWidth: 3)
+            .shadow(color: isHighlighted ? DesignSystem.Colors.neonGreen.opacity(0.5) : Color.clear, radius: 10)
     }
 
     private func colorForWorkoutType(_ type: WorkoutType) -> Color {

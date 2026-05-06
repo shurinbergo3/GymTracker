@@ -4266,6 +4266,12 @@
             "state" : "translated",
             "value" : "Estimated 1 Rep Max"
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расчётный 1ПМ"
+          }
         }
       }
     },
@@ -5342,7 +5348,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Main material for muscle growth. Found in meat, fish, eggs, cottage cheese."
+            "value" : "Главный материал для роста мышц. Содержится в мясе, рыбе, яйцах, твороге."
           }
         }
       }
@@ -6042,6 +6048,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "READY"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ГОТОВ"
           }
         }
       }
@@ -37319,6 +37331,1366 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ярость и охота"
+          }
+        }
+      }
+    },
+    "Library" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Library"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Библиотека"
+          }
+        }
+      }
+    },
+    "KG" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KG"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "КГ"
+          }
+        }
+      }
+    },
+    "XP" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XP"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XP"
+          }
+        }
+      }
+    },
+    "Upper/Lower Hypertrophy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upper/Lower Hypertrophy"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Верх/Низ Гипертрофия"
+          }
+        }
+      }
+    },
+    "2-day hypertrophy split. Day 1 — back, chest, biceps, triceps. Day 2 — legs and shoulders. Beginner-friendly volume." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2-day hypertrophy split. Day 1 — back, chest, biceps, triceps. Day 2 — legs and shoulders. Beginner-friendly volume."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сплит верх/низ на гипертрофию. День 1 — спина, грудь, бицепс, трицепс. День 2 — ноги и плечи. Подходит для среднего уровня."
+          }
+        }
+      }
+    },
+    "Booty Builder Pro" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Booty Builder Pro"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Booty Builder Pro"
+          }
+        }
+      }
+    },
+    "Advanced 4-day glute hypertrophy program. Hip thrust as the cornerstone, plus targeted accessory work for medial/upper glutes." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advanced 4-day glute hypertrophy program. Hip thrust as the cornerstone, plus targeted accessory work for medial/upper glutes."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продвинутая 4-дневная программа на ягодицы. Hip Thrust в основе плюс целевые упражнения на средние и верхние пучки."
+          }
+        }
+      }
+    },
+    "Yoga Flow Recovery" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yoga Flow Recovery"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yoga Flow: Восстановление"
+          }
+        }
+      }
+    },
+    "Recovery yoga flow. 25-30 minutes for the spine, hips, and shoulders. Perfect for active rest days." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recovery yoga flow. 25-30 minutes for the spine, hips, and shoulders. Perfect for active rest days."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановительный йога-флоу. 25-30 минут на позвоночник, бёдра и плечи. Идеально для дней активного восстановления."
+          }
+        }
+      }
+    },
+    "Couch to 5K" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couch to 5K"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couch to 5K (От дивана до 5 км)"
+          }
+        }
+      }
+    },
+    "Classic 9-week beginner running program. 3 sessions/week, alternating run/walk intervals. Builds up to a 5K run." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classic 9-week beginner running program. 3 sessions/week, alternating run/walk intervals. Builds up to a 5K run."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Классическая 9-недельная программа бега для начинающих. 3 раза в неделю, чередуем бег и ходьбу. Доводит до непрерывного бега 5 км."
+          }
+        }
+      }
+    },
+    "Norwegian 4x4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Norwegian 4x4"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Норвежский 4×4"
+          }
+        }
+      }
+    },
+    "Norwegian VO2max protocol. 4 minutes hard (90-95% HR max) / 3 minutes easy × 4 rounds. The most efficient cardio for VO2max." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Norwegian VO2max protocol. 4 minutes hard (90-95% HR max) / 3 minutes easy × 4 rounds. The most efficient cardio for VO2max."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Норвежский протокол на VO2max. 4 минуты в зоне 90-95% от ЧСС макс / 3 минуты восстановления × 4 раунда. Самое эффективное кардио на VO2max."
+          }
+        }
+      }
+    },
+    "Push Pull Legs (PPL)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push Pull Legs (PPL)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push Pull Legs (PPL)"
+          }
+        }
+      }
+    },
+    "Classic 6-day split: push, pull, legs — twice a week. The most popular intermediate program." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classic 6-day split: push, pull, legs — twice a week. The most popular intermediate program."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Классический 6-дневный сплит: жим, тяга, ноги — по два раза в неделю. Самая популярная программа среднего уровня."
+          }
+        }
+      }
+    },
+    "Bro Split" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bro Split"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bro Split"
+          }
+        }
+      }
+    },
+    "Classic 5-day bodybuilder split: one muscle group per day. High volume per session." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classic 5-day bodybuilder split: one muscle group per day. High volume per session."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Классический 5-дневный сплит бодибилдера: одна мышечная группа в день. Большой объём за тренировку."
+          }
+        }
+      }
+    },
+    "Arnold Split" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arnold Split"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arnold Split (Сплит Арнольда)"
+          }
+        }
+      }
+    },
+    "Arnold Schwarzenegger's 6-day double split: push pairings hit each muscle 2x/week with high volume." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arnold Schwarzenegger's 6-day double split: push pairings hit each muscle 2x/week with high volume."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "6-дневный двойной сплит Арнольда Шварценеггера: парные группы прорабатываются 2 раза в неделю с высоким объёмом."
+          }
+        }
+      }
+    },
+    "Powerbuilding 4-Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powerbuilding 4-Day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пауэрбилдинг 4 дня"
+          }
+        }
+      }
+    },
+    "Power + bodybuilding hybrid. Heavy compound first, hypertrophy work second. 4 days/week." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Power + bodybuilding hybrid. Heavy compound first, hypertrophy work second. 4 days/week."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гибрид силовой и бодибилдинга. Сначала тяжёлая база, потом гипертрофия. 4 дня в неделю."
+          }
+        }
+      }
+    },
+    "StrongLifts 5x5" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "StrongLifts 5x5"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "StrongLifts 5×5"
+          }
+        }
+      }
+    },
+    "Classic linear progression for beginners. 5 sets of 5 reps, 3 days a week. Two alternating workouts." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classic linear progression for beginners. 5 sets of 5 reps, 3 days a week. Two alternating workouts."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Классическая линейная прогрессия для новичков. 5 подходов по 5 повторений, 3 раза в неделю. Две чередующиеся тренировки."
+          }
+        }
+      }
+    },
+    "Madcow 5x5" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Madcow 5x5"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Madcow 5×5"
+          }
+        }
+      }
+    },
+    "Intermediate 5x5 with weekly periodization. Heavy Mon, Light Wed, Volume Fri." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intermediate 5x5 with weekly periodization. Heavy Mon, Light Wed, Volume Fri."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5×5 для среднего уровня с недельной периодизацией: тяжёлый понедельник, лёгкая среда, объёмная пятница."
+          }
+        }
+      }
+    },
+    "nSuns 5/3/1 LP" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nSuns 5/3/1 LP"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nSuns 5/3/1 LP"
+          }
+        }
+      }
+    },
+    "Aggressive 5/3/1 LP variant. 9 sets on the main lift with progressive intensity. 6 days/week." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggressive 5/3/1 LP variant. 9 sets on the main lift with progressive intensity. 6 days/week."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Агрессивная вариация 5/3/1 LP. 9 подходов на основное упражнение с растущей интенсивностью. 6 дней в неделю."
+          }
+        }
+      }
+    },
+    "Tabata Total Body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tabata Total Body"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Табата (всё тело)"
+          }
+        }
+      }
+    },
+    "8 rounds × 20s work / 10s rest. 4 minutes of intense conditioning per block, 4-6 blocks total." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8 rounds × 20s work / 10s rest. 4 minutes of intense conditioning per block, 4-6 blocks total."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8 раундов × 20 сек работы / 10 сек отдыха. 4 минуты интенсивного кондиционирования на блок, всего 4-6 блоков."
+          }
+        }
+      }
+    },
+    "EMOM Conditioning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EMOM Conditioning"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EMOM Кондиционирование"
+          }
+        }
+      }
+    },
+    "Every Minute On the Minute. Complete prescribed reps within 60 seconds, rest the remainder." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every Minute On the Minute. Complete prescribed reps within 60 seconds, rest the remainder."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every Minute On the Minute. Выполняй заданные повторения за 60 секунд — оставшееся время отдыхаешь."
+          }
+        }
+      }
+    },
+    "Glute Builder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glute Builder"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ягодичный Билдер"
+          }
+        }
+      }
+    },
+    "Glute-focused program. 3 sessions/week with hip thrusts as the cornerstone." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glute-focused program. 3 sessions/week with hip thrusts as the cornerstone."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Программа с фокусом на ягодицы. 3 тренировки в неделю с Hip Thrust в основе."
+          }
+        }
+      }
+    },
+    "Core Crusher" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Core Crusher"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Core Crusher (Пресс)"
+          }
+        }
+      }
+    },
+    "Quick core finisher. 3 short sessions/week — perfect after main workouts." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick core finisher. 3 short sessions/week — perfect after main workouts."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрый финишер на пресс. 3 короткие сессии в неделю — идеально после основной тренировки."
+          }
+        }
+      }
+    },
+    "Mobility Flow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mobility Flow"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поток мобильности"
+          }
+        }
+      }
+    },
+    "Daily mobility routine. 15-20 minutes for joints and recovery." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily mobility routine. 15-20 minutes for joints and recovery."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ежедневная программа мобильности. 15-20 минут для суставов и восстановления."
+          }
+        }
+      }
+    },
+    "АКТИВНА" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ACTIVE"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "АКТИВНА"
+          }
+        }
+      }
+    },
+    "Анализирую твой план и историю последних тренировок…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyzing your plan and recent workout history…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Анализирую твой план и историю последних тренировок…"
+          }
+        }
+      }
+    },
+    "Брифинг от коуча" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coach briefing"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Брифинг от коуча"
+          }
+        }
+      }
+    },
+    "ВНИМАНИЕ: Это действие удалит ВСЕ тренировки в облаке и заменит их вашими текущими локальными тренировками.\\n\\nИспользуйте это, если вы почистили историю на телефоне и хотите, чтобы в облаке стало так же." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WARNING: This action will delete ALL workouts in the cloud and replace them with your current local workouts.\\n\\nUse this if you've cleared history on your phone and want the cloud to match."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ВНИМАНИЕ: Это действие удалит ВСЕ тренировки в облаке и заменит их вашими текущими локальными тренировками.\\n\\nИспользуйте это, если вы почистили историю на телефоне и хотите, чтобы в облаке стало так же."
+          }
+        }
+      }
+    },
+    "Готовность · цели · фокус" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Readiness · goals · focus"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Готовность · цели · фокус"
+          }
+        }
+      }
+    },
+    "ДНЕЙ" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DAYS"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ДНЕЙ"
+          }
+        }
+      }
+    },
+    "Добавьте больше записей\\nдля отображения графика" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add more entries\\nto show the chart"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте больше записей\\nдля отображения графика"
+          }
+        }
+      }
+    },
+    "Дождись брифинга, потом спрашивай…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wait for the briefing, then ask…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дождись брифинга, потом спрашивай…"
+          }
+        }
+      }
+    },
+    "История ваших тренировок появится здесь.\\nНачните свой путь прямо сейчас!" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your workout history will appear here.\\nStart your journey now!"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "История ваших тренировок появится здесь.\\nНачните свой путь прямо сейчас!"
+          }
+        }
+      }
+    },
+    "Итоги недели" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekly summary"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Итоги недели"
+          }
+        }
+      }
+    },
+    "Лимит вопросов до тренировки исчерпан." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pre-workout question limit reached."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лимит вопросов до тренировки исчерпан."
+          }
+        }
+      }
+    },
+    "МИН" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MIN"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "МИН"
+          }
+        }
+      }
+    },
+    "Мы нашли вашу историю тренировок в облаке.\\nПожалуйста, подождите." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We found your workout history in the cloud.\\nPlease wait."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мы нашли вашу историю тренировок в облаке.\\nПожалуйста, подождите."
+          }
+        }
+      }
+    },
+    "Новые рекорды" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New records"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новые рекорды"
+          }
+        }
+      }
+    },
+    "Отменить" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить"
+          }
+        }
+      }
+    },
+    "Подготовка к тренировке" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workout preparation"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подготовка к тренировке"
+          }
+        }
+      }
+    },
+    "Поделиться" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться"
+          }
+        }
+      }
+    },
+    "Поднято за неделю" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifted this week"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поднято за неделю"
+          }
+        }
+      }
+    },
+    "Поехали" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let's go"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поехали"
+          }
+        }
+      }
+    },
+    "Спроси перед тренировкой…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask before the workout…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спроси перед тренировкой…"
+          }
+        }
+      }
+    },
+    "Твоя неделя" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your week"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Твоя неделя"
+          }
+        }
+      }
+    },
+    "Тоннаж · PR · стрик · поделиться" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tonnage · PR · streak · share"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоннаж · PR · стрик · поделиться"
+          }
+        }
+      }
+    },
+    "УРОВЕНЬ" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LEVEL"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "УРОВЕНЬ"
+          }
+        }
+      }
+    },
+    "Чемпион недели" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Champion of the week"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чемпион недели"
+          }
+        }
+      }
+    },
+    "трен." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wkts"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "трен."
+          }
+        }
+      }
+    },
+    "⬆️ 'Выгрузить в облако' ЗАМЕНИТ всё в облаке вашими текущими локальными тренировками.\\n⚠️ Красная кнопка удалит вообще ВСЁ." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⬆️ 'Upload to cloud' will REPLACE everything in the cloud with your current local workouts.\\n⚠️ The red button will delete EVERYTHING."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⬆️ 'Выгрузить в облако' ЗАМЕНИТ всё в облаке вашими текущими локальными тренировками.\\n⚠️ Красная кнопка удалит вообще ВСЁ."
+          }
+        }
+      }
+    },
+    "Body Forge — твоя личная кузница тела" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Body Forge — your personal body forge"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Body Forge — твоя личная кузница тела"
+          }
+        }
+      }
+    },
+    "1. Тревога: Утомление и микротравмы после нагрузки.\\n2. Сопротивление: Восстановление и суперкомпенсация (рост).\\n3. Истощение: Перетренированность, если нет восстановления." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1. Alarm: Fatigue and microtraumas after load.\\n2. Resistance: Recovery and supercompensation (growth).\\n3. Exhaustion: Overtraining if no recovery."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1. Тревога: Утомление и микротравмы после нагрузки.\\n2. Сопротивление: Восстановление и суперкомпенсация (рост).\\n3. Истощение: Перетренированность, если нет восстановления."
+          }
+        }
+      }
+    },
+    "%d PR" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d PR"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d PR"
+          }
+        }
+      }
+    },
+    "%d PR · %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d PR · %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d PR · %@"
+          }
+        }
+      }
+    },
+    "%d дней подряд" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d days in a row"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d дней подряд"
+          }
+        }
+      }
+    },
+    "%d уд./мин" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d bpm"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d уд./мин"
+          }
+        }
+      }
+    },
+    "%d/%d " : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d/%d "
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d/%d "
+          }
+        }
+      }
+    },
+    "Apple Health" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Health"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Health"
+          }
+        }
+      }
+    },
+    "Активировать (Скоро)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activate (Soon)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активировать (Скоро)"
+          }
+        }
+      }
+    },
+    "Отправить" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отправить"
+          }
+        }
+      }
+    },
+    "Лимит вопросов исчерпан" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Question limit reached"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лимит вопросов исчерпан"
+          }
+        }
+      }
+    },
+    "Например: оставить ли становую сегодня, если плохо спал?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example: should I keep deadlifts today if I slept poorly?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Например: оставить ли становую сегодня, если плохо спал?"
+          }
+        }
+      }
+    },
+    "Можно через %d сек" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available in %d sec"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Можно через %d сек"
+          }
+        }
+      }
+    },
+    "Задать вопрос" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask a question"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задать вопрос"
+          }
+        }
+      }
+    },
+    "Анализирую план и историю последних тренировок…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyzing plan and recent workout history…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Анализирую план и историю последних тренировок…"
+          }
+        }
+      }
+    },
+    "Дождись брифинга…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wait for the briefing…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дождись брифинга…"
+          }
+        }
+      }
+    },
+    "Спроси перед тренировкой" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask before workout"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спроси перед тренировкой"
           }
         }
       }

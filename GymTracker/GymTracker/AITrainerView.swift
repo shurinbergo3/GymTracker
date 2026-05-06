@@ -99,7 +99,7 @@ struct AITrainerView: View {
                     Spacer()
                     
                     // CTA Button
-                    GradientButton(title: "Активировать (Скоро)", icon: "sparkles") {
+                    GradientButton(title: "Активировать (Скоро)".localized(), icon: "sparkles") {
                         showingDevAlert = true
                     }
                     .padding(.horizontal, DesignSystem.Spacing.xl)
@@ -119,7 +119,7 @@ struct AITrainerView: View {
                 SettingsView()
             }
             // The requested "Success" alert/window
-            .alert("В разработке", isPresented: $showingDevAlert) {
+            .alert("В разработке".localized(), isPresented: $showingDevAlert) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text("Этот функционал еще создается. Скоро будет доступно!".localized())

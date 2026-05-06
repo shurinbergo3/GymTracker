@@ -42,27 +42,27 @@ struct ExerciseSelectionView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("cancel_button") {
+                        Button("cancel_button".localized()) {
                             dismiss()
                         }
                     }
-                    
+
                     ToolbarItem(placement: .primaryAction) {
                         Button(action: { showingCustomExercise = true }) {
                             Image(systemName: "plus")
                         }
                     }
                 }
-                .alert("new_exercise_title", isPresented: $showingCustomExercise) {
-                    TextField("exercise_name_placeholder", text: $customExerciseName)
-                    Button("cancel_button", role: .cancel) {
+                .alert("new_exercise_title".localized(), isPresented: $showingCustomExercise) {
+                    TextField("exercise_name_placeholder".localized(), text: $customExerciseName)
+                    Button("cancel_button".localized(), role: .cancel) {
                         customExerciseName = ""
                     }
-                    Button("add_button") {
+                    Button("add_button".localized()) {
                         addCustomExercise()
                     }
                 } message: {
-                    Text("enter_exercise_name_message")
+                    Text("enter_exercise_name_message".localized())
                 }
         }
     }

@@ -390,7 +390,7 @@ struct ExerciseCard: View {
                             HStack {
                                 if isWeighted {
                                     HStack {
-                                        TextField("weight_label", text: $weight)
+                                        TextField("weight_label".localized(), text: $weight)
                                             .keyboardType(.decimalPad)
                                             .frame(width: 60)
                                             .multilineTextAlignment(.center)
@@ -886,13 +886,13 @@ struct E1RMInfoPopover: View {
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("e1RM").font(.headline).foregroundColor(.white)
-                    Text("Estimated 1 Rep Max")
+                    Text("Estimated 1 Rep Max".localized())
                         .font(.caption)
                         .foregroundColor(.gray)
                 }
             }
 
-            Text("Расчётный максимум на одно повторение — оценка веса, который ты теоретически осилил бы один раз с правильной техникой.")
+            Text("Расчётный максимум на одно повторение — оценка веса, который ты теоретически осилил бы один раз с правильной техникой.".localized())
                 .font(.system(size: 13))
                 .foregroundColor(.white.opacity(0.85))
                 .fixedSize(horizontal: false, vertical: true)
@@ -900,19 +900,19 @@ struct E1RMInfoPopover: View {
             Divider().background(Color.white.opacity(0.1))
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Формула Эпли")
+                Text("Формула Эпли".localized())
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(DesignSystem.Colors.neonGreen)
-                Text("e1RM = вес × (1 + повторы / 30)")
+                Text("e1RM = вес × (1 + повторы / 30)".localized())
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundColor(.white.opacity(0.9))
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Зачем смотреть")
+                Text("Зачем смотреть".localized())
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(DesignSystem.Colors.neonGreen)
-                Text("Видно прогресс силы, даже если меняешь веса/повторы. Подход 80×10 и 100×5 сравнимы между собой через e1RM.")
+                Text("Видно прогресс силы, даже если меняешь веса/повторы. Подход 80×10 и 100×5 сравнимы между собой через e1RM.".localized())
                     .font(.system(size: 12))
                     .foregroundColor(.white.opacity(0.85))
                     .fixedSize(horizontal: false, vertical: true)

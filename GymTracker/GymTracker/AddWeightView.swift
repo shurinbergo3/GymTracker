@@ -19,7 +19,7 @@ struct AddWeightView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Новый вес") {
+                Section("Новый вес".localized()) {
                     HStack {
                         Text("Вес (кг)".localized())
                         Spacer()

@@ -19,7 +19,7 @@ struct CreateProfileView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Параметры") {
+                Section("Параметры".localized()) {
                     HStack {
                         Text("Рост (см)".localized())
                         Spacer()

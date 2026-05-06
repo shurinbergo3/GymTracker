@@ -142,5 +142,12 @@ struct ProgramMetadata {
         "Tabata Total Body":            .init(category: .fatLoss,      level: .intermediate, estimatedMinutes: 30),
         "Mobility Flow":                .init(category: .mobility,     level: .beginner,     estimatedMinutes: 20),
         "EMOM Conditioning":            .init(category: .fatLoss,      level: .intermediate, estimatedMinutes: 35),
+
+        // v4 — Upper/Lower hypertrophy + glutes/mobility/cardio additions
+        "Upper/Lower Hypertrophy":      .init(category: .massGain,     level: .beginner,     estimatedMinutes: 60),
+        "Booty Builder Pro":            .init(category: .glutes,       level: .intermediate, estimatedMinutes: 60),
+        "Yoga Flow Recovery":           .init(category: .mobility,     level: .any,          estimatedMinutes: 30),
+        "Couch to 5K":                  .init(category: .cardio,       level: .beginner,     estimatedMinutes: 35),
+        "Norwegian 4x4":                .init(category: .cardio,       level: .advanced,     estimatedMinutes: 35),
     ]
 }

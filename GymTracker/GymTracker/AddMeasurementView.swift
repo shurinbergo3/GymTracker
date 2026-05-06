@@ -15,7 +15,7 @@ struct AddMeasurementView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Новый замер") {
+                Section("Новый замер".localized()) {
                     HStack {
                         Text(measurementType.localizedName)
                         Spacer()
@@ -26,7 +26,7 @@ struct AddMeasurementView: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    DatePicker("Дата", selection: $date, displayedComponents: [.date])
+                    DatePicker("Дата".localized(), selection: $date, displayedComponents: [.date])
                 }
             }
             .navigationTitle("Добавить замер".localized())

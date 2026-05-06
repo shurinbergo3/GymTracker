@@ -108,7 +108,7 @@ struct ProgressHubView: View {
                 .padding(.top, 8)
             }
             .background(DesignSystem.Colors.background.ignoresSafeArea())
-            .navigationTitle("Прогресс")
+            .navigationTitle("Прогресс".localized())
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -271,7 +271,7 @@ struct ProgressHubView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "trophy.fill")
                         .foregroundStyle(Color(red: 1.0, green: 0.82, blue: 0.20))
-                    Text("Личные рекорды")
+                    Text("Личные рекорды".localized())
                         .font(.headline.bold())
                         .foregroundStyle(.white)
                     Spacer()
@@ -332,7 +332,7 @@ struct ProgressHubView: View {
     @ViewBuilder
     private func badge(for pr: PersonalRecord) -> some View {
         if pr.isFirstAtReps {
-            Text("Новый")
+            Text("Новый".localized())
                 .font(.caption2.bold())
                 .foregroundStyle(.green)
                 .padding(.horizontal, 8)
@@ -364,10 +364,10 @@ struct ProgressHubView: View {
                         .foregroundStyle(DesignSystem.Colors.accent)
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Подробная аналитика")
+                    Text("Подробная аналитика".localized())
                         .font(.subheadline.bold())
                         .foregroundStyle(.white)
-                    Text("Графики объёма, упражнения, периоды")
+                    Text("Графики объёма, упражнения, периоды".localized())
                         .font(.caption)
                         .foregroundStyle(DesignSystem.Colors.secondaryText)
                 }

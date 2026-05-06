@@ -141,39 +141,57 @@ enum WeeklyWrappedGenerator {
     }
 }
 
-// MARK: - View
+// MARK: - View (single-slide summary)
 
 struct WeeklyWrappedView: View {
     let snapshot: WeeklyWrappedSnapshot
     let onClose: () -> Void
 
-    @State private var page: Int = 0
     @State private var sharePayload: SharePayload?
 
-    private var pages: [WeeklyWrappedPage] { WeeklyWrappedPage.deck(for: snapshot) }
-
     var body: some View {
-        ZStack {
-            // Dynamic gradient bg keyed off the page colour
-            LinearGradient(
-                colors: [pages[safe: page]?.tint.opacity(0.65) ?? .black, .black],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+        ZStack(alignment: .top) {
+            WeeklyWrappedBackground()
+                .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                topBar
-                TabView(selection: $page) {
-                    ForEach(pages.indices, id: \.self) { i in
-                        WeeklyWrappedCard(page: pages[i], snapshot: snapshot)
-                            .tag(i)
-                            .padding(.horizontal, 24)
+                // Top bar
+                HStack {
+                    HStack(spacing: 10) {
+                        Image("BrandLogo")
+                            .resizable()
+                            .interpolation(.high)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 30, height: 30)
+                            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        Text("Body Forge")
+                            .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                            .foregroundStyle(.white)
+                    }
+
+                    Spacer()
+
+                    Button(action: onClose) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .heavy))
+                            .foregroundStyle(.white)
+                            .frame(width: 32, height: 32)
+                            .background(Color.white.opacity(0.18))
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 0.5))
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+                .padding(.horizontal, 18)
+                .padding(.top, 10)
 
-                bottomBar
+                ScrollView(showsIndicators: false) {
+                    WeeklyWrappedSummaryCard(snapshot: snapshot)
+                        .padding(.horizontal, 18)
+                        .padding(.top, 16)
+                        .padding(.bottom, 16)
+                }
+
+                shareButton
             }
         }
         .preferredColorScheme(.dark)
@@ -183,85 +201,42 @@ struct WeeklyWrappedView: View {
         }
     }
 
-    // MARK: Top bar (progress + close)
-
-    private var topBar: some View {
-        HStack(spacing: 6) {
-            ForEach(pages.indices, id: \.self) { idx in
-                Capsule()
-                    .fill(idx <= page ? Color.white : Color.white.opacity(0.25))
-                    .frame(height: 3)
+    private var shareButton: some View {
+        Button(action: share) {
+            HStack(spacing: 10) {
+                Image(systemName: "square.and.arrow.up.fill")
+                    .font(.system(size: 15, weight: .heavy))
+                Text("Поделиться".localized())
+                    .font(.system(.headline, design: .rounded, weight: .heavy))
             }
-            Button {
-                onClose()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .heavy))
-                    .foregroundStyle(.white)
-                    .frame(width: 30, height: 30)
-                    .background(Color.white.opacity(0.15))
-                    .clipShape(Circle())
-            }
-            .padding(.leading, 8)
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 16)
-    }
-
-    // MARK: Bottom CTA
-
-    private var bottomBar: some View {
-        HStack(spacing: 12) {
-            Button {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                if page > 0 { withAnimation { page -= 1 } }
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 18, weight: .heavy))
-                    .foregroundStyle(.white)
-                    .frame(width: 48, height: 48)
-                    .background(Color.white.opacity(0.10))
-                    .clipShape(Circle())
-            }
-            .opacity(page == 0 ? 0.4 : 1)
-            .disabled(page == 0)
-
-            Button(action: share) {
-                HStack(spacing: 8) {
-                    Image(systemName: "square.and.arrow.up.fill")
-                        .font(.system(size: 14, weight: .heavy))
-                    Text("Поделиться".localized())
-                        .font(.system(.headline, design: .rounded, weight: .heavy))
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                ZStack {
+                    Color.white
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.6), .clear],
+                        startPoint: .top,
+                        endPoint: .center
+                    )
                 }
-                .foregroundStyle(.black)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .shadow(color: .white.opacity(0.4), radius: 14, y: 4)
-            }
-
-            Button {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                if page < pages.count - 1 { withAnimation { page += 1 } } else { onClose() }
-            } label: {
-                Image(systemName: page == pages.count - 1 ? "checkmark" : "chevron.right")
-                    .font(.system(size: 18, weight: .heavy))
-                    .foregroundStyle(.white)
-                    .frame(width: 48, height: 48)
-                    .background(Color.white.opacity(0.10))
-                    .clipShape(Circle())
-            }
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(Color.white.opacity(0.5), lineWidth: 0.5)
+            )
+            .shadow(color: .white.opacity(0.35), radius: 24, y: 10)
+            .shadow(color: .white.opacity(0.20), radius: 6, y: 2)
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 22)
     }
 
-    // MARK: Share
-
     private func share() {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
-        let card = WeeklyWrappedShareCard(page: pages[page], snapshot: snapshot)
+        let card = WeeklyWrappedShareRender(snapshot: snapshot)
         let renderer = ImageRenderer(content: card)
         renderer.scale = UIScreen.main.scale
         renderer.proposedSize = .init(width: 1080, height: 1920)
@@ -271,249 +246,402 @@ struct WeeklyWrappedView: View {
     }
 }
 
-// MARK: - Page model
+// MARK: - Background mesh
 
-struct WeeklyWrappedPage: Identifiable {
-    let id = UUID()
-    let kind: Kind
-    let title: String
-    let primary: String
-    let secondary: String?
-    let icon: String
-    let tint: Color
+private struct WeeklyWrappedBackground: View {
+    var body: some View {
+        ZStack {
+            Color.black
 
-    enum Kind { case cover, workouts, volume, top, prs, streak, outro }
+            // Top-right purple
+            Circle()
+                .fill(Color(red: 0.55, green: 0.30, blue: 1.0))
+                .frame(width: 460, height: 460)
+                .blur(radius: 110)
+                .offset(x: 140, y: -240)
+                .opacity(0.85)
 
-    static func deck(for s: WeeklyWrappedSnapshot) -> [WeeklyWrappedPage] {
-        let df = DateFormatter()
-        df.dateFormat = "d MMM"
-        let range = "\(df.string(from: s.weekStart)) — \(df.string(from: s.weekEnd))"
+            // Mid-left pink
+            Circle()
+                .fill(Color(red: 1.0, green: 0.30, blue: 0.65))
+                .frame(width: 360, height: 360)
+                .blur(radius: 110)
+                .offset(x: -130, y: 60)
+                .opacity(0.65)
 
-        var deck: [WeeklyWrappedPage] = [
-            .init(
-                kind: .cover,
-                title: "Твоя неделя".localized(),
-                primary: range,
-                secondary: "Body Forge",
-                icon: "sparkles",
-                tint: Color(red: 0.6, green: 0.4, blue: 1.0)
-            ),
-            .init(
-                kind: .workouts,
-                title: "Тренировки".localized(),
-                primary: "\(s.workoutCount)",
-                secondary: s.workoutDelta == 0
-                    ? "ровно как неделю назад".localized()
-                    : (s.workoutDelta > 0
-                       ? "+\(s.workoutDelta) к прошлой неделе".localized()
-                       : "\(s.workoutDelta) к прошлой неделе".localized()),
-                icon: "dumbbell.fill",
-                tint: Color(red: 0.30, green: 0.95, blue: 0.45)
-            ),
-            .init(
-                kind: .volume,
-                title: "Поднятый тоннаж".localized(),
-                primary: tonnageString(s.totalVolumeKg),
-                secondary: s.volumeDeltaPercent == 0
-                    ? nil
-                    : (s.volumeDeltaPercent > 0
-                       ? String(format: "+%d%% к неделе ранее".localized(), s.volumeDeltaPercent)
-                       : String(format: "%d%% к неделе ранее".localized(), s.volumeDeltaPercent)),
-                icon: "scalemass.fill",
-                tint: Color(red: 1.00, green: 0.55, blue: 0.10)
-            )
-        ]
+            // Bottom warm
+            Circle()
+                .fill(Color(red: 1.0, green: 0.55, blue: 0.20))
+                .frame(width: 340, height: 340)
+                .blur(radius: 110)
+                .offset(x: 110, y: 380)
+                .opacity(0.55)
 
-        if let top = s.topExerciseName {
-            deck.append(.init(
-                kind: .top,
-                title: "Чемпион недели".localized(),
-                primary: top,
-                secondary: String(format: "%.0f kg общим тоннажем".localized(), s.topExerciseVolumeKg),
-                icon: "crown.fill",
-                tint: Color(red: 1.0, green: 0.85, blue: 0.20)
-            ))
+            // Subtle dimmer
+            Color.black.opacity(0.18)
         }
-
-        if s.prCount > 0 {
-            deck.append(.init(
-                kind: .prs,
-                title: "Новые рекорды".localized(),
-                primary: "\(s.prCount) PR",
-                secondary: s.topPRName,
-                icon: "trophy.fill",
-                tint: Color(red: 1.0, green: 0.27, blue: 0.4)
-            ))
-        }
-
-        if s.currentStreakDays > 0 {
-            deck.append(.init(
-                kind: .streak,
-                title: "Серия".localized(),
-                primary: "\(s.currentStreakDays)",
-                secondary: "дней подряд".localized(),
-                icon: "flame.fill",
-                tint: Color(red: 1.0, green: 0.45, blue: 0.10)
-            ))
-        }
-
-        deck.append(.init(
-            kind: .outro,
-            title: "Поделись результатом".localized(),
-            primary: "Вперёд".localized(),
-            secondary: "Сохрани силу момента".localized(),
-            icon: "paperplane.fill",
-            tint: Color(red: 0.4, green: 0.65, blue: 1.0)
-        ))
-
-        return deck
-    }
-
-    private static func tonnageString(_ kg: Double) -> String {
-        if kg >= 1000 {
-            return String(format: "%.1f т", kg / 1000)
-        }
-        return "\(Int(kg)) кг"
     }
 }
 
-// MARK: - Card view (shared between in-app + share render)
+// MARK: - Summary card (the actual single-slide content)
 
-struct WeeklyWrappedCard: View {
-    let page: WeeklyWrappedPage
+struct WeeklyWrappedSummaryCard: View {
     let snapshot: WeeklyWrappedSnapshot
+    var includeFooter: Bool = false
+
+    private static let weekFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "ru_RU")
+        df.dateFormat = "d MMMM"
+        return df
+    }()
+
+    private var weekRangeText: String {
+        let start = Self.weekFormatter.string(from: snapshot.weekStart)
+        let end = Self.weekFormatter.string(from: snapshot.weekEnd)
+        return "\(start) — \(end)".uppercased()
+    }
+
+    private var heroTonnage: String {
+        if snapshot.totalVolumeKg >= 1000 {
+            return String(format: "%.1f т", snapshot.totalVolumeKg / 1000)
+        }
+        return "\(Int(snapshot.totalVolumeKg)) кг"
+    }
+
+    private var heroDelta: (text: String, icon: String, color: Color)? {
+        let pct = snapshot.volumeDeltaPercent
+        guard pct != 0 else { return nil }
+        if pct > 0 {
+            return ("+\(pct)%", "arrow.up.right", Color(red: 0.30, green: 0.95, blue: 0.45))
+        }
+        return ("\(pct)%", "arrow.down.right", Color(red: 1.0, green: 0.42, blue: 0.42))
+    }
 
     var body: some View {
-        VStack(spacing: 18) {
-            Spacer()
+        VStack(spacing: 22) {
+            sparkleHero
+            headerBlock
+            tonnageHero
+            statsGrid
+            highlightsStack
 
-            ZStack {
-                Circle()
-                    .fill(page.tint.opacity(0.25))
-                    .frame(width: 200, height: 200)
-                    .blur(radius: 30)
-                Image(systemName: page.icon)
-                    .font(.system(size: 96, weight: .heavy))
-                    .foregroundStyle(.white)
-                    .shadow(color: page.tint.opacity(0.7), radius: 20)
+            if includeFooter {
+                Spacer(minLength: 16)
+                footer
             }
+        }
+    }
 
-            VStack(spacing: 12) {
-                Text(page.title)
-                    .font(.system(.title3, design: .rounded, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.85))
+    // MARK: Hero icon
+
+    private var sparkleHero: some View {
+        ZStack {
+            Circle()
+                .fill(Color(red: 0.85, green: 0.55, blue: 1.0).opacity(0.55))
+                .frame(width: 170, height: 170)
+                .blur(radius: 50)
+            Circle()
+                .fill(Color(red: 1.0, green: 0.55, blue: 0.85).opacity(0.35))
+                .frame(width: 130, height: 130)
+                .blur(radius: 30)
+                .offset(x: 24, y: 12)
+            Image(systemName: "sparkles")
+                .font(.system(size: 64, weight: .heavy))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, Color(red: 1.0, green: 0.92, blue: 1.0)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(color: .white.opacity(0.6), radius: 18)
+        }
+        .frame(height: 130)
+    }
+
+    // MARK: Eyebrow + week range
+
+    private var headerBlock: some View {
+        VStack(spacing: 10) {
+            Text("Твоя неделя".localized().localizedUppercase)
+                .font(.system(.caption, design: .rounded, weight: .heavy))
+                .tracking(3.6)
+                .foregroundStyle(.white.opacity(0.7))
+
+            Text(weekRangeText)
+                .font(.system(size: 26, weight: .heavy, design: .rounded))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, Color(red: 1.0, green: 0.88, blue: 1.0)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.7)
+                .tracking(0.5)
+        }
+    }
+
+    // MARK: Tonnage hero block
+
+    private var tonnageHero: some View {
+        VStack(spacing: 12) {
+            Text(heroTonnage)
+                .font(.system(size: 76, weight: .black, design: .rounded))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, Color(red: 1.0, green: 0.82, blue: 0.55)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .shadow(color: Color(red: 1.0, green: 0.65, blue: 0.30).opacity(0.45), radius: 24)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+
+            HStack(spacing: 8) {
+                Text("Поднято за неделю".localized().localizedUppercase)
+                    .font(.system(.caption2, design: .rounded, weight: .heavy))
                     .tracking(2)
-                    .textCase(.uppercase)
+                    .foregroundStyle(.white.opacity(0.72))
 
-                Text(page.primary)
-                    .font(.system(size: 64, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.5)
-                    .padding(.horizontal, 8)
-
-                if let s = page.secondary {
-                    Text(s)
-                        .font(.system(.body, design: .rounded, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.85))
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .padding(.horizontal, 12)
+                if let delta = heroDelta {
+                    HStack(spacing: 3) {
+                        Image(systemName: delta.icon)
+                            .font(.system(size: 9, weight: .heavy))
+                        Text(delta.text)
+                            .font(.system(.caption2, design: .rounded, weight: .heavy))
+                    }
+                    .foregroundStyle(delta.color)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(delta.color.opacity(0.22))
+                    .overlay(Capsule().stroke(delta.color.opacity(0.4), lineWidth: 0.5))
+                    .clipShape(Capsule())
                 }
             }
-
-            Spacer()
-
-            // Subtle stat chips on the cover only
-            if page.kind == .cover {
-                statRow
-            }
         }
-        .padding(.bottom, 30)
-        .padding(.top, 20)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 26)
+        .padding(.horizontal, 20)
+        .background(glassBackground(cornerRadius: 28))
     }
 
-    private var statRow: some View {
-        HStack(spacing: 10) {
-            chip(value: "\(snapshot.workoutCount)", label: "трен.".localized())
-            if snapshot.totalActiveMinutes > 0 {
-                chip(value: "\(snapshot.totalActiveMinutes)", label: "мин".localized())
-            }
-            if snapshot.totalCalories > 0 {
-                chip(value: "\(snapshot.totalCalories)", label: "ккал".localized())
-            }
+    // MARK: 3-up stats
+
+    private var statsGrid: some View {
+        HStack(spacing: 0) {
+            statColumn(value: "\(snapshot.workoutCount)", label: "трен.".localized())
+            statDivider
+            statColumn(
+                value: snapshot.totalActiveMinutes > 0 ? "\(snapshot.totalActiveMinutes)" : "—",
+                label: "мин".localized()
+            )
+            statDivider
+            statColumn(
+                value: snapshot.totalCalories > 0 ? "\(snapshot.totalCalories)" : "—",
+                label: "ккал".localized()
+            )
         }
-        .padding(.bottom, 10)
+        .padding(.vertical, 18)
+        .padding(.horizontal, 12)
+        .background(glassBackground(cornerRadius: 22))
     }
 
-    private func chip(value: String, label: String) -> some View {
-        VStack(spacing: 2) {
+    private func statColumn(value: String, label: String) -> some View {
+        VStack(spacing: 4) {
             Text(value)
-                .font(.system(.headline, design: .rounded, weight: .heavy))
+                .font(.system(size: 26, weight: .heavy, design: .rounded))
                 .foregroundStyle(.white)
-            Text(label)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .foregroundStyle(.white.opacity(0.6))
-                .textCase(.uppercase)
+                .lineLimit(1)
+                .minimumScaleFactor(0.55)
+            Text(label.localizedUppercase)
+                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                .tracking(1.4)
+                .foregroundStyle(.white.opacity(0.55))
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-        .background(Color.white.opacity(0.10))
-        .clipShape(Capsule())
+        .frame(maxWidth: .infinity)
+    }
+
+    private var statDivider: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.14))
+            .frame(width: 1, height: 34)
+    }
+
+    // MARK: Highlight rows
+
+    @ViewBuilder
+    private var highlightsStack: some View {
+        VStack(spacing: 10) {
+            if let top = snapshot.topExerciseName, snapshot.topExerciseVolumeKg > 0 {
+                highlightRow(
+                    icon: "crown.fill",
+                    iconColor: Color(red: 1.0, green: 0.85, blue: 0.20),
+                    title: "Чемпион недели".localized(),
+                    detail: "\(top) · \(Int(snapshot.topExerciseVolumeKg)) кг"
+                )
+            }
+            if snapshot.prCount > 0 {
+                highlightRow(
+                    icon: "trophy.fill",
+                    iconColor: Color(red: 1.0, green: 0.40, blue: 0.50),
+                    title: "Новые рекорды".localized(),
+                    detail: snapshot.topPRName.map { String(format: "%d PR · %@".localized(), snapshot.prCount, $0) } ?? String(format: "%d PR".localized(), snapshot.prCount)
+                )
+            }
+            if snapshot.currentStreakDays > 0 {
+                highlightRow(
+                    icon: "flame.fill",
+                    iconColor: Color(red: 1.0, green: 0.55, blue: 0.10),
+                    title: "Серия".localized(),
+                    detail: String(format: "%d дней подряд".localized(), snapshot.currentStreakDays)
+                )
+            }
+            if let hr = snapshot.avgHeartRate, hr > 0 {
+                highlightRow(
+                    icon: "heart.fill",
+                    iconColor: Color(red: 1.0, green: 0.30, blue: 0.45),
+                    title: "Средний пульс".localized(),
+                    detail: String(format: "%d уд./мин".localized(), hr)
+                )
+            }
+        }
+    }
+
+    private func highlightRow(icon: String, iconColor: Color, title: String, detail: String) -> some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(iconColor.opacity(0.22))
+                    .frame(width: 42, height: 42)
+                Circle()
+                    .stroke(iconColor.opacity(0.4), lineWidth: 0.6)
+                    .frame(width: 42, height: 42)
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .heavy))
+                    .foregroundStyle(iconColor)
+                    .shadow(color: iconColor.opacity(0.6), radius: 6)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title.localizedUppercase)
+                    .font(.system(.caption2, design: .rounded, weight: .heavy))
+                    .tracking(1.2)
+                    .foregroundStyle(.white.opacity(0.65))
+                Text(detail)
+                    .font(.system(.callout, design: .rounded, weight: .heavy))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(glassBackground(cornerRadius: 18))
+    }
+
+    // MARK: Footer (share render only)
+
+    private var footer: some View {
+        VStack(spacing: 4) {
+            Text("Body Forge — твоя личная кузница тела".localized())
+                .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                .foregroundStyle(.white.opacity(0.92))
+            Text("FOR iOS")
+                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white.opacity(0.55))
+                .tracking(2)
+        }
+        .multilineTextAlignment(.center)
+    }
+
+    // MARK: Reusable glass
+
+    private func glassBackground(cornerRadius: CGFloat) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(Color.white.opacity(0.06))
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.10), .clear],
+                        startPoint: .top,
+                        endPoint: .center
+                    )
+                )
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.28), Color.white.opacity(0.05)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        }
     }
 }
 
-// MARK: - Share-only card (9:16 with logo branding)
+// MARK: - Share render (9:16 with brand framing)
 
-private struct WeeklyWrappedShareCard: View {
-    let page: WeeklyWrappedPage
+private struct WeeklyWrappedShareRender: View {
     let snapshot: WeeklyWrappedSnapshot
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [page.tint, .black],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // Bigger bleed of the same mesh, scaled for 1080x1920
+            ZStack {
+                Color.black
+                Circle()
+                    .fill(Color(red: 0.55, green: 0.30, blue: 1.0))
+                    .frame(width: 900, height: 900)
+                    .blur(radius: 220)
+                    .offset(x: 280, y: -480)
+                    .opacity(0.85)
+                Circle()
+                    .fill(Color(red: 1.0, green: 0.30, blue: 0.65))
+                    .frame(width: 720, height: 720)
+                    .blur(radius: 220)
+                    .offset(x: -240, y: 220)
+                    .opacity(0.70)
+                Circle()
+                    .fill(Color(red: 1.0, green: 0.55, blue: 0.20))
+                    .frame(width: 720, height: 720)
+                    .blur(radius: 220)
+                    .offset(x: 200, y: 760)
+                    .opacity(0.55)
+                Color.black.opacity(0.15)
+            }
 
             VStack(spacing: 0) {
-                // Branded header
-                HStack(spacing: 10) {
+                // Brand header
+                HStack(spacing: 12) {
                     Image("BrandLogo")
                         .resizable()
                         .interpolation(.high)
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 40, height: 40)
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .frame(width: 44, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     Text("Body Forge")
                         .font(.system(.title3, design: .rounded, weight: .heavy))
                         .foregroundStyle(.white)
                     Spacer()
                 }
-                .padding(.horizontal, 36)
-                .padding(.top, 60)
+                .padding(.horizontal, 56)
+                .padding(.top, 70)
 
-                Spacer()
+                Spacer(minLength: 24)
 
-                WeeklyWrappedCard(page: page, snapshot: snapshot)
-                    .padding(.horizontal, 24)
+                WeeklyWrappedSummaryCard(snapshot: snapshot, includeFooter: true)
+                    .padding(.horizontal, 50)
 
-                Spacer()
-
-                // Footer attribution
-                VStack(spacing: 4) {
-                    Text("Body Forge — твоя личная кузница тела".localized())
-                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.9))
-                    Text("Body Forge for iOS")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.55))
-                        .tracking(1.2)
-                }
-                .padding(.bottom, 64)
+                Spacer(minLength: 40)
             }
+            .padding(.bottom, 56)
         }
         .frame(width: 1080, height: 1920)
     }
@@ -602,10 +730,3 @@ struct WeeklyWrappedTeaser: View {
     }
 }
 
-// MARK: - Tiny utility
-
-private extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}

@@ -70,7 +70,7 @@ struct WorkoutView: View {
                     }
                 }
             }
-            .navigationTitle(Text("app_title"))
+            .navigationTitle(Text("app_title".localized()))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

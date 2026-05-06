@@ -117,34 +117,34 @@ struct DataManagementView: View {
         }
         .navigationTitle("Управление данными".localized())
         .navigationBarTitleDisplayMode(.inline)
-        .alert("sync_complete_title", isPresented: $showingRestoreAlert) {
-            Button("ok_button", role: .cancel) { }
+        .alert("sync_complete_title".localized(), isPresented: $showingRestoreAlert) {
+            Button("ok_button".localized(), role: .cancel) { }
         } message: {
             Text(restoreMessage)
         }
 
-        .alert("Выгрузить в облако?", isPresented: $showingUploadConfirm) {
-            Button("Отмена", role: .cancel) { }
-            Button("Заменить облако", role: .destructive) {
+        .alert("Выгрузить в облако?".localized(), isPresented: $showingUploadConfirm) {
+            Button("Отмена".localized(), role: .cancel) { }
+            Button("Заменить облако".localized(), role: .destructive) {
                 performForceUpload()
             }
         } message: {
             Text("ВНИМАНИЕ: Это действие удалит ВСЕ тренировки в облаке и заменит их вашими текущими локальными тренировками.\n\nИспользуйте это, если вы почистили историю на телефоне и хотите, чтобы в облаке стало так же.".localized())
         }
-        .alert("Результат выгрузки", isPresented: $showingUploadAlert) {
+        .alert("Результат выгрузки".localized(), isPresented: $showingUploadAlert) {
             Button("OK", role: .cancel) { }
         } message: {
             Text(uploadMessage)
         }
-        .alert("Удалить ВСЕ тренировки?", isPresented: $showingDeleteWorkoutsConfirm) {
-            Button("Отмена", role: .cancel) { }
-            Button("Удалить", role: .destructive) {
+        .alert("Удалить ВСЕ тренировки?".localized(), isPresented: $showingDeleteWorkoutsConfirm) {
+            Button("Отмена".localized(), role: .cancel) { }
+            Button("Удалить".localized(), role: .destructive) {
                 handleDeleteAllWorkouts()
             }
         } message: {
             Text("Это действие удалит ВСЕ тренировки из Firestore и локальной базы. Это нельзя отменить!".localized())
         }
-        .alert("Результат", isPresented: $showingDeleteWorkoutsAlert) {
+        .alert("Результат".localized(), isPresented: $showingDeleteWorkoutsAlert) {
             Button("OK", role: .cancel) { }
         } message: {
             Text(deleteWorkoutsMessage)

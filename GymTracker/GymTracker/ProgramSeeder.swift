@@ -31,6 +31,7 @@ struct ProgramSeeder {
 
         // 2. Mass / Hypertrophy splits
         add(createPushPullLegs())
+        add(createUpperLowerHypertrophy())
         add(createBroSplit())
         add(createUpperLowerStrength())
         add(createAestheticsBalance())
@@ -47,12 +48,16 @@ struct ProgramSeeder {
         add(createHIITPyramid())
         add(createTabataTotalBody())
         add(createEMOMConditioning())
+        add(createNorwegian4x4())
+        add(createCouchTo5K())
         add(createLISSElliptical())
 
         // 5. Specials
         add(createGluteBuilder())
+        add(createBootyBuilderPro())
         add(createCoreCrusher())
         add(createMobilityFlow())
+        add(createYogaFlowRecovery())
 
         // 6. Calisthenics
         add(createStreetWorkoutBeginner())
@@ -76,6 +81,24 @@ struct ProgramSeeder {
             UserDefaults.standard.set(true, forKey: "DidMigrateProgramsToKeys_v2")
             #if DEBUG
             print("🔄 Migration v3: Wiped all programs to dedupe localization-key collisions")
+            #endif
+        }
+
+        // MIGRATION v4: Перегружаем seed после расширения списка популярных
+        // программ (Upper/Lower Hypertrophy, Booty Builder, Couch to 5K и др.).
+        // Стираем только не-user-modified, чтобы не уничтожать кастомизации.
+        let migrationKeyV4 = "DidExpandPopularPrograms_v4"
+        if !UserDefaults.standard.bool(forKey: migrationKeyV4) {
+            let descriptorAll = FetchDescriptor<Program>()
+            if let all = try? context.fetch(descriptorAll) {
+                for prog in all where !prog.isUserModified {
+                    context.delete(prog)
+                }
+                try? context.save()
+            }
+            UserDefaults.standard.set(true, forKey: migrationKeyV4)
+            #if DEBUG
+            print("🔄 Migration v4: Reseeded library to add new popular programs")
             #endif
         }
         
@@ -615,7 +638,42 @@ struct ProgramSeeder {
     }
 
     // MARK: - Helper
-    
+
+    // MARK: - Category VI.5: Modern Upper/Lower Hypertrophy
+
+    private nonisolated static func createUpperLowerHypertrophy() -> Program {
+        let program = Program(
+            name: "Upper/Lower Hypertrophy",
+            desc: "2-day hypertrophy split. Day 1 — back, chest, biceps, triceps. Day 2 — legs and shoulders. Beginner-friendly volume."
+        )
+
+        // День Верх: Спина + Грудь + Бицепс + Трицепс
+        let dayUpper = WorkoutDay(name: "Верх (Спина+Грудь+Руки)", orderIndex: 0, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: dayUpper, name: "Жим штанги лежа", sets: 4, order: 0)
+        addExercise(to: dayUpper, name: "Тяга штанги в наклоне", sets: 4, order: 1)
+        addExercise(to: dayUpper, name: "Жим гантелей на наклонной", sets: 3, order: 2)
+        addExercise(to: dayUpper, name: "Подтягивания", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: dayUpper, name: "Тяга горизонтального блока", sets: 3, order: 4)
+        addExercise(to: dayUpper, name: "Подъем штанги на бицепс", sets: 3, order: 5)
+        addExercise(to: dayUpper, name: "Французский жим", sets: 3, order: 6)
+        dayUpper.program = program
+        program.days.append(dayUpper)
+
+        // День Низ + Плечи
+        let dayLower = WorkoutDay(name: "Низ + Плечи", orderIndex: 1, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: dayLower, name: "Приседания со штангой", sets: 4, order: 0)
+        addExercise(to: dayLower, name: "Румынская тяга", sets: 4, order: 1)
+        addExercise(to: dayLower, name: "Жим ногами", sets: 3, order: 2)
+        addExercise(to: dayLower, name: "Армейский жим", sets: 4, order: 3)
+        addExercise(to: dayLower, name: "Махи гантелями в стороны", sets: 4, order: 4)
+        addExercise(to: dayLower, name: "Подъем на носки", sets: 4, order: 5)
+        addExercise(to: dayLower, name: "Подъем ног в висе", sets: 3, order: 6, type: .repsOnly)
+        dayLower.program = program
+        program.days.append(dayLower)
+
+        return program
+    }
+
     // MARK: - Category VII: Modern Hypertrophy Splits
 
     private nonisolated static func createPushPullLegs() -> Program {
@@ -1078,6 +1136,130 @@ struct ProgramSeeder {
         addExercise(to: day1, name: "Cossack Squat", sets: 2, order: 3, type: .duration)
         addExercise(to: day1, name: "Thoracic Bridge", sets: 2, order: 4, type: .duration)
         addExercise(to: day1, name: "Down Dog → Up Dog", sets: 2, order: 5, type: .duration)
+        day1.program = program
+        program.days.append(day1)
+
+        return program
+    }
+
+    // MARK: - Category XI: New Specials (Glutes / Mobility)
+
+    private nonisolated static func createBootyBuilderPro() -> Program {
+        let program = Program(
+            name: "Booty Builder Pro",
+            desc: "Advanced 4-day glute hypertrophy program. Hip thrust as the cornerstone, plus targeted accessory work for medial/upper glutes."
+        )
+
+        let dayHipThrust = WorkoutDay(name: "Тяжёлый Hip Thrust", orderIndex: 0, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: dayHipThrust, name: "Ягодичный мост (Hip Thrust)", sets: 5, order: 0)
+        addExercise(to: dayHipThrust, name: "Болгарские выпады", sets: 4, order: 1)
+        addExercise(to: dayHipThrust, name: "Отведение ноги на блоке", sets: 4, order: 2)
+        addExercise(to: dayHipThrust, name: "Frog Pump (Лягушка)", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: dayHipThrust, name: "Боковая планка", sets: 3, order: 4, type: .duration)
+        dayHipThrust.program = program
+        program.days.append(dayHipThrust)
+
+        let daySumo = WorkoutDay(name: "Тяга Сумо + Памп", orderIndex: 1, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: daySumo, name: "Становая сумо", sets: 5, order: 0)
+        addExercise(to: daySumo, name: "Румынская тяга", sets: 4, order: 1)
+        addExercise(to: daySumo, name: "Step Up на платформу", sets: 3, order: 2, type: .repsOnly)
+        addExercise(to: daySumo, name: "Отведение ноги (Cable Kickback)", sets: 3, order: 3)
+        addExercise(to: daySumo, name: "Ягодичный мост одной ногой", sets: 3, order: 4, type: .repsOnly)
+        daySumo.program = program
+        program.days.append(daySumo)
+
+        let dayQuadGlute = WorkoutDay(name: "Квадрицепс + Ягодицы", orderIndex: 2, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: dayQuadGlute, name: "Гоблет приседания", sets: 4, order: 0)
+        addExercise(to: dayQuadGlute, name: "Выпады назад", sets: 4, order: 1)
+        addExercise(to: dayQuadGlute, name: "Жим ногами", sets: 3, order: 2)
+        addExercise(to: dayQuadGlute, name: "Hip Thrust (с резинкой)", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: dayQuadGlute, name: "Подъем на носки сидя", sets: 4, order: 4)
+        dayQuadGlute.program = program
+        program.days.append(dayQuadGlute)
+
+        let dayBands = WorkoutDay(name: "Памп с резинками", orderIndex: 3, workoutType: .strength, defaultRestTime: 45)
+        addExercise(to: dayBands, name: "Hip Thrust (с резинкой)", sets: 4, order: 0, type: .repsOnly)
+        addExercise(to: dayBands, name: "Frog Pump (Лягушка)", sets: 4, order: 1, type: .repsOnly)
+        addExercise(to: dayBands, name: "Отведение ноги (Cable Kickback)", sets: 3, order: 2)
+        addExercise(to: dayBands, name: "Ягодичный мост", sets: 3, order: 3, type: .repsOnly)
+        addExercise(to: dayBands, name: "Step Up на платформу", sets: 3, order: 4, type: .repsOnly)
+        dayBands.program = program
+        program.days.append(dayBands)
+
+        return program
+    }
+
+    private nonisolated static func createYogaFlowRecovery() -> Program {
+        let program = Program(
+            name: "Yoga Flow Recovery",
+            desc: "Recovery yoga flow. 25-30 minutes for the spine, hips, and shoulders. Perfect for active rest days."
+        )
+
+        let day1 = WorkoutDay(name: "Yoga Flow", orderIndex: 0, workoutType: .duration, defaultRestTime: 10)
+        addExercise(to: day1, name: "Sun Salutation A (Сурья Намаскар)", sets: 3, order: 0, type: .duration)
+        addExercise(to: day1, name: "Downward Dog (Собака мордой вниз)", sets: 2, order: 1, type: .duration)
+        addExercise(to: day1, name: "Warrior II (Воин II)", sets: 2, order: 2, type: .duration)
+        addExercise(to: day1, name: "Pigeon Pose (Голубь)", sets: 2, order: 3, type: .duration)
+        addExercise(to: day1, name: "Cobra (Кобра)", sets: 2, order: 4, type: .duration)
+        addExercise(to: day1, name: "Seated Forward Fold (Наклон сидя)", sets: 2, order: 5, type: .duration)
+        addExercise(to: day1, name: "Child's Pose (Поза ребёнка)", sets: 2, order: 6, type: .duration)
+        addExercise(to: day1, name: "Savasana (Шавасана)", sets: 1, order: 7, type: .duration)
+        day1.program = program
+        program.days.append(day1)
+
+        return program
+    }
+
+    // MARK: - Category XII: New Cardio
+
+    private nonisolated static func createCouchTo5K() -> Program {
+        let program = Program(
+            name: "Couch to 5K",
+            desc: "Classic 9-week beginner running program. 3 sessions/week, alternating run/walk intervals. Builds up to a 5K run."
+        )
+
+        let week1 = WorkoutDay(name: "Неделя 1-2 (Run/Walk)", orderIndex: 0, workoutType: .duration, defaultRestTime: 0)
+        addExercise(to: week1, name: "Разминка ходьбой (5 мин)", sets: 1, order: 0, type: .duration)
+        addExercise(to: week1, name: "Бег 60 сек / Ходьба 90 сек × 8", sets: 8, order: 1, type: .duration)
+        addExercise(to: week1, name: "Заминка ходьбой (5 мин)", sets: 1, order: 2, type: .duration)
+        week1.program = program
+        program.days.append(week1)
+
+        let week3 = WorkoutDay(name: "Неделя 3-4 (Прогресс)", orderIndex: 1, workoutType: .duration, defaultRestTime: 0)
+        addExercise(to: week3, name: "Разминка ходьбой (5 мин)", sets: 1, order: 0, type: .duration)
+        addExercise(to: week3, name: "Бег 3 мин / Ходьба 90 сек × 5", sets: 5, order: 1, type: .duration)
+        addExercise(to: week3, name: "Заминка ходьбой (5 мин)", sets: 1, order: 2, type: .duration)
+        week3.program = program
+        program.days.append(week3)
+
+        let week6 = WorkoutDay(name: "Неделя 5-6 (Долгий бег)", orderIndex: 2, workoutType: .duration, defaultRestTime: 0)
+        addExercise(to: week6, name: "Разминка ходьбой (5 мин)", sets: 1, order: 0, type: .duration)
+        addExercise(to: week6, name: "Непрерывный бег 20 мин", sets: 1, order: 1, type: .duration)
+        addExercise(to: week6, name: "Заминка ходьбой (5 мин)", sets: 1, order: 2, type: .duration)
+        week6.program = program
+        program.days.append(week6)
+
+        let week9 = WorkoutDay(name: "Неделя 7-9 (5K)", orderIndex: 3, workoutType: .duration, defaultRestTime: 0)
+        addExercise(to: week9, name: "Разминка ходьбой (5 мин)", sets: 1, order: 0, type: .duration)
+        addExercise(to: week9, name: "Непрерывный бег 30 мин (≈5 км)", sets: 1, order: 1, type: .duration)
+        addExercise(to: week9, name: "Заминка ходьбой (5 мин)", sets: 1, order: 2, type: .duration)
+        week9.program = program
+        program.days.append(week9)
+
+        return program
+    }
+
+    private nonisolated static func createNorwegian4x4() -> Program {
+        let program = Program(
+            name: "Norwegian 4x4",
+            desc: "Norwegian VO2max protocol. 4 minutes hard (90-95% HR max) / 3 minutes easy × 4 rounds. The most efficient cardio for VO2max."
+        )
+
+        let day1 = WorkoutDay(name: "4×4 Интервалы", orderIndex: 0, workoutType: .duration, defaultRestTime: 180)
+        addExercise(to: day1, name: "Разминка (10 мин лёгкий бег)", sets: 1, order: 0, type: .duration)
+        addExercise(to: day1, name: "Интервал 4 мин (90-95% ЧСС)", sets: 4, order: 1, type: .duration)
+        addExercise(to: day1, name: "Восстановление 3 мин (60-70% ЧСС)", sets: 4, order: 2, type: .duration)
+        addExercise(to: day1, name: "Заминка (5 мин ходьба)", sets: 1, order: 3, type: .duration)
         day1.program = program
         program.days.append(day1)
 

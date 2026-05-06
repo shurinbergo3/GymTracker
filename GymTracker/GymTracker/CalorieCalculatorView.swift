@@ -95,7 +95,7 @@ struct CalorieCalculatorView: View {
                 VStack(spacing: DesignSystem.Spacing.md) {
                     
                     // Gender Picker
-                    Picker("Пол", selection: $gender) {
+                    Picker("Пол".localized(), selection: $gender) {
                         ForEach(Gender.allCases) { gender in
                             Text(gender.rawValue).tag(gender)
                         }
@@ -160,7 +160,7 @@ struct CalorieCalculatorView: View {
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                         
-                        Picker("Цель", selection: $goal) {
+                        Picker("Цель".localized(), selection: $goal) {
                             ForEach(Goal.allCases) { goal in
                                 Text(goal.title).tag(goal)
                             }

@@ -91,13 +91,13 @@ struct SettingsView: View {
                         .foregroundStyle(DesignSystem.Colors.accent)
                 }
             }
-            .alert("delete_account_alert_title", isPresented: $showingDeleteConfirmation) {
-                Button("cancel_button", role: .cancel) { }
-                Button("delete_button", role: .destructive) {
+            .alert("delete_account_alert_title".localized(), isPresented: $showingDeleteConfirmation) {
+                Button("cancel_button".localized(), role: .cancel) { }
+                Button("delete_button".localized(), role: .destructive) {
                     Task { await handleAccountDeletion() }
                 }
             } message: {
-                Text("delete_account_message")
+                Text("delete_account_message".localized())
             }
             .alert(String(localized: "Очистить историю AI Coach?"), isPresented: $showingWipeCoachConfirmation) {
                 Button("cancel_button".localized(), role: .cancel) { }
@@ -119,17 +119,17 @@ struct SettingsView: View {
             .fullScreenCover(isPresented: $showingOnboardingPreview) {
                 OnboardingPreviewSheet { showingOnboardingPreview = false }
             }
-            .alert("delete_error_title", isPresented: $showingDeleteError) {
+            .alert("delete_error_title".localized(), isPresented: $showingDeleteError) {
                 if requiresReauth {
-                    Button("relogin_button") {
+                    Button("relogin_button".localized()) {
                         authManager.signOut()
                         dismiss()
                     }
-                    Button("cancel_button", role: .cancel) {
+                    Button("cancel_button".localized(), role: .cancel) {
                         requiresReauth = false
                     }
                 } else {
-                    Button("ok_button", role: .cancel) { }
+                    Button("ok_button".localized(), role: .cancel) { }
                 }
             } message: {
                 Text(deleteErrorMessage)
@@ -185,7 +185,7 @@ struct SettingsView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                             .font(.caption.weight(.semibold))
-                        Text("sign_out_button")
+                        Text("sign_out_button".localized())
                             .font(DesignSystem.Typography.caption().weight(.semibold))
                     }
                     .foregroundStyle(DesignSystem.Colors.primaryText)
@@ -489,7 +489,7 @@ struct SettingsView: View {
                                 .font(DesignSystem.Typography.body().weight(.heavy))
                                 .tracking(1.2)
                                 .foregroundStyle(DesignSystem.Colors.primaryText)
-                            Text("version_label")
+                            Text("version_label".localized())
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundStyle(DesignSystem.Colors.secondaryText)
                         }
@@ -520,7 +520,7 @@ struct SettingsView: View {
             HStack(spacing: 8) {
                 Image(systemName: "trash")
                     .font(.caption.weight(.semibold))
-                Text("delete_account_button")
+                Text("delete_account_button".localized())
                     .font(DesignSystem.Typography.caption().weight(.semibold))
             }
             .foregroundStyle(Color.red.opacity(0.9))

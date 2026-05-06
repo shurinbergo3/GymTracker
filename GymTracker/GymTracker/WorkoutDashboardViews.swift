@@ -102,48 +102,62 @@ struct TodayWorkoutCard: View {
                     }
                 }
 
-                // Stats chips row
+                // Unified stats strip
                 if let day = workoutManager.selectedDay {
-                    HStack(spacing: 10) {
-                        statChip(
+                    HStack(spacing: 0) {
+                        statColumn(
                             icon: "dumbbell.fill",
+                            iconTint: DesignSystem.Colors.neonGreen,
                             value: "\(day.exercises.count)",
-                            label: "упр.".localized(),
-                            tint: DesignSystem.Colors.neonGreen
+                            label: "упр.".localized()
                         )
-                        statChip(
+                        statColumnDivider
+                        statColumn(
                             icon: "list.number",
+                            iconTint: Color(red: 0.45, green: 0.85, blue: 1.0),
                             value: "\(estimatedSets(for: day))",
-                            label: "подходов".localized(),
-                            tint: Color(red: 0.45, green: 0.85, blue: 1.0)
+                            label: "подходов".localized()
                         )
-                        statChip(
+                        statColumnDivider
+                        statColumn(
                             icon: "clock.fill",
+                            iconTint: Color(red: 1.0, green: 0.7, blue: 0.2),
                             value: "~\(estimatedMinutes(for: day))",
-                            label: "мин".localized(),
-                            tint: Color(red: 1.0, green: 0.7, blue: 0.2)
+                            label: "мин".localized()
                         )
-                    }
-                }
-
-                // Start Button
-                Button(action: { workoutManager.startWorkout() }) {
-                    HStack(spacing: 12) {
-                        Spacer()
-                        ZStack {
-                            Circle()
-                                .fill(.black.opacity(0.18))
-                                .frame(width: 32, height: 32)
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 14, weight: .heavy))
-                                .foregroundStyle(.black)
-                        }
-                        Text(workoutManager.selectedDay == nil ? "select_program_button".localized() : "start_workout_button".localized())
-                            .font(DesignSystem.Typography.title3())
-                            .fontWeight(.heavy)
-                        Spacer()
                     }
                     .padding(.vertical, 14)
+                    .padding(.horizontal, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(Color.white.opacity(0.05))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
+                }
+
+                // Start Button (premium neon CTA)
+                Button(action: { workoutManager.startWorkout() }) {
+                    HStack(spacing: 14) {
+                        Spacer(minLength: 0)
+                        ZStack {
+                            Circle()
+                                .fill(.black.opacity(0.22))
+                                .frame(width: 36, height: 36)
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 15, weight: .heavy))
+                                .foregroundStyle(.black)
+                                .offset(x: 1)
+                        }
+                        Text(workoutManager.selectedDay == nil ? "select_program_button".localized() : "start_workout_button".localized())
+                            .font(.system(.title3, design: .rounded, weight: .heavy))
+                            .tracking(0.5)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 18)
                     .background(
                         ZStack {
                             LinearGradient(
@@ -151,48 +165,59 @@ struct TodayWorkoutCard: View {
                                     DesignSystem.Colors.neonGreen,
                                     Color(red: 0.6, green: 0.9, blue: 0.15)
                                 ],
-                                startPoint: .leading,
-                                endPoint: .trailing
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
-                            // Inner sheen
+                            // Glossy top highlight
                             LinearGradient(
-                                colors: [Color.white.opacity(0.25), .clear],
+                                colors: [Color.white.opacity(0.32), .clear],
                                 startPoint: .top,
                                 endPoint: .center
                             )
                         }
                     )
-                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .stroke(Color.white.opacity(0.35), lineWidth: 0.5)
+                    )
                     .foregroundStyle(.black)
-                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 18, x: 0, y: 10)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 22, x: 0, y: 12)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.30), radius: 6, x: 0, y: 2)
                 }
                 .disabled(workoutManager.selectedDay == nil)
-                .opacity(workoutManager.selectedDay == nil ? 0.6 : 1)
+                .opacity(workoutManager.selectedDay == nil ? 0.55 : 1)
                 .accessibilityIdentifier("btn_start_workout")
             }
         }
     }
 
     @ViewBuilder
-    private func statChip(icon: String, value: String, label: String, tint: Color) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(tint)
-            Text(value)
-                .font(DesignSystem.Typography.monospaced(.subheadline, weight: .bold))
-                .foregroundStyle(DesignSystem.Colors.primaryText)
+    private func statColumn(icon: String, iconTint: Color, value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(iconTint)
+                Text(value)
+                    .font(.system(.title3, design: .rounded, weight: .heavy))
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
             Text(label)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(DesignSystem.Colors.secondaryText)
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .tracking(0.4)
+                .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                .lineLimit(1)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 7)
-        .background(tint.opacity(0.10))
-        .overlay(
-            Capsule().stroke(tint.opacity(0.25), lineWidth: 0.5)
-        )
-        .clipShape(Capsule())
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var statColumnDivider: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.10))
+            .frame(width: 1, height: 32)
     }
 
     private func estimatedSets(for day: WorkoutDay) -> Int {

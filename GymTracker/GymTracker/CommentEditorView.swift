@@ -21,7 +21,7 @@ struct CommentEditorView: View {
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                     
-                    TextField("Ваши заметки...", text: $comment, axis: .vertical)
+                    TextField("Ваши заметки...".localized(), text: $comment, axis: .vertical)
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .textFieldStyle(.plain)

@@ -109,7 +109,7 @@ struct AICoachWidget: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
-                    Text("AI Coach")
+                    Text("AI Coach".localized())
                         .font(DesignSystem.Typography.title3())
                         .foregroundStyle(DesignSystem.Colors.primaryText)
                     Circle()

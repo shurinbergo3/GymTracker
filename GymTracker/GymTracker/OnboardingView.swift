@@ -90,7 +90,7 @@ struct OnboardingView: View {
                     Spacer()
                     if currentPage < pages.count - 1 {
                         Button(action: skip) {
-                            Text("Пропустить")
+                            Text("Пропустить".localized())
                                 .font(.system(.subheadline, design: .rounded, weight: .semibold))
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                                 .padding(.horizontal, 16)
@@ -139,7 +139,7 @@ struct OnboardingView: View {
                         .padding(.horizontal, 24)
                     } else {
                         GradientButton(
-                            title: currentPage == pages.count - 1 ? "Начать" : "Дальше",
+                            title: currentPage == pages.count - 1 ? "Начать".localized() : "Дальше".localized(),
                             icon: currentPage == pages.count - 1 ? "checkmark" : "arrow.right"
                         ) {
                             advance()
@@ -149,7 +149,7 @@ struct OnboardingView: View {
 
                     if currentPage > 0 {
                         Button(action: back) {
-                            Text("Назад")
+                            Text("Назад".localized())
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                                 .foregroundColor(DesignSystem.Colors.tertiaryText)
                         }

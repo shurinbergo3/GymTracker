@@ -76,7 +76,7 @@ struct CalendarSheet: View {
                     }
                 }
             }
-            .navigationTitle("Календарь тренировок")
+            .navigationTitle("Календарь тренировок".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

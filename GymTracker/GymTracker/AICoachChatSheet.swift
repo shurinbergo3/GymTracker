@@ -70,7 +70,7 @@ struct AICoachChatSheet: View {
                     }
                 }
             }
-            .navigationTitle("AI Coach")
+            .navigationTitle("AI Coach".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

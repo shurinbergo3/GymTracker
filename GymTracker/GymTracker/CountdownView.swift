@@ -215,7 +215,7 @@ struct CountdownView: View {
                     .shadow(color: DesignSystem.Colors.neonGreen, radius: 6)
                     .opacity(0.5 + Double(pulse) * 0.5)
 
-                Text("READY")
+                Text("READY".localized())
                     .font(.system(.caption, design: .monospaced).weight(.bold))
                     .tracking(4)
                     .foregroundStyle(DesignSystem.Colors.neonGreen)
