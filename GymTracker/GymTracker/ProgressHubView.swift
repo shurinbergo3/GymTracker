@@ -644,7 +644,7 @@ struct AthleteProfileCard: View {
                     .tracking(1.6)
                     .foregroundStyle(DesignSystem.Colors.secondaryText)
 
-                Text("·")
+                Text(verbatim: "·")
                     .foregroundStyle(DesignSystem.Colors.tertiaryText)
 
                 Text(formState.title.localizedUppercase)

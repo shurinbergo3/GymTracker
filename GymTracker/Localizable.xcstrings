@@ -11,48 +11,6 @@
         }
       }
     },
-    "—": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "—"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "—"
-          }
-        }
-      }
-    },
-    ": ": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": ": "
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": ": "
-          }
-        }
-      }
-    },
-    "·": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "·"
-          }
-        }
-      }
-    },
     "«Кругом враги», депрессивность, рабство страстей, невозможность отказать себе во вредном.": {
       "extractionState": "manual",
       "localizations": {
@@ -751,22 +709,6 @@
         }
       }
     },
-    "•": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "•"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "•"
-          }
-        }
-      }
-    },
     "• Creatine: Gives strength and volume to muscles.": {
       "extractionState": "manual",
       "localizations": {
@@ -984,22 +926,6 @@
         }
       }
     },
-    "→": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "→"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "→"
-          }
-        }
-      }
-    },
     "+%@": {
       "localizations": {
         "en": {
@@ -1027,22 +953,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "+1 XP for each completed workout"
-          }
-        }
-      }
-    },
-    "×": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "×"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "×"
           }
         }
       }

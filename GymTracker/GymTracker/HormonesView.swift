@@ -116,7 +116,7 @@ struct AxiomBlock: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .top, spacing: 4) {
-                Text("•")
+                Text(verbatim: "•")
                     .font(DesignSystem.Typography.headline())
                     .foregroundColor(DesignSystem.Colors.accent)
                 Text(title.localized())
@@ -201,37 +201,37 @@ struct HormoneCard: View {
                         
                         if let normPhys = data.normalizePhysics {
                             HStack(alignment: .top, spacing: 4) {
-                                Text("•")
+                                Text(verbatim: "•")
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
-                                (Text("Физика".localized()) + Text(": ") + Text(normPhys.localized()))
+                                (Text("Физика".localized()) + Text(verbatim: ": ") + Text(normPhys.localized()))
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                         }
                         if let normPsych = data.normalizePsyche {
                             HStack(alignment: .top, spacing: 4) {
-                                Text("•")
+                                Text(verbatim: "•")
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
-                                (Text("Психика".localized()) + Text(": ") + Text(normPsych.localized()))
+                                (Text("Психика".localized()) + Text(verbatim: ": ") + Text(normPsych.localized()))
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                         }
                         if let normSoc = data.normalizeSocial {
                             HStack(alignment: .top, spacing: 4) {
-                                Text("•")
+                                Text(verbatim: "•")
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
-                                (Text("Социум".localized()) + Text(": ") + Text(normSoc.localized()))
+                                (Text("Социум".localized()) + Text(verbatim: ": ") + Text(normSoc.localized()))
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                         }
                         if let normGen = data.generalNormalization {
                             HStack(alignment: .top, spacing: 4) {
-                                Text("•")
+                                Text(verbatim: "•")
                                     .font(DesignSystem.Typography.caption())
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                 Text(normGen.localized())

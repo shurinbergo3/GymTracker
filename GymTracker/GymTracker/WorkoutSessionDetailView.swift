@@ -163,7 +163,7 @@ struct WorkoutSessionDetailView: View {
                             .fontWeight(.medium)
                             .foregroundColor(.white)
                         
-                        Text("×")
+                        Text(verbatim: "×")
                             .foregroundColor(.gray)
                         
                         Text("\(set.reps)")

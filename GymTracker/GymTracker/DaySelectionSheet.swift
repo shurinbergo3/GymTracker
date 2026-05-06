@@ -106,7 +106,7 @@ struct DaySelectionCard: View {
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             
                             if let lastDate = lastPerformed {
-                                Text("•")
+                                Text(verbatim: "•")
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                 
                                 Text(formatDate(lastDate))

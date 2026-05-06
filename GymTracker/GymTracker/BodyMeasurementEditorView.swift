@@ -154,7 +154,7 @@ struct MeasurementEditCard: View {
                             .padding(.top, DesignSystem.Spacing.xs)
                         }
                     } else {
-                        Text("—")
+                        Text(verbatim: "—")
                             .font(.system(size: 32, weight: .heavy, design: .rounded))
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }

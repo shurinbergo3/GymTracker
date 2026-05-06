@@ -96,7 +96,7 @@ struct WorkoutProgressBanner: View {
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
                             
                             if programSessions.count >= 2 {
-                                Text("•")
+                                Text(verbatim: "•")
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                 
                                 HStack(spacing: DesignSystem.Spacing.xs) {

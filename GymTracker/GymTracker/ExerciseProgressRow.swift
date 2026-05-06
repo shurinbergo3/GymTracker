@@ -26,7 +26,7 @@ struct ExerciseProgressRow: View {
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .strikethrough()
                         
-                        Text("→")
+                        Text(verbatim: "→")
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                         
