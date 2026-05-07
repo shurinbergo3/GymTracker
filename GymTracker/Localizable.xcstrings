@@ -1142,7 +1142,16 @@
         }
       }
     },
-    "🔥 %d дней подряд": {},
+    "🔥 %d дней подряд": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔥 %d-day streak"
+          }
+        }
+      }
+    },
     "🧹 Кнопка выше удаляет только дубликаты, оставляя уникальные тренировки\n⚠️ Красная кнопка ниже удалит ВСЕ тренировки безвозвратно!": {
       "extractionState": "manual",
       "localizations": {
@@ -3235,7 +3244,16 @@
         }
       }
     },
-    "Body Forge": {},
+    "Body Forge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Body Forge"
+          }
+        }
+      }
+    },
     "BODY FORGE": {
       "localizations": {
         "en": {
@@ -4790,7 +4808,16 @@
         }
       }
     },
-    "FOR iOS": {},
+    "FOR iOS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOR iOS"
+          }
+        }
+      }
+    },
     "force_sync_button": {
       "extractionState": "manual",
       "localizations": {
@@ -6570,7 +6597,16 @@
         }
       }
     },
-    "Push-уведомления от ИИ": {},
+    "Push-уведомления от ИИ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI push notifications"
+          }
+        }
+      }
+    },
     "Quick core finisher. 3 short sessions/week — perfect after main workouts.": {
       "extractionState": "manual",
       "localizations": {
@@ -9097,7 +9133,16 @@
         }
       }
     },
-    "Без сантиментов. Ты не на отдыхе.": {},
+    "Без сантиментов. Ты не на отдыхе.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No sugarcoating. You're not on vacation."
+          }
+        }
+      }
+    },
     "Без тренировок дольше 3 дней XP начинает падать. После 14 дней можно потерять и уровень — но «пик» останется как трофей.": {
       "extractionState": "manual",
       "localizations": {
@@ -12974,7 +13019,16 @@
         }
       }
     },
-    "Две недели подряд — твоя дисциплина даёт результат.": {},
+    "Две недели подряд — твоя дисциплина даёт результат.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two weeks straight — your discipline is paying off."
+          }
+        }
+      }
+    },
     "Движение": {
       "extractionState": "manual",
       "localizations": {
@@ -14089,7 +14143,16 @@
         }
       }
     },
-    "Дружелюбный": {},
+    "Дружелюбный": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Friendly"
+          }
+        }
+      }
+    },
     "Дыши. Сфокусируйся.": {
       "localizations": {
         "en": {
@@ -14243,7 +14306,16 @@
         }
       }
     },
-    "Жёсткий": {},
+    "Жёсткий": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tough"
+          }
+        }
+      }
+    },
     "Жжение, памп, накопление лактата. Работа в 12-20 повторениях.": {
       "extractionState": "manual",
       "localizations": {
@@ -18788,7 +18860,16 @@
         }
       }
     },
-    "Месячная серия. Это уровень атлета.": {},
+    "Месячная серия. Это уровень атлета.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A month-long streak. That's athlete-level."
+          }
+        }
+      }
+    },
     "Метаболический стресс": {
       "extractionState": "manual",
       "localizations": {
@@ -19263,7 +19344,16 @@
         }
       }
     },
-    "Мотиватор": {},
+    "Мотиватор": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motivator"
+          }
+        }
+      }
+    },
     "Мотивация, поисковый инстинкт. Обещание награды.": {
       "extractionState": "manual",
       "localizations": {
@@ -19773,7 +19863,16 @@
         }
       }
     },
-    "Напоминания, разборы и инсайты от коуча": {},
+    "Напоминания, разборы и инсайты от коуча": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders, breakdowns, and insights from your coach"
+          }
+        }
+      }
+    },
     "Например: оставить ли становую сегодня, если плохо спал?": {
       "extractionState": "manual",
       "localizations": {
@@ -20203,7 +20302,16 @@
         }
       }
     },
-    "Неделя без пропусков. Это уже привычка.": {},
+    "Неделя без пропусков. Это уже привычка.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A full week, no misses. That's a habit now."
+          }
+        }
+      }
+    },
     "Неделя без тренировок. Скоро потеряешь уровень — приходи в зал.": {
       "localizations": {
         "en": {
@@ -22982,7 +23090,16 @@
         }
       }
     },
-    "По твоему расписанию — самое то для зала. Открой план, разберём вместе.": {},
+    "По твоему расписанию — самое то для зала. Открой план, разберём вместе.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right on schedule for the gym. Open your plan and we'll walk through it together."
+          }
+        }
+      }
+    },
     "Победы. Постоянно ставить планку и брать её. Фокус на том, что можно победить, игнорирование того, что вне контроля (новости).": {
       "extractionState": "manual",
       "localizations": {
@@ -23164,7 +23281,16 @@
         }
       }
     },
-    "Поддержка и спокойный тон.": {},
+    "Поддержка и спокойный тон.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supportive and calm in tone."
+          }
+        }
+      }
+    },
     "Поделиться": {
       "extractionState": "manual",
       "localizations": {
@@ -25695,7 +25821,16 @@
         }
       }
     },
-    "Пульс покоя выше нормы на %d уд/мин — поспи лишний час и убавь интенсивность.": {},
+    "Пульс покоя выше нормы на %d уд/мин — поспи лишний час и убавь интенсивность.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resting heart rate is %d bpm above normal — get an extra hour of sleep and dial back the intensity."
+          }
+        }
+      }
+    },
     "Пульс трен.": {
       "extractionState": "manual",
       "localizations": {
@@ -27888,7 +28023,16 @@
         }
       }
     },
-    "Сегодня — на лёгком": {},
+    "Сегодня — на лёгком": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take it easy today"
+          }
+        }
+      }
+    },
     "Сейчас": {
       "extractionState": "manual",
       "localizations": {
@@ -27969,7 +28113,16 @@
         }
       }
     },
-    "Серия растёт. Завтра — ещё одна.": {},
+    "Серия растёт. Завтра — ещё одна.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The streak is growing. One more tomorrow."
+          }
+        }
+      }
+    },
     "Серотонин": {
       "extractionState": "manual",
       "localizations": {
@@ -29200,7 +29353,16 @@
         }
       }
     },
-    "Сотня тренировок без пропусков — редкая лига.": {},
+    "Сотня тренировок без пропусков — редкая лига.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A hundred workouts without missing one — a rare league."
+          }
+        }
+      }
+    },
     "Сохраним «ПИК %lld» как трофей. Возвращайся — и заберёшь уровень обратно.": {
       "localizations": {
         "en": {
@@ -30081,7 +30243,16 @@
         }
       }
     },
-    "Стиль коуча": {},
+    "Стиль коуча": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach style"
+          }
+        }
+      }
+    },
     "Стимулирует 2-гидроксилирование эстрогенов (безопасный путь метаболизма), снижая уровень 16-гидроксиэстрона (опасный путь).": {
       "extractionState": "manual",
       "localizations": {
@@ -30602,7 +30773,16 @@
         }
       }
     },
-    "Твоя неделя готова": {},
+    "Твоя неделя готова": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your week is ready"
+          }
+        }
+      }
+    },
     "Твоя цель": {
       "localizations": {
         "en": {
@@ -30777,7 +30957,16 @@
         }
       }
     },
-    "Технарь": {},
+    "Технарь": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyst"
+          }
+        }
+      }
+    },
     "Техника выполнения": {
       "extractionState": "manual",
       "localizations": {
@@ -31214,7 +31403,16 @@
         }
       }
     },
-    "Тоннаж, рекорды, серия — всё в одном экране. Сохрани и поделись.": {},
+    "Тоннаж, рекорды, серия — всё в одном экране. Сохрани и поделись.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tonnage, PRs, streak — all on one screen. Save and share."
+          }
+        }
+      }
+    },
     "Топ Бадов": {
       "extractionState": "manual",
       "localizations": {
@@ -34306,7 +34504,16 @@
         }
       }
     },
-    "Цифры, биомеханика, RPE.": {},
+    "Цифры, биомеханика, RPE.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numbers, biomechanics, RPE."
+          }
+        }
+      }
+    },
     "ч": {
       "extractionState": "manual",
       "localizations": {
@@ -34971,7 +35178,16 @@
         }
       }
     },
-    "Эмоции и энергия. Поджигает.": {},
+    "Эмоции и энергия. Поджигает.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emotion and energy. Fires you up."
+          }
+        }
+      }
+    },
     "энергия в покое": {
       "extractionState": "manual",
       "localizations": {
