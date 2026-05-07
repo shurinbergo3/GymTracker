@@ -33409,6 +33409,142 @@
         }
       }
     },
+    "Опыт" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Experience"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Опыт"
+          }
+        }
+      }
+    },
+    "Без опыта" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No experience"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без опыта"
+          }
+        }
+      }
+    },
+    "%d+ мес" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d+ mo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d+ мес"
+          }
+        }
+      }
+    },
+    "1+ год" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1+ year"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1+ год"
+          }
+        }
+      }
+    },
+    "%.1f+ года" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.1f+ yrs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.1f+ года"
+          }
+        }
+      }
+    },
+    "2+ года" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2+ yrs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2+ года"
+          }
+        }
+      }
+    },
+    "%d+ года" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d+ yrs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d+ года"
+          }
+        }
+      }
+    },
+    "%d+ лет" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d+ yrs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d+ лет"
+          }
+        }
+      }
+    },
     "Уровень %d" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -35004,6 +35140,23 @@
         }
       }
     },
+    "Это как" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That's like"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это как"
+          }
+        }
+      }
+    },
     "Это действие удалит ВСЕ тренировки из Firestore и локальной базы. Это нельзя отменить!" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -35150,6 +35303,204 @@
             "value" : "Ярость и охота"
           }
         }
+      }
+    },
+    "ПОДРЯД" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "IN A ROW" } }
+      }
+    },
+    "цель выполнена" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "goal reached" } }
+      }
+    },
+    "Недели" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weeks" } }
+      }
+    },
+    "Недель" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weeks" } }
+      }
+    },
+    "День отдыха" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rest day" } }
+      }
+    },
+    "Активности не зафиксировано" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No activity logged" } }
+      }
+    },
+    "Заморозка серии использована" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Streak freeze used" } }
+      }
+    },
+    "Тренировка в зале" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gym workout" } }
+      }
+    },
+    "Силовая (Apple Fitness)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Strength (Apple Fitness)" } }
+      }
+    },
+    "Зал + активность" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gym + activity" } }
+      }
+    },
+    "Нет активности" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No activity" } }
+      }
+    },
+    "Ещё не наступил" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Upcoming" } }
+      }
+    },
+    "Микс" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mix" } }
+      }
+    },
+    "До цели %d · осталось %d %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d to goal · %d %@ left" } }
+      }
+    },
+    "ИМТ" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "BMI" } }
+      }
+    },
+    "ВРС" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HRV" } }
+      }
+    },
+    "Недовес" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Underweight" } }
+      }
+    },
+    "Норма" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Normal" } }
+      }
+    },
+    "Избыток" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Overweight" } }
+      }
+    },
+    "Ожирение" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Obese" } }
+      }
+    },
+    "нет роста/веса" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "no height/weight" } }
+      }
+    },
+    "Категория" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Category" } }
+      }
+    },
+    "Рост" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Height" } }
+      }
+    },
+    "Вес" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weight" } }
+      }
+    },
+    "кг/м²" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "kg/m²" } }
+      }
+    },
+    "мс" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "ms" } }
+      }
+    },
+    "мс · ср · 7 дн" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "ms · avg · 7d" } }
+      }
+    },
+    "вариабельность пульса (SDNN), среднее за 7 дней — выше = лучше восстановление" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "heart rate variability (SDNN), 7-day average — higher = better recovery" } }
+      }
+    },
+    "VO₂ Max (30 дн)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "VO₂ Max (30d)" } }
+      }
+    },
+    "шагов · 7 дн" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "steps · 7d" } }
+      }
+    },
+    "мин · 7 дн" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "min · 7d" } }
+      }
+    },
+    "день" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "day" } }
+      }
+    },
+    "укажите рост и вес в профиле" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "set height and weight in profile" } }
       }
     }
   },

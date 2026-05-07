@@ -51,7 +51,7 @@ final class AICoachStore: ObservableObject {
     // Tunables
     static let maxPreQuestions  = 5
     static let maxPostQuestions = 12
-    static let questionCooldown: TimeInterval = 60
+    static let questionCooldown: TimeInterval = 25
     /// Regenerate the weekly digest if it's older than this.
     static let summaryStaleAfter: TimeInterval = 24 * 3600
     /// Or if this many new messages have appeared since the cached digest.
@@ -792,15 +792,22 @@ final class AICoachStore: ObservableObject {
         TONE: \(style.promptDirective)
 
         Communication principles:
-        • Keep replies tight and to the point. Bullet lists are welcome.
-        • Rely ONLY on the data you receive (workouts, comments, sensors, profile). Do not invent numbers.
-        • Push for progressive overload (load/reps/volume), but always weigh it against recovery, sleep, resting HR \
+        • Keep replies tight and to the point.
+        • Rely ONLY on the data you receive (workouts, comments, sensors, profile, ACTIVE PROGRAM). Do not invent numbers.
+        • Push for progressive overload (load/reps/volume), but always weigh it against recovery, sleep, resting HR, HRV \
           and any pain/discomfort comments.
         • If a comment mentions pain, injury, or illness — DO NOT push load. Offer alternative exercises, a regression, \
           or a rest day, and recommend seeing a doctor.
         • Never diagnose or prescribe treatment. You are not a doctor.
         • If data is insufficient for a confident conclusion — say so and ask for clarification.
-        • Don't use markdown headings (#, ##) — only short bullets and short paragraphs.
+        • PROGRAM AWARENESS: an ACTIVE PROGRAM block, if present, is the user's CURRENT plan — know it as background \
+          context (its split, the day they're on, exercise selection). Don't lecture about it unprompted. \
+          Only mention it when it's clearly relevant: e.g. the user asks for advice on the plan, or you see a real \
+          issue worth flagging (gap like "no vertical pull", a plateau the program doesn't address). \
+          When you do mention it, propose a CONCRETE swap, not generic advice.
+        • PLAIN TEXT ONLY. Absolutely no markdown: no `*`, no `-`, no `#`, no `**bold**`, no backticks. \
+          For lists, start each item on a new line with a short label and a colon (e.g. "Тяга верхнего блока: 82.5 × 10/9/8"). \
+          Never prefix lines with `*` or `-` — those characters render literally and look broken.
         \(memorySection)
 
         LANGUAGE RULES (very important):
@@ -821,14 +828,22 @@ final class AICoachStore: ObservableObject {
         let lang = appLanguageName()
         return """
         Analyse my just-finished workout using the last 4 sessions and sensor data below. \
-        Reply in \(lang). Structure:
-        1) Quick verdict (1–2 sentences).
+        Reply in \(lang). Use EXACTLY this structure, with these section labels (translate them to \(lang)):
+        1) Verdict — 1–2 sentences.
         2) What worked well.
         3) What to improve (form, volume, tempo, recovery).
-        4) Plan for the next session with concrete numbers (weight/reps/sets) — gentle progressive overload \
-           if no health complaints.
+        4) Plan for the NEXT workout (not "today", not "tomorrow" — explicitly the next training session) \
+           with concrete numbers (weight × reps/reps/reps for each exercise). Apply gentle progressive overload \
+           only if no health complaints; otherwise hold or reduce load.
         If any comment mentions pain, discomfort or illness — flag it explicitly and suggest alternatives or rest.
-        Be specific, no fluff. Maximum 220 words.
+        Treat the ACTIVE PROGRAM block (if present) as background context — use it for naming exercises and the next \
+        day, but do NOT add a dedicated "program review" section unless you see a clear, concrete issue worth flagging.
+
+        FORMATTING (strict):
+        • Plain text only. No markdown. No `*`, no `-`, no `#`, no `**bold**`.
+        • Inside section 4, put each exercise on its own line as: "<Exercise name>: <weight> × <reps>/<reps>/<reps>". \
+          Do NOT prefix lines with `*` or `-`.
+        • Be specific, no fluff. Maximum 220 words.
 
         DATA:
         \(contextBlock)
@@ -838,14 +853,29 @@ final class AICoachStore: ObservableObject {
     private static func preWorkoutUserPrompt(contextBlock: String, plannedBlock: String) -> String {
         let lang = appLanguageName()
         return """
-        I'm about to start the workout listed below. Build a SHORT pre-workout brief in \(lang). Structure:
-        1) Readiness check (1 line, based on sleep/HRV/resting HR if present; otherwise skip).
-        2) Today's targets — for the 3 most important exercises, give a concrete weight × reps × sets target \
-           that's a small progression vs the last sessions. No invented numbers — base on history. If history is \
-           empty, suggest a conservative starting point and label it as such.
-        3) One thing to focus on technically today (1 line).
-        4) Optional warm-up tip (1 line).
-        Keep it under 140 words. No greetings, no farewells, no markdown headings — just bullets and short lines.
+        I'm about to start the workout listed below. Build a SHORT, PROACTIVE pre-workout brief in \(lang). \
+        Be hyper-personalized: don't just describe state — prescribe a concrete adjustment.
+
+        Structure:
+        1) Readiness verdict — 1 line. Synthesize sleep last night, HRV (SDNN, 7d), resting HR and any recent \
+           pain/illness comments into ONE of: "ready", "moderate", "low". Mention the single signal that drove it \
+           (e.g. "сон 5.2 ч" or "HRV 38 ms — ниже твоей нормы").
+        2) Intensity adjustment — 1 line, ALWAYS present, with a concrete %. Examples: \
+           "Снижаем интенсивность на 15% (сон 5.2 ч, не допустим перетрена)", \
+           "Держим план как есть — восстановление в норме", \
+           "Можно добавить +2.5 кг к ключевым (HRV выше нормы, сон 8 ч)". \
+           Use sleep/HRV/RHR thresholds: poor sleep (<6 h) or HRV ≥10% below the user's 7d baseline → reduce 10–20%; \
+           good sleep (≥7.5 h) AND HRV ≥ baseline → optionally +2.5–5% on key lifts.
+        3) Targets for the 3 most important exercises — apply the % from step 2 to history. \
+           Format each on its own line as: "<Exercise name>: <weight> × <reps> × <sets>". \
+           No invented numbers — base on history. If history is empty, suggest a conservative starting point and label it as such.
+        4) One technique focus for today (1 line).
+        5) Optional warm-up tip (1 line).
+
+        FORMATTING (strict):
+        • Plain text only. No markdown. No `*`, no `-`, no `#`, no `**bold**`. \
+          Do NOT prefix lines with `*` or `-`.
+        • No greetings, no farewells. Keep it under 160 words.
 
         \(plannedBlock)
 

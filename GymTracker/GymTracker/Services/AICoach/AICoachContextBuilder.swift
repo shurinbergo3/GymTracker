@@ -53,6 +53,14 @@ struct AICoachContext {
         let last7DaysWorkouts: Int?
         let lastNightSleepHours: Double?
         let weeklySleepAvgHours: Double?
+        // Recovery / readiness
+        let hrvSDNNms: Double?            // SDNN, ms (avg 7 days)
+        let vo2MaxMlKgMin: Double?        // ml/kg·min (avg 30 days)
+        // Body composition
+        let bmi: Double?
+        // Activity load
+        let last7DaysExerciseMinutes: Int?
+        let restingEnergyTodayKcal: Int?
     }
 
     /// Workouts the user logged outside Body Forge — Apple Watch fitness,
@@ -213,13 +221,30 @@ enum AICoachContextBuilder {
         var weeklyWorkouts: Int? = nil
         var lastNightSleep: Double? = nil
         var weeklySleepAvg: Double? = nil
+        var hrv: Double? = nil
+        var vo2: Double? = nil
+        var bmi: Double? = nil
+        var weeklyExerciseMin: Int? = nil
+        var restingEnergyToday: Int? = nil
         var externalActivities: [AICoachContext.ExternalActivitySummary] = []
+
+        // BMI — derive from in-app profile first (user-entered), HK fallback.
+        if let p = profile, p.heightCm > 0 && p.weightKg > 0 {
+            let h = p.heightCm / 100.0
+            bmi = p.weightKg / (h * h)
+        }
 
         if healthManager.isAuthorized {
             async let rhrVal = healthManager.fetchRestingHeartRate()
             async let stepsVal = healthManager.fetchWeeklyStepsTotal()
             async let workoutsVal = healthManager.fetchWorkoutsThisWeek()
             async let sleepHist = SleepService.shared.fetchSleepHistory(for: .week)
+            async let hrvVal = healthManager.fetchAverageHRV(days: 7)
+            async let vo2Val = healthManager.fetchVO2Max()
+            async let exerciseVal = healthManager.fetchWeeklyExerciseMinutesTotal()
+            async let basalTodayVal = healthManager.fetchTodayBasalEnergy()
+            async let hkHeight = healthManager.fetchLatestHeightCm()
+            async let hkWeight = healthManager.fetchLatestBodyMassKg()
 
             // External (Apple Health) workouts — last 14 days. Provides the
             // coach with kardio / recovery / cross-training context that
@@ -236,6 +261,31 @@ enum AICoachContextBuilder {
 
             let wk = await workoutsVal
             if wk > 0 { weeklyWorkouts = wk }
+
+            let hrvD = await hrvVal
+            if hrvD > 0 { hrv = hrvD }
+
+            let vo2D = await vo2Val
+            if vo2D > 0 { vo2 = vo2D }
+
+            let exMin = await exerciseVal
+            if exMin > 0 { weeklyExerciseMin = exMin }
+
+            let basalD = await basalTodayVal
+            if basalD > 0 { restingEnergyToday = Int(basalD) }
+
+            // BMI fallback from HealthKit if profile missing.
+            if bmi == nil {
+                let hkH = await hkHeight
+                let hkW = await hkWeight
+                if hkH > 0 && hkW > 0 {
+                    let h = hkH / 100.0
+                    bmi = hkW / (h * h)
+                }
+            } else {
+                _ = await hkHeight
+                _ = await hkWeight
+            }
 
             let sleep = await sleepHist
             if !sleep.isEmpty {
@@ -264,7 +314,12 @@ enum AICoachContextBuilder {
             last7DaysSteps: weeklySteps,
             last7DaysWorkouts: weeklyWorkouts,
             lastNightSleepHours: lastNightSleep,
-            weeklySleepAvgHours: weeklySleepAvg
+            weeklySleepAvgHours: weeklySleepAvg,
+            hrvSDNNms: hrv,
+            vo2MaxMlKgMin: vo2,
+            bmi: bmi,
+            last7DaysExerciseMinutes: weeklyExerciseMin,
+            restingEnergyTodayKcal: restingEnergyToday
         )
 
         return AICoachContext(
@@ -605,9 +660,23 @@ enum AICoachContextBuilder {
         var healthBits: [String] = []
         if let r = ctx.health.restingHeartRate { healthBits.append("resting HR \(r) bpm") }
         if let s = ctx.health.last7DaysSteps { healthBits.append("steps 7d: \(s)") }
+        if let em = ctx.health.last7DaysExerciseMinutes { healthBits.append("exercise 7d: \(em) min") }
         if let w = ctx.health.last7DaysWorkouts { healthBits.append("workouts 7d (HK): \(w)") }
         if let n = ctx.health.lastNightSleepHours { healthBits.append(String(format: "sleep last night: %.1f h", n)) }
         if let a = ctx.health.weeklySleepAvgHours { healthBits.append(String(format: "sleep avg 7d: %.1f h", a)) }
+        if let hrv = ctx.health.hrvSDNNms { healthBits.append(String(format: "HRV (SDNN, 7d): %.0f ms", hrv)) }
+        if let vo2 = ctx.health.vo2MaxMlKgMin { healthBits.append(String(format: "VO₂max 30d: %.1f ml/kg·min", vo2)) }
+        if let bmi = ctx.health.bmi {
+            let cat: String
+            switch bmi {
+            case ..<18.5: cat = "underweight"
+            case 18.5..<25: cat = "normal"
+            case 25..<30: cat = "overweight"
+            default: cat = "obese"
+            }
+            healthBits.append(String(format: "BMI: %.1f (%@)", bmi, cat))
+        }
+        if let re = ctx.health.restingEnergyTodayKcal { healthBits.append("resting energy today: \(re) kcal") }
         if !healthBits.isEmpty {
             out.append("SENSORS: " + healthBits.joined(separator: "; ") + ".")
         }

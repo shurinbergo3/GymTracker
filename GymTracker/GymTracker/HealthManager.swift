@@ -51,7 +51,10 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
             HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!,
             HKObjectType.quantityType(forIdentifier: .vo2Max)!,
             HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!,
-            HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!
+            HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!,
+            HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!,
+            HKObjectType.quantityType(forIdentifier: .height)!,
+            HKObjectType.quantityType(forIdentifier: .bodyMass)!
         ]
         let writeTypes: Set<HKSampleType> = [energyType, workoutType]
         
@@ -503,6 +506,73 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
             }
         }
         return result
+    }
+
+
+    // MARK: - Recovery: HRV (SDNN, ms)
+
+    /// Average heart-rate variability (SDNN) over the last `days` days, in ms.
+    /// Returns 0 when no samples exist (typical for users without an Apple Watch).
+    func fetchAverageHRV(days: Int = 7) async -> Double {
+        let store = self.healthStore
+        return await Task.detached(priority: .userInitiated) {
+            guard let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN) else { return 0.0 }
+            let endDate = Date()
+            guard let startDate = Calendar.current.date(byAdding: .day, value: -days, to: endDate) else { return 0.0 }
+            let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+            let unit = HKUnit.secondUnit(with: .milli)
+
+            return await withCheckedContinuation { continuation in
+                let query = HKStatisticsQuery(quantityType: hrvType, quantitySamplePredicate: predicate, options: .discreteAverage) { _, result, _ in
+                    guard let avg = result?.averageQuantity() else {
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    continuation.resume(returning: avg.doubleValue(for: unit))
+                }
+                store.execute(query)
+            }
+        }.value
+    }
+
+    // MARK: - Body metrics (height / weight) — for BMI
+
+    /// Most recent height sample, in centimetres. Returns 0 if absent.
+    func fetchLatestHeightCm() async -> Double {
+        let store = self.healthStore
+        return await Task.detached(priority: .userInitiated) {
+            guard let type = HKQuantityType.quantityType(forIdentifier: .height) else { return 0.0 }
+            let sort = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+            return await withCheckedContinuation { continuation in
+                let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sort]) { _, samples, _ in
+                    guard let sample = samples?.first as? HKQuantitySample else {
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    continuation.resume(returning: sample.quantity.doubleValue(for: .meterUnit(with: .centi)))
+                }
+                store.execute(query)
+            }
+        }.value
+    }
+
+    /// Most recent body-mass sample, in kilograms. Returns 0 if absent.
+    func fetchLatestBodyMassKg() async -> Double {
+        let store = self.healthStore
+        return await Task.detached(priority: .userInitiated) {
+            guard let type = HKQuantityType.quantityType(forIdentifier: .bodyMass) else { return 0.0 }
+            let sort = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+            return await withCheckedContinuation { continuation in
+                let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sort]) { _, samples, _ in
+                    guard let sample = samples?.first as? HKQuantitySample else {
+                        continuation.resume(returning: 0.0)
+                        return
+                    }
+                    continuation.resume(returning: sample.quantity.doubleValue(for: .gramUnit(with: .kilo)))
+                }
+                store.execute(query)
+            }
+        }.value
     }
 
 

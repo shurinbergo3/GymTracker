@@ -418,3 +418,27 @@ struct DestructiveCloseButton: View {
         .accessibilityLabel(Text("Отменить".localized()))
     }
 }
+
+// MARK: - Neon FAB (единый стиль плавающей кнопки "+")
+
+/// Канонический FAB: 60×60, неоновый зелёный фон, чёрная иконка, неоновое свечение.
+/// Использовать вместо локальных копий в любом экране, где нужна плавающая «+».
+struct NeonFAB: View {
+    var systemImage: String = "plus"
+    var size: CGFloat = 60
+    var iconWeight: Font.Weight = .semibold
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: size * 0.4, weight: iconWeight))
+                .foregroundColor(.black)
+                .frame(width: size, height: size)
+                .background(DesignSystem.Colors.neonGreen)
+                .clipShape(Circle())
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 10, x: 0, y: 4)
+        }
+        .buttonStyle(.plain)
+    }
+}

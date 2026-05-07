@@ -137,16 +137,8 @@ struct ProgramView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        Button(action: { showingCreateProgram = true }) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 24, weight: .semibold))
-                                .foregroundColor(.black)
-                                .frame(width: 60, height: 60)
-                                .background(DesignSystem.Colors.neonGreen)
-                                .clipShape(Circle())
-                                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 10, x: 0, y: 4)
-                        }
-                        .padding(DesignSystem.Spacing.xl)
+                        NeonFAB { showingCreateProgram = true }
+                            .padding(DesignSystem.Spacing.xl)
                     }
                 }
             }
@@ -546,8 +538,8 @@ struct ActiveProgramCard: View {
             statBlock(value: "~\(meta.estimatedMinutes)", label: "мин".localized().uppercased())
             statDivider
             statBlock(
-                value: meta.level.displayName.uppercased(),
-                label: "Уровень".localized().uppercased(),
+                value: meta.experienceLabel.uppercased(),
+                label: "Опыт".localized().uppercased(),
                 valueColor: meta.level.color,
                 compact: true
             )
@@ -724,6 +716,19 @@ struct ProgramCard: View {
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
                                     .background(meta.level.color.opacity(0.15))
+                                    .clipShape(Capsule())
+
+                                    HStack(spacing: 3) {
+                                        Image(systemName: "hourglass")
+                                            .font(.system(size: 9, weight: .semibold))
+                                        Text(meta.experienceLabel)
+                                            .font(DesignSystem.Typography.caption())
+                                            .fontWeight(.medium)
+                                    }
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .padding(.horizontal, 7)
+                                    .padding(.vertical, 3)
+                                    .background(DesignSystem.Colors.secondaryText.opacity(0.10))
                                     .clipShape(Capsule())
                                 }
 

@@ -655,6 +655,11 @@ struct DashboardView: View {
     @State private var totalCompletedCount: Int = 0
     @State private var weeklyWrapped: WeeklyWrappedSnapshot?
     @State private var externalWorkouts: [ExternalWorkout] = []
+    /// Wider window (12 weeks) used by the weekly-streak card so it can
+    /// compute weeks-in-a-row correctly. Kept separate from `externalWorkouts`,
+    /// which is intentionally limited to the last 7 days for the
+    /// AppleHealthActivityCard surface.
+    @State private var externalWorkoutsForStreak: [ExternalWorkout] = []
 
     private var recentHistory: [WorkoutSession] {
         Array(history.prefix(1))
@@ -679,14 +684,30 @@ struct DashboardView: View {
         return history.filter { $0.date >= monday }.count
     }
 
+    /// Weekly training target. Auto-derived from the active program's cycle
+    /// length (capped at 6 to keep at least one rest day). Falls back to 3
+    /// when there's no active program — a sensible default for casual users.
+    private var weeklyGoal: Int {
+        if let program = workoutManager.activeProgram {
+            let count = program.days.count
+            if count > 0 { return min(6, max(1, count)) }
+        }
+        return 3
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: DesignSystem.Spacing.xl) {
-                // Weekly streak strip — tap to open full calendar
+                // Weekly streak strip — tap to open full calendar.
+                // Long-press on any day pill opens that day's details inline.
                 Button {
                     showingCalendarSheet = true
                 } label: {
-                    WeeklyStreakStrip(sessions: history)
+                    WeeklyStreakStrip(
+                        sessions: history,
+                        externalWorkouts: externalWorkoutsForStreak,
+                        weeklyGoal: weeklyGoal
+                    )
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -775,6 +796,15 @@ struct DashboardView: View {
             let external = await HealthManager.shared.fetchExternalWorkoutsThisWeek()
             await MainActor.run {
                 self.externalWorkouts = external
+            }
+
+            // Wider window for the weekly-streak card. 12 weeks is enough to
+            // surface meaningful streaks without paying for a full year fetch.
+            let now = Date()
+            let twelveWeeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -12, to: now) ?? now
+            let externalForStreak = await HealthManager.shared.fetchExternalWorkouts(from: twelveWeeksAgo, to: now)
+            await MainActor.run {
+                self.externalWorkoutsForStreak = externalForStreak
             }
         }
         .sheet(isPresented: $showingDaySelection) {

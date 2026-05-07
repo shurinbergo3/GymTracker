@@ -68,6 +68,7 @@ struct ProgramDetailView: View {
 
                     HStack(spacing: DesignSystem.Spacing.lg) {
                         statBlock(icon: meta.level.icon, value: meta.level.displayName, label: "Уровень".localized(), color: meta.level.color)
+                        statBlock(icon: "hourglass", value: meta.experienceLabel, label: "Опыт".localized(), color: meta.level.color)
                         statBlock(icon: "calendar", value: "\(program.days.count)", label: "дней".localized(), color: meta.category.color)
                         statBlock(icon: "clock", value: "~\(meta.estimatedMinutes)", label: "мин/тр".localized(), color: DesignSystem.Colors.secondaryText)
                     }

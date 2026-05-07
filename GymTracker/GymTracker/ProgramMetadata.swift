@@ -104,6 +104,24 @@ struct ProgramMetadata {
     let category: ProgramCategory
     let level: ProgramLevel
     let estimatedMinutes: Int
+    /// Минимальный рекомендуемый стаж в месяцах. 0 = без опыта.
+    let experienceMonths: Int
+
+    /// Короткая подпись опыта: "0+", "6+ мес", "1.5+ года", "2+ года".
+    var experienceLabel: String {
+        switch experienceMonths {
+        case 0:       return "Без опыта".localized()
+        case 1..<12:  return String(format: "%d+ мес".localized(), experienceMonths)
+        case 12:      return "1+ год".localized()
+        case 13..<24:
+            let years = Double(experienceMonths) / 12.0
+            return String(format: "%.1f+ года".localized(), years)
+                .replacingOccurrences(of: ".0", with: "")
+        case 24:      return "2+ года".localized()
+        case 25..<60: return String(format: "%d+ года".localized(), experienceMonths / 12)
+        default:      return String(format: "%d+ лет".localized(), experienceMonths / 12)
+        }
+    }
 
     /// Look up metadata by raw program name (the seed key).
     /// Falls back to neutral defaults for user-created programs.
@@ -113,41 +131,96 @@ struct ProgramMetadata {
         if let entry = lookupTable.first(where: { $0.key.caseInsensitiveCompare(programName) == .orderedSame }) {
             return entry.value
         }
-        return ProgramMetadata(category: .massGain, level: .any, estimatedMinutes: 60)
+        return ProgramMetadata(category: .massGain, level: .any, estimatedMinutes: 60, experienceMonths: 0)
     }
 
+    // MARK: Lookup table — каждая программа размечена честно по реальному содержанию.
+    // Уровень = техническая сложность + объем + требования к восстановлению.
+    // experienceMonths = реалистичный минимальный стаж до начала.
     private static let lookupTable: [String: ProgramMetadata] = [
-        // Existing
-        "Full Body: Fundamental":       .init(category: .massGain,     level: .beginner,     estimatedMinutes: 50),
-        "High Frequency Full Body":     .init(category: .massGain,     level: .intermediate, estimatedMinutes: 65),
-        "Aesthetics & Balance":         .init(category: .massGain,     level: .intermediate, estimatedMinutes: 60),
-        "Upper/Lower Strength":         .init(category: .strength,     level: .intermediate, estimatedMinutes: 75),
-        "5/3/1 for Beginners":          .init(category: .strength,     level: .beginner,     estimatedMinutes: 60),
-        "GZCLP Linear Progression":     .init(category: .strength,     level: .beginner,     estimatedMinutes: 65),
-        "HIIT Pyramid":                 .init(category: .cardio,       level: .intermediate, estimatedMinutes: 25),
-        "LISS Elliptical":              .init(category: .cardio,       level: .beginner,     estimatedMinutes: 50),
-        "Street Workout: Beginner":     .init(category: .calisthenics, level: .beginner,     estimatedMinutes: 40),
-        "Street Workout: Intermediate": .init(category: .calisthenics, level: .intermediate, estimatedMinutes: 55),
 
-        // New popular programs
-        "Push Pull Legs (PPL)":         .init(category: .massGain,     level: .intermediate, estimatedMinutes: 70),
-        "Bro Split":                    .init(category: .massGain,     level: .intermediate, estimatedMinutes: 60),
-        "Arnold Split":                 .init(category: .massGain,     level: .advanced,     estimatedMinutes: 80),
-        "StrongLifts 5x5":              .init(category: .strength,     level: .beginner,     estimatedMinutes: 55),
-        "nSuns 5/3/1 LP":               .init(category: .strength,     level: .advanced,     estimatedMinutes: 75),
-        "Madcow 5x5":                   .init(category: .strength,     level: .intermediate, estimatedMinutes: 70),
-        "Powerbuilding 4-Day":          .init(category: .strength,     level: .intermediate, estimatedMinutes: 75),
-        "Glute Builder":                .init(category: .glutes,       level: .any,          estimatedMinutes: 50),
-        "Core Crusher":                 .init(category: .massGain,     level: .any,          estimatedMinutes: 25),
-        "Tabata Total Body":            .init(category: .fatLoss,      level: .intermediate, estimatedMinutes: 30),
-        "Mobility Flow":                .init(category: .mobility,     level: .beginner,     estimatedMinutes: 20),
-        "EMOM Conditioning":            .init(category: .fatLoss,      level: .intermediate, estimatedMinutes: 35),
+        // === FULL BODY / BEGINNER FOUNDATIONS ===
+        "Full Body: Fundamental":
+            .init(category: .massGain,     level: .beginner,     estimatedMinutes: 50, experienceMonths: 0),
+        "High Frequency Full Body":
+            .init(category: .massGain,     level: .intermediate, estimatedMinutes: 65, experienceMonths: 6),
 
-        // v4 — Upper/Lower hypertrophy + glutes/mobility/cardio additions
-        "Upper/Lower Hypertrophy":      .init(category: .massGain,     level: .beginner,     estimatedMinutes: 60),
-        "Booty Builder Pro":            .init(category: .glutes,       level: .intermediate, estimatedMinutes: 60),
-        "Yoga Flow Recovery":           .init(category: .mobility,     level: .any,          estimatedMinutes: 30),
-        "Couch to 5K":                  .init(category: .cardio,       level: .beginner,     estimatedMinutes: 35),
-        "Norwegian 4x4":                .init(category: .cardio,       level: .advanced,     estimatedMinutes: 35),
+        // === SPLITS / HYPERTROPHY ===
+        "Aesthetics & Balance":
+            .init(category: .massGain,     level: .intermediate, estimatedMinutes: 60, experienceMonths: 6),
+        "Upper/Lower Hypertrophy":
+            .init(category: .massGain,     level: .intermediate, estimatedMinutes: 60, experienceMonths: 6),
+        "Push Pull Legs (PPL)":
+            .init(category: .massGain,     level: .intermediate, estimatedMinutes: 70, experienceMonths: 9),
+        "Bro Split":
+            .init(category: .massGain,     level: .intermediate, estimatedMinutes: 60, experienceMonths: 6),
+        "Arnold Split":
+            .init(category: .massGain,     level: .advanced,     estimatedMinutes: 80, experienceMonths: 24),
+        "Объемный Сплит":
+            .init(category: .massGain,     level: .advanced,     estimatedMinutes: 75, experienceMonths: 18),
+        "Pre-Exhaustion":
+            .init(category: .massGain,     level: .intermediate, estimatedMinutes: 60, experienceMonths: 12),
+        "EDT Плотность":
+            .init(category: .massGain,     level: .advanced,     estimatedMinutes: 50, experienceMonths: 18),
+        "PHA (Сердце)":
+            .init(category: .massGain,     level: .intermediate, estimatedMinutes: 55, experienceMonths: 6),
+        "Комплекс Медведь (The Bear)":
+            .init(category: .massGain,     level: .advanced,     estimatedMinutes: 70, experienceMonths: 24),
+        "Продвинутый DUP":
+            .init(category: .massGain,     level: .advanced,     estimatedMinutes: 80, experienceMonths: 24),
+        "Core Crusher":
+            .init(category: .massGain,     level: .beginner,     estimatedMinutes: 25, experienceMonths: 0),
+
+        // === STRENGTH / POWERLIFTING ===
+        "5/3/1 for Beginners":
+            .init(category: .strength,     level: .beginner,     estimatedMinutes: 60, experienceMonths: 1),
+        "GZCLP Linear Progression":
+            .init(category: .strength,     level: .beginner,     estimatedMinutes: 65, experienceMonths: 1),
+        "StrongLifts 5x5":
+            .init(category: .strength,     level: .beginner,     estimatedMinutes: 55, experienceMonths: 0),
+        "Upper/Lower Strength":
+            .init(category: .strength,     level: .intermediate, estimatedMinutes: 75, experienceMonths: 9),
+        "Madcow 5x5":
+            .init(category: .strength,     level: .intermediate, estimatedMinutes: 70, experienceMonths: 12),
+        "Powerbuilding 4-Day":
+            .init(category: .strength,     level: .intermediate, estimatedMinutes: 75, experienceMonths: 12),
+        "nSuns 5/3/1 LP":
+            .init(category: .strength,     level: .advanced,     estimatedMinutes: 75, experienceMonths: 24),
+
+        // === CARDIO / CONDITIONING ===
+        "LISS Elliptical":
+            .init(category: .cardio,       level: .beginner,     estimatedMinutes: 50, experienceMonths: 0),
+        "Couch to 5K":
+            .init(category: .cardio,       level: .beginner,     estimatedMinutes: 35, experienceMonths: 0),
+        "HIIT Pyramid":
+            .init(category: .cardio,       level: .intermediate, estimatedMinutes: 25, experienceMonths: 3),
+        "Norwegian 4x4":
+            .init(category: .cardio,       level: .advanced,     estimatedMinutes: 35, experienceMonths: 18),
+
+        // === FAT LOSS / METABOLIC ===
+        "Tabata Total Body":
+            .init(category: .fatLoss,      level: .intermediate, estimatedMinutes: 30, experienceMonths: 3),
+        "EMOM Conditioning":
+            .init(category: .fatLoss,      level: .intermediate, estimatedMinutes: 35, experienceMonths: 6),
+
+        // === CALISTHENICS ===
+        "Street Workout: Beginner":
+            .init(category: .calisthenics, level: .beginner,     estimatedMinutes: 40, experienceMonths: 0),
+        "Street Workout: Intermediate":
+            .init(category: .calisthenics, level: .advanced,     estimatedMinutes: 55, experienceMonths: 18),
+
+        // === GLUTES ===
+        "Glute Builder":
+            .init(category: .glutes,       level: .beginner,     estimatedMinutes: 50, experienceMonths: 1),
+        "Booty Builder Pro":
+            .init(category: .glutes,       level: .intermediate, estimatedMinutes: 60, experienceMonths: 9),
+        "Stairmaster Glutes":
+            .init(category: .glutes,       level: .intermediate, estimatedMinutes: 40, experienceMonths: 3),
+
+        // === MOBILITY / RECOVERY ===
+        "Mobility Flow":
+            .init(category: .mobility,     level: .beginner,     estimatedMinutes: 20, experienceMonths: 0),
+        "Yoga Flow Recovery":
+            .init(category: .mobility,     level: .beginner,     estimatedMinutes: 30, experienceMonths: 0),
     ]
 }

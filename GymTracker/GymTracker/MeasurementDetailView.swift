@@ -100,16 +100,8 @@ struct MeasurementDetailView: View {
                 Spacer()
                 HStack {
                     Spacer()
-                    Button(action: { showingAddMeasurement = true }) {
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .frame(width: 60, height: 60)
-                            .background(DesignSystem.Colors.accent)
-                            .clipShape(Circle())
-                            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
-                    }
-                    .padding(DesignSystem.Spacing.xl)
+                    NeonFAB { showingAddMeasurement = true }
+                        .padding(DesignSystem.Spacing.xl)
                 }
             }
         }

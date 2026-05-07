@@ -3,13 +3,18 @@
 //  GymTracker
 //
 //  Unified Apple Health hub:
-//   • Активность   — Шаги, Кардио (VO₂), Упражнения, Тренировки/нед
-//   • Восстановление — Сон, Пульс покоя, Пульс на тренировке, Энергия покоя
+//   • Активность   — Шаги, ИМТ, Упражнения, Тренировки/нед
+//   • Восстановление — Сон, Пульс покоя, Пульс на тренировке, ВРС (HRV)
+//
+//  Шаги/Упражнения показывают НЕДЕЛЬНУЮ сумму как главное число
+//  (сегодня — в подзаголовке), потому что фитнес-цели измеряются за неделю,
+//  а нулевое сегодняшнее значение визуально выглядело как «нет данных».
 //
 //  Each tile opens a detail sheet with a 7-day chart and breakdown.
 //
 
 import SwiftUI
+import SwiftData
 import HealthKit
 import Charts
 
@@ -17,52 +22,52 @@ import Charts
 
 private enum HealthStatKind: String, CaseIterable, Identifiable {
     case steps
-    case cardio
+    case bmi
     case exercise
     case workouts
     case sleep
     case restingHR
     case workoutHR
-    case resting
+    case hrv
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .steps:     return "Шаги".localized()
-        case .cardio:    return "Кардио".localized()
+        case .bmi:       return "ИМТ".localized()
         case .exercise:  return "Упражнения".localized()
         case .workouts:  return "Тренировки".localized()
         case .sleep:     return "Сон".localized()
         case .restingHR: return "Пульс покоя".localized()
         case .workoutHR: return "Пульс трен.".localized()
-        case .resting:   return "Энергия покоя".localized()
+        case .hrv:       return "ВРС".localized()
         }
     }
 
     var icon: String {
         switch self {
         case .steps:     return "figure.walk"
-        case .cardio:    return "heart.text.square.fill"
+        case .bmi:       return "scalemass.fill"
         case .exercise:  return "flame.fill"
         case .workouts:  return "dumbbell.fill"
         case .sleep:     return "bed.double.fill"
         case .restingHR: return "heart.fill"
         case .workoutHR: return "waveform.path.ecg"
-        case .resting:   return "leaf.fill"
+        case .hrv:       return "waveform"
         }
     }
 
     var accent: Color {
         switch self {
         case .steps:     return Color(red: 0.45, green: 0.85, blue: 1.0)   // sky
-        case .cardio:    return Color(red: 1.0,  green: 0.35, blue: 0.45)  // red
+        case .bmi:       return Color(red: 1.0,  green: 0.55, blue: 0.30)  // orange
         case .exercise:  return DesignSystem.Colors.neonGreen              // neon
         case .workouts:  return Color(red: 1.0,  green: 0.65, blue: 0.0)   // amber
         case .sleep:     return Color(red: 0.6,  green: 0.4,  blue: 1.0)   // purple
         case .restingHR: return Color(red: 1.0,  green: 0.45, blue: 0.55)  // pink
         case .workoutHR: return Color(red: 0.35, green: 0.95, blue: 0.7)   // mint
-        case .resting:   return Color(red: 0.7,  green: 0.85, blue: 0.4)   // lime
+        case .hrv:       return Color(red: 0.55, green: 0.85, blue: 1.0)   // cyan
         }
     }
 }
@@ -76,7 +81,7 @@ private final class HealthStatsViewModel: ObservableObject {
     @Published var stepsWeek: Int = 0
     @Published var dailySteps: [DailyHealthValue] = []
 
-    @Published var vo2Max: Double = 0
+    @Published var vo2Max: Double = 0                  // kept internally — feeds AI
     @Published var exerciseMinutesToday: Int = 0
     @Published var exerciseMinutesWeek: Int = 0
     @Published var dailyExerciseMinutes: [DailyHealthValue] = []
@@ -84,17 +89,23 @@ private final class HealthStatsViewModel: ObservableObject {
     @Published var workoutsThisWeek: Int = 0
     @Published var dailyWorkoutCounts: [DailyHealthValue] = []
 
+    // BMI: derived from height + weight (UserProfile preferred, HK fallback)
+    @Published var heightCm: Double = 0
+    @Published var weightKg: Double = 0
+    @Published var bmi: Double = 0
+
     // Recovery
     @Published var sleepLastNight: TimeInterval = 0   // seconds
     @Published var restingHR: Int = 0
     @Published var workoutHR: Int = 0
-    @Published var restingEnergyToday: Int = 0
+    @Published var restingEnergyToday: Int = 0        // kept internally — feeds AI
     @Published var dailyResting: [DailyHealthValue] = []
+    @Published var hrvMs: Double = 0                  // SDNN, last 7 days
 
     @Published var isLoading: Bool = false
     @Published var isAuthorized: Bool = false
 
-    func load(lastWorkoutHR: Int = 0) async {
+    func load(lastWorkoutHR: Int = 0, profileHeightCm: Double = 0, profileWeightKg: Double = 0) async {
         guard !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
@@ -113,6 +124,9 @@ private final class HealthStatsViewModel: ObservableObject {
         async let basalToday = HealthManager.shared.fetchTodayBasalEnergy()
         async let workoutsTotal = HealthManager.shared.fetchWorkoutsThisWeek()
         async let restingHRValue = HealthManager.shared.fetchRestingHeartRate()
+        async let hrvValue = HealthManager.shared.fetchAverageHRV(days: 7)
+        async let hkHeight = HealthManager.shared.fetchLatestHeightCm()
+        async let hkWeight = HealthManager.shared.fetchLatestBodyMassKg()
         async let sleepData = SleepService.shared.fetchSleepData()
 
         let stepsValues = await steps7
@@ -123,6 +137,9 @@ private final class HealthStatsViewModel: ObservableObject {
         let basalTodayValue = await basalToday
         let workoutsTotalValue = await workoutsTotal
         let restingHRRaw = await restingHRValue
+        let hrvRaw = await hrvValue
+        let hkHeightCm = await hkHeight
+        let hkWeightKg = await hkWeight
         let sleep = await sleepData
 
         self.dailySteps = stepsValues
@@ -142,6 +159,17 @@ private final class HealthStatsViewModel: ObservableObject {
         self.vo2Max = vo2Value
         self.restingHR = Int(restingHRRaw)
         self.workoutHR = lastWorkoutHR
+        self.hrvMs = hrvRaw
+
+        // Prefer in-app profile (user-entered, more reliable) over HK samples.
+        self.heightCm = profileHeightCm > 0 ? profileHeightCm : hkHeightCm
+        self.weightKg = profileWeightKg > 0 ? profileWeightKg : hkWeightKg
+        if self.heightCm > 0 && self.weightKg > 0 {
+            let h = self.heightCm / 100.0
+            self.bmi = self.weightKg / (h * h)
+        } else {
+            self.bmi = 0
+        }
 
         // Compute total sleep duration (excluding inBed)
         let asleepSegments = sleep
@@ -151,12 +179,28 @@ private final class HealthStatsViewModel: ObservableObject {
     }
 }
 
+// MARK: - BMI helpers
+
+private func bmiCategory(_ bmi: Double) -> (label: String, color: Color) {
+    switch bmi {
+    case ..<18.5:
+        return ("Недовес".localized(), Color(red: 0.55, green: 0.85, blue: 1.0))
+    case 18.5..<25:
+        return ("Норма".localized(), DesignSystem.Colors.neonGreen)
+    case 25..<30:
+        return ("Избыток".localized(), Color(red: 1.0, green: 0.65, blue: 0.0))
+    default:
+        return ("Ожирение".localized(), Color(red: 1.0, green: 0.35, blue: 0.45))
+    }
+}
+
 // MARK: - Main Card
 
 struct HealthStatsCard: View {
     /// Optional last workout to surface the workout heart-rate stat.
     let lastWorkoutSession: WorkoutSession?
 
+    @Query private var profiles: [UserProfile]
     @StateObject private var vm = HealthStatsViewModel()
     @State private var selectedStat: HealthStatKind?
 
@@ -176,18 +220,22 @@ struct HealthStatsCard: View {
             // Section 1: Activity
             sectionHeader("Активность".localized())
             LazyVGrid(columns: columns, spacing: 10) {
-                tile(.steps,    value: formatNumber(vm.stepsToday),
-                     subtitle: "\(formatNumber(vm.stepsWeek)) " + "за неделю".localized())
-                tile(.cardio,   value: vm.vo2Max > 0 ? String(format: "%.1f", vm.vo2Max) : "—",
-                     subtitle: "VO₂ · " + "30 дней".localized())
-                tile(.exercise, value: "\(vm.exerciseMinutesToday)",
-                     subtitle: "\(vm.exerciseMinutesWeek) " + "мин/нед".localized())
-                tile(.workouts, value: "\(vm.workoutsThisWeek)",
+                tile(.steps,
+                     value: formatNumber(vm.stepsWeek),
+                     subtitle: stepsSubtitle)
+                tile(.bmi,
+                     value: vm.bmi > 0 ? String(format: "%.1f", vm.bmi) : "—",
+                     subtitle: bmiSubtitle)
+                tile(.exercise,
+                     value: "\(vm.exerciseMinutesWeek)",
+                     subtitle: exerciseSubtitle)
+                tile(.workouts,
+                     value: "\(vm.workoutsThisWeek)",
                      subtitle: "за неделю".localized())
             }
 
             // Section 2: Recovery
-            // Order: heart rate tiles together on the first row, then sleep + resting energy.
+            // Order: heart rate tiles together on the first row, then sleep + HRV.
             sectionHeader("Восстановление".localized())
             LazyVGrid(columns: columns, spacing: 10) {
                 tile(.restingHR,
@@ -199,9 +247,9 @@ struct HealthStatsCard: View {
                 tile(.sleep,
                      value: vm.sleepLastNight > 0 ? formatSleep(vm.sleepLastNight) : "—",
                      subtitle: "за ночь".localized())
-                tile(.resting,
-                     value: "\(vm.restingEnergyToday)",
-                     subtitle: "ккал · сегодня".localized())
+                tile(.hrv,
+                     value: vm.hrvMs > 0 ? "\(Int(vm.hrvMs.rounded()))" : "—",
+                     subtitle: "мс · ср · 7 дн".localized())
             }
         }
         .padding(DesignSystem.Spacing.lg)
@@ -223,7 +271,12 @@ struct HealthStatsCard: View {
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
         .task {
             let lastHR = lastWorkoutSession?.averageHeartRate ?? 0
-            await vm.load(lastWorkoutHR: lastHR)
+            let profile = profiles.first
+            await vm.load(
+                lastWorkoutHR: lastHR,
+                profileHeightCm: profile?.height ?? 0,
+                profileWeightKg: profile?.currentWeight ?? 0
+            )
         }
         .sheet(item: $selectedStat) { stat in
             HealthStatDetailView(stat: stat, vm: vm)
@@ -325,6 +378,26 @@ struct HealthStatsCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(PlainButtonStyle())
+    }
+
+    // MARK: - Computed subtitles
+
+    /// "сегодня 8 130 · ⌀ 8 090/день" — недельная сумма стоит главным числом,
+    /// здесь даём контекст: что было сегодня и сколько в среднем за день.
+    private var stepsSubtitle: String {
+        let today = formatNumber(vm.stepsToday)
+        let avg = vm.dailySteps.isEmpty ? 0 : vm.stepsWeek / max(vm.dailySteps.count, 1)
+        return "\("сегодня".localized()) \(today) · ⌀ \(formatNumber(avg))/\("день".localized())"
+    }
+
+    private var exerciseSubtitle: String {
+        let avg = vm.dailyExerciseMinutes.isEmpty ? 0 : vm.exerciseMinutesWeek / max(vm.dailyExerciseMinutes.count, 1)
+        return "\("мин/нед".localized()) · \("сегодня".localized()) \(vm.exerciseMinutesToday) · ⌀ \(avg)"
+    }
+
+    private var bmiSubtitle: String {
+        guard vm.bmi > 0 else { return "нет роста/веса".localized() }
+        return bmiCategory(vm.bmi).label.lowercased()
     }
 
     // MARK: - Helpers
@@ -506,38 +579,44 @@ private struct HealthStatDetailView: View {
 
     private var primaryValue: String {
         switch stat {
-        case .steps:     return formatInt(vm.stepsToday)
-        case .cardio:    return vm.vo2Max > 0 ? String(format: "%.1f", vm.vo2Max) : "—"
-        case .exercise:  return "\(vm.exerciseMinutesToday)"
+        case .steps:     return formatInt(vm.stepsWeek)
+        case .bmi:       return vm.bmi > 0 ? String(format: "%.1f", vm.bmi) : "—"
+        case .exercise:  return "\(vm.exerciseMinutesWeek)"
         case .workouts:  return "\(vm.workoutsThisWeek)"
         case .sleep:     return vm.sleepLastNight > 0 ? formatSleepHM(vm.sleepLastNight) : "—"
         case .restingHR: return vm.restingHR > 0 ? "\(vm.restingHR)" : "—"
         case .workoutHR: return vm.workoutHR > 0 ? "\(vm.workoutHR)" : "—"
-        case .resting:   return "\(vm.restingEnergyToday)"
+        case .hrv:       return vm.hrvMs > 0 ? "\(Int(vm.hrvMs.rounded()))" : "—"
         }
     }
 
     private var primaryUnit: String {
         switch stat {
-        case .steps:     return "шагов".localized()
-        case .cardio:    return "мл/кг·мин".localized()
-        case .exercise:  return "мин".localized()
+        case .steps:     return "шагов · 7 дн".localized()
+        case .bmi:       return "кг/м²".localized()
+        case .exercise:  return "мин · 7 дн".localized()
         case .workouts:  return "за неделю".localized()
         case .sleep:     return "за ночь".localized()
         case .restingHR: return "уд/мин".localized()
         case .workoutHR: return "уд/мин".localized()
-        case .resting:   return "ккал".localized()
+        case .hrv:       return "мс".localized()
         }
     }
 
     private var heroCaption: String {
         switch stat {
         case .steps:
-            return "сегодня".localized() + " · " + "за неделю".localized() + ": " + formatInt(vm.stepsWeek)
-        case .cardio:
-            return "среднее VO₂ Max за 30 дней".localized()
+            return "сегодня".localized() + ": " + formatInt(vm.stepsToday) + " · " + "за неделю".localized()
+        case .bmi:
+            if vm.bmi > 0 {
+                let cat = bmiCategory(vm.bmi).label
+                let h = Int(vm.heightCm.rounded())
+                let w = String(format: "%.1f", vm.weightKg)
+                return "\(cat) · \(w) кг / \(h) см"
+            }
+            return "укажите рост и вес в профиле".localized()
         case .exercise:
-            return "сегодня".localized() + " · " + "за неделю".localized() + ": " + "\(vm.exerciseMinutesWeek) " + "мин".localized()
+            return "сегодня".localized() + ": " + "\(vm.exerciseMinutesToday) " + "мин".localized() + " · " + "за неделю".localized()
         case .workouts:
             return "Apple Health workouts за 7 дней".localized()
         case .sleep:
@@ -546,14 +625,14 @@ private struct HealthStatDetailView: View {
             return "среднее значение пульса в покое за неделю".localized()
         case .workoutHR:
             return "средний пульс на последней тренировке".localized()
-        case .resting:
-            return "сегодня".localized() + " · " + "энергия в покое".localized()
+        case .hrv:
+            return "вариабельность пульса (SDNN), среднее за 7 дней — выше = лучше восстановление".localized()
         }
     }
 
     private var hasChart: Bool {
         switch stat {
-        case .steps, .exercise, .workouts, .resting: return true
+        case .steps, .exercise, .workouts: return true
         default: return false
         }
     }
@@ -563,7 +642,6 @@ private struct HealthStatDetailView: View {
         case .steps:    return vm.dailySteps
         case .exercise: return vm.dailyExerciseMinutes
         case .workouts: return vm.dailyWorkoutCounts
-        case .resting:  return vm.dailyResting
         default:        return nil
         }
     }
@@ -579,9 +657,13 @@ private struct HealthStatDetailView: View {
                 ("Среднее в день".localized(), formatInt(avg)),
                 ("Лучший день".localized(), formatInt(best))
             ]
-        case .cardio:
+        case .bmi:
+            let cat = vm.bmi > 0 ? bmiCategory(vm.bmi).label : "—"
             return [
-                ("Среднее за 30 дней".localized(), vm.vo2Max > 0 ? String(format: "%.1f мл/кг·мин", vm.vo2Max) : "—")
+                ("ИМТ".localized(), vm.bmi > 0 ? String(format: "%.1f", vm.bmi) : "—"),
+                ("Категория".localized(), cat),
+                ("Рост".localized(), vm.heightCm > 0 ? "\(Int(vm.heightCm.rounded())) см" : "—"),
+                ("Вес".localized(), vm.weightKg > 0 ? String(format: "%.1f кг", vm.weightKg) : "—")
             ]
         case .exercise:
             let avg = vm.dailyExerciseMinutes.isEmpty ? 0 : vm.exerciseMinutesWeek / max(vm.dailyExerciseMinutes.count, 1)
@@ -609,13 +691,10 @@ private struct HealthStatDetailView: View {
             return [
                 ("Последняя тренировка".localized(), vm.workoutHR > 0 ? "\(vm.workoutHR) уд/мин" : "—")
             ]
-        case .resting:
-            let total = Int(vm.dailyResting.reduce(0) { $0 + $1.value })
-            let avg = vm.dailyResting.isEmpty ? 0 : total / max(vm.dailyResting.count, 1)
+        case .hrv:
             return [
-                ("Сегодня".localized(), "\(vm.restingEnergyToday) " + "ккал".localized()),
-                ("За неделю".localized(), "\(total) " + "ккал".localized()),
-                ("Среднее в день".localized(), "\(avg) " + "ккал".localized())
+                ("Среднее за 7 дней".localized(), vm.hrvMs > 0 ? String(format: "%.0f мс", vm.hrvMs) : "—"),
+                ("VO₂ Max (30 дн)".localized(), vm.vo2Max > 0 ? String(format: "%.1f мл/кг·мин", vm.vo2Max) : "—")
             ]
         }
     }

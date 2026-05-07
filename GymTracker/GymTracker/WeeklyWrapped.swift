@@ -32,6 +32,8 @@ struct WeeklyWrappedSnapshot: Identifiable {
     let prevWeekVolumeKg: Double
     let totalActiveMinutes: Int
     let totalCalories: Int
+    let totalSets: Int
+    let distinctExercises: Int
     let topExerciseName: String?
     let topExerciseVolumeKg: Double
     let prCount: Int
@@ -45,6 +47,61 @@ struct WeeklyWrappedSnapshot: Identifiable {
     var volumeDeltaPercent: Int {
         guard prevWeekVolumeKg > 0 else { return 0 }
         return Int(((totalVolumeKg - prevWeekVolumeKg) / prevWeekVolumeKg) * 100)
+    }
+}
+
+// MARK: - Volume comparison ("это как 1 слон")
+
+/// Fun motivational comparison of the week's total tonnage to a familiar object.
+/// Picks the largest object whose count is ≥1, capping at 9 of that object before
+/// stepping up to a heavier reference. The whole point is to make a big number
+/// land emotionally — "you lifted an elephant" reads better than "5832 kg".
+struct WeeklyVolumeComparison {
+    let emoji: String
+    let count: Int
+    let oneForm: String   // "слон"
+    let fewForm: String   // "слона"
+    let manyForm: String  // "слонов"
+
+    var pluralizedNoun: String {
+        let mod10 = count % 10
+        let mod100 = count % 100
+        if mod10 == 1 && mod100 != 11 { return oneForm }
+        if mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14) { return fewForm }
+        return manyForm
+    }
+
+    var displayText: String { "\(count) \(pluralizedNoun)" }
+
+    static func make(forKg kg: Double) -> WeeklyVolumeComparison? {
+        guard kg > 0 else { return nil }
+        // Ordered light → heavy. We pick the heaviest reference that still gives count ≥ 1.
+        let table: [(weightKg: Double, emoji: String, one: String, few: String, many: String)] = [
+            (5,      "🍉", "арбуз",     "арбуза",     "арбузов"),
+            (50,     "🐧", "пингвин",   "пингвина",   "пингвинов"),
+            (90,     "🐺", "волк",      "волка",      "волков"),
+            (200,    "🐅", "тигр",      "тигра",      "тигров"),
+            (500,    "🎹", "рояль",     "рояля",      "роялей"),
+            (700,    "🐎", "конь",      "коня",       "коней"),
+            (1500,   "🦛", "бегемот",   "бегемота",   "бегемотов"),
+            (2300,   "🦏", "носорог",   "носорога",   "носорогов"),
+            (5500,   "🐘", "слон",      "слона",      "слонов"),
+            (26000,  "🚜", "трактор",   "трактора",   "тракторов"),
+            (40000,  "🚛", "грузовик",  "грузовика",  "грузовиков"),
+            (150000, "🐋", "кит",       "кита",       "китов")
+        ]
+
+        var best: (Int, (Double, String, String, String, String))? = nil
+        for entry in table {
+            let n = Int((kg / entry.weightKg).rounded())
+            if n >= 1 {
+                best = (n, (entry.weightKg, entry.emoji, entry.one, entry.few, entry.many))
+            }
+        }
+        guard let (count, info) = best else { return nil }
+        return WeeklyVolumeComparison(
+            emoji: info.1, count: count, oneForm: info.2, fewForm: info.3, manyForm: info.4
+        )
     }
 }
 
@@ -89,6 +146,12 @@ enum WeeklyWrappedGenerator {
 
         let totalCalories = thisWeek.reduce(0) { $0 + ($1.calories ?? 0) }
 
+        let totalSets = thisWeek.reduce(0) { $0 + $1.sets.filter { $0.isCompleted }.count }
+        let distinctExerciseNames = Set(thisWeek.flatMap { $0.sets }
+            .filter { $0.isCompleted }
+            .map { $0.exerciseName.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty })
+
         let totalMinutes = thisWeek.reduce(0) { acc, s in
             guard let end = s.endTime else { return acc }
             return acc + max(0, Int(end.timeIntervalSince(s.date) / 60))
@@ -131,6 +194,8 @@ enum WeeklyWrappedGenerator {
             prevWeekVolumeKg: prevVolume,
             totalActiveMinutes: totalMinutes,
             totalCalories: totalCalories,
+            totalSets: totalSets,
+            distinctExercises: distinctExerciseNames.count,
             topExerciseName: top?.key,
             topExerciseVolumeKg: top?.value ?? 0,
             prCount: weekPRs.count,
@@ -198,94 +263,90 @@ struct WeeklyWrappedView: View {
 
     // MARK: - Top bar
 
-    /// Centered brand mark + a floating close button on the trailing edge.
-    /// The HStack with two `Spacer`s keeps the logo perfectly centered even
-    /// when the close button has different padding/size on different devices.
+    /// Just a floating close button — the brand mark is the hero, not a topbar
+    /// element, so the rest of the screen breathes.
     private var topBar: some View {
-        ZStack {
-            HStack(spacing: 10) {
-                Image("BrandLogo")
-                    .resizable()
-                    .interpolation(.high)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 28, height: 28)
-                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                Text("Body Forge")
-                    .font(.system(.subheadline, design: .rounded, weight: .heavy))
+        HStack {
+            Spacer()
+            Button(action: {
+                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                onClose()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .heavy))
                     .foregroundStyle(.white)
-                    .tracking(0.3)
+                    .frame(width: 32, height: 32)
+                    .background(Color.white.opacity(0.18))
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 0.5))
             }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .reveal(at: 0.0, revealed: revealed, animation: Self.revealSpring)
-
-            HStack {
-                Spacer()
-                Button(action: {
-                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                    onClose()
-                }) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .heavy))
-                        .foregroundStyle(.white)
-                        .frame(width: 30, height: 30)
-                        .background(Color.white.opacity(0.18))
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 0.5))
-                }
-                .opacity(revealed ? 1 : 0)
-                .animation(Self.revealSpring.delay(0.1), value: revealed)
-            }
+            .opacity(revealed ? 1 : 0)
+            .animation(Self.revealSpring.delay(0.1), value: revealed)
         }
     }
 
     // MARK: - Static content (no scroll)
 
     private var content: some View {
-        VStack(spacing: 14) {
-            sparkleHero
-                .reveal(at: 0.05, revealed: revealed, animation: Self.revealSpring, scaleFrom: 0.6)
+        VStack(spacing: 12) {
+            brandHero
+                .reveal(at: 0.05, revealed: revealed, animation: Self.revealSpring, scaleFrom: 0.55)
 
             headerBlock
                 .reveal(at: 0.15, revealed: revealed, animation: Self.revealSpring)
 
             tonnageHero
-                .reveal(at: 0.25, revealed: revealed, animation: Self.revealSpring)
+                .reveal(at: 0.22, revealed: revealed, animation: Self.revealSpring)
+
+            if let comp = WeeklyVolumeComparison.make(forKg: snapshot.totalVolumeKg) {
+                comparisonBlock(comp)
+                    .reveal(at: 0.30, revealed: revealed, animation: Self.revealSpring, scaleFrom: 0.85)
+            }
 
             statsGrid
-                .reveal(at: 0.35, revealed: revealed, animation: Self.revealSpring)
+                .reveal(at: 0.38, revealed: revealed, animation: Self.revealSpring)
 
             highlightsStack
         }
         .padding(.horizontal, 18)
     }
 
-    // MARK: Hero sparkle — slightly smaller than before so the rest fits
+    // MARK: Hero — big centered brand logo with neon halo + wordmark
 
-    private var sparkleHero: some View {
-        ZStack {
-            Circle()
-                .fill(DesignSystem.Colors.neonGreen.opacity(0.45))
-                .frame(width: 130, height: 130)
-                .blur(radius: 44)
-            Circle()
-                .fill(DesignSystem.Colors.neonGreen.opacity(0.22))
-                .frame(width: 96, height: 96)
-                .blur(radius: 24)
-                .offset(x: 16, y: 8)
-            Image(systemName: "sparkles")
-                .font(.system(size: 50, weight: .heavy))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [.white, DesignSystem.Colors.neonGreen],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+    private var brandHero: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen.opacity(0.55))
+                    .frame(width: 200, height: 200)
+                    .blur(radius: 60)
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen.opacity(0.30))
+                    .frame(width: 140, height: 140)
+                    .blur(radius: 32)
+
+                Image("BrandLogo")
+                    .resizable()
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 110, height: 110)
+                    .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 26, style: .continuous)
+                            .stroke(Color.white.opacity(0.10), lineWidth: 1)
                     )
-                )
-                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.7), radius: 18)
-                // Subtle constant breathing keeps the screen alive even after the reveal.
-                .scaleEffect(revealed ? 1.0 : 0.9)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.65), radius: 22)
+                    .shadow(color: .black.opacity(0.5), radius: 14, x: 0, y: 8)
+                    .scaleEffect(revealed ? 1.0 : 0.92)
+            }
+            .frame(height: 130)
+
+            Text("BODY FORGE")
+                .font(.system(size: 18, weight: .black, design: .rounded))
+                .tracking(6)
+                .foregroundStyle(.white)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.35), radius: 10)
         }
-        .frame(height: 96)
     }
 
     // MARK: Eyebrow + week range
@@ -358,21 +419,69 @@ struct WeeklyWrappedView: View {
         .background(GlassPanel(cornerRadius: 24))
     }
 
-    // MARK: 3-up stats
+    // MARK: Comparison ("это как 1 слон") — gives the abstract tonnage a body.
+
+    private func comparisonBlock(_ comp: WeeklyVolumeComparison) -> some View {
+        HStack(spacing: 14) {
+            Text(comp.emoji)
+                .font(.system(size: 38))
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 12)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Это как".localized().localizedUppercase)
+                    .font(.system(.caption2, design: .rounded, weight: .heavy))
+                    .tracking(2)
+                    .foregroundStyle(.white.opacity(0.65))
+                Text(comp.displayText)
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.white, DesignSystem.Colors.neonGreen],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(GlassPanel(cornerRadius: 20))
+    }
+
+    // MARK: 6-up stats (2 rows × 3 cells)
 
     private var statsGrid: some View {
-        HStack(spacing: 0) {
-            statColumn(value: "\(snapshot.workoutCount)", label: "трен.".localized())
-            statDivider
-            statColumn(
-                value: snapshot.totalActiveMinutes > 0 ? "\(snapshot.totalActiveMinutes)" : "—",
-                label: "мин".localized()
-            )
-            statDivider
-            statColumn(
-                value: snapshot.totalCalories > 0 ? "\(snapshot.totalCalories)" : "—",
-                label: "ккал".localized()
-            )
+        VStack(spacing: 10) {
+            HStack(spacing: 0) {
+                statColumn(value: "\(snapshot.workoutCount)", label: "трен.".localized())
+                statDivider
+                statColumn(value: "\(snapshot.totalSets)", label: "подходов".localized())
+                statDivider
+                statColumn(value: "\(snapshot.distinctExercises)", label: "упражнений".localized())
+            }
+            Rectangle()
+                .fill(Color.white.opacity(0.10))
+                .frame(height: 1)
+                .padding(.horizontal, 4)
+            HStack(spacing: 0) {
+                statColumn(
+                    value: snapshot.totalActiveMinutes > 0 ? "\(snapshot.totalActiveMinutes)" : "—",
+                    label: "мин".localized()
+                )
+                statDivider
+                statColumn(
+                    value: snapshot.totalCalories > 0 ? "\(snapshot.totalCalories)" : "—",
+                    label: "ккал".localized()
+                )
+                statDivider
+                statColumn(
+                    value: snapshot.avgHeartRate.map { "\($0)" } ?? "—",
+                    label: "Пульс".localized()
+                )
+            }
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 12)
@@ -382,14 +491,16 @@ struct WeeklyWrappedView: View {
     private func statColumn(value: String, label: String) -> some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.system(size: 24, weight: .heavy, design: .rounded))
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.55)
             Text(label.localizedUppercase)
-                .font(.system(size: 10, weight: .heavy, design: .rounded))
-                .tracking(1.4)
+                .font(.system(size: 9, weight: .heavy, design: .rounded))
+                .tracking(1.2)
                 .foregroundStyle(.white.opacity(0.55))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity)
     }
@@ -397,7 +508,7 @@ struct WeeklyWrappedView: View {
     private var statDivider: some View {
         Rectangle()
             .fill(Color.white.opacity(0.14))
-            .frame(width: 1, height: 30)
+            .frame(width: 1, height: 28)
     }
 
     // MARK: Highlight rows — only the ones we actually have data for, each
@@ -484,16 +595,8 @@ struct WeeklyWrappedView: View {
                 detail: String(format: "%d дней подряд".localized(), snapshot.currentStreakDays)
             ))
         }
-        if let hr = snapshot.avgHeartRate, hr > 0 {
-            rows.append(.init(
-                icon: "heart.fill",
-                iconColor: Color(red: 1.0, green: 0.30, blue: 0.45),
-                title: "Средний пульс".localized(),
-                detail: String(format: "%d уд./мин".localized(), hr)
-            ))
-        }
-        // Hard cap at 4 — anything more would force scrolling on smaller phones.
-        return Array(rows.prefix(4))
+        // HR moved into the stats grid — keep this list focused on standout moments.
+        return Array(rows.prefix(3))
     }
 
     // MARK: Share button
@@ -573,7 +676,10 @@ struct WeeklyWrappedView: View {
         let card = WeeklyWrappedShareRender(snapshot: snapshot)
         let renderer = ImageRenderer(content: card)
         renderer.scale = UIScreen.main.scale
-        renderer.proposedSize = .init(width: 1080, height: 1920)
+        renderer.proposedSize = .init(
+            width: WeeklyWrappedShareRender.canvasWidth,
+            height: WeeklyWrappedShareRender.canvasHeight
+        )
         if let img = renderer.uiImage {
             sharePayload = SharePayload(image: img)
         }
@@ -728,9 +834,12 @@ struct WeeklyWrappedSummaryCard: View {
 
     var body: some View {
         VStack(spacing: 22) {
-            sparkleHero
+            brandHero
             headerBlock
             tonnageHero
+            if let comp = WeeklyVolumeComparison.make(forKg: snapshot.totalVolumeKg) {
+                comparisonBlock(comp)
+            }
             statsGrid
             highlightsStack
 
@@ -741,31 +850,73 @@ struct WeeklyWrappedSummaryCard: View {
         }
     }
 
-    // MARK: Hero icon
+    // MARK: Hero — big centered brand logo with neon halo + wordmark
 
-    private var sparkleHero: some View {
-        ZStack {
-            Circle()
-                .fill(DesignSystem.Colors.neonGreen.opacity(0.45))
-                .frame(width: 170, height: 170)
-                .blur(radius: 50)
-            Circle()
-                .fill(DesignSystem.Colors.neonGreen.opacity(0.25))
-                .frame(width: 120, height: 120)
-                .blur(radius: 28)
-                .offset(x: 20, y: 10)
-            Image(systemName: "sparkles")
-                .font(.system(size: 64, weight: .heavy))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [.white, DesignSystem.Colors.neonGreen],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+    private var brandHero: some View {
+        VStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen.opacity(0.55))
+                    .frame(width: 280, height: 280)
+                    .blur(radius: 80)
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen.opacity(0.30))
+                    .frame(width: 200, height: 200)
+                    .blur(radius: 44)
+
+                Image("BrandLogo")
+                    .resizable()
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 170, height: 170)
+                    .clipShape(RoundedRectangle(cornerRadius: 38, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 38, style: .continuous)
+                            .stroke(Color.white.opacity(0.10), lineWidth: 1)
                     )
-                )
-                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.7), radius: 20)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.7), radius: 28)
+                    .shadow(color: .black.opacity(0.55), radius: 18, x: 0, y: 10)
+            }
+            .frame(height: 200)
+
+            Text("BODY FORGE")
+                .font(.system(size: 24, weight: .black, design: .rounded))
+                .tracking(8)
+                .foregroundStyle(.white)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 12)
         }
-        .frame(height: 130)
+    }
+
+    // MARK: Comparison block (fun motivational comparison)
+
+    private func comparisonBlock(_ comp: WeeklyVolumeComparison) -> some View {
+        HStack(spacing: 16) {
+            Text(comp.emoji)
+                .font(.system(size: 50))
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 14)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Это как".localized().localizedUppercase)
+                    .font(.system(.caption, design: .rounded, weight: .heavy))
+                    .tracking(2.4)
+                    .foregroundStyle(.white.opacity(0.65))
+                Text(comp.displayText)
+                    .font(.system(size: 30, weight: .black, design: .rounded))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.white, DesignSystem.Colors.neonGreen],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.55)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 16)
+        .padding(.horizontal, 20)
+        .background(glassBackground(cornerRadius: 22))
     }
 
     // MARK: Eyebrow + week range
@@ -838,21 +989,37 @@ struct WeeklyWrappedSummaryCard: View {
         .background(glassBackground(cornerRadius: 28))
     }
 
-    // MARK: 3-up stats
+    // MARK: 6-up stats (2 rows × 3 cells)
 
     private var statsGrid: some View {
-        HStack(spacing: 0) {
-            statColumn(value: "\(snapshot.workoutCount)", label: "трен.".localized())
-            statDivider
-            statColumn(
-                value: snapshot.totalActiveMinutes > 0 ? "\(snapshot.totalActiveMinutes)" : "—",
-                label: "мин".localized()
-            )
-            statDivider
-            statColumn(
-                value: snapshot.totalCalories > 0 ? "\(snapshot.totalCalories)" : "—",
-                label: "ккал".localized()
-            )
+        VStack(spacing: 12) {
+            HStack(spacing: 0) {
+                statColumn(value: "\(snapshot.workoutCount)", label: "трен.".localized())
+                statDivider
+                statColumn(value: "\(snapshot.totalSets)", label: "подходов".localized())
+                statDivider
+                statColumn(value: "\(snapshot.distinctExercises)", label: "упражнений".localized())
+            }
+            Rectangle()
+                .fill(Color.white.opacity(0.10))
+                .frame(height: 1)
+                .padding(.horizontal, 4)
+            HStack(spacing: 0) {
+                statColumn(
+                    value: snapshot.totalActiveMinutes > 0 ? "\(snapshot.totalActiveMinutes)" : "—",
+                    label: "мин".localized()
+                )
+                statDivider
+                statColumn(
+                    value: snapshot.totalCalories > 0 ? "\(snapshot.totalCalories)" : "—",
+                    label: "ккал".localized()
+                )
+                statDivider
+                statColumn(
+                    value: snapshot.avgHeartRate.map { "\($0)" } ?? "—",
+                    label: "Пульс".localized()
+                )
+            }
         }
         .padding(.vertical, 18)
         .padding(.horizontal, 12)
@@ -870,6 +1037,8 @@ struct WeeklyWrappedSummaryCard: View {
                 .font(.system(size: 10, weight: .heavy, design: .rounded))
                 .tracking(1.4)
                 .foregroundStyle(.white.opacity(0.55))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity)
     }
@@ -907,14 +1076,6 @@ struct WeeklyWrappedSummaryCard: View {
                     iconColor: Color(red: 1.0, green: 0.55, blue: 0.10),
                     title: "Серия".localized(),
                     detail: String(format: "%d дней подряд".localized(), snapshot.currentStreakDays)
-                )
-            }
-            if let hr = snapshot.avgHeartRate, hr > 0 {
-                highlightRow(
-                    icon: "heart.fill",
-                    iconColor: Color(red: 1.0, green: 0.30, blue: 0.45),
-                    title: "Средний пульс".localized(),
-                    detail: String(format: "%d уд./мин".localized(), hr)
                 )
             }
         }
@@ -994,14 +1155,21 @@ struct WeeklyWrappedSummaryCard: View {
     }
 }
 
-// MARK: - Share render (9:16 with brand framing)
-
+// MARK: - Share render (4:5 — Instagram feed native, looks BIG in chat previews)
+//
+// The 9:16 Stories format renders as a tall, narrow strip inside chat previews
+// (Telegram/WhatsApp) which is exactly the "looks tiny" complaint. 4:5 (1080×1350)
+// is the universal share format: native Instagram feed, displays large in chats,
+// and Stories accepts it (centered with the brand background filling the gaps).
 private struct WeeklyWrappedShareRender: View {
     let snapshot: WeeklyWrappedSnapshot
 
+    static let canvasWidth: CGFloat = 1080
+    static let canvasHeight: CGFloat = 1350
+
     var body: some View {
         ZStack {
-            // Brand launch image, darkened, with neon-green ambient — scaled for 1080x1920
+            // Brand launch image, darkened, with neon-green ambient
             ZStack {
                 Color.black
 
@@ -1023,46 +1191,26 @@ private struct WeeklyWrappedShareRender: View {
 
                 Circle()
                     .fill(DesignSystem.Colors.neonGreen)
-                    .frame(width: 760, height: 760)
-                    .blur(radius: 280)
-                    .offset(x: 240, y: -440)
-                    .opacity(0.18)
+                    .frame(width: 720, height: 720)
+                    .blur(radius: 240)
+                    .offset(x: 220, y: -360)
+                    .opacity(0.20)
 
                 Circle()
                     .fill(DesignSystem.Colors.neonGreen)
-                    .frame(width: 560, height: 560)
-                    .blur(radius: 260)
-                    .offset(x: -220, y: 640)
-                    .opacity(0.10)
+                    .frame(width: 540, height: 540)
+                    .blur(radius: 220)
+                    .offset(x: -200, y: 480)
+                    .opacity(0.12)
             }
 
-            VStack(spacing: 0) {
-                // Brand header
-                HStack(spacing: 12) {
-                    Image("BrandLogo")
-                        .resizable()
-                        .interpolation(.high)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 44, height: 44)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    Text("Body Forge")
-                        .font(.system(.title3, design: .rounded, weight: .heavy))
-                        .foregroundStyle(.white)
-                    Spacer()
-                }
+            // Content fills almost edge-to-edge — no top header, the brand
+            // logo lives inside the summary card itself (big, centered).
+            WeeklyWrappedSummaryCard(snapshot: snapshot, includeFooter: true)
                 .padding(.horizontal, 56)
-                .padding(.top, 70)
-
-                Spacer(minLength: 24)
-
-                WeeklyWrappedSummaryCard(snapshot: snapshot, includeFooter: true)
-                    .padding(.horizontal, 50)
-
-                Spacer(minLength: 40)
-            }
-            .padding(.bottom, 56)
+                .padding(.vertical, 56)
         }
-        .frame(width: 1080, height: 1920)
+        .frame(width: Self.canvasWidth, height: Self.canvasHeight)
     }
 }
 

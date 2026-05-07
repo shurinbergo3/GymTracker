@@ -172,10 +172,6 @@ struct SessionHistoryView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: DesignSystem.Spacing.lg) {
-                // Календарь
-                ExpandableCalendarView(externalWorkoutDays: externalDays)
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
-
                 // Apple Health (внешние тренировки)
                 if !externalWorkouts.isEmpty {
                     AppleHealthHistorySection(
@@ -183,6 +179,7 @@ struct SessionHistoryView: View {
                         onTapAll: { showingAppleHealthSheet = true }
                     )
                     .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.top, DesignSystem.Spacing.md)
                 }
 
                 // Список тренировок
@@ -242,11 +239,6 @@ struct SessionHistoryView: View {
                 Text("Вы уверены, что хотите удалить тренировку \"\(session.workoutDayName)\" от \(formattedDate(session.date))? Это действие нельзя отменить.")
             }
         }
-    }
-
-    private var externalDays: Set<Date> {
-        let cal = Calendar.current
-        return Set(externalWorkouts.map { cal.startOfDay(for: $0.startDate) })
     }
 
     private func deleteWorkout(_ session: WorkoutSession) {
