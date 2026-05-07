@@ -403,7 +403,8 @@ struct ActiveProgramCard: View {
     let program: Program
     var isHighlighted: Bool = false
     @State private var showingEditor = false
-    @State private var pulse: Bool = false
+    @State private var glow: Bool = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var typeSummary: [(type: WorkoutType, count: Int)] {
         Dictionary(grouping: program.days, by: { $0.workoutType })
@@ -424,7 +425,12 @@ struct ActiveProgramCard: View {
         .sheet(isPresented: $showingEditor) {
             ProgramEditorView(existingProgram: program)
         }
-        .onAppear { pulse = true }
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 2.6).repeatForever(autoreverses: true)) {
+                glow = true
+            }
+        }
     }
 
     // MARK: - Card
@@ -458,9 +464,19 @@ struct ActiveProgramCard: View {
         }
         .padding(DesignSystem.Spacing.xl)
         .background(cardBackground)
+        .overlay(ambientGlowStroke)
         .overlay(highlightStroke)
-        .shadow(color: DesignSystem.Colors.neonGreen.opacity(isHighlighted ? 0.0 : 0.18), radius: 24, x: 0, y: 12)
+        .shadow(color: DesignSystem.Colors.neonGreen.opacity(isHighlighted ? 0.0 : (glow ? 0.34 : 0.14)),
+                radius: glow ? 34 : 22, x: 0, y: 12)
         .shadow(color: Color.black.opacity(0.45), radius: 14, x: 0, y: 8)
+    }
+
+    private var ambientGlowStroke: some View {
+        RoundedRectangle(cornerRadius: 28, style: .continuous)
+            .stroke(DesignSystem.Colors.neonGreen.opacity(glow ? 0.55 : 0.18),
+                    lineWidth: glow ? 1.4 : 0.8)
+            .blur(radius: glow ? 1.2 : 0.4)
+            .allowsHitTesting(false)
     }
 
     // MARK: - Top row
@@ -475,24 +491,15 @@ struct ActiveProgramCard: View {
     }
 
     private var activeIndicator: some View {
-        HStack(spacing: 6) {
-            ZStack {
-                Circle()
-                    .fill(DesignSystem.Colors.neonGreen.opacity(0.45))
-                    .frame(width: 14, height: 14)
-                    .scaleEffect(pulse ? 1.8 : 1.0)
-                    .opacity(pulse ? 0.0 : 0.9)
-                    .animation(.easeOut(duration: 1.6).repeatForever(autoreverses: false), value: pulse)
-                Circle()
-                    .fill(DesignSystem.Colors.neonGreen)
-                    .frame(width: 8, height: 8)
-                    .shadow(color: DesignSystem.Colors.neonGreen, radius: 5)
-            }
-            Text("АКТИВНА".localized())
-                .font(.system(.caption2, design: .rounded, weight: .heavy))
-                .tracking(1.4)
-                .foregroundColor(DesignSystem.Colors.neonGreen)
-        }
+        Text("АКТИВНА".localized())
+            .font(.system(.caption2, design: .rounded, weight: .heavy))
+            .tracking(1.4)
+            .foregroundColor(DesignSystem.Colors.neonGreen)
+            .shadow(color: DesignSystem.Colors.neonGreen.opacity(glow ? 0.95 : 0.35),
+                    radius: glow ? 10 : 4)
+            .shadow(color: DesignSystem.Colors.neonGreen.opacity(glow ? 0.45 : 0.0),
+                    radius: glow ? 18 : 0)
+            .accessibilityLabel(Text("workout_active_label".localized()))
     }
 
     private var categoryBadge: some View {

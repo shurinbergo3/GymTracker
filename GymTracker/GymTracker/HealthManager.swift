@@ -5,21 +5,26 @@ import SwiftUI
 
 class HealthManager: NSObject, ObservableObject, HealthProvider {
     static let shared = HealthManager()
-    
+
     let healthStore = HKHealthStore()
-    
+
     @Published var isAuthorized = false
-    
+
     // Tracking State
     private var isWorkoutActive = false
     private var workoutStartDate: Date?
     private var heartRateQuery: HKQuery?
     private var calorieQuery: HKQuery?
-    
+
+    // Long-lived observer for external HK workouts (Apple Watch / 3rd-party apps).
+    // Set up once after authorization; fires `.healthKitWorkoutsDidChange` so the
+    // dashboard refreshes when new workouts arrive without requiring a tab switch.
+    private var externalWorkoutsObserver: HKObserverQuery?
+
     // Real-time callbacks
     var onHeartRateUpdate: ((Int) -> Void)?
     var onCalorieUpdate: ((Int) -> Void)?
-    
+
     private override init() {}
     
     func requestAuthorization() async -> Bool {
@@ -73,6 +78,7 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
             await MainActor.run {
                 self.isAuthorized = true
             }
+            startObservingExternalWorkouts()
             return true
         } catch {
             #if DEBUG
@@ -659,32 +665,66 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
         return await fetchExternalWorkouts(from: dayStart, to: dayEnd)
     }
 
+    // MARK: - External workouts live observer
+
+    /// Starts a long-lived `HKObserverQuery` on the workout type so the UI is
+    /// notified whenever new workouts are added by Apple Watch or third-party
+    /// apps. Without this, the dashboard's streak card sees stale data because
+    /// the iPhone–Watch sync can lag behind app launch by 30+ seconds, and the
+    /// view's `.task` runs only on appear. Idempotent: re-calling is a no-op.
+    func startObservingExternalWorkouts() {
+        guard isAuthorized, externalWorkoutsObserver == nil else { return }
+
+        let workoutType = HKObjectType.workoutType()
+        let query = HKObserverQuery(sampleType: workoutType, predicate: nil) { _, completionHandler, error in
+            if error == nil {
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .healthKitWorkoutsDidChange, object: nil)
+                }
+            }
+            completionHandler()
+        }
+        healthStore.execute(query)
+        externalWorkoutsObserver = query
+
+        // Background delivery so the observer also fires when the app is
+        // suspended — newly synced Watch workouts appear immediately on next
+        // foreground without an extra fetch latency.
+        healthStore.enableBackgroundDelivery(for: workoutType, frequency: .immediate) { _, _ in }
+    }
+
     // MARK: - Private statistics-collection helper
 
     private func fetchDailySumStatistics(type: HKQuantityType, unit: HKUnit, days: Int) async -> [DailyHealthValue] {
         let store = self.healthStore
         let calendar = Calendar.current
-        let endDate = calendar.startOfDay(for: Date()).addingTimeInterval(86400) // tomorrow start
-        guard let startDate = calendar.date(byAdding: .day, value: -days, to: endDate) else { return [] }
+        // End the window at "now" so HKStatisticsCollectionQuery doesn't
+        // emit an empty bucket for tomorrow (which would dilute averages and
+        // make `.last` return zero for "today").
+        let now = Date()
+        let startOfToday = calendar.startOfDay(for: now)
+        guard let startDate = calendar.date(byAdding: .day, value: -(days - 1), to: startOfToday) else { return [] }
 
         let interval = DateComponents(day: 1)
-        let anchorComponents = calendar.dateComponents([.day, .month, .year], from: calendar.startOfDay(for: Date()))
-        guard let anchorDate = calendar.date(from: anchorComponents) else { return [] }
+        let anchorDate = startOfToday
 
         return await withCheckedContinuation { continuation in
             let query = HKStatisticsCollectionQuery(
                 quantityType: type,
-                quantitySamplePredicate: HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate),
+                quantitySamplePredicate: HKQuery.predicateForSamples(withStart: startDate, end: now, options: .strictStartDate),
                 options: .cumulativeSum,
                 anchorDate: anchorDate,
                 intervalComponents: interval
             )
             query.initialResultsHandler = { _, results, _ in
                 var output: [DailyHealthValue] = []
-                results?.enumerateStatistics(from: startDate, to: endDate) { stat, _ in
+                results?.enumerateStatistics(from: startDate, to: now) { stat, _ in
                     let value = stat.sumQuantity()?.doubleValue(for: unit) ?? 0
                     output.append(DailyHealthValue(date: stat.startDate, value: value))
                 }
+                // Defensive: chronological order, drop any future buckets.
+                output.sort { $0.date < $1.date }
+                output = output.filter { $0.date <= startOfToday }
                 continuation.resume(returning: output)
             }
             store.execute(query)
@@ -702,4 +742,12 @@ struct DailyHealthValue: Identifiable, Hashable {
 // MARK: - Sleep Structures
 
 // Sleep types moved to GymTracker/Models/SleepModels.swift
+
+// MARK: - Notifications
+
+extension Notification.Name {
+    /// Posted whenever HealthKit reports new/changed workout samples. Listeners
+    /// (e.g. DashboardView) re-fetch their external-workout slices on receipt.
+    static let healthKitWorkoutsDidChange = Notification.Name("healthKitWorkoutsDidChange")
+}
 

@@ -101,7 +101,7 @@ struct AppleHealthActivityCard: View {
 
     // MARK: - Stats row
     private var statsRow: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             statChip(
                 icon: "list.bullet",
                 value: "\(workouts.count)",
@@ -140,15 +140,18 @@ struct AppleHealthActivityCard: View {
     }
 
     private func statChip(icon: String, value: String, label: String, tint: Color) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 9, weight: .bold))
                     .foregroundStyle(tint)
                 Text(label.uppercased())
                     .font(DesignSystem.Typography.sectionHeader())
-                    .tracking(1.0)
+                    .tracking(0.3)
                     .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.55)
+                    .allowsTightening(true)
             }
             Text(value)
                 .font(DesignSystem.Typography.monospaced(.subheadline, weight: .bold))
@@ -156,8 +159,8 @@ struct AppleHealthActivityCard: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity, minHeight: 50, alignment: .topLeading)
+        .padding(.horizontal, 8)
         .padding(.vertical, 8)
         .background(tint.opacity(0.08))
         .overlay(

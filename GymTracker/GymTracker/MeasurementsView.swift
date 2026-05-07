@@ -86,26 +86,7 @@ struct MeasurementsView: View {
                         
                         // Замеры тела
                         NavigationLink(destination: BodyMeasurementsView()) {
-                            CardView {
-                                HStack {
-                                    Image(systemName: "ruler.fill")
-                                        .font(.title2)
-                                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                                        .frame(width: 40, height: 40)
-                                        .background(DesignSystem.Colors.neonGreen.opacity(0.1))
-                                        .clipShape(Circle())
-                                    
-                                    Text("Замеры тела".localized())
-                                        .font(DesignSystem.Typography.headline())
-                                        .foregroundColor(DesignSystem.Colors.primaryText)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                }
-                                .padding()
-                            }
+                            BodyMeasurementsRowCard()
                         }
                         .buttonStyle(PlainButtonStyle())
                         .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -146,6 +127,158 @@ struct MeasurementsView: View {
 
 extension MeasurementType: Identifiable {
     var id: String { self.rawValue }
+}
+
+// MARK: - Body Measurements Row Card
+
+private struct BodyMeasurementsRowCard: View {
+    @Query(sort: \BodyMeasurement.date, order: .reverse)
+    private var measurements: [BodyMeasurement]
+
+    private var trackedTypes: [MeasurementType] {
+        var seen = Set<MeasurementType>()
+        var ordered: [MeasurementType] = []
+        for m in measurements where !seen.contains(m.type) {
+            seen.insert(m.type)
+            ordered.append(m.type)
+        }
+        return ordered
+    }
+
+    private var subtitle: String {
+        let count = trackedTypes.count
+        if count == 0 {
+            return "Запиши первый замер".localized()
+        }
+        if let lastDate = measurements.first?.date {
+            let formatter = DateFormatter()
+            formatter.locale = LanguageManager.shared.currentLocale
+            formatter.dateFormat = "d MMM"
+            let dateStr = formatter.string(from: lastDate)
+            return String(format: "%d %@ · %@",
+                          count,
+                          pluralForm(count: count),
+                          dateStr)
+        }
+        return String(format: "%d %@", count, pluralForm(count: count))
+    }
+
+    private func pluralForm(count: Int) -> String {
+        let mod10 = count % 10
+        let mod100 = count % 100
+        if mod10 == 1 && mod100 != 11 { return "показатель".localized() }
+        if (2...4).contains(mod10) && !(12...14).contains(mod100) { return "показателя".localized() }
+        return "показателей".localized()
+    }
+
+    private let dotColors: [Color] = [
+        DesignSystem.Colors.neonGreen,
+        Color.cyan,
+        Color.orange,
+        DesignSystem.Colors.accentPurple
+    ]
+
+    var body: some View {
+        HStack(spacing: 14) {
+            iconTile
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Замеры тела".localized())
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white)
+
+                Text(subtitle)
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.5))
+            }
+
+            Spacer(minLength: 8)
+
+            if !trackedTypes.isEmpty {
+                trackedDots
+            }
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 13, weight: .heavy))
+                .foregroundStyle(.white.opacity(0.35))
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
+        .background(cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.06), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.4), radius: 16, x: 0, y: 8)
+    }
+
+    private var cardBackground: some View {
+        ZStack {
+            Color(white: 0.07)
+
+            RadialGradient(
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.10), Color.clear],
+                center: UnitPoint(x: 0.0, y: 0.5),
+                startRadius: 0,
+                endRadius: 200
+            )
+        }
+    }
+
+    private var iconTile: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.neonGreen.opacity(0.28),
+                            DesignSystem.Colors.neonGreen.opacity(0.10)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 48, height: 48)
+
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(DesignSystem.Colors.neonGreen.opacity(0.32), lineWidth: 0.5)
+                .frame(width: 48, height: 48)
+
+            Image(systemName: "ruler.fill")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundStyle(DesignSystem.Colors.neonGreen)
+                .rotationEffect(.degrees(-25))
+        }
+    }
+
+    private var trackedDots: some View {
+        let visible = Array(trackedTypes.prefix(4))
+        return HStack(spacing: -6) {
+            ForEach(Array(visible.enumerated()), id: \.element.id) { idx, _ in
+                Circle()
+                    .fill(dotColors[idx % dotColors.count])
+                    .frame(width: 14, height: 14)
+                    .overlay(
+                        Circle().strokeBorder(Color(white: 0.07), lineWidth: 2)
+                    )
+            }
+
+            if trackedTypes.count > visible.count {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.10))
+                        .frame(width: 14, height: 14)
+                        .overlay(
+                            Circle().strokeBorder(Color(white: 0.07), lineWidth: 2)
+                        )
+                    Text("+\(trackedTypes.count - visible.count)")
+                        .font(.system(size: 7, weight: .heavy, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+            }
+        }
+    }
 }
 
 #Preview {

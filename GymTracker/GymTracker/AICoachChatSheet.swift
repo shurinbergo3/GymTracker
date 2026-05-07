@@ -181,29 +181,33 @@ struct AICoachChatSheet: View {
     }
 
     private var heroBanner: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             ZStack {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [DesignSystem.Colors.accentPurple, DesignSystem.Colors.neonGreen],
+                            colors: [
+                                DesignSystem.Colors.accentPurple,
+                                DesignSystem.Colors.neonGreen.opacity(0.85)
+                            ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 56, height: 56)
-                Image(systemName: "brain.head.profile")
-                    .font(.system(size: 24, weight: .heavy))
-                    .foregroundStyle(.black)
+                    .frame(width: 48, height: 48)
+                Circle()
+                    .strokeBorder(Color.white.opacity(0.18), lineWidth: 1)
+                    .frame(width: 48, height: 48)
+                Image(systemName: "sparkles")
+                    .font(.system(size: 22, weight: .heavy))
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.35), radius: 4, y: 1)
             }
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Анализ тренировки".localized())
-                    .font(DesignSystem.Typography.title2())
-                    .foregroundStyle(DesignSystem.Colors.primaryText)
-                Text("20 лет опыта · прогрессия и здоровье".localized())
-                    .font(.callout)
-                    .foregroundStyle(DesignSystem.Colors.secondaryText)
-            }
+
+            Text("Анализ тренировки".localized())
+                .font(DesignSystem.Typography.title2())
+                .foregroundStyle(DesignSystem.Colors.primaryText)
+
             Spacer()
         }
         .padding(DesignSystem.Spacing.md)

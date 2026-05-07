@@ -22,6 +22,8 @@ struct WorkoutCompletionView: View {
     @State private var heartRate: Int = 0
     @State private var workoutNotes: String = ""
     @State private var progressData: [ExerciseProgress] = []
+    @State private var sharePayload: WorkoutSharePayload?
+    @State private var isPreparingShare = false
     
     // Combine history with current session for the chart
     private var chartSessions: [WorkoutSession] {
@@ -254,9 +256,38 @@ struct WorkoutCompletionView: View {
                             }
                         }
                         
-                        // Close Button
-                        GradientButton(title: "Закрыть".localized(), icon: "checkmark") {
-                            completeWorkout()
+                        // Action Buttons
+                        VStack(spacing: 12) {
+                            Button(action: shareWorkout) {
+                                HStack(spacing: 10) {
+                                    if isPreparingShare {
+                                        ProgressView()
+                                            .progressViewStyle(.circular)
+                                            .tint(.white)
+                                    } else {
+                                        Image(systemName: "square.and.arrow.up")
+                                            .font(.system(size: 17, weight: .semibold))
+                                    }
+                                    Text("Поделиться".localized())
+                                        .font(DesignSystem.Typography.headline())
+                                }
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 52)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .fill(Color.white.opacity(0.08))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                                )
+                            }
+                            .disabled(isPreparingShare)
+
+                            GradientButton(title: "Закрыть".localized(), icon: "checkmark") {
+                                completeWorkout()
+                            }
                         }
                         .padding(.horizontal, DesignSystem.Spacing.xl)
                         .padding(.bottom, DesignSystem.Spacing.xl)
@@ -268,6 +299,44 @@ struct WorkoutCompletionView: View {
         }
         .onAppear {
             setupView()
+        }
+        .sheet(item: $sharePayload) { payload in
+            WorkoutShareSheet(items: [payload.image])
+        }
+    }
+
+    private func shareWorkout() {
+        guard !isPreparingShare else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        isPreparingShare = true
+
+        // Snapshot session/calories on the main actor BEFORE async work to
+        // avoid passing the @Model reference across actor boundaries.
+        let liveCalories = calories
+        var snapshot = WorkoutShareSnapshot.make(from: session, progressData: progressData)
+        if liveCalories > 0 && snapshot.calories == 0 {
+            snapshot = WorkoutShareSnapshot(
+                workoutDayName: snapshot.workoutDayName,
+                programName: snapshot.programName,
+                date: snapshot.date,
+                durationSeconds: snapshot.durationSeconds,
+                totalVolumeKg: snapshot.totalVolumeKg,
+                totalSets: snapshot.totalSets,
+                totalReps: snapshot.totalReps,
+                calories: liveCalories,
+                averageHeartRate: snapshot.averageHeartRate,
+                recordsCount: snapshot.recordsCount,
+                exercises: snapshot.exercises
+            )
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            let image = WorkoutShareRenderer.makeImage(snapshot: snapshot)
+            isPreparingShare = false
+            if let image {
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                sharePayload = WorkoutSharePayload(image: image)
+            }
         }
     }
     

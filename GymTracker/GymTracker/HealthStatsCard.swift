@@ -142,13 +142,18 @@ private final class HealthStatsViewModel: ObservableObject {
         let hkWeightKg = await hkWeight
         let sleep = await sleepData
 
+        let cal = Calendar.current
+        let todayKey = cal.startOfDay(for: Date())
+        let todaySteps = stepsValues.first { cal.isDate($0.date, inSameDayAs: todayKey) }?.value ?? 0
+        let todayExercise = exerciseValues.first { cal.isDate($0.date, inSameDayAs: todayKey) }?.value ?? 0
+
         self.dailySteps = stepsValues
         self.stepsWeek = Int(stepsValues.reduce(0) { $0 + $1.value })
-        self.stepsToday = Int(stepsValues.last?.value ?? 0)
+        self.stepsToday = Int(todaySteps)
 
         self.dailyExerciseMinutes = exerciseValues
         self.exerciseMinutesWeek = Int(exerciseValues.reduce(0) { $0 + $1.value })
-        self.exerciseMinutesToday = Int(exerciseValues.last?.value ?? 0)
+        self.exerciseMinutesToday = Int(todayExercise)
 
         self.dailyResting = restingValues
         self.restingEnergyToday = Int(basalTodayValue)
@@ -221,7 +226,7 @@ struct HealthStatsCard: View {
             sectionHeader("Активность".localized())
             LazyVGrid(columns: columns, spacing: 10) {
                 tile(.steps,
-                     value: formatNumber(vm.stepsWeek),
+                     value: formatNumber(vm.stepsToday),
                      subtitle: stepsSubtitle)
                 tile(.bmi,
                      value: vm.bmi > 0 ? String(format: "%.1f", vm.bmi) : "—",
@@ -382,12 +387,13 @@ struct HealthStatsCard: View {
 
     // MARK: - Computed subtitles
 
-    /// "сегодня 8 130 · ⌀ 8 090/день" — недельная сумма стоит главным числом,
-    /// здесь даём контекст: что было сегодня и сколько в среднем за день.
+    /// "сегодня · нед 68 391 · ⌀ 8 548" — главным числом стоит «сегодня»,
+    /// подпись даёт контекст: сколько за неделю и среднее по дням с данными.
     private var stepsSubtitle: String {
-        let today = formatNumber(vm.stepsToday)
-        let avg = vm.dailySteps.isEmpty ? 0 : vm.stepsWeek / max(vm.dailySteps.count, 1)
-        return "\("сегодня".localized()) \(today) · ⌀ \(formatNumber(avg))/\("день".localized())"
+        let nonEmptyDays = vm.dailySteps.filter { $0.value > 0 }.count
+        let divisor = max(nonEmptyDays, 1)
+        let avg = vm.dailySteps.isEmpty ? 0 : vm.stepsWeek / divisor
+        return "\("сегодня".localized()) · \("нед".localized()) \(formatNumber(vm.stepsWeek)) · ⌀ \(formatNumber(avg))"
     }
 
     private var exerciseSubtitle: String {
@@ -649,7 +655,8 @@ private struct HealthStatDetailView: View {
     private var breakdownRows: [(String, String)] {
         switch stat {
         case .steps:
-            let avg = vm.dailySteps.isEmpty ? 0 : Int(Double(vm.stepsWeek) / Double(vm.dailySteps.count))
+            let nonEmpty = vm.dailySteps.filter { $0.value > 0 }.count
+            let avg = nonEmpty == 0 ? 0 : Int(Double(vm.stepsWeek) / Double(nonEmpty))
             let best = vm.dailySteps.map { Int($0.value) }.max() ?? 0
             return [
                 ("Сегодня".localized(), formatInt(vm.stepsToday)),

@@ -16,6 +16,8 @@ struct SettingsView: View {
     @AppStorage("isAppleWatchEnabled") private var isAppleWatchEnabled = true
     @AppStorage("appLanguage") private var appLanguage: String = "system"
     @AppStorage(AICoachPrefs.kAIPushEnabled) private var aiPushEnabled = true
+    /// 0 = auto (follow active program); 1…7 = explicit weekly target.
+    @AppStorage("weeklyWorkoutGoal") private var weeklyWorkoutGoal: Int = 0
 
     /// Singleton AI coach profile — used to drive the coach-style picker. Writes
     /// go through `AICoachStore.shared.updateCoachStyle` so other observers
@@ -67,6 +69,7 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(spacing: DesignSystem.Spacing.xl) {
                         accountHeroCard
+                        trainingGoalSection
                         integrationsSection
                         languageSection
                         appearanceAndDataSection
@@ -202,6 +205,65 @@ struct SettingsView: View {
             }
             .padding(DesignSystem.Spacing.md)
         }
+    }
+
+    /// "Тренировок в неделю" — explicit weekly target. Decouples the
+    /// streak/goal card from `program.days.count` (which is a cycle length,
+    /// not a frequency: a 2-day program ≠ 2 sessions/week). `0` means "Auto"
+    /// = follow the program length, the legacy default.
+    private var trainingGoalSection: some View {
+        SettingsSection(
+            title: String(localized: "Тренировки"),
+            footer: String(localized: "Цель в неделю влияет на круг прогресса и серию недель подряд. «Авто» — по числу дней в активной программе.")
+        ) {
+            SettingsCard {
+                Menu {
+                    Button {
+                        weeklyWorkoutGoal = 0
+                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    } label: {
+                        Label {
+                            Text(String(localized: "Авто (по программе)"))
+                        } icon: {
+                            if weeklyWorkoutGoal == 0 { Image(systemName: "checkmark") }
+                        }
+                    }
+                    ForEach(1...7, id: \.self) { n in
+                        Button {
+                            weeklyWorkoutGoal = n
+                            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                        } label: {
+                            Label {
+                                Text(String(format: String(localized: "%d в неделю"), n))
+                            } icon: {
+                                if weeklyWorkoutGoal == n { Image(systemName: "checkmark") }
+                            }
+                        }
+                    }
+                } label: {
+                    SettingsRowContent(
+                        icon: "target",
+                        iconTint: DesignSystem.Colors.neonGreen,
+                        iconBackground: DesignSystem.Colors.neonGreen.opacity(0.18),
+                        title: String(localized: "Цель: тренировок в неделю"),
+                        subtitle: weeklyGoalSubtitle,
+                        accessory: .text(weeklyGoalAccessory)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var weeklyGoalSubtitle: String {
+        if weeklyWorkoutGoal == 0 {
+            return String(localized: "Авто (по программе)")
+        }
+        return String(format: String(localized: "%d в неделю"), weeklyWorkoutGoal)
+    }
+
+    private var weeklyGoalAccessory: String {
+        weeklyWorkoutGoal == 0 ? String(localized: "Авто") : "\(weeklyWorkoutGoal)"
     }
 
     private var integrationsSection: some View {

@@ -649,6 +649,12 @@ struct DashboardView: View {
     @State private var showingAchievementsSheet = false
     @State private var showingAppleHealthSheet = false
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
+
+    /// Manual override for weekly training target. `0` (default) means
+    /// auto-derive from active program. Stored globally so streak/achievements
+    /// stay in sync.
+    @AppStorage("weeklyWorkoutGoal") private var weeklyGoalOverride: Int = 0
 
     // CRITICAL FIX: Limit query to prevent freeze with large datasets
     @State private var history: [WorkoutSession] = []
@@ -684,10 +690,13 @@ struct DashboardView: View {
         return history.filter { $0.date >= monday }.count
     }
 
-    /// Weekly training target. Auto-derived from the active program's cycle
-    /// length (capped at 6 to keep at least one rest day). Falls back to 3
-    /// when there's no active program — a sensible default for casual users.
+    /// Weekly training target. Priority: explicit user setting (1…7) →
+    /// program cycle length (capped at 6 for one rest day) → 3.
+    /// `weeklyGoalOverride == 0` means "follow program" — that's the default
+    /// and matches old behavior so existing users see no change unless they
+    /// opt in via Settings.
     private var weeklyGoal: Int {
+        if weeklyGoalOverride >= 1 { return min(7, weeklyGoalOverride) }
         if let program = workoutManager.activeProgram {
             let count = program.days.count
             if count > 0 { return min(6, max(1, count)) }
@@ -766,45 +775,18 @@ struct DashboardView: View {
             }
         }
         .task {
-            // Load limited history asynchronously to prevent freeze
-            var descriptor = FetchDescriptor<WorkoutSession>(
-                predicate: #Predicate { $0.isCompleted == true },
-                sortBy: [SortDescriptor(\.date, order: .reverse)]
-            )
-            descriptor.fetchLimit = 100
-
-            if let fetchedHistory = try? modelContext.fetch(descriptor) {
-                await MainActor.run {
-                    self.history = fetchedHistory
-                }
-            }
-
-            var countDescriptor = FetchDescriptor<WorkoutSession>(
-                predicate: #Predicate { $0.isCompleted == true }
-            )
-            countDescriptor.fetchLimit = 0
-            if let total = try? modelContext.fetchCount(countDescriptor) {
-                await MainActor.run {
-                    self.totalCompletedCount = total
-                }
-            }
-
-            // Apple Health external workouts (last 7 days). Reads only —
-            // never writes, so safe to call even if user has limited
-            // permissions. HealthManager itself short-circuits when not
-            // authorized.
-            let external = await HealthManager.shared.fetchExternalWorkoutsThisWeek()
-            await MainActor.run {
-                self.externalWorkouts = external
-            }
-
-            // Wider window for the weekly-streak card. 12 weeks is enough to
-            // surface meaningful streaks without paying for a full year fetch.
-            let now = Date()
-            let twelveWeeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -12, to: now) ?? now
-            let externalForStreak = await HealthManager.shared.fetchExternalWorkouts(from: twelveWeeksAgo, to: now)
-            await MainActor.run {
-                self.externalWorkoutsForStreak = externalForStreak
+            await reloadDashboardData()
+        }
+        // HealthKit syncs from Apple Watch can lag the app's first launch by
+        // 30+ seconds. The HKObserverQuery in HealthManager posts on every
+        // sync — refresh both windows so streak/cards aren't stuck on stale
+        // data while the user sits on the dashboard.
+        .onReceive(NotificationCenter.default.publisher(for: .healthKitWorkoutsDidChange)) { _ in
+            Task { await refreshExternalWorkouts() }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task { await refreshExternalWorkouts() }
             }
         }
         .sheet(isPresented: $showingDaySelection) {
@@ -837,6 +819,47 @@ struct DashboardView: View {
         formatter.locale = Locale.current
         formatter.dateStyle = .medium
         return formatter.string(from: date)
+    }
+
+    /// Initial dashboard load: SwiftData history + count + both HK windows.
+    /// Called from `.task` on first appear; also re-runs on each subsequent
+    /// appearance because `.task` is tied to view lifecycle.
+    private func reloadDashboardData() async {
+        var descriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.isCompleted == true },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = 100
+
+        if let fetchedHistory = try? modelContext.fetch(descriptor) {
+            await MainActor.run { self.history = fetchedHistory }
+        }
+
+        var countDescriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.isCompleted == true }
+        )
+        countDescriptor.fetchLimit = 0
+        if let total = try? modelContext.fetchCount(countDescriptor) {
+            await MainActor.run { self.totalCompletedCount = total }
+        }
+
+        await refreshExternalWorkouts()
+    }
+
+    /// Re-fetches both HK windows (last 7 days for the AppleHealthActivityCard,
+    /// last 12 weeks for the streak walker). Called on HK observer notifications,
+    /// scene becoming active, and as part of the initial load. HealthManager
+    /// short-circuits when not authorized, so this is cheap when HK is off.
+    private func refreshExternalWorkouts() async {
+        let external = await HealthManager.shared.fetchExternalWorkoutsThisWeek()
+        let now = Date()
+        let twelveWeeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -12, to: now) ?? now
+        let externalForStreak = await HealthManager.shared.fetchExternalWorkouts(from: twelveWeeksAgo, to: now)
+
+        await MainActor.run {
+            self.externalWorkouts = external
+            self.externalWorkoutsForStreak = externalForStreak
+        }
     }
 }
 
