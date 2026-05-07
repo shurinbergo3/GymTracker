@@ -261,18 +261,14 @@ struct ExerciseTechniqueDetailView: View {
     // MARK: Open video
 
     private func openVideo() {
-        var urlString: String
-        if let stored = exercise?.videoUrl, !stored.isEmpty {
-            urlString = stored
+        let urlString: String
+        let localizedName = exerciseName.localized()
+        let suffix = LanguageManager.shared.currentLanguageCode == "en" ? "technique" : "техника выполнения"
+        let searchQuery = "\(localizedName) \(suffix)"
+        if let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+            urlString = "https://www.youtube.com/results?search_query=\(encodedQuery)"
         } else {
-            let localizedName = exerciseName.localized()
-            let suffix = LanguageManager.shared.currentLanguageCode == "en" ? "technique" : "техника выполнения"
-            let searchQuery = "\(localizedName) \(suffix)"
-            if let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-                urlString = "https://www.youtube.com/results?search_query=\(encodedQuery)"
-            } else {
-                return
-            }
+            return
         }
 
         // SECURITY: only http(s) YouTube hosts allowed

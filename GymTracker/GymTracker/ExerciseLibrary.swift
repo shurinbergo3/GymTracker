@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 // MARK: - Exercise Categories
 
@@ -39,15 +40,45 @@ enum ExerciseCategory: CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .chest: return "figure.strengthtraining.traditional"
-        case .back: return "figure.arms.open"
+        case .chest: return "figure.cooldown"
+        case .back: return "figure.strengthtraining.functional"
         case .legs: return "figure.walk"
-        case .shoulders: return "figure.arms.open"
+        case .shoulders: return "figure.boxing"
         case .arms: return "figure.strengthtraining.traditional"
         case .core: return "figure.core.training"
         case .cardio: return "heart.fill"
         case .complex: return "figure.mixed.cardio"
         case .custom: return "person.fill"
+        }
+    }
+
+    /// Primary brand color per category — used to add visual identity to lists/cards.
+    var accentColor: Color {
+        switch self {
+        case .chest:     return Color(red: 1.00, green: 0.42, blue: 0.42) // coral
+        case .back:      return Color(red: 0.30, green: 0.59, blue: 1.00) // sky blue
+        case .legs:      return Color(red: 0.65, green: 0.43, blue: 0.95) // purple
+        case .shoulders: return Color(red: 1.00, green: 0.66, blue: 0.30) // orange
+        case .arms:      return Color(red: 0.31, green: 0.80, blue: 0.77) // teal
+        case .core:      return Color(red: 1.00, green: 0.83, blue: 0.24) // amber
+        case .cardio:    return Color(red: 1.00, green: 0.42, blue: 0.72) // pink
+        case .complex:   return Color(red: 0.42, green: 0.83, blue: 0.50) // mint green
+        case .custom:    return Color(red: 0.75, green: 1.00, blue: 0.00) // neon (brand)
+        }
+    }
+
+    /// Secondary color used to build a vibrant gradient on category headers.
+    var accentColorSecondary: Color {
+        switch self {
+        case .chest:     return Color(red: 1.00, green: 0.27, blue: 0.55)
+        case .back:      return Color(red: 0.20, green: 0.83, blue: 1.00)
+        case .legs:      return Color(red: 0.45, green: 0.30, blue: 1.00)
+        case .shoulders: return Color(red: 1.00, green: 0.45, blue: 0.20)
+        case .arms:      return Color(red: 0.20, green: 0.95, blue: 0.65)
+        case .core:      return Color(red: 1.00, green: 0.60, blue: 0.10)
+        case .cardio:    return Color(red: 1.00, green: 0.30, blue: 0.45)
+        case .complex:   return Color(red: 0.20, green: 0.95, blue: 0.55)
+        case .custom:    return Color(red: 0.55, green: 0.95, blue: 0.20)
         }
     }
 }
@@ -455,6 +486,22 @@ struct ExerciseLibrary {
             technique: "Старт: блок на уровне середины груди. Рукояти в руках, локти слегка согнуты.\n\nДвижение: сводите руки перед собой до соприкосновения и удерживайте 2 секунды с максимальным напряжением. Возвращайте только на 80% амплитуды — не теряя натяжения.\n\nКлючи: пиковое сокращение — финишер для пампинга. Не разводите до полного растяжения, чтобы не терять напряжение.",
             videoUrl: ytSearch("cable chest squeeze fly")
         ),
+        LibraryExercise(
+            name: "Сжимающий жим гантелей",
+            category: .chest,
+            muscleGroup: .middleChest,
+            defaultType: .strength,
+            technique: "Старт: лёжа на скамье, гантели зажаты вместе над грудью, ладони друг к другу. Гантели плотно прижаты по всей длине.\n\nДвижение: жмите гантели вверх и вниз, удерживая постоянное давление между ними. Опустите до касания груди, не размыкая снаряды.\n\nКлючи: сильнейшая активация внутренней части груди и трицепсов через изометрическое сжатие. Используйте умеренный вес — техника важнее.",
+            videoUrl: nil
+        ),
+        LibraryExercise(
+            name: "Жим гантели одной рукой лёжа",
+            category: .chest,
+            muscleGroup: .middleChest,
+            defaultType: .strength,
+            technique: "Старт: лёжа на скамье, гантель в одной руке у груди. Свободная рука вдоль корпуса или на животе для стабилизации.\n\nДвижение: жмите гантель вверх до полного разгибания, не разворачивая корпус. Опускайте подконтрольно до уровня груди.\n\nКлючи: устраняет силовой дисбаланс и заставляет кор работать как стабилизатор. Не позволяйте корпусу скручиваться — таз и плечи прижаты к скамье.",
+            videoUrl: nil
+        ),
 
         // MARK: - СПИНА
 
@@ -826,6 +873,14 @@ struct ExerciseLibrary {
             defaultType: .strength,
             technique: "Старт: гриф в Лэндмайн-станции, V-рукоять надета на конец грифа. Стоя над грифом, корпус наклонён до 45°.\n\nДвижение: тяните рукоять к низу живота, локти вдоль корпуса. Сводите лопатки.\n\nКлючи: естественная дуга движения. Меньше нагрузки на поясницу чем в классической штанговой тяге.",
             videoUrl: ytSearch("landmine row close grip")
+        ),
+        LibraryExercise(
+            name: "Шраги Кирка",
+            category: .back,
+            muscleGroup: .trapezius,
+            defaultType: .strength,
+            technique: "Старт: штанга в опущенных руках перед бёдрами, хват чуть шире плеч сверху.\n\nДвижение: гибрид тяги и шрага — поднимайте штангу вдоль корпуса, ведя локти высоко в стороны и одновременно поднимая плечи к ушам. В верхней точке штанга на уровне нижней части груди, плечи максимально вверх.\n\nКлючи: мощно прокачивает верх трапеций и среднюю часть спины. Любимое упражнение Кирка Карвоского — даёт ту самую \"толщину\" верха спины.",
+            videoUrl: nil
         ),
 
         // MARK: - НОГИ
@@ -1255,6 +1310,14 @@ struct ExerciseLibrary {
             technique: "Старт: задняя нога на скамье, передняя в большом шаге. Гантели в руках.\n\nДвижение: опускайтесь до полного контакта задней голени с икрой. Колено передней ноги уходит далеко за носок.\n\nКлючи: ATG (Ass-To-Grass) — полная амплитуда для здоровья колена и силы квадрицепса. Для подготовленных.",
             videoUrl: ytSearch("atg split squat full depth")
         ),
+        LibraryExercise(
+            name: "Приседания на коробку",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: штанга на трапециях. За спиной коробка / скамья / тумба высотой ниже параллели бедра.\n\nДвижение: уводите таз назад и опускайтесь, садясь на коробку с лёгкой паузой 1 сек. Не расслабляйте корпус. Поднимайтесь, толкая пол через пятки.\n\nКлючи: коробка задаёт фиксированную глубину и развивает взрывную силу из мёртвой точки. Классика пауэрлифтинга для гипертрофии ягодиц и задней цепи.",
+            videoUrl: nil
+        ),
 
         // MARK: - ПЛЕЧИ
 
@@ -1522,6 +1585,22 @@ struct ExerciseLibrary {
             defaultType: .strength,
             technique: "Старт: канат на нижнем блоке, хват за концы.\n\nДвижение: тяните канат вверх вдоль корпуса, ведя локти в стороны и вверх. В верхней точке слегка раздвиньте концы.\n\nКлючи: блок даёт постоянное напряжение, канат позволяет естественную траекторию.",
             videoUrl: ytSearch("cable rope upright row")
+        ),
+        LibraryExercise(
+            name: "Египетские махи (Egyptian Lateral Raise)",
+            category: .shoulders,
+            muscleGroup: .sideDelts,
+            defaultType: .strength,
+            technique: "Старт: стойка боком к нижнему блоку. Свободной рукой держитесь за стойку и отклоняйтесь от блока, корпус под углом 15–25°. Рукоять в дальней руке поперёк корпуса.\n\nДвижение: поднимайте руку через сторону до уровня плеча или чуть выше, удерживая корпус наклонённым. Опускайте подконтрольно с глубокой растяжкой.\n\nКлючи: наклон корпуса смещает нагрузку в нижнюю фазу амплитуды, где средняя дельта обычно недогружена. Любимое упражнение Майка Израетеля для гипертрофии плеч.",
+            videoUrl: nil
+        ),
+        LibraryExercise(
+            name: "Y-подъёмы на блоке",
+            category: .shoulders,
+            muscleGroup: .rearDelts,
+            defaultType: .strength,
+            technique: "Старт: между двух нижних блоков, рукояти в руках перекрёстно (правая в левой, левая в правой). Корпус прямой.\n\nДвижение: разводите руки вверх и в стороны по диагонали, образуя букву Y. В верхней точке большие пальцы смотрят назад. Возврат подконтрольный.\n\nКлючи: целит нижние трапеции и задние дельты — критически важные для здоровой осанки и плеч. Лёгкий вес, медленный темп, концентрация на сокращении.",
+            videoUrl: nil
         ),
 
         // MARK: - РУКИ — БИЦЕПС
@@ -1891,6 +1970,22 @@ struct ExerciseLibrary {
             technique: "Старт: коленями на платформу гравитрона, упор на брусьях. Корпус вертикален.\n\nДвижение: опускайтесь, локти вдоль корпуса. Поднимайтесь до полного разгибания.\n\nКлючи: ассистированная версия отжиманий на брусьях. Идеально для прогрессии или объёмной работы. Постепенно уменьшайте помощь.",
             videoUrl: ytSearch("assisted dip machine")
         ),
+        LibraryExercise(
+            name: "Сгибания на бицепс на блоке одной рукой",
+            category: .arms,
+            muscleGroup: .biceps,
+            defaultType: .strength,
+            technique: "Старт: стоя боком к нижнему блоку, рукоять в дальней руке. Локоть прижат к корпусу.\n\nДвижение: сгибайте руку, разворачивая ладонь к плечу (супинация). В верхней точке пиковое напряжение 1 секунду. Опускайте подконтрольно до полного выпрямления.\n\nКлючи: унилатеральная работа устраняет дисбаланс между руками. Постоянное напряжение блока во всей амплитуде.",
+            videoUrl: nil
+        ),
+        LibraryExercise(
+            name: "Французский жим EZ-штанги лёжа",
+            category: .arms,
+            muscleGroup: .triceps,
+            defaultType: .strength,
+            technique: "Старт: лёжа на скамье, EZ-штанга на вытянутых руках, чуть наклонена к голове (под углом 75–80°). Хват в изогнутой части сверху.\n\nДвижение: сгибайте локти, опуская штангу ко лбу или чуть за голову. Локти удерживайте неподвижными. Разгибайте до старта.\n\nКлючи: Skullcrusher — классика для длинной головки трицепса. EZ-гриф щадит запястья. Локти не разводите в стороны.",
+            videoUrl: nil
+        ),
 
         // MARK: - РУКИ — ПРЕДПЛЕЧЬЯ
 
@@ -2258,6 +2353,22 @@ struct ExerciseLibrary {
             defaultType: .repsOnly,
             technique: "Старт: вис на перекладине, ноги подняты в L-sit или выше.\n\nДвижение: вращайте ноги в стороны как стрелки часов или дворники. Корпус неподвижен.\n\nКлючи: продвинутое упражнение для силы кора и хвата. Только при освоенных подъёмах ног в висе.",
             videoUrl: ytSearch("hanging windshield wipers")
+        ),
+        LibraryExercise(
+            name: "Скручивания на блоке (Cable Crunch)",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .strength,
+            technique: "Старт: на коленях лицом или спиной к верхнему блоку. Канат удерживается у висков. Бёдра вертикальны.\n\nДвижение: скручивайте корпус, опуская локти к коленям. Концентрация на сжатии пресса, не на тяге руками. Возврат подконтрольный до растяжения.\n\nКлючи: позволяет прогрессивную нагрузку на пресс — главный фактор гипертрофии. Не разгибайте поясницу — движение только за счёт скручивания.",
+            videoUrl: nil
+        ),
+        LibraryExercise(
+            name: "Pallof Press",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .strength,
+            technique: "Старт: стойка боком к блоку на уровне груди. Рукоять прижата к грудине обеими руками. Стопы на ширине плеч.\n\nДвижение: вытягивайте рукоять вперёд до полного выпрямления рук, сопротивляясь скручиванию корпуса. Удерживайте 1–2 сек. Возврат к груди.\n\nКлючи: антиротационное упражнение — тренирует кор как стабилизатор. Корпус не двигается — это весь смысл.",
+            videoUrl: nil
         ),
 
         // MARK: - КАРДИО
