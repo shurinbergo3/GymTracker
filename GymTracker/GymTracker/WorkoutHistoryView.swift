@@ -236,7 +236,7 @@ struct SessionHistoryView: View {
             }
         } message: {
             if let session = sessionToDelete {
-                Text("Вы уверены, что хотите удалить тренировку \"\(session.workoutDayName)\" от \(formattedDate(session.date))? Это действие нельзя отменить.")
+                Text(String(format: "Вы уверены, что хотите удалить тренировку \"%@\" от %@? Это действие нельзя отменить.".localized(), session.workoutDayName, formattedDate(session.date)))
             }
         }
     }

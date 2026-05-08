@@ -258,6 +258,13 @@ struct SettingsView: View {
                         flag: "🇬🇧",
                         tag: "en"
                     )
+                    SettingsInnerDivider()
+                    languageOptionRow(
+                        title: "Polish".localized(),
+                        subtitle: "Język polski",
+                        flag: "🇵🇱",
+                        tag: "pl"
+                    )
                 }
             }
         }

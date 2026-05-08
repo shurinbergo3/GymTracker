@@ -920,7 +920,7 @@ struct E1RMInfoPopover: View {
 
             HStack {
                 Spacer()
-                Text("Личный максимум: \(formattedValue) кг")
+                Text(String(format: "Личный максимум: %@ кг".localized(), formattedValue))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(DesignSystem.Colors.neonGreen)
                 Spacer()

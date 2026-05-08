@@ -31,6 +31,7 @@ class LanguageManager: ObservableObject {
         switch appLanguage {
         case "ru": return "ru"
         case "en": return "en"
+        case "pl": return "pl"
         default: return Locale.current.language.languageCode?.identifier ?? "ru"
         }
     }
