@@ -63,6 +63,10 @@ struct ProgramSeeder {
         add(createStreetWorkoutBeginner())
         add(createStreetWorkoutIntermediate())
 
+        // 7. Hybrid & Volume (popular modern programs)
+        add(createGermanVolumeTraining())
+        add(createHybridAthlete())
+
         return allPrograms
     }
     
@@ -99,6 +103,23 @@ struct ProgramSeeder {
             UserDefaults.standard.set(true, forKey: migrationKeyV4)
             #if DEBUG
             print("🔄 Migration v4: Reseeded library to add new popular programs")
+            #endif
+        }
+
+        // MIGRATION v5: добавлены German Volume Training и Hybrid Athlete.
+        // Стираем только не-user-modified.
+        let migrationKeyV5 = "DidExpandPopularPrograms_v5"
+        if !UserDefaults.standard.bool(forKey: migrationKeyV5) {
+            let descriptorAll = FetchDescriptor<Program>()
+            if let all = try? context.fetch(descriptorAll) {
+                for prog in all where !prog.isUserModified {
+                    context.delete(prog)
+                }
+                try? context.save()
+            }
+            UserDefaults.standard.set(true, forKey: migrationKeyV5)
+            #if DEBUG
+            print("🔄 Migration v5: Reseeded library to add GVT and Hybrid Athlete")
             #endif
         }
         
@@ -1262,6 +1283,83 @@ struct ProgramSeeder {
         addExercise(to: day1, name: "Заминка (5 мин ходьба)", sets: 1, order: 3, type: .duration)
         day1.program = program
         program.days.append(day1)
+
+        return program
+    }
+
+    // MARK: - Category XIII: Hybrid & Volume
+
+    private nonisolated static func createGermanVolumeTraining() -> Program {
+        let program = Program(
+            name: "German Volume Training (10×10)",
+            desc: "Classic GVT hypertrophy method by Rolf Feser. 10 sets × 10 reps with one weight on the main lift, high volume for fast mass."
+        )
+
+        let dayChestBack = WorkoutDay(name: "День 1: Грудь + Спина", orderIndex: 0, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: dayChestBack, name: "Жим штанги лежа", sets: 10, order: 0)
+        addExercise(to: dayChestBack, name: "Тяга вертикального блока", sets: 10, order: 1)
+        addExercise(to: dayChestBack, name: "Сведение гантелей лежа", sets: 3, order: 2)
+        addExercise(to: dayChestBack, name: "Тяга штанги в наклоне", sets: 3, order: 3)
+        dayChestBack.program = program
+        program.days.append(dayChestBack)
+
+        let dayLegsAbs = WorkoutDay(name: "День 2: Ноги + Пресс", orderIndex: 1, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: dayLegsAbs, name: "Приседания со штангой", sets: 10, order: 0)
+        addExercise(to: dayLegsAbs, name: "Сгибание ног лежа", sets: 10, order: 1)
+        addExercise(to: dayLegsAbs, name: "Подъем на носки", sets: 3, order: 2)
+        addExercise(to: dayLegsAbs, name: "Подъем ног в висе", sets: 3, order: 3, type: .repsOnly)
+        dayLegsAbs.program = program
+        program.days.append(dayLegsAbs)
+
+        let dayArmsShoulders = WorkoutDay(name: "День 3: Руки + Плечи", orderIndex: 2, workoutType: .strength, defaultRestTime: 90)
+        addExercise(to: dayArmsShoulders, name: "Жим гантелей стоя", sets: 10, order: 0)
+        addExercise(to: dayArmsShoulders, name: "Подъем гантелей на бицепс", sets: 10, order: 1)
+        addExercise(to: dayArmsShoulders, name: "Разгибание на трицепс на блоке", sets: 3, order: 2)
+        addExercise(to: dayArmsShoulders, name: "Махи гантелями в стороны", sets: 3, order: 3)
+        dayArmsShoulders.program = program
+        program.days.append(dayArmsShoulders)
+
+        return program
+    }
+
+    private nonisolated static func createHybridAthlete() -> Program {
+        let program = Program(
+            name: "Hybrid Athlete",
+            desc: "Strength + endurance combo. 4 days/week: 2 strength, 2 conditioning. Build size, strength, and a strong engine in parallel."
+        )
+
+        let dayUpperStrength = WorkoutDay(name: "День 1: Сила Верх", orderIndex: 0, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: dayUpperStrength, name: "Жим штанги лежа", sets: 5, order: 0)
+        addExercise(to: dayUpperStrength, name: "Подтягивания", sets: 5, order: 1, type: .repsOnly)
+        addExercise(to: dayUpperStrength, name: "Жим гантелей стоя", sets: 4, order: 2)
+        addExercise(to: dayUpperStrength, name: "Тяга гантели в наклоне", sets: 4, order: 3)
+        addExercise(to: dayUpperStrength, name: "Лицевая тяга", sets: 3, order: 4)
+        dayUpperStrength.program = program
+        program.days.append(dayUpperStrength)
+
+        let dayCondition1 = WorkoutDay(name: "День 2: Кондиции (Бег)", orderIndex: 1, workoutType: .duration, defaultRestTime: 60)
+        addExercise(to: dayCondition1, name: "Разминка ходьбой (5 мин)", sets: 1, order: 0, type: .duration)
+        addExercise(to: dayCondition1, name: "Бег (Интервалы: 30/30, 45/45, 60/60)", sets: 1, order: 1, type: .duration)
+        addExercise(to: dayCondition1, name: "Заминка ходьбой (5 мин)", sets: 1, order: 2, type: .duration)
+        dayCondition1.program = program
+        program.days.append(dayCondition1)
+
+        let dayLowerStrength = WorkoutDay(name: "День 3: Сила Низ", orderIndex: 2, workoutType: .strength, defaultRestTime: 120)
+        addExercise(to: dayLowerStrength, name: "Приседания со штангой", sets: 5, order: 0)
+        addExercise(to: dayLowerStrength, name: "Румынская тяга", sets: 4, order: 1)
+        addExercise(to: dayLowerStrength, name: "Болгарские сплит-приседания", sets: 3, order: 2)
+        addExercise(to: dayLowerStrength, name: "Ягодичный мост (Hip Thrust)", sets: 3, order: 3)
+        addExercise(to: dayLowerStrength, name: "Подъем на носки", sets: 3, order: 4)
+        dayLowerStrength.program = program
+        program.days.append(dayLowerStrength)
+
+        let dayCondition2 = WorkoutDay(name: "День 4: Метcон + Кор", orderIndex: 3, workoutType: .duration, defaultRestTime: 45)
+        addExercise(to: dayCondition2, name: "Махи гирей", sets: 5, order: 0, type: .repsOnly)
+        addExercise(to: dayCondition2, name: "Burpees (Берпи)", sets: 5, order: 1, type: .repsOnly)
+        addExercise(to: dayCondition2, name: "Mountain Climbers (Скалолаз)", sets: 5, order: 2, type: .duration)
+        addExercise(to: dayCondition2, name: "Планка", sets: 3, order: 3, type: .duration)
+        dayCondition2.program = program
+        program.days.append(dayCondition2)
 
         return program
     }

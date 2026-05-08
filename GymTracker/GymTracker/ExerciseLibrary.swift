@@ -3021,6 +3021,272 @@ struct ExerciseLibrary {
             technique: "Старт: вис на перекладине, плечи расслаблены — лопатки подняты к ушам.\n\nДвижение: НЕ сгибая руки, опустите лопатки вниз и сведите. Тело слегка поднимется. Удержите 1 сек, расслабьтесь.\n\nКлючи: фундамент здорового подтягивания. Учит активировать широчайшие до движения. Обязательно для новичков.",
             videoUrl: ytSearch("scapular pull ups")
         ),
+
+        // MARK: - МОБИЛЬНОСТЬ
+
+        LibraryExercise(
+            name: "Cat-Cow (Кошка-Корова)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: упор на четвереньки, ладони под плечами, колени под тазом. Спина нейтральная.\n\nДвижение: на выдохе округляйте спину куполом, опуская подбородок к груди (Кошка). На вдохе прогибайтесь, поднимая голову и таз вверх (Корова). Плавно чередуйте 8–10 циклов.\n\nКлючи: классическое упражнение для подвижности грудного отдела. Дыхание ведёт движение — не торопитесь. Идеальное начало утра или тренировки.",
+            videoUrl: ytSearch("cat cow stretch tutorial")
+        ),
+        LibraryExercise(
+            name: "World's Greatest Stretch",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: глубокий выпад правой ногой вперёд, левая нога прямая, ладони на полу по бокам стопы.\n\nДвижение: 1) опустите правый локоть к подъёму стопы, потянитесь. 2) разверните корпус вправо, поднимая правую руку к потолку. 3) вернитесь, выпрямите переднюю ногу — растяжение задней поверхности. 4) шаг назад в планку, поменяйте ногу.\n\nКлючи: одно растяжение для всего тела — бёдра, грудной отдел, подколенные. По 4–6 повторов на ногу. Лучшая разминка перед силовой.",
+            videoUrl: ytSearch("worlds greatest stretch tutorial")
+        ),
+        LibraryExercise(
+            name: "Hip 90/90",
+            category: .complex,
+            muscleGroup: .glutes,
+            defaultType: .duration,
+            technique: "Старт: сидя на полу, передняя нога согнута на 90° перед собой (голень параллельно корпусу), задняя — на 90° сбоку (бедро в линию с тазом).\n\nДвижение: наклоняйте корпус вперёд над передней ногой — растяжка ягодичной. Затем разверните корпус и опустите заднее колено к полу — растяжка приводящих. Сделайте 5–8 кругов, поменяйте стороны.\n\nКлючи: золотой стандарт для подвижности тазобедренных суставов. Спина прямая. Не толкайте через боль — работайте в комфортном диапазоне.",
+            videoUrl: ytSearch("90 90 hip stretch mobility")
+        ),
+        LibraryExercise(
+            name: "Cossack Squat",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .duration,
+            technique: "Старт: широкая стойка, носки развёрнуты на 30–45°, руки перед собой для баланса.\n\nДвижение: переносите вес на одну ногу, сгибая её в глубокий боковой присед. Вторая нога остаётся прямой, носок смотрит вверх. Пятка опорной ноги прижата к полу. Перекатитесь через центр в зеркальное положение.\n\nКлючи: лучшее упражнение для подвижности тазобедренных + сила в боковой плоскости. Колено идёт по линии стопы. Если глубоко не получается — держитесь за опору.",
+            videoUrl: ytSearch("cossack squat technique")
+        ),
+        LibraryExercise(
+            name: "Thoracic Bridge",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: упор сзади, ладони и стопы на полу, бёдра опущены.\n\nДвижение: поднимите таз и одну руку вверх, разворачиваясь грудным отделом. Тянитесь свободной рукой за голову до раскрытия груди. Поменяйте сторону.\n\nКлючи: открывает грудной отдел и плечи — критично для тех, кто много сидит. Не задерживайте дыхание. По 5–6 повторов на сторону.",
+            videoUrl: ytSearch("thoracic bridge mobility")
+        ),
+        LibraryExercise(
+            name: "Down Dog → Up Dog",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: упор лёжа.\n\nДвижение: толкните таз вверх и назад, выпрямите ноги, голова между рук — Собака мордой вниз. Удержите 2 сек. Перекатитесь вперёд через планку, опустите таз вниз, выпрямите руки и поднимите грудь — Собака мордой вверх. Чередуйте 6–8 циклов.\n\nКлючи: динамичная растяжка цепи спины-груди. Прорабатывает плечи, подколенные сухожилия, грудной отдел. Дыхание синхронно с движением.",
+            videoUrl: ytSearch("downward dog upward dog flow")
+        ),
+
+        // MARK: - ЙОГА (восстановление)
+
+        LibraryExercise(
+            name: "Sun Salutation A (Сурья Намаскар)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Цикл из 9 поз, выполняемых на одном дыхании-движении: Тадасана → наклон вперёд → полу-наклон → планка → чатуранга → Собака мордой вверх → Собака мордой вниз → шаг к рукам → возврат.\n\nКлючи: классическое приветствие солнцу — 5–10 циклов прогревают всё тело. Каждое движение — один вдох или выдох. Идеальная разминка для йоги или утра.",
+            videoUrl: ytSearch("sun salutation A tutorial")
+        ),
+        LibraryExercise(
+            name: "Downward Dog (Собака мордой вниз)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: упор лёжа.\n\nДвижение: поднимите таз вверх, выпрямляя ноги в букву \"V\" перевёрнутую. Ладони и стопы на полу, голова свободно висит между рук, уши на уровне предплечий. Удерживайте 30–60 сек.\n\nКлючи: растягивает подколенные, икры, плечи. Если жёстко — слегка согните колени. Распределяйте вес между ладонями и пятками равномерно.",
+            videoUrl: ytSearch("downward dog pose tutorial")
+        ),
+        LibraryExercise(
+            name: "Warrior II (Воин II)",
+            category: .complex,
+            muscleGroup: .legs,
+            defaultType: .duration,
+            technique: "Старт: широкая стойка. Передняя стопа смотрит вперёд, задняя — на 90° в сторону. Руки в стороны параллельно полу.\n\nДвижение: согните переднее колено до 90°, бедро параллельно полу. Колено над лодыжкой. Корпус строго вертикально. Взгляд через переднюю руку. Удерживайте 30–60 сек, поменяйте сторону.\n\nКлючи: укрепляет ноги, открывает таз. Заднее колено НЕ опускается. Плечи опущены.",
+            videoUrl: ytSearch("warrior 2 yoga pose")
+        ),
+        LibraryExercise(
+            name: "Pigeon Pose (Голубь)",
+            category: .complex,
+            muscleGroup: .glutes,
+            defaultType: .duration,
+            technique: "Старт: из планки или Собаки мордой вниз.\n\nДвижение: подведите правое колено за правую кисть, голень под углом. Левая нога вытянута назад. Опуститесь корпусом вперёд на предплечья. Удерживайте 1–2 минуты, поменяйте сторону.\n\nКлючи: глубокая растяжка ягодичной и сгибателя бедра. Если таз перекошен — подложите подушку под бедро. Дышите в напряжённую зону.",
+            videoUrl: ytSearch("pigeon pose yoga")
+        ),
+        LibraryExercise(
+            name: "Cobra (Кобра)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: лёжа на животе, ладони под плечами, локти прижаты.\n\nДвижение: на вдохе мягко выпрямите руки, поднимая грудь. Таз остаётся на полу. Плечи опущены, шея вытянута. Удерживайте 20–30 сек.\n\nКлючи: контр-поза для всех, кто сутулится. Не выдавливайтесь руками — работайте мышцами спины. Без боли в пояснице.",
+            videoUrl: ytSearch("cobra pose yoga")
+        ),
+        LibraryExercise(
+            name: "Seated Forward Fold (Наклон сидя)",
+            category: .complex,
+            muscleGroup: .hamstrings,
+            defaultType: .duration,
+            technique: "Старт: сидя на полу, ноги вытянуты вперёд, стопы согнуты на себя.\n\nДвижение: на выдохе наклоняйтесь вперёд от тазобедренных суставов (не от поясницы). Тянитесь грудью к коленям, руками к стопам. Удерживайте 1–2 минуты.\n\nКлючи: растяжка задней цепи. Спину НЕ горбьте — наклон от таза. Согнутые колени — нормально, если жёстко.",
+            videoUrl: ytSearch("seated forward fold pose")
+        ),
+        LibraryExercise(
+            name: "Child's Pose (Поза ребёнка)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: на коленях, большие пальцы стоп вместе, колени развёрнуты.\n\nДвижение: опустите таз на пятки, корпус лбом на пол, руки вытянуты вперёд. Дышите глубоко в спину. Удерживайте 1–3 минуты.\n\nКлючи: главная поза восстановления. Расслабляет поясницу и плечи. Используйте между интенсивными позами или для завершения сессии.",
+            videoUrl: ytSearch("child pose yoga")
+        ),
+        LibraryExercise(
+            name: "Savasana (Шавасана)",
+            category: .complex,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: лёжа на спине, ноги слегка расставлены, ладони вверх.\n\nДвижение: полностью расслабьте каждую часть тела — от стоп до макушки. Дыхание естественное. Удерживайте 5–10 минут.\n\nКлючи: финальная поза любой йога-сессии. Активная медитация. Отпустите все мысли — это не сон, а осознанное расслабление.",
+            videoUrl: ytSearch("savasana tutorial")
+        ),
+
+        // MARK: - КОР (плиометрика и кондиции)
+
+        LibraryExercise(
+            name: "Russian Twist",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: сидя, корпус откинут на 45°, ноги согнуты или подняты от пола. Руки перед грудью или с весом.\n\nДвижение: вращайте корпус вправо, касаясь руками пола рядом с бедром. Возврат через центр и поворот влево. Чередуйте.\n\nКлючи: классика для косых мышц. Поднимите ноги для усложнения. Двигается корпус, а не только руки. Темп умеренный.",
+            videoUrl: ytSearch("russian twist technique")
+        ),
+        LibraryExercise(
+            name: "V-ups",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа на спине, руки за головой, ноги вместе.\n\nДвижение: одновременно поднимите прямые ноги и корпус, тянясь руками к стопам — формируется буква V. Подконтрольный возврат.\n\nКлючи: жёсткое упражнение на верх и низ пресса одновременно. Поясница не отрывается резко. Если тяжело — упрощённая версия с согнутыми коленями.",
+            videoUrl: ytSearch("v-ups technique")
+        ),
+        LibraryExercise(
+            name: "Toes to Bar",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: вис на перекладине прямым хватом, плечи активны.\n\nДвижение: с напряжением кора и широчайших поднимите прямые ноги до касания носками перекладины. Подконтрольный возврат без раскачки.\n\nКлючи: продвинутое CrossFit упражнение. Сначала освойте подъёмы ног в висе. Слегка наклоняйте корпус назад в верхней точке.",
+            videoUrl: ytSearch("toes to bar crossfit")
+        ),
+        LibraryExercise(
+            name: "Bird Dog",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: на четвереньках, руки под плечами, колени под тазом. Спина нейтральная.\n\nДвижение: одновременно вытяните противоположные руку и ногу до прямой линии. Удерживайте 2 сек, возврат. Чередуйте стороны.\n\nКлючи: учит координации и стабилизации поясницы. Таз не разворачивается. Без раскачивания.",
+            videoUrl: ytSearch("bird dog exercise")
+        ),
+        LibraryExercise(
+            name: "Dead Bug",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа на спине, руки вертикально вверх, ноги под 90°. Поясница прижата.\n\nДвижение: одновременно опустите противоположные руку и ногу до пола. Поясница НЕ отрывается. Возврат и смена сторон.\n\nКлючи: топ для глубоких мышц кора. Если поясница отрывается — уменьшите амплитуду. Дыхание ровное.",
+            videoUrl: ytSearch("dead bug exercise")
+        ),
+
+        // MARK: - ЯГОДИЦЫ (доп. движения)
+
+        LibraryExercise(
+            name: "Frog Pump (Лягушка)",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .repsOnly,
+            technique: "Старт: лёжа на спине, согнутые ноги, стопы вместе подошвами, колени развёрнуты в стороны (как лягушка).\n\nДвижение: толкая стопами друг к другу, поднимите таз вверх до сжатия ягодиц. Удерживайте 1 сек, опустите.\n\nКлючи: изолированно бьёт по ягодицам. Делайте на 20–30 повторов с резинкой над коленями для огня. Идеальный финишер.",
+            videoUrl: ytSearch("frog pump glutes")
+        ),
+        LibraryExercise(
+            name: "Hip Thrust (с резинкой)",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .repsOnly,
+            technique: "Старт: лопатки на скамье, стопы на полу, резинка над коленями. Таз внизу.\n\nДвижение: с напряжённой резинкой (колени развёрнуты в стороны) поднимайте таз до прямой линии плечи-колени. Сжатие ягодиц 1 сек.\n\nКлючи: резинка активирует среднюю ягодичную (отвечает за форму). Колени НЕ сходятся. 15–25 повторов.",
+            videoUrl: ytSearch("banded hip thrust")
+        ),
+        LibraryExercise(
+            name: "Step Up на платформу",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .repsOnly,
+            technique: "Старт: перед платформой 40–60 см. Гантели в руках или штанга на плечах.\n\nДвижение: поставьте всю стопу на платформу, выжмите всё тело вверх через пятку опорной ноги (НЕ толкайтесь нижней). Подконтрольный спуск.\n\nКлючи: чем выше платформа, тем больше нагрузка на ягодицы. 8–12 повторов на ногу. Корпус слегка наклонён вперёд.",
+            videoUrl: ytSearch("step up exercise glutes")
+        ),
+        LibraryExercise(
+            name: "Отведение ноги (Cable Kickback)",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: манжета на лодыжке, тросик у нижнего блока. Стоя лицом к блоку, наклон корпуса вперёд, держась за раму.\n\nДвижение: отводите прямую ногу назад до сжатия ягодицы. Без прогиба в пояснице. Подконтрольный возврат.\n\nКлючи: изоляция большой ягодичной. Рабочая нога слегка согнута в верхней точке для пика сжатия. 12–15 повторов.",
+            videoUrl: ytSearch("cable kickback glutes")
+        ),
+        LibraryExercise(
+            name: "Отведение ноги на блоке",
+            category: .legs,
+            muscleGroup: .glutes,
+            defaultType: .strength,
+            technique: "Старт: манжета на лодыжке, нижний блок. Стойте боком к блоку, держась за раму свободной рукой.\n\nДвижение: отводите рабочую ногу в сторону по дуге до сжатия средней ягодичной. Подконтрольный возврат через центр.\n\nКлючи: бьёт среднюю ягодичную (форма таза). Корпус неподвижен. Без раскачивания.",
+            videoUrl: ytSearch("cable hip abduction")
+        ),
+
+        // MARK: - КОНДИЦИИ (плиометрика)
+
+        LibraryExercise(
+            name: "Воздушные приседания",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .repsOnly,
+            technique: "Старт: стопы на ширине плеч, носки слегка в стороны, руки перед грудью.\n\nДвижение: опуститесь в присед до параллели или ниже, колени по линии стоп. Через пятки выпрямитесь.\n\nКлючи: база для всех приседаний. Идеально для разминки или WOD. Спина прямая, грудь раскрыта.",
+            videoUrl: ytSearch("air squat technique")
+        ),
+        LibraryExercise(
+            name: "Приседания с прыжком",
+            category: .legs,
+            muscleGroup: .quadriceps,
+            defaultType: .repsOnly,
+            technique: "Старт: стойка приседаний.\n\nДвижение: глубокий присед → взрывное выпрыгивание вверх с отрывом стоп от пола. Мягкое приземление в присед сразу — без паузы переход в следующий повтор.\n\nКлючи: плиометрика для мощности ног. Колени мягкие при приземлении. 10–20 повторов.",
+            videoUrl: ytSearch("jump squat technique")
+        ),
+        LibraryExercise(
+            name: "Прыжки на скакалке",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .duration,
+            technique: "Старт: скакалка отрегулирована — рукояти под мышками при наступании на середину. Локти прижаты.\n\nДвижение: прыгайте на носках, едва отрывая стопы от пола. Кисти крутят, плечи расслаблены.\n\nКлючи: лучшее портативное кардио. Развивает икры и координацию. Темп: 120–180 прыжков/мин.",
+            videoUrl: ytSearch("jump rope technique")
+        ),
+        LibraryExercise(
+            name: "Burpees (Берпи)",
+            category: .cardio,
+            muscleGroup: .fullBody,
+            defaultType: .repsOnly,
+            technique: "Старт: стоя.\n\nДвижение: присед → выброс ног в планку → отжимание (опционально) → прыжок ног к рукам → выпрыгивание с хлопком над головой.\n\nКлючи: легендарное упражнение CrossFit. Темп умеренный — техника важнее скорости. Спина не круглится при выбросе.",
+            videoUrl: ytSearch("burpee technique")
+        ),
+        LibraryExercise(
+            name: "Mountain Climbers (Скалолаз)",
+            category: .core,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: упор лёжа, корпус прямой.\n\nДвижение: поочерёдно подтягивайте колени к груди в быстром темпе, как при беге на месте в горизонтали. Таз не поднимается.\n\nКлючи: тренирует кор + кардио. Плечи строго над запястьями. Темп высокий, но без потери техники.",
+            videoUrl: ytSearch("mountain climber technique")
+        ),
+        LibraryExercise(
+            name: "Махи гирей",
+            category: .complex,
+            muscleGroup: .glutes,
+            defaultType: .repsOnly,
+            technique: "Старт: гиря между стоп, ноги на ширине плеч, спина прямая, таз чуть выше колен.\n\nДвижение: занос гири между ног (как футбольный пас назад) → взрывное разгибание таза, гиря по дуге выходит до уровня плеч (русский стиль) или над головой (американский). Возврат от таза, не от рук.\n\nКлючи: движение от таза, руки только направляют. Спина нейтральна весь подход. Икона функциональной силы. 10–20 повторов.",
+            videoUrl: ytSearch("kettlebell swing technique")
+        ),
+
+        // MARK: - АЛИАСЫ для совместимости с программами
+
+        LibraryExercise(
+            name: "Уголок (L-sit) на брусьях",
+            category: .complex,
+            muscleGroup: .core,
+            defaultType: .duration,
+            technique: "Старт: упор на брусьях, плечи опущены вниз от ушей.\n\nДвижение: поднимите прямые ноги до параллели с полом, образуя букву \"L\". Удерживайте 5–30 сек.\n\nКлючи: продвинутое статическое движение для кора и плеч. Если жёстко — начните с подтянутых к груди коленей (Tuck L-sit).",
+            videoUrl: ytSearch("l-sit parallel bars")
+        ),
     ]
 
     // MARK: - Lookup helpers
@@ -3045,6 +3311,19 @@ struct ExerciseLibrary {
         let cleanName = name.components(separatedBy: "(").first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? name
         if let cleanMatch = allExercises.first(where: { $0.name.caseInsensitiveCompare(cleanName) == .orderedSame }) {
             return cleanMatch
+        }
+        // 2b. Extract content INSIDE parens and try exact match against that.
+        //     Handles bilingual seed names like "Burpees (Берпи)" → "Берпи",
+        //     "Mountain Climbers (Скалолаз)" → "Скалолаз".
+        if let openIdx = name.firstIndex(of: "("),
+           let closeIdx = name.firstIndex(of: ")"),
+           openIdx < closeIdx {
+            let inner = String(name[name.index(after: openIdx)..<closeIdx])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !inner.isEmpty,
+               let innerMatch = allExercises.first(where: { $0.name.caseInsensitiveCompare(inner) == .orderedSame }) {
+                return innerMatch
+            }
         }
         // 3. Substring match (either direction)
         if let substringMatch = allExercises.first(where: { name.localizedCaseInsensitiveContains($0.name) || $0.name.localizedCaseInsensitiveContains(name) }) {

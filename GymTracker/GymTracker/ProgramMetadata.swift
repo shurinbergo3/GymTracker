@@ -222,5 +222,11 @@ struct ProgramMetadata {
             .init(category: .mobility,     level: .beginner,     estimatedMinutes: 20, experienceMonths: 0),
         "Yoga Flow Recovery":
             .init(category: .mobility,     level: .beginner,     estimatedMinutes: 30, experienceMonths: 0),
+
+        // === HYBRID & VOLUME ===
+        "German Volume Training (10×10)":
+            .init(category: .massGain,     level: .intermediate, estimatedMinutes: 75, experienceMonths: 12),
+        "Hybrid Athlete":
+            .init(category: .strength,     level: .intermediate, estimatedMinutes: 70, experienceMonths: 9),
     ]
 }
