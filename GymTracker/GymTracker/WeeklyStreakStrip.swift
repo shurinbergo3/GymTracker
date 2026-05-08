@@ -35,12 +35,14 @@ struct WeeklyStreakStrip: View {
 
     /// Visual category for one calendar day. Order matters: a day with both
     /// gym and cardio shows up as `.combined` (rendered with a small badge).
+    /// Only `.gym` and `.combined` count toward the weekly goal — anything
+    /// imported from Apple Watch / HealthKit is decorative.
     enum DayKind: Equatable {
-        case gym                // Body Forge own session (counts toward goal)
-        case externalStrength   // HK strength outside Body Forge (counts toward goal)
-        case cardio             // run/walk/cycle/swim/HIIT — marked, doesn't count
-        case recovery           // yoga/pilates/stretch — marked, doesn't count
-        case combined           // gym + cardio/recovery same day
+        case gym                // Body Forge own session — counts toward goal
+        case externalStrength   // HK strength outside Body Forge — decorative
+        case cardio             // run/walk/cycle/swim/HIIT — decorative
+        case recovery           // yoga/pilates/stretch — decorative
+        case combined           // own gym + extra Apple activity — still counts as 1
         case empty
         case future
     }
@@ -65,15 +67,15 @@ struct WeeklyStreakStrip: View {
         let hasExtStrength = externals.contains { Self.isStrength($0.activityType) }
         let hasCardio = externals.contains { Self.isCardio($0.activityType) }
         let hasRecovery = externals.contains { Self.isRecovery($0.activityType) }
+        let hasAnyExternal = hasExtStrength || hasCardio || hasRecovery
 
-        let strength = hasGym || hasExtStrength
-        let activity = hasCardio || hasRecovery
-
-        if strength && activity { return .combined }
-        if hasGym               { return .gym }
-        if hasExtStrength       { return .externalStrength }
-        if hasCardio            { return .cardio }
-        if hasRecovery          { return .recovery }
+        // `.combined` requires an own Body Forge session — the "+ extra activity"
+        // badge only makes sense if there's a counted session to extend.
+        if hasGym && hasAnyExternal { return .combined }
+        if hasGym                   { return .gym }
+        if hasExtStrength           { return .externalStrength }
+        if hasCardio                { return .cardio }
+        if hasRecovery              { return .recovery }
         return .empty
     }
 
@@ -124,22 +126,16 @@ struct WeeklyStreakStrip: View {
 
     // MARK: - Goal tracking
 
-    /// Number of qualifying (strength) sessions in the given week.
+    /// Unique days with a Body Forge own session in the given week. Apple Watch
+    /// imports are intentionally excluded — short cardio / warm-up entries the
+    /// watch records shouldn't silently top up the user's plan progress.
     private func qualifyingCount(weekStarting monday: Date) -> Int {
         let end = calendar.date(byAdding: .day, value: 7, to: monday) ?? monday
-        let ownInWeek = sessions.filter { $0.date >= monday && $0.date < end }.count
-        let extStrength = externalWorkouts.filter {
-            $0.startDate >= monday && $0.startDate < end && Self.isStrength($0.activityType)
-        }
-        // De-dupe per day so a day with both Body Forge + Apple strength counts once
         var days = Set<Date>()
         for s in sessions where s.date >= monday && s.date < end {
             days.insert(calendar.startOfDay(for: s.date))
         }
-        for ext in extStrength {
-            days.insert(calendar.startOfDay(for: ext.startDate))
-        }
-        return max(days.count, ownInWeek)
+        return days.count
     }
 
     private var thisWeekCount: Int { qualifyingCount(weekStarting: mondayOf(Date())) }
@@ -316,8 +312,9 @@ struct WeeklyStreakStrip: View {
         let main = mainColor(dKind)
         let isFilled = dKind == .gym || dKind == .externalStrength || dKind == .combined ||
                        dKind == .cardio || dKind == .recovery
-        let countsToGoal = dKind == .gym || dKind == .externalStrength ||
-                           (dKind == .combined) // combined always implies strength + activity
+        // Only own Body Forge sessions move the weekly counter — combined still
+        // qualifies because it always wraps a `.gym` session.
+        let countsToGoal = dKind == .gym || dKind == .combined
 
         return VStack(spacing: 6) {
             Text(weekdayLetter(day))
@@ -412,7 +409,9 @@ struct WeeklyStreakStrip: View {
         case .gym, .combined:
             return DesignSystem.Colors.neonGreen
         case .externalStrength:
-            return DesignSystem.Colors.neonGreen
+            // Apple Health pink — same accent the rest of the app uses for HK
+            // markers, so the user reads it as "watched, not counted" at a glance.
+            return Color.pink
         case .cardio:
             return Color(red: 0.45, green: 0.85, blue: 1.0)
         case .recovery:
@@ -433,8 +432,8 @@ struct WeeklyStreakStrip: View {
                 )
             )
         case .externalStrength:
-            // Hollow with dashed outline (visual: "credit toward goal but logged elsewhere")
-            return AnyShapeStyle(DesignSystem.Colors.neonGreen.opacity(0.12))
+            // Hollow pink — clearly an Apple Health import, not a counted session.
+            return AnyShapeStyle(Color.pink.opacity(0.14))
         case .cardio:
             return AnyShapeStyle(
                 LinearGradient(
@@ -463,10 +462,10 @@ struct WeeklyStreakStrip: View {
     private func dotCaption(_ kind: DayKind) -> String {
         switch kind {
         case .gym:              return "зал".localized()
-        case .externalStrength: return "Силовая".localized()
-        case .cardio:           return "Кардио".localized()
-        case .recovery:         return "Йога".localized()
-        case .combined:         return "Микс".localized()
+        case .externalStrength: return "часы".localized()
+        case .cardio:           return "кардио".localized()
+        case .recovery:         return "йога".localized()
+        case .combined:         return "зал+".localized()
         case .empty, .future:   return ""
         }
     }
@@ -479,9 +478,9 @@ struct WeeklyStreakStrip: View {
         let stateStr: String
         switch kind {
         case .gym:              stateStr = "Тренировка в зале".localized()
-        case .externalStrength: stateStr = "Силовая (Apple Fitness)".localized()
-        case .cardio:           stateStr = "Кардио".localized()
-        case .recovery:         stateStr = "Восстановление".localized()
+        case .externalStrength: stateStr = "Силовая с Apple Watch (не засчитана в план)".localized()
+        case .cardio:           stateStr = "Кардио (не засчитано в план)".localized()
+        case .recovery:         stateStr = "Восстановление (не засчитано в план)".localized()
         case .combined:         stateStr = "Зал + активность".localized()
         case .empty:            stateStr = "Нет активности".localized()
         case .future:           stateStr = "Ещё не наступил".localized()

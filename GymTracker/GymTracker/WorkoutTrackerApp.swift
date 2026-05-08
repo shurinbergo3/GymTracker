@@ -123,7 +123,16 @@ struct WorkoutTrackerApp: App {
             ZStack {
                 // Главный контент — ВСЕГДА присутствует, чтобы splash не блокировал переход.
                 Group {
-                    if authManager.isLoggedIn {
+                    if !hasSeenOnboarding {
+                        // Онбординг показываем ДО проверки авторизации, иначе после
+                        // переустановки приложения Firebase автоматически восстанавливает
+                        // сессию из Keychain (Keychain переживает удаление приложения),
+                        // и пользователь ни разу не увидит обучение.
+                        OnboardingView(hasSeenOnboarding: Binding(
+                            get: { hasSeenOnboarding },
+                            set: { hasSeenOnboarding = $0 }
+                        ))
+                    } else if authManager.isLoggedIn {
                         if isRestoringData {
                             RestoringDataView(isRestoring: $isRestoringData, onFinish: {
                                 isRestoringData = false
@@ -133,14 +142,7 @@ struct WorkoutTrackerApp: App {
                                 .environmentObject(authManager)
                         }
                     } else {
-                        if !hasSeenOnboarding {
-                            OnboardingView(hasSeenOnboarding: Binding(
-                                get: { hasSeenOnboarding },
-                                set: { hasSeenOnboarding = $0 }
-                            ))
-                        } else {
-                            LoginView()
-                        }
+                        LoginView()
                     }
                 }
 
