@@ -611,7 +611,7 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
         return samples.compactMap { sample in
             // Skip workouts authored by this app — those are already in
             // the app's own SwiftData history and would double-count.
-            let bundle = sample.sourceRevision.source.bundleIdentifier
+            let bundle: String = sample.sourceRevision.source.bundleIdentifier
             if !ownBundleId.isEmpty, bundle == ownBundleId { return nil }
             // Defensive: HK can sometimes return zero-duration phantoms
             // imported from older devices.
@@ -644,7 +644,7 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
                 totalEnergyBurnedKcal: calories,
                 totalDistanceMeters: distance,
                 sourceName: sample.sourceRevision.source.name,
-                sourceBundleId: bundle ?? ""
+                sourceBundleId: bundle
             )
         }
     }
