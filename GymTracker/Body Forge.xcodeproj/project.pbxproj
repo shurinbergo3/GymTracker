@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		011A3DE02F34FA1D000CDFAC /* LocalizationKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011A3DDF2F34FA1D000CDFAC /* LocalizationKeys.swift */; };
 		011C6B342F3DF42E00B84303 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 011A3D172F34C4F6000CDFAC /* Localizable.xcstrings */; };
 		01D712962F17BF2800BF9D6C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 01D712952F17BF2800BF9D6C /* FirebaseAuth */; };
 		01D712982F17BF2800BF9D6C /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 01D712972F17BF2800BF9D6C /* FirebaseFirestore */; };
@@ -58,7 +57,6 @@
 
 /* Begin PBXFileReference section */
 		011A3D172F34C4F6000CDFAC /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
-		011A3DDF2F34FA1D000CDFAC /* LocalizationKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocalizationKeys.swift; path = ../LocalizationKeys.swift; sourceTree = "<group>"; };
 		01B86D362F0FAEBD00695F47 /* Body Forge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Body Forge.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		01B86D452F0FAEBE00695F47 /* Body ForgeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Body ForgeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		01B86D4F2F0FAEBE00695F47 /* Body ForgeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Body ForgeUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -163,7 +161,6 @@
 		01B86D2D2F0FAEBD00695F47 = {
 			isa = PBXGroup;
 			children = (
-				011A3DDF2F34FA1D000CDFAC /* LocalizationKeys.swift */,
 				011A3D172F34C4F6000CDFAC /* Localizable.xcstrings */,
 				01B86D382F0FAEBD00695F47 /* GymTracker */,
 				01B86D482F0FAEBE00695F47 /* GymTrackerTests */,
@@ -383,7 +380,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				011A3DE02F34FA1D000CDFAC /* LocalizationKeys.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
