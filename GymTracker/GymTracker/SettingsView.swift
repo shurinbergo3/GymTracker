@@ -241,28 +241,24 @@ struct SettingsView: View {
                     languageOptionRow(
                         title: "System".localized(),
                         subtitle: "Follows system settings".localized(),
-                        flag: "globe",
                         tag: "system"
                     )
                     SettingsInnerDivider()
                     languageOptionRow(
                         title: "Russian".localized(),
                         subtitle: "Русский язык",
-                        flag: "🇷🇺",
                         tag: "ru"
                     )
                     SettingsInnerDivider()
                     languageOptionRow(
                         title: "English".localized(),
                         subtitle: "English language",
-                        flag: "🇬🇧",
                         tag: "en"
                     )
                     SettingsInnerDivider()
                     languageOptionRow(
                         title: "Polish".localized(),
                         subtitle: "Język polski",
-                        flag: "🇵🇱",
                         tag: "pl"
                     )
                 }
@@ -270,7 +266,7 @@ struct SettingsView: View {
         }
     }
 
-    private func languageOptionRow(title: String, subtitle: String, flag: String, tag: String) -> some View {
+    private func languageOptionRow(title: String, subtitle: String, tag: String) -> some View {
         Button {
             withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                 appLanguage = tag
@@ -279,17 +275,6 @@ struct SettingsView: View {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
         } label: {
             HStack(spacing: DesignSystem.Spacing.md) {
-                Group {
-                    if flag.unicodeScalars.contains(where: { $0.properties.isEmojiPresentation }) {
-                        Text(flag).font(.system(size: 28))
-                    } else {
-                        Image(systemName: flag)
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(DesignSystem.Colors.accent)
-                    }
-                }
-                .frame(width: 36, height: 36)
-
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(DesignSystem.Typography.body().weight(.medium))
