@@ -35,6 +35,7 @@ struct SettingsView: View {
     @State private var isWipingCoach = false
     @State private var showingSignOutConfirmation = false
     @State private var showingOnboardingPreview = false
+    @State private var isLanguageExpanded: Bool = false
 
     private let supportTelegramURL = URL(string: "https://t.me/sumotry")!
     private let supportEmailURL = URL(string: "mailto:sumotry@gmail.com?subject=GymTracker%20Support")!
@@ -238,36 +239,143 @@ struct SettingsView: View {
         SettingsSection(title: "language_section_header".localized(), footer: "language_change_footer".localized()) {
             SettingsCard {
                 VStack(spacing: 0) {
-                    languageOptionRow(
-                        title: "System".localized(),
-                        subtitle: "Follows system settings".localized(),
-                        tag: "system"
-                    )
-                    SettingsInnerDivider()
-                    languageOptionRow(
-                        title: "Russian".localized(),
-                        subtitle: "Русский язык",
-                        tag: "ru"
-                    )
-                    SettingsInnerDivider()
-                    languageOptionRow(
-                        title: "English".localized(),
-                        subtitle: "English language",
-                        tag: "en"
-                    )
-                    SettingsInnerDivider()
-                    languageOptionRow(
-                        title: "Polish".localized(),
-                        subtitle: "Język polski",
-                        tag: "pl"
-                    )
+                    languageHeaderRow
+
+                    if isLanguageExpanded {
+                        VStack(spacing: 0) {
+                            SettingsInnerDivider()
+                            languageOptionRow(
+                                title: "System".localized(),
+                                subtitle: "Follows system settings".localized(),
+                                tag: "system",
+                                index: 0
+                            )
+                            SettingsInnerDivider()
+                            languageOptionRow(
+                                title: "Russian".localized(),
+                                subtitle: "Русский язык",
+                                tag: "ru",
+                                index: 1
+                            )
+                            SettingsInnerDivider()
+                            languageOptionRow(
+                                title: "English".localized(),
+                                subtitle: "English language",
+                                tag: "en",
+                                index: 2
+                            )
+                            SettingsInnerDivider()
+                            languageOptionRow(
+                                title: "Polish".localized(),
+                                subtitle: "Język polski",
+                                tag: "pl",
+                                index: 3
+                            )
+                        }
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .move(edge: .top)),
+                            removal: .opacity.combined(with: .move(edge: .top))
+                        ))
+                    }
                 }
+                .clipped()
             }
+            .animation(.spring(response: 0.45, dampingFraction: 0.85), value: isLanguageExpanded)
         }
     }
 
-    private func languageOptionRow(title: String, subtitle: String, tag: String) -> some View {
+    private var languageHeaderRow: some View {
         Button {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
+                isLanguageExpanded.toggle()
+            }
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        } label: {
+            HStack(spacing: DesignSystem.Spacing.md) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    DesignSystem.Colors.accent.opacity(0.28),
+                                    DesignSystem.Colors.accent.opacity(0.12)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 36, height: 36)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                                .stroke(DesignSystem.Colors.accent.opacity(0.35), lineWidth: 0.5)
+                        )
+
+                    Image(systemName: "globe")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(DesignSystem.Colors.accent)
+                        .shadow(color: DesignSystem.Colors.accent.opacity(0.5), radius: 6)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("language_section_header".localized())
+                        .font(DesignSystem.Typography.body().weight(.medium))
+                        .foregroundStyle(DesignSystem.Colors.primaryText)
+                    HStack(spacing: 6) {
+                        Text(currentLanguageDisplayName)
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundStyle(DesignSystem.Colors.accent)
+                            .contentTransition(.numericText())
+                        if appLanguage == "system" {
+                            Text("·")
+                                .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                            Text(currentLanguageSubtitle)
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundStyle(DesignSystem.Colors.secondaryText)
+                                .lineLimit(1)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.06))
+                        .frame(width: 28, height: 28)
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 11, weight: .heavy))
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        .rotationEffect(.degrees(isLanguageExpanded ? 180 : 0))
+                }
+            }
+            .padding(.horizontal, DesignSystem.Spacing.md)
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var currentLanguageDisplayName: String {
+        switch appLanguage {
+        case "ru": return "Russian".localized()
+        case "en": return "English".localized()
+        case "pl": return "Polish".localized()
+        default: return "System".localized()
+        }
+    }
+
+    private var currentLanguageSubtitle: String {
+        switch appLanguage {
+        case "ru": return "Русский язык"
+        case "en": return "English language"
+        case "pl": return "Język polski"
+        default: return "Follows system settings".localized()
+        }
+    }
+
+    private func languageOptionRow(title: String, subtitle: String, tag: String, index: Int) -> some View {
+        let isSelected = appLanguage == tag
+        return Button {
             withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                 appLanguage = tag
                 LanguageManager.shared.appLanguage = tag
@@ -275,31 +383,55 @@ struct SettingsView: View {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
         } label: {
             HStack(spacing: DesignSystem.Spacing.md) {
+                ZStack {
+                    Circle()
+                        .stroke(
+                            isSelected
+                                ? DesignSystem.Colors.accent.opacity(0.6)
+                                : Color.white.opacity(0.18),
+                            lineWidth: isSelected ? 1.5 : 1
+                        )
+                        .frame(width: 22, height: 22)
+
+                    if isSelected {
+                        Circle()
+                            .fill(DesignSystem.Colors.accent)
+                            .frame(width: 10, height: 10)
+                            .shadow(color: DesignSystem.Colors.accent.opacity(0.6), radius: 4)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+                .frame(width: 24)
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(DesignSystem.Typography.body().weight(.medium))
-                        .foregroundStyle(DesignSystem.Colors.primaryText)
+                        .font(DesignSystem.Typography.body().weight(isSelected ? .semibold : .medium))
+                        .foregroundStyle(
+                            isSelected
+                                ? DesignSystem.Colors.primaryText
+                                : DesignSystem.Colors.primaryText.opacity(0.85)
+                        )
                     Text(subtitle)
                         .font(DesignSystem.Typography.caption())
                         .foregroundStyle(DesignSystem.Colors.secondaryText)
                 }
 
-                Spacer()
-
-                if appLanguage == tag {
-                    ZStack {
-                        Circle()
-                            .fill(DesignSystem.Colors.accent.opacity(0.18))
-                            .frame(width: 24, height: 24)
-                        Image(systemName: "checkmark")
-                            .font(.caption.weight(.heavy))
-                            .foregroundStyle(DesignSystem.Colors.accent)
-                    }
-                    .transition(.scale.combined(with: .opacity))
-                }
+                Spacer(minLength: 0)
             }
             .padding(.horizontal, DesignSystem.Spacing.md)
             .padding(.vertical, 12)
+            .background(
+                isSelected
+                    ? LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.accent.opacity(0.07),
+                            DesignSystem.Colors.accent.opacity(0.02)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    : LinearGradient(colors: [.clear, .clear], startPoint: .leading, endPoint: .trailing)
+            )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

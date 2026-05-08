@@ -212,9 +212,11 @@ final class AICoachStore: ObservableObject {
         let ctx = await AICoachContextBuilder.build(
             modelContext: modelContext,
             healthManager: healthManager,
-            limit: 4
+            limit: 4,
+            lastProgressionNudgeAt: loadOrCreateProfile()?.lastProgressionNudgeAt
         )
         let contextBlock = AICoachContextBuilder.renderForPrompt(ctx)
+        let nudgeFired = !ctx.progressionNudges.isEmpty
 
         // Plan summary: which exercises today, planned sets per exercise.
         let plannedBlock = renderPlannedDay(plannedDay)
@@ -240,6 +242,7 @@ final class AICoachStore: ObservableObject {
                 maxTokens: 500
             )
             insertAssistantMessage(reply, signature: signature, isCycleAnalysis: true)
+            if nudgeFired { markProgressionNudgeDelivered() }
             isBriefing = false
             lastError = nil
         } catch {
@@ -272,9 +275,11 @@ final class AICoachStore: ObservableObject {
         let ctx = await AICoachContextBuilder.build(
             modelContext: modelContext,
             healthManager: healthManager,
-            limit: 4
+            limit: 4,
+            lastProgressionNudgeAt: loadOrCreateProfile()?.lastProgressionNudgeAt
         )
         let contextBlock = AICoachContextBuilder.renderForPrompt(ctx)
+        let nudgeFired = !ctx.progressionNudges.isEmpty
 
         // Refresh weekly digest if needed (best-effort; on failure we just skip it)
         await refreshWeeklySummaryIfNeeded()
@@ -299,6 +304,7 @@ final class AICoachStore: ObservableObject {
                 maxTokens: 700
             )
             insertAssistantMessage(reply, signature: signature, isCycleAnalysis: true)
+            if nudgeFired { markProgressionNudgeDelivered() }
             isAnalyzing = false
             lastError = nil
         } catch {
@@ -497,6 +503,16 @@ final class AICoachStore: ObservableObject {
 
     private func currentCoachStyle() -> AICoachStyle {
         loadOrCreateProfile()?.coachStyle ?? .friendly
+    }
+
+    /// Called after a brief / analysis successfully lands and the prompt
+    /// included a PROGRESSION NUDGE block. Resets the 2–3 week clock so the
+    /// next nudge fires only after another fortnight of training.
+    private func markProgressionNudgeDelivered() {
+        guard let p = loadOrCreateProfile() else { return }
+        p.lastProgressionNudgeAt = Date()
+        p.updatedAt = Date()
+        try? modelContext?.save()
     }
 
     /// Builds a small "what the coach knows about you" block to inject into the
@@ -805,6 +821,13 @@ final class AICoachStore: ObservableObject {
           Only mention it when it's clearly relevant: e.g. the user asks for advice on the plan, or you see a real \
           issue worth flagging (gap like "no vertical pull", a plateau the program doesn't address). \
           When you do mention it, propose a CONCRETE swap, not generic advice.
+        • PROGRESSION NUDGE: if the data block contains a "PROGRESSION NUDGE" section, you MUST weave it into your \
+          reply — pick 1–2 of the listed exercises and motivate the user with the EXACT suggestion shown \
+          (+2.5 kg / +5 kg / +1 rep / +1 set). Tie it to their recent numbers from "LAST 4 WEEKS — TOP LIFTS" or \
+          recent sessions so it feels personal, not generic. Do NOT invent your own number — quote the suggestion verbatim.
+        • 4-WEEK MEMORY: when the data block contains "LAST 4 WEEKS — TOP LIFTS", treat that as your long-term \
+          memory of the user's training. Reference it when you talk about momentum, regression, or progression — \
+          but in plain language, not as a literal table dump.
         • PLAIN TEXT ONLY. Absolutely no markdown: no `*`, no `-`, no `#`, no `**bold**`, no backticks. \
           For lists, start each item on a new line with a short label and a colon (e.g. "Тяга верхнего блока: 82.5 × 10/9/8"). \
           Never prefix lines with `*` or `-` — those characters render literally and look broken.

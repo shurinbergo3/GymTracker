@@ -187,6 +187,10 @@ final class AICoachUserProfile {
     var lastWrappedShownAt: Date?
     var lastPlateauNotifiedAt: Date?
     var lastPreBriefAt: Date?
+    /// When the coach last delivered a progressive-overload nudge. Drives the
+    /// 14–21 day cadence in `AICoachContextBuilder.detectProgressionNudges`.
+    /// Optional so adding the field doesn't trigger a SwiftData migration.
+    var lastProgressionNudgeAt: Date?
     var updatedAt: Date
     var isSynced: Bool?
 

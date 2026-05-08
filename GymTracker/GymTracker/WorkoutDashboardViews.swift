@@ -23,7 +23,10 @@ struct TodayWorkoutCard: View {
     @ObservedObject var workoutManager: WorkoutManager
     @Binding var showingDaySelection: Bool
     var onOpenWorkout: () -> Void
-    
+
+    @State private var livePulse: Bool = false
+    @State private var ctaBreathing: Bool = false
+
     var body: some View {
         BentoCard {
             if workoutManager.workoutState == .active {
@@ -35,16 +38,16 @@ struct TodayWorkoutCard: View {
             }
         }
     }
-    
+
     // MARK: - Idle State (Start Workout)
     private var idleContent: some View {
         ZStack(alignment: .topTrailing) {
-            // Subtle neon mesh accents
+            // Atmospheric background mesh — layered radial glows for depth
             RadialGradient(
-                colors: [DesignSystem.Colors.neonGreen.opacity(0.20), .clear],
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.22), .clear],
                 center: .topTrailing,
                 startRadius: 4,
-                endRadius: 220
+                endRadius: 240
             )
             .allowsHitTesting(false)
 
@@ -52,34 +55,65 @@ struct TodayWorkoutCard: View {
                 colors: [DesignSystem.Colors.accentPurple.opacity(0.14), .clear],
                 center: .bottomLeading,
                 startRadius: 4,
-                endRadius: 200
+                endRadius: 220
+            )
+            .allowsHitTesting(false)
+
+            // Faint diagonal stripe for texture
+            LinearGradient(
+                colors: [
+                    Color.white.opacity(0.02),
+                    .clear,
+                    Color.white.opacity(0.015),
+                    .clear
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
             .allowsHitTesting(false)
 
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                // Header row with bright "TODAY" tag + day selector
+                // Header row with pulsing live dot + day selector
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(DesignSystem.Colors.neonGreen)
-                                .frame(width: 6, height: 6)
-                                .shadow(color: DesignSystem.Colors.neonGreen, radius: 4)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            ZStack {
+                                Circle()
+                                    .stroke(DesignSystem.Colors.neonGreen.opacity(livePulse ? 0 : 0.55), lineWidth: 1)
+                                    .frame(width: 7, height: 7)
+                                    .scaleEffect(livePulse ? 2.6 : 1)
+
+                                Circle()
+                                    .fill(DesignSystem.Colors.neonGreen)
+                                    .frame(width: 7, height: 7)
+                                    .shadow(color: DesignSystem.Colors.neonGreen, radius: livePulse ? 7 : 3)
+                            }
+
                             Text("План на сегодня".localized().localizedUppercase)
                                 .font(DesignSystem.Typography.sectionHeader())
                                 .foregroundStyle(DesignSystem.Colors.neonGreen)
-                                .tracking(1.4)
+                                .tracking(1.6)
                         }
 
                         if let day = workoutManager.selectedDay {
                             Text(day.name.localized())
-                                .font(DesignSystem.Typography.title())
-                                .foregroundStyle(DesignSystem.Colors.primaryText)
+                                .font(.system(size: 34, weight: .heavy, design: .rounded))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [
+                                            DesignSystem.Colors.primaryText,
+                                            DesignSystem.Colors.primaryText.opacity(0.82)
+                                        ],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
                                 .lineLimit(2)
-                                .minimumScaleFactor(0.8)
+                                .minimumScaleFactor(0.7)
+                                .shadow(color: .black.opacity(0.35), radius: 6, y: 2)
                         } else {
                             Text("rest_day_title".localized())
-                                .font(DesignSystem.Typography.title())
+                                .font(.system(size: 30, weight: .heavy, design: .rounded))
                                 .foregroundStyle(DesignSystem.Colors.primaryText)
                         }
                     }
@@ -88,73 +122,70 @@ struct TodayWorkoutCard: View {
 
                     Button(action: { showingDaySelection = true }) {
                         Image(systemName: "list.dash")
-                            .font(.title3)
+                            .font(.system(size: 17, weight: .bold))
                             .foregroundStyle(DesignSystem.Colors.neonGreen)
-                            .padding(12)
+                            .frame(width: 44, height: 44)
                             .background(
                                 Circle()
-                                    .fill(DesignSystem.Colors.neonGreen.opacity(0.12))
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                DesignSystem.Colors.neonGreen.opacity(0.20),
+                                                DesignSystem.Colors.neonGreen.opacity(0.06)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
                             )
                             .overlay(
-                                Circle().stroke(DesignSystem.Colors.neonGreen.opacity(0.4), lineWidth: 1)
+                                Circle().stroke(DesignSystem.Colors.neonGreen.opacity(0.45), lineWidth: 1)
                             )
-                            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.45), radius: 12)
+                            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.40), radius: 14)
                     }
                 }
 
-                // Unified stats strip
+                // Stats — three independent chip cards with their own colored aura
                 if let day = workoutManager.selectedDay {
-                    HStack(spacing: 0) {
-                        statColumn(
+                    HStack(spacing: 8) {
+                        statChip(
                             icon: "dumbbell.fill",
-                            iconTint: DesignSystem.Colors.neonGreen,
+                            accent: DesignSystem.Colors.neonGreen,
                             value: "\(day.exercises.count)",
                             label: "упр.".localized()
                         )
-                        statColumnDivider
-                        statColumn(
+                        statChip(
                             icon: "list.number",
-                            iconTint: Color(red: 0.45, green: 0.85, blue: 1.0),
+                            accent: Color(red: 0.45, green: 0.85, blue: 1.0),
                             value: "\(estimatedSets(for: day))",
                             label: "подходов".localized()
                         )
-                        statColumnDivider
-                        statColumn(
+                        statChip(
                             icon: "clock.fill",
-                            iconTint: Color(red: 1.0, green: 0.7, blue: 0.2),
+                            accent: Color(red: 1.0, green: 0.72, blue: 0.20),
                             value: "~\(estimatedMinutes(for: day))",
                             label: "мин".localized()
                         )
                     }
-                    .padding(.vertical, 14)
-                    .padding(.horizontal, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(Color.white.opacity(0.05))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
                 }
 
-                // Start Button — compact neon CTA
+                // Start Button — neon CTA with breathing ambient glow
                 Button(action: { workoutManager.startWorkout() }) {
                     HStack(spacing: 10) {
                         Image(systemName: "play.fill")
                             .font(.system(size: 11, weight: .black))
                             .foregroundStyle(.black)
-                            .frame(width: 24, height: 24)
-                            .background(Circle().fill(.black.opacity(0.18)))
+                            .frame(width: 26, height: 26)
+                            .background(Circle().fill(.black.opacity(0.20)))
                             .offset(x: 0.5)
                         Text(workoutManager.selectedDay == nil ? "select_program_button".localized() : "start_workout_button".localized())
                             .font(.system(.subheadline, design: .rounded, weight: .heavy))
-                            .tracking(0.3)
+                            .tracking(0.4)
                             .lineLimit(1)
                             .minimumScaleFactor(0.85)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 14)
                     .padding(.horizontal, 16)
                     .background(
                         ZStack {
@@ -167,7 +198,7 @@ struct TodayWorkoutCard: View {
                                 endPoint: .bottomTrailing
                             )
                             LinearGradient(
-                                colors: [Color.white.opacity(0.28), .clear],
+                                colors: [Color.white.opacity(0.32), .clear],
                                 startPoint: .top,
                                 endPoint: .center
                             )
@@ -176,44 +207,87 @@ struct TodayWorkoutCard: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(Color.white.opacity(0.30), lineWidth: 0.5)
+                            .stroke(Color.white.opacity(0.32), lineWidth: 0.5)
                     )
                     .foregroundStyle(.black)
-                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.40), radius: 14, x: 0, y: 6)
+                    .shadow(
+                        color: DesignSystem.Colors.neonGreen.opacity(ctaBreathing ? 0.55 : 0.32),
+                        radius: ctaBreathing ? 20 : 12,
+                        x: 0,
+                        y: 6
+                    )
                 }
                 .disabled(workoutManager.selectedDay == nil)
                 .opacity(workoutManager.selectedDay == nil ? 0.55 : 1)
                 .accessibilityIdentifier("btn_start_workout")
             }
         }
+        .onAppear {
+            withAnimation(.easeOut(duration: 1.6).repeatForever(autoreverses: false)) {
+                livePulse = true
+            }
+            withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
+                ctaBreathing = true
+            }
+        }
     }
 
     @ViewBuilder
-    private func statColumn(icon: String, iconTint: Color, value: String, label: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(iconTint)
+    private func statChip(icon: String, accent: Color, value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 8) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(accent.opacity(0.22))
+                        .frame(width: 28, height: 28)
+                    Image(systemName: icon)
+                        .font(.system(size: 12, weight: .black))
+                        .foregroundStyle(accent)
+                        .shadow(color: accent.opacity(0.55), radius: 5)
+                }
                 Text(value)
-                    .font(.system(.title3, design: .rounded, weight: .heavy))
+                    .font(.system(.title2, design: .rounded, weight: .heavy))
                     .foregroundStyle(DesignSystem.Colors.primaryText)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    .minimumScaleFactor(0.6)
             }
             Text(label)
                 .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .tracking(0.4)
+                .tracking(0.6)
                 .foregroundStyle(DesignSystem.Colors.tertiaryText)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var statColumnDivider: some View {
-        Rectangle()
-            .fill(Color.white.opacity(0.10))
-            .frame(width: 1, height: 32)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+        )
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            accent.opacity(0.10),
+                            accent.opacity(0.02)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [accent.opacity(0.32), accent.opacity(0.08)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.8
+                )
+        )
     }
 
     private func estimatedSets(for day: WorkoutDay) -> Int {

@@ -131,6 +131,36 @@ struct AICoachContext {
         let sessionsStuck: Int
     }
 
+    /// Compact 4-week trajectory for one exercise. The model gets a clear
+    /// long-context picture without us streaming every individual set.
+    struct MonthlyExerciseRollup {
+        struct WeekStat {
+            let weekStartsDaysAgo: Int  // 0 = current week, 7 = last week, …
+            let topWeightKg: Double
+            let topReps: Int
+            let sessions: Int
+        }
+        let exerciseName: String
+        let totalSessions: Int           // last 28 days
+        let weeks: [WeekStat]            // up to 4, newest → oldest
+    }
+
+    /// Periodic (every 2–3 weeks) nudge to push progression on an exercise the
+    /// user has been training consistently. Distinct from `PlateauHint`: this
+    /// fires even when progress has been steady — its job is to keep the user
+    /// moving instead of waiting for a stall.
+    struct ProgressionNudge {
+        enum Kind: String { case weight, reps, sets }
+        let exerciseName: String
+        let currentTopWeightKg: Double
+        let currentTopReps: Int
+        let typicalSetsPerSession: Int
+        let kind: Kind
+        /// Pre-computed concrete suggestion the model can quote verbatim
+        /// (e.g. "+2.5 kg", "+1 rep", "+1 set"). Cheap, deterministic.
+        let suggestion: String
+    }
+
     let profile: ProfileSummary?
     let workouts: [WorkoutSummary]                // most recent first
     let health: HealthSummary
@@ -140,6 +170,8 @@ struct AICoachContext {
     let weightTrend: WeightTrendSummary?
     let stats: AggregateStats
     let plateaus: [PlateauHint]
+    let monthlyRollup: [MonthlyExerciseRollup]
+    let progressionNudges: [ProgressionNudge]
     let userLocaleIdentifier: String
 }
 
@@ -156,7 +188,8 @@ enum AICoachContextBuilder {
     ///   comments dropped unless they look like a pain/injury signal.
     static func build(modelContext: ModelContext,
                       healthManager: HealthManager,
-                      limit: Int = 10) async -> AICoachContext {
+                      limit: Int = 10,
+                      lastProgressionNudgeAt: Date? = nil) async -> AICoachContext {
 
         // --- Recent workouts ---------------------------------------------
         var workoutDescriptor = FetchDescriptor<WorkoutSession>(
@@ -214,6 +247,12 @@ enum AICoachContextBuilder {
         let allCompleted = (try? modelContext.fetch(allCompletedDescriptor)) ?? []
         let stats = aggregateStats(from: allCompleted)
         let plateaus = detectPlateaus(from: allCompleted)
+        let monthlyRollup = buildMonthlyRollup(from: allCompleted)
+        let progressionNudges = detectProgressionNudges(
+            from: allCompleted,
+            lastNudgeAt: lastProgressionNudgeAt,
+            plateauedExercises: Set(plateaus.map { $0.exerciseName })
+        )
 
         // --- Sensors -----------------------------------------------------
         var rhr: Int? = nil
@@ -332,6 +371,8 @@ enum AICoachContextBuilder {
             weightTrend: weightTrend,
             stats: stats,
             plateaus: plateaus,
+            monthlyRollup: monthlyRollup,
+            progressionNudges: progressionNudges,
             userLocaleIdentifier: LanguageManager.shared.currentLocale.identifier
         )
     }
@@ -588,6 +629,180 @@ enum AICoachContextBuilder {
         return Array(hints.prefix(3))
     }
 
+    // MARK: - Monthly rollup (4-week compressed memory)
+
+    /// Walks the last 28 days of sessions and emits up to 6 of the user's most
+    /// frequently trained exercises with a per-week trajectory of their best
+    /// completed set (weight × reps). Designed to give the model a 4-week
+    /// "where am I going" picture for ~250 tokens, not 2000.
+    private static func buildMonthlyRollup(from completed: [WorkoutSession]) -> [AICoachContext.MonthlyExerciseRollup] {
+        let cal = Calendar.current
+        let now = Date()
+        let cutoff = now.addingTimeInterval(-28 * 24 * 3600)
+        let recent = completed.filter { $0.date >= cutoff }
+        guard !recent.isEmpty else { return [] }
+
+        // For each exercise: list of (weekIndex 0..3, weight, reps) for every
+        // completed weighted set. weekIndex 0 = current 7-day window, 3 = oldest.
+        struct Hit { let weekIndex: Int; let weight: Double; let reps: Int }
+        var byExercise: [String: [Hit]] = [:]
+        var sessionsByExerciseWeek: [String: [Int: Set<Date>]] = [:]   // dedup by start-of-day
+
+        for session in recent {
+            let dayStart = cal.startOfDay(for: session.date)
+            let daysAgo = cal.dateComponents([.day], from: cal.startOfDay(for: session.date), to: cal.startOfDay(for: now)).day ?? 0
+            let weekIndex = max(0, min(3, daysAgo / 7))
+
+            for set in session.sets where set.isCompleted && set.weight > 0 && set.reps > 0 {
+                byExercise[set.exerciseName, default: []].append(.init(
+                    weekIndex: weekIndex, weight: set.weight, reps: set.reps
+                ))
+                sessionsByExerciseWeek[set.exerciseName, default: [:]][weekIndex, default: []].insert(dayStart)
+            }
+        }
+
+        // Rank by total session count across the 4 weeks.
+        let ranked = byExercise.map { (name, hits) -> (String, [Hit], Int) in
+            let totalSessions = (sessionsByExerciseWeek[name] ?? [:]).values.reduce(0) { $0 + $1.count }
+            return (name, hits, totalSessions)
+        }
+        .filter { $0.2 >= 2 }                         // at least 2 sessions in last 4 weeks
+        .sorted { $0.2 > $1.2 }
+        .prefix(6)
+
+        return ranked.map { name, hits, totalSessions in
+            // Best (weight × reps) per week index.
+            var bestPerWeek: [Int: AICoachContext.MonthlyExerciseRollup.WeekStat] = [:]
+            for w in 0...3 {
+                let weekHits = hits.filter { $0.weekIndex == w }
+                guard !weekHits.isEmpty else { continue }
+                let best = weekHits.max { ($0.weight * Double($0.reps)) < ($1.weight * Double($1.reps)) }!
+                let sessionCount = sessionsByExerciseWeek[name]?[w]?.count ?? 0
+                bestPerWeek[w] = .init(
+                    weekStartsDaysAgo: w * 7,
+                    topWeightKg: best.weight,
+                    topReps: best.reps,
+                    sessions: sessionCount
+                )
+            }
+            // Newest → oldest, so the model reads "now ← 1w ago ← 2w ago ← 3w ago".
+            let weeks = (0...3).compactMap { bestPerWeek[$0] }
+            return AICoachContext.MonthlyExerciseRollup(
+                exerciseName: name,
+                totalSessions: totalSessions,
+                weeks: weeks
+            )
+        }
+    }
+
+    // MARK: - Progression nudges (every 2–3 weeks)
+
+    /// Returns up to 3 exercises the coach should push progression on. Fires
+    /// only when ≥ 14 days have passed since the last nudge — store side bumps
+    /// the timestamp after a nudge actually lands in a reply, giving us a
+    /// rolling 2–3 week cadence (longer if the user trains rarely).
+    ///
+    /// Skips exercises already flagged as plateaued — those have a different
+    /// prescription (deload / variation) handled elsewhere.
+    private static func detectProgressionNudges(
+        from completed: [WorkoutSession],
+        lastNudgeAt: Date?,
+        plateauedExercises: Set<String>
+    ) -> [AICoachContext.ProgressionNudge] {
+
+        let now = Date()
+        // Cadence gate: 14 days since last nudge (or never).
+        if let last = lastNudgeAt,
+           now.timeIntervalSince(last) < 14 * 24 * 3600 {
+            return []
+        }
+
+        // Need a real training base — at least 4 sessions in last 14 days.
+        let twoWeeksAgo = now.addingTimeInterval(-14 * 24 * 3600)
+        let recent = completed.filter { $0.date >= twoWeeksAgo }
+        guard recent.count >= 4 else { return [] }
+
+        // Per exercise: best top set in last 14d + typical sets-per-session +
+        // session count.
+        struct Best { var weight: Double; var reps: Int; var sessions: Set<Date>; var setsPerSession: [Int] }
+        var byExercise: [String: Best] = [:]
+        let cal = Calendar.current
+
+        for session in recent {
+            // Group this session's sets by exercise to compute per-session set count.
+            var perEx: [String: [WorkoutSet]] = [:]
+            for set in session.sets where set.isCompleted && set.weight > 0 && set.reps > 0 {
+                perEx[set.exerciseName, default: []].append(set)
+            }
+            let dayStart = cal.startOfDay(for: session.date)
+            for (name, sets) in perEx {
+                let topSet = sets.max { ($0.weight * Double($0.reps)) < ($1.weight * Double($1.reps)) }!
+                var entry = byExercise[name] ?? .init(weight: 0, reps: 0, sessions: [], setsPerSession: [])
+                let topScore = topSet.weight * Double(topSet.reps)
+                if topScore > entry.weight * Double(entry.reps) {
+                    entry.weight = topSet.weight
+                    entry.reps = topSet.reps
+                }
+                entry.sessions.insert(dayStart)
+                entry.setsPerSession.append(sets.count)
+                byExercise[name] = entry
+            }
+        }
+
+        // Rank exercises by frequency, drop plateaued ones.
+        let candidates = byExercise
+            .filter { !plateauedExercises.contains($0.key) && $0.value.sessions.count >= 2 }
+            .sorted { $0.value.sessions.count > $1.value.sessions.count }
+            .prefix(3)
+
+        return candidates.map { name, best in
+            let typicalSets = Int((best.setsPerSession.reduce(0, +) / max(1, best.setsPerSession.count)))
+            let kind: AICoachContext.ProgressionNudge.Kind
+            let suggestion: String
+
+            // Heuristic ladder:
+            // • If they hit ≥ 8 reps already on top set → push weight (+2.5 kg, +5 kg if heavy compound).
+            // • If reps < 6 → bias toward reps (+1 rep next session).
+            // • Else if they typically do < 4 sets → suggest +1 set.
+            // • Default → +2.5 kg.
+            let isHeavyCompound = isLikelyCompound(name: name)
+            if best.reps >= 8 {
+                kind = .weight
+                suggestion = isHeavyCompound ? "+5 kg" : "+2.5 kg"
+            } else if best.reps < 6 {
+                kind = .reps
+                suggestion = "+1 rep"
+            } else if typicalSets > 0 && typicalSets < 4 {
+                kind = .sets
+                suggestion = "+1 set"
+            } else {
+                kind = .weight
+                suggestion = "+2.5 kg"
+            }
+
+            return AICoachContext.ProgressionNudge(
+                exerciseName: name,
+                currentTopWeightKg: best.weight,
+                currentTopReps: best.reps,
+                typicalSetsPerSession: typicalSets,
+                kind: kind,
+                suggestion: suggestion
+            )
+        }
+    }
+
+    /// Cheap keyword check — keeps the suggestion sane for big lifts where
+    /// +2.5 kg feels timid. False positives are tolerable; the AI sees the
+    /// numbers and can override.
+    private static func isLikelyCompound(name: String) -> Bool {
+        let lc = name.lowercased()
+        let needles = [
+            "присед", "становая", "жим лёж", "жим леж", "жим штан", "тяга штан", "становой",
+            "squat", "deadlift", "bench", "press", "row", "clean", "snatch"
+        ]
+        return needles.contains { lc.contains($0) }
+    }
+
     // MARK: - Rendering to plain text for the model
 
     /// Compact, deterministic string the model can read at a glance.
@@ -654,6 +869,37 @@ enum AICoachContextBuilder {
                 "• \(p.exerciseName): stuck \(p.weeksStuck)w (\(p.sessionsStuck) sessions); top \(String(format: "%.1f", p.topWeightKg))kg × \(p.topReps)"
             }
             out.append("PLATEAU SIGNALS — propose a concrete deload, tempo change, range tweak or accessory swap for these:\n" + lines.joined(separator: "\n"))
+        }
+
+        // 4-week compressed memory: per top-exercise trajectory across the
+        // last 28 days. Lets the model spot momentum without us streaming
+        // every set from every session.
+        if !ctx.monthlyRollup.isEmpty {
+            var lines: [String] = []
+            for r in ctx.monthlyRollup {
+                let weeksTxt = r.weeks.map { w -> String in
+                    let label: String
+                    switch w.weekStartsDaysAgo {
+                    case 0: label = "now"
+                    case 7: label = "1w"
+                    case 14: label = "2w"
+                    default: label = "3w"
+                    }
+                    return "\(label) \(formatWeight(w.topWeightKg))×\(w.topReps) (\(w.sessions)s)"
+                }.joined(separator: " ← ")
+                lines.append("• \(r.exerciseName) [\(r.totalSessions) sess/4w]: \(weeksTxt)")
+            }
+            out.append("LAST 4 WEEKS — TOP LIFTS (newest ← oldest, weight×reps, s=sessions/week):\n" + lines.joined(separator: "\n"))
+        }
+
+        // Progression nudge: fires every 2–3 weeks. Lets the model close the
+        // reply with a concrete, motivating call to push load/reps/sets on
+        // exercises that have been trained consistently.
+        if !ctx.progressionNudges.isEmpty {
+            let lines = ctx.progressionNudges.map { n -> String in
+                "• \(n.exerciseName): now \(formatWeight(n.currentTopWeightKg))kg × \(n.currentTopReps), typical \(n.typicalSetsPerSession) sets → try \(n.suggestion) (\(n.kind.rawValue))"
+            }
+            out.append("PROGRESSION NUDGE — it's been ≥2 weeks; pick 1–2 of these and motivate the user to push next session. Quote the suggestion verbatim:\n" + lines.joined(separator: "\n"))
         }
 
         // Sensors
