@@ -61,11 +61,13 @@ iOSInjectionProject/
 # OS X
 .DS_Store
 
-# Agent
+# Agent / AI config (keep local, not for public repo)
 .agent/
 .cursor/
 .mcp.json
 .serena/
+claude.md
+.claude.md
 
 # Temporary
 .tmp/
