@@ -217,7 +217,11 @@ struct TodayWorkoutCard: View {
     }
 
     private func estimatedSets(for day: WorkoutDay) -> Int {
-        day.exercises.reduce(0) { $0 + max(1, $1.plannedSets) }
+        // Defensive: skip SwiftData zombies (relationship still references a row
+        // whose backing data is gone — accessing properties would fatalError).
+        day.exercises
+            .filter { $0.modelContext != nil }
+            .reduce(0) { $0 + max(1, $1.plannedSets) }
     }
 
     private func estimatedMinutes(for day: WorkoutDay) -> Int {
@@ -363,7 +367,9 @@ struct TodayWorkoutCard: View {
               let day = workoutManager.selectedDay,
               day.exercises.count > 0 else { return 0 }
         
-        let totalSets = day.exercises.reduce(0) { $0 + $1.plannedSets }
+        let totalSets = day.exercises
+            .filter { $0.modelContext != nil }
+            .reduce(0) { $0 + $1.plannedSets }
         let completedSets = session.sets.count
         
         return min(1.0, CGFloat(completedSets) / CGFloat(max(1, totalSets)))
@@ -1184,6 +1190,8 @@ struct SummaryOverlay: View {
     @State private var progressData: [ExerciseProgress] = []
     @State private var animateHero = false
     @State private var showingProgressHub = false
+    @State private var sharePayload: WorkoutSharePayload?
+    @State private var isPreparingShare = false
 
     @Query(filter: #Predicate<WorkoutSession> { $0.isCompleted == true },
            sort: \WorkoutSession.date, order: .reverse)
@@ -1310,7 +1318,7 @@ struct SummaryOverlay: View {
                     }
 
                     notesEditor
-                    saveButton
+                    actionButtons
 
                     Spacer().frame(height: DesignSystem.Spacing.xxl)
                 }
@@ -1325,6 +1333,9 @@ struct SummaryOverlay: View {
         }
         .sheet(isPresented: $showingProgressHub) {
             ProgressHubView()
+        }
+        .sheet(item: $sharePayload) { payload in
+            WorkoutShareSheet(items: [payload.image])
         }
     }
 
@@ -1748,6 +1759,63 @@ struct SummaryOverlay: View {
         )
     }
 
+    private var actionButtons: some View {
+        VStack(spacing: 12) {
+            shareButton
+            saveButton
+        }
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+    }
+
+    /// Renders a 4:5 brand card via `WorkoutShareRender` and pushes it to the
+    /// system share sheet. Image is built off the live session + calories +
+    /// progressData so it matches what the user is looking at.
+    private var shareButton: some View {
+        Button(action: shareWorkout) {
+            HStack(spacing: 10) {
+                if isPreparingShare {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.black)
+                } else {
+                    Image(systemName: "square.and.arrow.up.fill")
+                        .font(.system(size: 16, weight: .heavy))
+                }
+                Text("Поделиться".localized())
+                    .font(.system(.headline, design: .rounded, weight: .heavy))
+                    .tracking(0.4)
+            }
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.neonGreen,
+                            Color(red: 0.6, green: 0.9, blue: 0.15)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.32), .clear],
+                        startPoint: .top,
+                        endPoint: .center
+                    )
+                }
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Color.white.opacity(0.35), lineWidth: 0.5)
+            )
+            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.45), radius: 18, y: 8)
+        }
+        .buttonStyle(.plain)
+        .disabled(isPreparingShare)
+    }
+
     private var saveButton: some View {
         GradientButton(title: "Закрыть и сохранить".localized(), icon: "checkmark.circle.fill") {
             if !notes.isEmpty {
@@ -1757,7 +1825,43 @@ struct SummaryOverlay: View {
             workoutManager.currentSession?.averageHeartRate = heartRate
             workoutManager.closeWorkout()
         }
-        .padding(.horizontal, DesignSystem.Spacing.lg)
+    }
+
+    private func shareWorkout() {
+        guard !isPreparingShare,
+              let session = workoutManager.currentSession else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        isPreparingShare = true
+
+        let liveCalories = calories
+        let liveHeartRate = heartRate
+        var snapshot = WorkoutShareSnapshot.make(from: session, progressData: progressData)
+        // Patch in fields the user just edited but that haven't been written
+        // back to the session yet — otherwise the shared card looks "empty".
+        if liveCalories > 0 && snapshot.calories == 0 {
+            snapshot = WorkoutShareSnapshot(
+                workoutDayName: snapshot.workoutDayName,
+                programName: snapshot.programName,
+                date: snapshot.date,
+                durationSeconds: snapshot.durationSeconds,
+                totalVolumeKg: snapshot.totalVolumeKg,
+                totalSets: snapshot.totalSets,
+                totalReps: snapshot.totalReps,
+                calories: liveCalories,
+                averageHeartRate: liveHeartRate > 0 ? liveHeartRate : snapshot.averageHeartRate,
+                recordsCount: snapshot.recordsCount,
+                exercises: snapshot.exercises
+            )
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            let image = WorkoutShareRenderer.makeImage(snapshot: snapshot)
+            isPreparingShare = false
+            if let image {
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                sharePayload = WorkoutSharePayload(image: image)
+            }
+        }
     }
 
     // MARK: - Helpers

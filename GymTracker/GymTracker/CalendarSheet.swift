@@ -11,9 +11,28 @@ import SwiftData
 
 struct CalendarSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var workoutManager: WorkoutManager
     @Query(sort: \WorkoutSession.date, order: .reverse) private var allSessions: [WorkoutSession]
     @State private var externalWorkouts: [ExternalWorkout] = []
     @State private var showingAppleHealthSheet = false
+
+    /// 0 = auto (follow active program); 1…7 = explicit weekly target.
+    /// Same key as the streak strip / dashboard, so any change here updates
+    /// every dependent surface immediately.
+    @AppStorage("weeklyWorkoutGoal") private var weeklyWorkoutGoal: Int = 0
+
+    private var resolvedAutoGoal: Int {
+        if let program = workoutManager.activeProgram, !program.days.isEmpty {
+            return min(6, max(1, program.days.count))
+        }
+        return 3
+    }
+
+    private var weeklyGoalAccessory: String {
+        weeklyWorkoutGoal == 0
+            ? String(format: "%d (авто)".localized(), resolvedAutoGoal)
+            : "\(weeklyWorkoutGoal)"
+    }
 
     private var completedSessions: [WorkoutSession] {
         allSessions.filter { $0.isCompleted }
@@ -86,6 +105,9 @@ struct CalendarSheet: View {
                         statsRow
                             .padding(.horizontal, DesignSystem.Spacing.lg)
                             .padding(.top, DesignSystem.Spacing.md)
+
+                        weeklyGoalCard
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
 
                         ExpandableCalendarView(
                             lockedExpanded: true,
@@ -201,6 +223,86 @@ struct CalendarSheet: View {
         )
     }
 
+    // MARK: - Weekly goal picker
+
+    /// Inline picker for the weekly training target. Lives on the calendar
+    /// rather than buried in app settings — this is where the user thinks
+    /// about their plan, so the control belongs here.
+    private var weeklyGoalCard: some View {
+        Menu {
+            Button {
+                weeklyWorkoutGoal = 0
+                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+            } label: {
+                Label {
+                    Text(String(localized: "Авто (по программе)"))
+                } icon: {
+                    if weeklyWorkoutGoal == 0 { Image(systemName: "checkmark") }
+                }
+            }
+            ForEach(1...7, id: \.self) { n in
+                Button {
+                    weeklyWorkoutGoal = n
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                } label: {
+                    Label {
+                        Text(String(format: String(localized: "%d в неделю"), n))
+                    } icon: {
+                        if weeklyWorkoutGoal == n { Image(systemName: "checkmark") }
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(DesignSystem.Colors.neonGreen.opacity(0.18))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "target")
+                        .font(.system(size: 14, weight: .heavy))
+                        .foregroundStyle(DesignSystem.Colors.neonGreen)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "Цель: тренировок в неделю"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(DesignSystem.Colors.primaryText)
+                    Text(String(localized: "Влияет на круг прогресса и серию недель"))
+                        .font(.caption)
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 8)
+                Text(weeklyGoalAccessory)
+                    .font(.subheadline.weight(.heavy).monospacedDigit())
+                    .foregroundStyle(DesignSystem.Colors.neonGreen)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(
+                        Capsule()
+                            .fill(DesignSystem.Colors.neonGreen.opacity(0.14))
+                    )
+                    .overlay(
+                        Capsule()
+                            .stroke(DesignSystem.Colors.neonGreen.opacity(0.30), lineWidth: 0.6)
+                    )
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption2.weight(.heavy))
+                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white.opacity(0.04))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(DesignSystem.Colors.neonGreen.opacity(0.20), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
     // MARK: - Legend
 
     private var legend: some View {
@@ -226,6 +328,16 @@ struct CalendarSheet: View {
 }
 
 #Preview {
-    CalendarSheet()
-        .modelContainer(for: WorkoutSession.self, inMemory: true)
+    let container = try! ModelContainer(
+        for: WorkoutSession.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    let manager = WorkoutManager(
+        modelContext: container.mainContext,
+        healthProvider: HealthManager.shared,
+        activityProvider: LiveActivityManager.shared
+    )
+    return CalendarSheet()
+        .environmentObject(manager)
+        .modelContainer(container)
 }
