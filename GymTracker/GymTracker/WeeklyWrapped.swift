@@ -233,17 +233,20 @@ struct WeeklyWrappedView: View {
             VStack(spacing: 0) {
                 topBar
                     .padding(.horizontal, 18)
-                    .padding(.top, 10)
+                    .padding(.top, 6)
 
-                Spacer(minLength: 4)
-
-                content
-
-                Spacer(minLength: 6)
+                // Scrollable so every iPhone — from SE to Pro Max — can reach
+                // the bottom of the recap without the share button getting
+                // clipped by the home indicator.
+                ScrollView(showsIndicators: false) {
+                    content
+                        .padding(.top, 6)
+                        .padding(.bottom, 16)
+                }
 
                 shareButton
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 22)
+                    .padding(.bottom, 14)
                     .reveal(at: 0.95, revealed: revealed, animation: Self.revealSpring)
             }
         }
@@ -531,34 +534,77 @@ struct WeeklyWrappedView: View {
 
     private func highlightRow(_ row: HighlightRow) -> some View {
         HStack(spacing: 14) {
+            // Coloured accent rail on the left edge — gives each row a distinct
+            // "chapter heading" feel instead of the flat glass-card look.
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: [row.iconColor, row.iconColor.opacity(0.4)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 4)
+                .frame(maxHeight: .infinity)
+
             ZStack {
                 Circle()
                     .fill(row.iconColor.opacity(0.22))
-                    .frame(width: 38, height: 38)
+                    .frame(width: 40, height: 40)
                 Circle()
-                    .stroke(row.iconColor.opacity(0.4), lineWidth: 0.6)
-                    .frame(width: 38, height: 38)
+                    .stroke(row.iconColor.opacity(0.45), lineWidth: 0.8)
+                    .frame(width: 40, height: 40)
                 Image(systemName: row.icon)
-                    .font(.system(size: 15, weight: .heavy))
+                    .font(.system(size: 16, weight: .heavy))
                     .foregroundStyle(row.iconColor)
-                    .shadow(color: row.iconColor.opacity(0.6), radius: 6)
+                    .shadow(color: row.iconColor.opacity(0.7), radius: 8)
             }
-            VStack(alignment: .leading, spacing: 2) {
+
+            VStack(alignment: .leading, spacing: 3) {
                 Text(row.title.localizedUppercase)
                     .font(.system(.caption2, design: .rounded, weight: .heavy))
-                    .tracking(1.2)
-                    .foregroundStyle(.white.opacity(0.65))
+                    .tracking(1.4)
+                    .foregroundStyle(row.iconColor.opacity(0.95))
                 Text(row.detail)
                     .font(.system(.subheadline, design: .rounded, weight: .heavy))
                     .foregroundStyle(.white)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    .minimumScaleFactor(0.6)
             }
-            Spacer(minLength: 0)
+
+            Spacer(minLength: 8)
+
+            if let badge = row.badge {
+                Text(badge)
+                    .font(.system(.subheadline, design: .rounded, weight: .black))
+                    .foregroundStyle(row.iconColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(
+                        Capsule()
+                            .fill(row.iconColor.opacity(0.18))
+                    )
+                    .overlay(
+                        Capsule()
+                            .stroke(row.iconColor.opacity(0.4), lineWidth: 0.6)
+                    )
+                    .lineLimit(1)
+            }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(GlassPanel(cornerRadius: 16))
+        .padding(.leading, 0)
+        .padding(.trailing, 14)
+        .padding(.vertical, 12)
+        .background(
+            ZStack {
+                GlassPanel(cornerRadius: 18)
+                LinearGradient(
+                    colors: [row.iconColor.opacity(0.12), .clear],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            }
+        )
     }
 
     private struct HighlightRow {
@@ -566,6 +612,7 @@ struct WeeklyWrappedView: View {
         let iconColor: Color
         let title: String
         let detail: String
+        let badge: String?
     }
 
     private var highlightRows: [HighlightRow] {
@@ -575,7 +622,8 @@ struct WeeklyWrappedView: View {
                 icon: "crown.fill",
                 iconColor: Color(red: 1.0, green: 0.85, blue: 0.20),
                 title: "Чемпион недели".localized(),
-                detail: "\(top) · \(Int(snapshot.topExerciseVolumeKg)) кг"
+                detail: top,
+                badge: "\(Int(snapshot.topExerciseVolumeKg)) " + "кг".localized()
             ))
         }
         if snapshot.prCount > 0 {
@@ -583,8 +631,8 @@ struct WeeklyWrappedView: View {
                 icon: "trophy.fill",
                 iconColor: Color(red: 1.0, green: 0.40, blue: 0.50),
                 title: "Новые рекорды".localized(),
-                detail: snapshot.topPRName.map { String(format: "%d PR · %@".localized(), snapshot.prCount, $0) }
-                    ?? String(format: "%d PR".localized(), snapshot.prCount)
+                detail: snapshot.topPRName ?? "PR".localized(),
+                badge: "\(snapshot.prCount) PR"
             ))
         }
         if snapshot.currentStreakDays > 0 {
@@ -592,7 +640,8 @@ struct WeeklyWrappedView: View {
                 icon: "flame.fill",
                 iconColor: Color(red: 1.0, green: 0.55, blue: 0.10),
                 title: "Серия".localized(),
-                detail: String(format: "%d дней подряд".localized(), snapshot.currentStreakDays)
+                detail: String(format: "%d дней подряд".localized(), snapshot.currentStreakDays),
+                badge: nil
             ))
         }
         // HR moved into the stats grid — keep this list focused on standout moments.
@@ -1053,13 +1102,14 @@ struct WeeklyWrappedSummaryCard: View {
 
     @ViewBuilder
     private var highlightsStack: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             if let top = snapshot.topExerciseName, snapshot.topExerciseVolumeKg > 0 {
                 highlightRow(
                     icon: "crown.fill",
                     iconColor: Color(red: 1.0, green: 0.85, blue: 0.20),
                     title: "Чемпион недели".localized(),
-                    detail: "\(top) · \(Int(snapshot.topExerciseVolumeKg)) кг"
+                    detail: top,
+                    badge: "\(Int(snapshot.topExerciseVolumeKg)) " + "кг".localized()
                 )
             }
             if snapshot.prCount > 0 {
@@ -1067,7 +1117,8 @@ struct WeeklyWrappedSummaryCard: View {
                     icon: "trophy.fill",
                     iconColor: Color(red: 1.0, green: 0.40, blue: 0.50),
                     title: "Новые рекорды".localized(),
-                    detail: snapshot.topPRName.map { String(format: "%d PR · %@".localized(), snapshot.prCount, $0) } ?? String(format: "%d PR".localized(), snapshot.prCount)
+                    detail: snapshot.topPRName ?? "PR".localized(),
+                    badge: "\(snapshot.prCount) PR"
                 )
             }
             if snapshot.currentStreakDays > 0 {
@@ -1075,42 +1126,83 @@ struct WeeklyWrappedSummaryCard: View {
                     icon: "flame.fill",
                     iconColor: Color(red: 1.0, green: 0.55, blue: 0.10),
                     title: "Серия".localized(),
-                    detail: String(format: "%d дней подряд".localized(), snapshot.currentStreakDays)
+                    detail: String(format: "%d дней подряд".localized(), snapshot.currentStreakDays),
+                    badge: nil
                 )
             }
         }
     }
 
-    private func highlightRow(icon: String, iconColor: Color, title: String, detail: String) -> some View {
+    private func highlightRow(icon: String, iconColor: Color, title: String, detail: String, badge: String?) -> some View {
         HStack(spacing: 14) {
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: [iconColor, iconColor.opacity(0.35)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 4)
+                .frame(maxHeight: .infinity)
+
             ZStack {
                 Circle()
                     .fill(iconColor.opacity(0.22))
-                    .frame(width: 42, height: 42)
+                    .frame(width: 44, height: 44)
                 Circle()
-                    .stroke(iconColor.opacity(0.4), lineWidth: 0.6)
-                    .frame(width: 42, height: 42)
+                    .stroke(iconColor.opacity(0.45), lineWidth: 0.8)
+                    .frame(width: 44, height: 44)
                 Image(systemName: icon)
-                    .font(.system(size: 16, weight: .heavy))
+                    .font(.system(size: 17, weight: .heavy))
                     .foregroundStyle(iconColor)
-                    .shadow(color: iconColor.opacity(0.6), radius: 6)
+                    .shadow(color: iconColor.opacity(0.7), radius: 8)
             }
-            VStack(alignment: .leading, spacing: 2) {
+
+            VStack(alignment: .leading, spacing: 3) {
                 Text(title.localizedUppercase)
                     .font(.system(.caption2, design: .rounded, weight: .heavy))
-                    .tracking(1.2)
-                    .foregroundStyle(.white.opacity(0.65))
+                    .tracking(1.4)
+                    .foregroundStyle(iconColor.opacity(0.95))
                 Text(detail)
                     .font(.system(.callout, design: .rounded, weight: .heavy))
                     .foregroundStyle(.white)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    .minimumScaleFactor(0.6)
             }
-            Spacer(minLength: 0)
+
+            Spacer(minLength: 8)
+
+            if let badge {
+                Text(badge)
+                    .font(.system(.subheadline, design: .rounded, weight: .black))
+                    .foregroundStyle(iconColor)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(iconColor.opacity(0.18))
+                    )
+                    .overlay(
+                        Capsule()
+                            .stroke(iconColor.opacity(0.4), lineWidth: 0.6)
+                    )
+                    .lineLimit(1)
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(glassBackground(cornerRadius: 18))
+        .padding(.trailing, 16)
+        .padding(.vertical, 14)
+        .background(
+            ZStack {
+                glassBackground(cornerRadius: 18)
+                LinearGradient(
+                    colors: [iconColor.opacity(0.12), .clear],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            }
+        )
     }
 
     // MARK: Footer (share render only)

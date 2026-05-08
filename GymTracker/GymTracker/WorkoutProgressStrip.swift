@@ -19,7 +19,9 @@ struct WorkoutProgressStrip: View {
 
     private var totalPlannedSets: Int {
         guard let day = workoutManager.selectedDay else { return 0 }
-        return day.exercises.reduce(0) { $0 + max(1, $1.plannedSets) }
+        return day.exercises
+            .filter { $0.modelContext != nil }
+            .reduce(0) { $0 + max(1, $1.plannedSets) }
     }
 
     private var completedSets: Int {
