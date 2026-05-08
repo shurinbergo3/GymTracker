@@ -1010,6 +1010,7 @@
       }
     },
     "• Витамины: Помогают организму работать без сбоев." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1060,6 +1061,7 @@
       }
     },
     "• Жиросжигатели: Не работают без диеты и спорта." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1076,6 +1078,7 @@
       }
     },
     "• Креатин: Дает силу и объем мышцам." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1109,6 +1112,7 @@
       }
     },
     "• Протеин: Удобный способ добрать белок, если не успел поесть." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1370,6 +1374,7 @@
       }
     },
     "1 час" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1539,6 +1544,7 @@
       }
     },
     "1. Энергия и Калории" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1606,6 +1612,7 @@
       }
     },
     "2-3 часа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1690,6 +1697,7 @@
       }
     },
     "2-дневный сплит. Фокус на гармоничное развитие всех мышечных групп." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1740,6 +1748,7 @@
       }
     },
     "2. Из чего состоит еда (БЖУ)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1909,6 +1918,7 @@
       }
     },
     "3. Вода" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1976,6 +1986,7 @@
       }
     },
     "4 дня в неделю. Волновая периодизация: чередование силовых и объемных дней." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2145,6 +2156,7 @@
       }
     },
     "5. Когда есть?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2212,6 +2224,7 @@
       }
     },
     "5/3/1 Новичок" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2295,6 +2308,7 @@
       }
     },
     "6. Спортивные добавки" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2345,6 +2359,7 @@
       }
     },
     "7. Как измерять порции" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2589,6 +2604,7 @@
       }
     },
     "30 мин" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2639,6 +2655,7 @@
       }
     },
     "40-60 минут в зоне 2 пульса. Активно работать руками (push-pull)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2789,6 +2806,7 @@
       }
     },
     "360 Swing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3319,6 +3337,7 @@
       }
     },
     "Bayesian Curl" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4140,6 +4159,7 @@
       }
     },
     "Day Lower" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4156,6 +4176,7 @@
       }
     },
     "Day Upper" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4409,6 +4430,7 @@
       }
     },
     "DIM / Индол" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4717,6 +4739,7 @@
       }
     },
     "EDT Плотность" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4852,6 +4875,7 @@
       }
     },
     "Escalating Density Training. Два 15-минутных блока." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5322,6 +5346,7 @@
       }
     },
     "Good Morning" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5372,6 +5397,7 @@
       }
     },
     "GZCL Linear Progression. Три уровня интенсивности: T1, T2, T3." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5405,6 +5431,7 @@
       }
     },
     "GZCLP Линейная" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5534,6 +5561,7 @@
       }
     },
     "HIIT Пирамида" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5845,6 +5873,7 @@
       }
     },
     "Kettlebell swing. Махи гирей между ног и до уровня груди. Взрывная работа бедер и ягодиц." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6042,6 +6071,7 @@
       }
     },
     "LISS Эллипс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6233,6 +6263,7 @@
       }
     },
     "Muscle up. Подтягивание с переходом в отжиманиеon верхом перекладины. Требует силы и техники." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6627,6 +6658,7 @@
       }
     },
     "Peripheral Heart Action. Круговая без остановки для максимальной кардио-нагрузки." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6643,6 +6675,7 @@
       }
     },
     "PHA (Сердце)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6725,6 +6758,7 @@
       }
     },
     "Power clean. Взрывным движением поднимите штангу на грудь. Техничное упражнение для всего тела." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6758,6 +6792,7 @@
       }
     },
     "Pre-Exhaustion" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7376,6 +7411,7 @@
       }
     },
     "Skin The Cat: Проворот тела через кольца/турник из виса в положение виса сзади. Развивает мобильность плеч (экстензия). Back Lever: Удержание тела горизонтально лицом вниз. Нагружает грудные мышцы, бицепсы и плечи в растянутом положении. и «Ласточка» (Skin The Cat)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7562,6 +7598,7 @@
       }
     },
     "Spider curl. Живот на скамье, руки вниз. Сгибайте, локти неподвижны. Полная изоляция бицепса." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7594,6 +7631,7 @@
       }
     },
     "Stairmaster Glutes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8265,6 +8303,7 @@
       }
     },
     "Vitex (Витекс)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8622,6 +8661,7 @@
       }
     },
     "Австралийские подтягивания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8652,6 +8692,7 @@
 
     },
     "Авторство: Джон Мэдоуз. Техника: Используется Лэндмайн (один конец штанги закреплен). Атлет стоит перпендикулярно грифу, наклонившись вперед. Хват за толстую часть грифа (без рукоятки) пронированной рукой. Локоть тянется вверх и назад, акцентируя нагрузку на заднюю дельту, ромбовидные и внешнюю часть широчайших." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8685,6 +8726,7 @@
       }
     },
     "АДРЕНАЛИН" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8848,6 +8890,7 @@
       }
     },
     "Активность" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8926,6 +8969,7 @@
       }
     },
     "Альпинист (Скалолаз)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9037,6 +9081,7 @@
       }
     },
     "Аналог жима сидя, но требует большей стабилизации корпуса. Не прогибайтесь в пояснице." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9053,6 +9098,7 @@
       }
     },
     "Анатомия: Широчайшие и прямая мышца живота работают на пределе изометрии. Прогрессия: Tuck (группировка) -> Advanced Tuck (спина прямая) -> One Leg (одна нога прямая) -> Straddle (ноги врозь) -> Full. Вспомогательное: Front Lever Pull-ups (подтягивания в висе) — одно из самых тяжелых упражнений для спины в мире." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9069,6 +9115,7 @@
       }
     },
     "Анти-ротация" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9147,6 +9194,7 @@
       }
     },
     "Армейский жим" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9163,6 +9211,7 @@
       }
     },
     "Армейский жим (5/3/1)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9179,6 +9228,7 @@
       }
     },
     "Армейский жим (Т1)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9195,6 +9245,7 @@
       }
     },
     "Армейский жим. Штанга на уровне плеч, хват чуть шире плеч. Выжмите вверх, фиксируя корпус. Локти чуть вперед, не разводите wide." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9233,6 +9284,7 @@
       }
     },
     "Атлет располагается на скамье, сводя лопатки вместе и опуская их вниз (ретракция и депрессия). Стопы жестко упираются в пол, создавая «leg drive» (импульс от ног). Хват чуть шире плеч. Штанга опускается на нижнюю часть груди (мечевидный отросток) и выжимается по J-образной траектории — сначала вверх, затем слегка назад к проекции глаз." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9266,6 +9318,7 @@
       }
     },
     "Бабочка (грудь)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9344,6 +9397,7 @@
       }
     },
     "Базовая программа full body для начинающих. 2 тренировки в неделю с акцентом на основные движения." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9360,6 +9414,7 @@
       }
     },
     "Базовое упражнение. Спина прямая, тяните штангу вдоль ног. Разгибайте бедра и спину одновременно." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9376,6 +9431,7 @@
       }
     },
     "Базовые прыжки с перекрещиванием рук перед собой. Развивает координацию и ловкость." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9392,6 +9448,7 @@
       }
     },
     "Базовый обмен" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9408,6 +9465,7 @@
       }
     },
     "Байезианские сгибания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9424,6 +9482,7 @@
       }
     },
     "Байк (Assault Bike)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9440,6 +9499,7 @@
       }
     },
     "Баланс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9456,6 +9516,7 @@
       }
     },
     "Баланс эстрогенов" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9506,6 +9567,7 @@
       }
     },
     "Бег (Интервалы: 30/30, 45/45, 60/60)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9522,6 +9584,7 @@
       }
     },
     "Бег (Интервалы)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9560,6 +9623,7 @@
       }
     },
     "Бег трусцой" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9576,6 +9640,7 @@
       }
     },
     "Беги, остановись или бей" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9592,6 +9657,7 @@
       }
     },
     "Беговая дорожка с уклоном 10-15%. Быстрая ходьба без бега. Мощно прорабатывает заднюю поверхность бедра." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9680,6 +9746,7 @@
       }
     },
     "Беззащитность, состояние «тряпки», рефлексия, самообвинение. Готовность подчиняться без согласия." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9713,6 +9780,7 @@
       }
     },
     "Белки (Строитель)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9729,6 +9797,7 @@
       }
     },
     "Белок" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9745,6 +9814,7 @@
       }
     },
     "Белок (творог, рыба) + овощи." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9761,6 +9831,7 @@
       }
     },
     "Берпи" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9794,6 +9865,7 @@
       }
     },
     "Бескомпромиссность. Подумал – сделал. Готовность уживаться только с приятными людьми." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9810,6 +9882,7 @@
       }
     },
     "Биомеханика: Анти-экстензия. Мышцы пресса работают, чтобы не дать пояснице прогнуться под весом тела. Вариация с разведением рук в стороны (на гантелях) — «Iron Cross» на полу." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9826,6 +9899,7 @@
       }
     },
     "Биомеханика: Максимальное растяжение длинной головки. Исследования показывают, что работа в растянутой позиции дает больший гипертрофический стимул." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9876,6 +9950,7 @@
       }
     },
     "Бицепс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9892,6 +9967,7 @@
       }
     },
     "Бицепс + Трицепс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9908,6 +9984,7 @@
       }
     },
     "Бицепс бедра" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9958,6 +10035,7 @@
       }
     },
     "Божественное единение. Единый разум с близкими, понимание с полуслова." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9996,6 +10074,7 @@
       }
     },
     "Боковые выпады" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10051,6 +10130,7 @@
       }
     },
     "Бокс (Груша)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10067,6 +10147,7 @@
       }
     },
     "Болгарские выпады" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10083,6 +10164,7 @@
       }
     },
     "Болгарские отжимания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10099,6 +10181,7 @@
       }
     },
     "Болгарские сплит-приседания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10115,6 +10198,7 @@
       }
     },
     "Больше белка" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10131,6 +10215,7 @@
       }
     },
     "Больше ешь" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10175,6 +10260,7 @@
       }
     },
     "Бор" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10276,6 +10362,7 @@
       }
     },
     "Броски мяча (Wall Balls)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10337,6 +10424,7 @@
       }
     },
     "Быстрый набор веса — это чаще жир, а не мышцы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10403,6 +10491,7 @@
       }
     },
     "В висе поднимайте носки к перекладине. Контролируйте раскачку. Мощная работа пресса." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10475,6 +10564,7 @@
       }
     },
     "В тренажере. Спина прижата. Приседайте глубоко. Отличное упражнение, снимающее нагрузку с поясницы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10525,6 +10615,7 @@
       }
     },
     "Вакуум" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10552,6 +10643,7 @@
       }
     },
     "Вариант с гантелями. Позволяет больший диапазон движения. Техника как с штангой - таз назад, спина прямая." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10568,6 +10660,7 @@
       }
     },
     "Варианты шагов на степпере для разнообразия и проработки мышц под разными углами." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10584,6 +10677,7 @@
       }
     },
     "Вариации: Standing: Стоя двумя руками. Half-Kneeling: Стоя на одном колене, жим одной рукой. Отличная стабилизация кора. Push Press: Жим с помощью ног (швунг). Развивает взрывную силу." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10600,6 +10694,7 @@
       }
     },
     "Вариация «Прямыми руками» (Straight-Arm Pulldown): Изолирующее упражнение. Атлет стоит, руки прямые, тянет рукоять сверху вниз по дуге к бедрам. Исключает бицепс, активируя широчайшие через функцию разгибания плеча." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10616,6 +10711,7 @@
       }
     },
     "Вариация: Опускание штанги не ко лбу, а за голову. Это сильнее растягивает длинную головку трицепса, которая пересекает плечевой сустав. С гантелями: Позволяет использовать нейтральный хват, что безопаснее для локтей." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10717,6 +10813,7 @@
       }
     },
     "Велосипед" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10767,6 +10864,7 @@
       }
     },
     "Верх груди" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10783,6 +10881,7 @@
       }
     },
     "Верх/Низ Силовой" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10827,6 +10926,7 @@
       }
     },
     "Вес × Повторы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10894,6 +10994,7 @@
       }
     },
     "Вечером" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10920,6 +11021,7 @@
       }
     },
     "Взрывное отжимание, в верхней точке делаем хлопок руками. Требует скорости и силы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10936,6 +11038,7 @@
       }
     },
     "Взрывной: Тяга до пояса за счет инерции и рывка, быстрый проворот кистей. Медленный (Slow/Strict): Выполняется с ложным хватом (False Grip), без рывков. Чистая сила. На кольцах (Ring Muscle-up): Сложнее из-за нестабильности колец. Требует глубокого хвата." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10952,6 +11055,7 @@
       }
     },
     "Взятие на грудь" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10968,6 +11072,7 @@
       }
     },
     "Взятие штанги на грудь (Clean)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10984,6 +11089,7 @@
       }
     },
     "Взятие штанги на грудь в полный сед + Трастер. Каждый повтор начинается с пола. Одно из самых энергоемких упражнений." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11011,6 +11117,7 @@
       }
     },
     "Вис на низкой перекладине (или кольцах), тело под углом, пятки на полу. Тянемся грудью к перекладине." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11027,6 +11134,7 @@
       }
     },
     "Вис на турнике. Поднимайте ноги, подкручивая таз вверх (показывайте попу зеркалу). Без раскачки." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11077,6 +11185,7 @@
       }
     },
     "Витамин D3 + K2" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11232,6 +11341,7 @@
       }
     },
     "Вода — это среда для всех процессов." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11276,6 +11386,7 @@
       }
     },
     "Возникает беспокойство, трудно начать активную здоровую деятельность, долго работать над одним проектом, не отвлекаться, не бросать на полпути. Трудно отказаться от искушений." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11309,6 +11420,7 @@
       }
     },
     "Возьмите тяжелые гантели или снаряды в руки. Идите мелкими шагами, корпус напряжен, плечи расправлены. Адский хват и стабилизация." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11426,6 +11538,7 @@
       }
     },
     "Воркаут: Прогресс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11442,6 +11555,7 @@
       }
     },
     "Воркаут: Старт" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11738,6 +11852,7 @@
       }
     },
     "Все просто: количество энергии (калорий) определяет твой вес." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11754,6 +11869,7 @@
       }
     },
     "Все тело" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11770,6 +11886,7 @@
       }
     },
     "Все хочется, все интересно, все любопытно, жизнь играет красками." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11848,6 +11965,7 @@
       }
     },
     "Вспомогательные упражнения для укрепления слабых мест. Подбираются индивидуально." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11881,6 +11999,7 @@
       }
     },
     "Встаньте боком к блоку. Отводите руку в сторону до горизонтали. Постоянное напряжение в дельте." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11897,6 +12016,7 @@
       }
     },
     "Встаньте перед тумбой. Сделайте замах руками и запрыгните наверх, полностью выпрямив таз в верхней точке. Спускайтесь шагом, чтобы сберечь ахиллы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11913,6 +12033,7 @@
       }
     },
     "Встаньте по центру, корпус чуть вперед. Сводите руки перед собой вниз к поясу, акцентируя внимание на сжатии низа груди. Локти чуть согнуты и зафиксированы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11929,6 +12050,7 @@
       }
     },
     "Встаньте прямо, ноги на ширине плеч. Гантели на уровне плеч, локти под 90°. На выдохе выжмите вверх, полностью выпрямляя руки. Напрягайте кор для стабилизации. опускайте медленно и подконтрольно." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12257,6 +12379,7 @@
       }
     },
     "Выпады" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12284,6 +12407,7 @@
       }
     },
     "Выпады назад" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12322,6 +12446,7 @@
       }
     },
     "Выпады с гантелями" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12338,6 +12463,7 @@
       }
     },
     "Выпады с жимом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12410,6 +12536,7 @@
       }
     },
     "Выполнить 7 циклов без отдыха = 1 раунд. Всего 3-5 раундов." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12426,6 +12553,7 @@
       }
     },
     "Выпрыгивания из приседа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12442,6 +12570,7 @@
       }
     },
     "Высокий прыжок на носках, два оборота скакалки за один прыжок. Требует быстрой работы кистей и тайминга." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12475,6 +12604,7 @@
       }
     },
     "Высокий уровень:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12485,6 +12615,7 @@
       }
     },
     "Высокоинтенсивные интервалы на беговой дорожке. 30/30, 45/45, 60/60." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12501,6 +12632,7 @@
       }
     },
     "Высокочастотная Гипертрофия" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12517,6 +12649,7 @@
       }
     },
     "Выход силой" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12533,6 +12666,7 @@
       }
     },
     "Выход силой на две руки" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12600,6 +12734,7 @@
       }
     },
     "Гакк-приседания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12633,6 +12768,7 @@
       }
     },
     "Гид по питанию" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12683,6 +12819,7 @@
       }
     },
     "Гильотинный жим" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12699,6 +12836,7 @@
       }
     },
     "Гиперэкстензия" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12715,6 +12853,7 @@
       }
     },
     "Гиперэкстензия (Обратная)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12731,6 +12870,7 @@
       }
     },
     "Гиря между ног. Широкая стойка. Садитесь глубоко и вставайте, сжимая ягодицы наверху." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12747,6 +12887,7 @@
       }
     },
     "Главное правило: Дефицит калорий." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12763,6 +12904,7 @@
       }
     },
     "Главное правило: Профицит калорий." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12779,6 +12921,7 @@
       }
     },
     "Главный материал для роста мышц. Есть в мясе, рыбе, яйцах, твороге." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12795,6 +12938,7 @@
       }
     },
     "Главный минерал для синтеза тестостерона и работы иммунитета." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12811,6 +12955,7 @@
       }
     },
     "Глубокий присед с медболом у груди. На вставании мощный бросок мяча в мишень/стену. Ловите мяч, амортизируя ногами сразу в следующий присед." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12844,6 +12989,7 @@
       }
     },
     "Глубокий сон, быстрое пробуждение полностью отдохнувшим." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12894,6 +13040,7 @@
       }
     },
     "Глубокое спокойствие, сфокусированность, состояние потока, азарт. Отсутствие мандража." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12961,6 +13108,7 @@
       }
     },
     "Гоблет присед" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12977,6 +13125,7 @@
       }
     },
     "Гоблет приседания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12987,6 +13136,7 @@
       }
     },
     "Гоблет-приседания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13065,6 +13215,7 @@
       }
     },
     "Горизонт" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13092,6 +13243,7 @@
       }
     },
     "Горизонтальные тяги на TRX петлях или блоке. Сводите лопатки, тяните к груди." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13159,6 +13311,7 @@
       }
     },
     "Гормон солнца" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13209,6 +13362,7 @@
       }
     },
     "Гормоны и нейромедиаторы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13225,6 +13379,7 @@
       }
     },
     "Горсть" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13437,6 +13592,7 @@
       }
     },
     "Гребля (Concept2)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13470,6 +13626,7 @@
       }
     },
     "Грудь" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13636,6 +13793,7 @@
       }
     },
     "Двойные прыжки на скакалке" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13753,6 +13911,7 @@
       }
     },
     "День 1" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13769,6 +13928,7 @@
       }
     },
     "День 1 (Сила)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13807,6 +13967,7 @@
       }
     },
     "День 2" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13823,6 +13984,7 @@
       }
     },
     "День 2 (Гипертрофия)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13861,6 +14023,7 @@
       }
     },
     "День 3" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13877,6 +14040,7 @@
       }
     },
     "День 3 (Сила Тяга)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13915,6 +14079,7 @@
       }
     },
     "День 4" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13931,6 +14096,7 @@
       }
     },
     "День 4 (Гипертрофия)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13958,6 +14124,7 @@
       }
     },
     "День A" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13974,6 +14141,7 @@
       }
     },
     "День A (Ноги+Плечи)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13990,6 +14158,7 @@
       }
     },
     "День A (Тяни)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14006,6 +14175,7 @@
       }
     },
     "День B" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14022,6 +14192,7 @@
       }
     },
     "День B (Спина+Грудь)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14038,6 +14209,7 @@
       }
     },
     "День B (Толкай+Ноги)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14110,6 +14282,7 @@
       }
     },
     "Держите гирю или гантель у груди. Приседайте, разводя колени. Учитесь держать спину прямо." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14126,6 +14299,7 @@
       }
     },
     "Держите локти ближе к корпусу, вращайте скакалку только кистями. Прыгайте на носках мягко, амортизируя коленями. Взгляд перед собой." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14221,6 +14395,7 @@
       }
     },
     "Дефицит внимания, невозможность сфокусироваться, скука, поиск легкого дофамина." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14237,6 +14412,7 @@
       }
     },
     "Джампинг Джек" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14253,6 +14429,7 @@
       }
     },
     "Динамика: Взрывное движение. Подъем грифа с пола с разворотом корпуса и перехватом в верхней точке. Тренирует передачу усилия от бедер к плечам (трансфер силы для единоборств)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14431,6 +14608,7 @@
       }
     },
     "До тренировки" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14560,6 +14738,7 @@
       }
     },
     "Добавляй овощи в каждый прием пищи — они дают сытость." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14740,6 +14919,7 @@
       }
     },
     "Дополнительный вес на поясе или в жилете. Подтягивайтесь подбородком выше перекладины, сводя лопатки." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14773,6 +14953,7 @@
       }
     },
     "ДОФАМИН" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14848,6 +15029,7 @@
       }
     },
     "Если хочешь пить — ты уже обезвожен. Не допускай этого." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14875,6 +15057,7 @@
       }
     },
     "Ешь белок, чтобы не терять мышцы вместо жира." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -14891,6 +15074,7 @@
       }
     },
     "Ешь больше, чем тратишь — набираешь. Тратишь больше — худеешь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15035,6 +15219,7 @@
       }
     },
     "Жизнь не интересна, ничего не хочется, поиск только привычных стимуляторов." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15051,6 +15236,7 @@
       }
     },
     "Жим Z" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15067,6 +15253,7 @@
       }
     },
     "Жим Армейский сидя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15083,6 +15270,7 @@
       }
     },
     "Жим Арнольда" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15099,6 +15287,7 @@
       }
     },
     "Жим Арнольда стоя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15170,6 +15359,7 @@
       }
     },
     "Жим в тренажере Смита. Фиксированная траектория. Безопаснее для работы без страхующего." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15186,6 +15376,7 @@
       }
     },
     "Жим в Хаммере" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15213,6 +15404,7 @@
       }
     },
     "Жим гантелей" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15229,6 +15421,7 @@
       }
     },
     "Жим гантелей лежа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15245,6 +15438,7 @@
       }
     },
     "Жим гантелей на наклонной" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15283,6 +15477,7 @@
       }
     },
     "Жим гантелей наклонный" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15321,6 +15516,7 @@
       }
     },
     "Жим гантелей сидя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15337,6 +15533,7 @@
       }
     },
     "Жим гантелей стоя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15364,6 +15561,7 @@
       }
     },
     "Жим из-за головы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15380,6 +15578,7 @@
       }
     },
     "Жим лежа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15396,6 +15595,7 @@
       }
     },
     "Жим лежа (5/3/1)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15412,6 +15612,7 @@
       }
     },
     "Жим лежа (Силовой)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15428,6 +15629,7 @@
       }
     },
     "Жим лежа (Т2 3×10)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15444,6 +15646,7 @@
       }
     },
     "Жим Лэндмайн" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15482,6 +15685,7 @@
       }
     },
     "Жим на наклонной скамье" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15498,6 +15702,7 @@
       }
     },
     "Жим ногами" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15536,6 +15741,7 @@
       }
     },
     "Жим Свенда" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15552,6 +15758,7 @@
       }
     },
     "Жим сидя на полу с выпрямленными ногами. Смысл: Полностью исключает помощь ног и поясничного прогиба. Требует колоссальной силы кора и гибкости бицепса бедра. Жесточайшая проверка истинной силы плеч." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15568,6 +15775,7 @@
       }
     },
     "Жим Смита" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15595,6 +15803,7 @@
       }
     },
     "Жим Смита на наклонной" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15611,6 +15820,7 @@
       }
     },
     "Жим стоя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15627,6 +15837,7 @@
       }
     },
     "Жим Тейта" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15643,6 +15854,7 @@
       }
     },
     "Жим узким хватом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15659,6 +15871,7 @@
       }
     },
     "Жим узким хватом в Смите" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15675,6 +15888,7 @@
       }
     },
     "Жим швунг" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15691,6 +15905,7 @@
       }
     },
     "Жим штанги из-за головы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15707,6 +15922,7 @@
       }
     },
     "Жим штанги лежа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15723,6 +15939,7 @@
       }
     },
     "Жим штанги на наклонной скамье" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15750,6 +15967,7 @@
       }
     },
     "Жим штанги обратным хватом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15766,6 +15984,7 @@
       }
     },
     "Жим штанги с небольшим подседом. Используйте импульс ног для мощного выжима штанги вверх. Полезно для развития скоростно-силовых качеств." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15793,6 +16012,7 @@
       }
     },
     "Жим штанги стоя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15826,6 +16046,7 @@
       }
     },
     "Жиры" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15842,6 +16063,7 @@
       }
     },
     "Жиры (Защита)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15930,6 +16152,7 @@
       }
     },
     "Зависит от окситоцина, немного от кортизола и тестостерона." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16031,6 +16254,7 @@
       }
     },
     "Задние дельты" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16047,6 +16271,7 @@
       }
     },
     "Задний вис" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16074,6 +16299,7 @@
       }
     },
     "Задняя нога на скамье. Опускайтесь до параллели переднего бедра с полом. Колено не выходит за носок. Мощный акцент на квадрицепс и ягодицы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16276,6 +16502,7 @@
       }
     },
     "Заныривания на коробку (Box Jumps)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16313,6 +16540,7 @@
       }
     },
     "Зашагивания на скамью" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16482,6 +16710,7 @@
       }
     },
     "Значение: «Золотой стандарт» профилактики травм подколенного сухожилия. Техника: Стоя на коленях, пятки зафиксированы (партнером или под шведской стенкой). Медленное опускание корпуса вперед, сопротивляясь гравитации только силой бицепсов бедра. Возврат — руками (для новичков) или бедрами (элита)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16515,6 +16744,7 @@
       }
     },
     "Из положения стоя присядьте, упритесь руками в пол. Прыжком перейдите в упор лежа, отожмитесь, коснувшись грудью пола. Прыжком верните ноги к рукам и выпрыгните вверх с хлопком над головой. Держите темп." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16638,6 +16868,7 @@
       }
     },
     "Изоляция перед базой. Предварительное утомление целевых мышц." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16654,6 +16885,7 @@
       }
     },
     "Изометрическое упражнение. Атлет стоит или сидит, сжимая между ладонями два блина от штанги (или одну гантель) перед грудью. Задача — выпрямить руки перед собой, сохраняя адское давление ладонями друг на друга. Применение: Идеально для завершения тренировки (finisher), создавая сильнейший пампинг и улучшая нейромышечную связь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16698,6 +16930,7 @@
       }
     },
     "Икры" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16731,6 +16964,7 @@
       }
     },
     "Имитация лыжного хода. Мощный мах руками вниз с одновременным подседом. Включайте пресс и широчайшие. Не работают только руки!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16747,6 +16981,7 @@
       }
     },
     "Имитация ходьбы по лестнице. Не опирайтесь всем весом на поручни! Давите пяткой." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16893,6 +17128,7 @@
       }
     },
     "Исключает трицепс. Важно держать локти на уровне плеч для безопасности сустава. Внутренняя часть груди" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17174,6 +17410,7 @@
       }
     },
     "Как обычная тяга в наклоне, но хват ладонями от себя. Больше включает бицепс и низ широчайших." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17280,6 +17517,7 @@
       }
     },
     "Канат на верхнем блоке. Тяните к лицу, разводя локти в стороны выше плеч. В конце ладони за уровнем лица. Сводите лопатки. Акцент на задние дельты и ротаторы плеча." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17324,6 +17562,7 @@
       }
     },
     "Кардио" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17340,6 +17579,7 @@
       }
     },
     "Кардио без ударной нагрузки на суставы. Держите спину прямо, работайте руками в такт ногам." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17395,6 +17635,7 @@
       }
     },
     "Квадрицепсы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17478,6 +17719,7 @@
       }
     },
     "Классическая программа Джима Вендлера для новичков. 2 дня в неделю." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17494,6 +17736,7 @@
       }
     },
     "Классические отжимания от пола. Тело - прямая линия, опускайтесь до касания грудью пола." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17510,6 +17753,7 @@
       }
     },
     "Классический жим штанги лежа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17526,6 +17770,7 @@
       }
     },
     "Классический жим штанги лежа. Опускайте на грудь, выжмите вверх. Лопатки сведены." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17542,6 +17787,7 @@
       }
     },
     "Кластеры (Clusters)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17586,6 +17832,7 @@
       }
     },
     "Колени слегка согнуты. Наклоняйтесь вперед, отводя таз назад. Штанга скользит вдоль ног. Опускайте до середины голени, чувствуя растяжение бицепса бедра. Спина прямая!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17602,6 +17849,7 @@
       }
     },
     "Колесо для пресса" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17656,6 +17904,7 @@
       }
     },
     "Комбинация фронтального приседа и жима (швунга). Штанга на груди, глубокий сед. На вставании мощно вытолкните штангу над головой единым движением." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17717,6 +17966,7 @@
       }
     },
     "Комплекс Медведь (The Bear)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17733,6 +17983,7 @@
       }
     },
     "Комплекс: Обратный выпад, затем при вставании — жим грифа противоположной рукой. Координационно сложное упражнение." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17749,6 +18000,7 @@
       }
     },
     "Комплекс: Сочетает тягу к подбородку, наружную ротацию плеча и жим вверх. Укрепляет мелкие стабилизаторы плеча. Выполняется с легкими гантелями." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17765,6 +18017,7 @@
       }
     },
     "Комплексные" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17781,6 +18034,7 @@
       }
     },
     "Контроль Пролактина" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17825,6 +18079,7 @@
       }
     },
     "Концентрированный подъем" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17858,6 +18113,7 @@
       }
     },
     "Копенгагенская планка" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17874,6 +18130,7 @@
       }
     },
     "Кор" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17890,6 +18147,7 @@
       }
     },
     "Король добавок" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17923,6 +18181,7 @@
       }
     },
     "КОРТИЗОЛ" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18029,6 +18288,7 @@
       }
     },
     "Креатин Моногидрат" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18045,6 +18305,7 @@
       }
     },
     "Критически важный минерал для расслабления мышц, борьбы со стрессом и качественного сна. Дефицит есть почти у всех атлетов." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18095,6 +18356,7 @@
       }
     },
     "Кроссовер (верхние блоки)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18111,6 +18373,7 @@
       }
     },
     "Кроссовер (нижние блоки)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18160,6 +18423,7 @@
       }
     },
     "Круговая" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18204,6 +18468,7 @@
       }
     },
     "Кубинский жим" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18220,6 +18485,7 @@
       }
     },
     "Кулак" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18236,6 +18502,7 @@
       }
     },
     "Ладони близко друг к другу (ромбик). Локти вдоль тела. Акцент на трицепс." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18252,6 +18519,7 @@
       }
     },
     "Ладони к себе. Больше задействует бицепс и низ широчайших. Подбородок выше перекладины." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18268,6 +18536,7 @@
       }
     },
     "Ладонь" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18295,6 +18564,7 @@
       }
     },
     "Лежа животом на наклонной скамье. Руки свисают вертикально вниз. Сгибание на бицепс, исключая помощь корпуса." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18311,6 +18581,7 @@
       }
     },
     "Лежа животом на скамье, ноги свисают. Поднимайте прямые ноги вверх до горизонтали, сжимая ягодицы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18327,6 +18598,7 @@
       }
     },
     "Лежа или сидя. Сгибайте ноги, прижимая таз к скамье. Не подбрасывайте вес инерцией." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18343,6 +18615,7 @@
       }
     },
     "Лежа лопатками на скамье. Опускайте гантель за голову на чуть согнутых руках, максимально растягивая широчайшие. Таз можно слегка опустить." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18359,6 +18632,7 @@
       }
     },
     "Лежа на боку на скамье. Верхней рукой машем гантель вверх. Изоляция задней дельты." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18375,6 +18649,7 @@
       }
     },
     "Лежа на животе, сгибайте ноги, подтягивая валик к ягодицам. Изолированная работа бицепса бедра." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18391,6 +18666,7 @@
       }
     },
     "Лежа на скамье между блоками. Сводите рукояти над грудью, как при разводке гантелей, но с постоянным натяжением тросов." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18407,6 +18683,7 @@
       }
     },
     "Лежа на скамье с гантелями, руки выпрямлены вверх. Сгибание происходит только в локтях, гантели опускаются к груди (ладонями к ногам), локти разведены в стороны. Применение: Изолирует латеральную и медиальную головки, исключая помощь длинной головки." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18423,6 +18700,7 @@
       }
     },
     "Лежа на скамье, разводите руки в стороны по широкой дуге до растяжения грудных. Локти зафиксированы под тупым углом. Движение 'обнимания бочки'." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18439,6 +18717,7 @@
       }
     },
     "Лежа на спине, пятки на фитболе. Поднимаем таз и подкатываем мяч к себе, сгибая колени. Жжет бицепс бедра." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18455,6 +18734,7 @@
       }
     },
     "Лежа на спине, руки за головой. Поочередно тяните локоть к противоположному колену. Имитация педалирования." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18471,6 +18751,7 @@
       }
     },
     "Лежа на спине. Одновременно поднимайте прямые руки и ноги, касаясь пальцами стоп в верхней точке." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18487,6 +18768,7 @@
       }
     },
     "Лежа с гантелями. Сгибайте руки в локтях внутрь (к груди), разводя локти в стороны. Разгибайте мощным усилием." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18503,6 +18785,7 @@
       }
     },
     "Лежа, гантель за головой. Поднимайте над грудью прямыми руками. Растягивает грудные и широчайшие." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18519,6 +18802,7 @@
       }
     },
     "Лежа. Отрываем только лопатки, поясница прижата. Выдох на подъеме. Скручивайтесь, а не поднимайтесь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18597,6 +18881,7 @@
       }
     },
     "Лицевая тяга" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18613,6 +18898,7 @@
       }
     },
     "Лицевая тяга (Face Pull)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18629,6 +18915,7 @@
       }
     },
     "Лицевая тяга на кольцах" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18683,6 +18970,7 @@
       }
     },
     "Локти прижаты к туловищу. Гриф опускается на низ груди. Изолированная работа трицепса и безопасно для баланса." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18699,6 +18987,7 @@
       }
     },
     "Локти чуть согнуты. Поднимайте через стороны до параллели. 'Выливайте воду из кувшина'. Не раскачивайтесь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18715,6 +19004,7 @@
       }
     },
     "Лопатки на скамье, штанга на бедрах. Поднимайте таз до полной линии тела. Пиковое сокращение ягодиц. Взгляд вперед." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18809,6 +19099,7 @@
       }
     },
     "Лыжный тренажер (SkiErg)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18825,6 +19116,7 @@
       }
     },
     "Лэндмайн-приседания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18863,6 +19155,7 @@
       }
     },
     "Любое движение (ходьба, уборка, тренировка) сжигает калории." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18930,6 +19223,7 @@
       }
     },
     "Лягте на скамью, лопатки сведены и плотно прижаты. Хват чуть шире плеч. Опустите штангу на нижнюю часть груди (соски), локти под углом 45°. На выдохе мощно выжмите вверх без отрыва лопаток. Ноги жестко упираются в пол." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18946,6 +19240,7 @@
       }
     },
     "Лягте на скамью. Гантели над грудью, лопатки сведены. Опускайте гантели по дуге вниз до растяжения грудных. Выжмите вверх, сводя их в верхней точке. Это упражнение дает большую амплитуду, чем штанга." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18979,6 +19274,7 @@
       }
     },
     "Магний" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19097,6 +19393,7 @@
       }
     },
     "Макронутриенты — это кирпичики нашего тела." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19113,6 +19410,7 @@
       }
     },
     "Максимальная амплитуда: глубоко вниз (растяжение), высоко вверх (сокращение). Делайте паузы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19129,6 +19427,7 @@
       }
     },
     "Малайзийский женьшень" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19179,6 +19478,7 @@
       }
     },
     "Мах гирей в полную амплитуду над головой. Следите, чтобы поясница не прогибалась в верхней точке. Дно гири смотрит в потолок." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19195,6 +19495,7 @@
       }
     },
     "Мах гирей до уровня глаз за счет мощного разгибания таза. Спина прямая, не приседайте глубоко, работайте бедрами (hip hinge)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19211,6 +19512,7 @@
       }
     },
     "Махи" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19238,6 +19540,7 @@
       }
     },
     "Махи в наклоне" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19265,6 +19568,7 @@
       }
     },
     "Махи в стороны" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19292,6 +19596,7 @@
       }
     },
     "Махи гантелями (Lateral Raises): Локоть должен быть выше кисти («выливание воды из кувшина»). Инерция недопустима. Lu Raises (Махи в стиле Lu Xiaojun): Полная амплитуда — подъем гантелей через стороны до касания над головой. Развивает не только дельты, но и трапеции, и мобильность плеча. Протяжка (Upright Row): Тяга штанги к подбородку. Опасно: Узкий хват может вызвать импиджмент. Решение: Использ..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19308,6 +19613,7 @@
       }
     },
     "Махи гантелями в стороны" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19324,6 +19630,7 @@
       }
     },
     "Махи гирей" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19340,6 +19647,7 @@
       }
     },
     "Махи гирей (Американские)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19356,6 +19664,7 @@
       }
     },
     "Махи гирей (Русские)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19405,6 +19714,7 @@
       }
     },
     "Махи на блоке" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19432,6 +19742,7 @@
       }
     },
     "Махи перед собой (Гантели)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19481,6 +19792,7 @@
       }
     },
     "Махи рукой лежа на боку" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19497,6 +19809,7 @@
       }
     },
     "Махи сидя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19513,6 +19826,7 @@
       }
     },
     "Медвежья проходка" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19546,6 +19860,7 @@
       }
     },
     "МЕЛАТОНИН" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19573,6 +19888,7 @@
       }
     },
     "Меньше вырабатывается при высоком тестостероне и низком кортизоле." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19589,6 +19905,7 @@
       }
     },
     "Меньше ешь" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19700,6 +20017,7 @@
       }
     },
     "Механика: Нижняя рука толкает, верхняя тянет. Боковые мышцы кора работают на излом." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19767,6 +20085,7 @@
       }
     },
     "Микроэлемент, способный быстро повышать свободный тестостерон за счет снижения Эстрогена и ГСПГ." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -19980,6 +20299,7 @@
       }
     },
     "Можно банан или йогурт." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20047,6 +20367,7 @@
       }
     },
     "Молитва (Блок)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20063,6 +20384,7 @@
       }
     },
     "Молотки" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20079,6 +20401,7 @@
       }
     },
     "Молотки на бицепс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20095,6 +20418,7 @@
       }
     },
     "Молотки с канатом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20189,6 +20513,7 @@
       }
     },
     "Мощный растительный бустер тестостерона. Реально работает на повышение свободного тестостерона." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20222,6 +20547,7 @@
       }
     },
     "Мощный толчок ногами, затем отклонение корпуса назад и тяга рук к солнечному сплетению. Возврат: выпрямить руки, корпус вперед, согнуть ноги. Спина прямая." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20260,6 +20586,7 @@
       }
     },
     "Мужитское состояние" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20276,6 +20603,7 @@
       }
     },
     "Мужской металл" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20292,6 +20620,7 @@
       }
     },
     "Мужчинам: 2 порции. Женщинам: 1 порция." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20403,6 +20732,7 @@
       }
     },
     "На брусьях держите ноги параллельно полу (уголок). Статическое удержание. Сильный пресс!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20419,6 +20749,7 @@
       }
     },
     "На брусьях или полу. Поднимите прямые ноги до угла 90 градусов и удерживайте. Стальной пресс обеспечен." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20452,6 +20783,7 @@
       }
     },
     "На кольцах: Сложнее, чем на брусьях, так как кольца норовят разъехаться." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20479,6 +20811,7 @@
       }
     },
     "На тренировке" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20495,6 +20828,7 @@
       }
     },
     "На четвереньках, колени не касаются пола. Двигаемся вперед-назад разноименными конечностями. Спина параллельно полу." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20605,6 +20939,7 @@
       }
     },
     "Наклон вперед, разводите руки в стороны. Акцент на задние дельты. Локти слегка согнуты." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20621,6 +20956,7 @@
       }
     },
     "Наклон корпуса 45°. Спина прямая. Тяните штангу к низу живота, сводя лопатки. Ведите локти вдоль корпуса." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20637,6 +20973,7 @@
       }
     },
     "Наклон корпуса вперед. Разводите руки в стороны. Локти смотрят в потолок. Работает задняя дельта." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20653,6 +20990,7 @@
       }
     },
     "Наклоните корпус вперед, ноги отведите назад. Опускайтесь до 90° в локтях. Локти чуть в стороны для акцента на грудь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20809,6 +21147,7 @@
       }
     },
     "Начинай утро со стакана воды." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20909,6 +21248,7 @@
       }
     },
     "Не бойся углеводов — они нужны для тяжелых тренировок." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20959,6 +21299,7 @@
       }
     },
     "Не обязательно все взвешивать. Используй руки:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21009,6 +21350,7 @@
       }
     },
     "Не спеши" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21042,6 +21384,7 @@
       }
     },
     "Не трать деньги" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21178,6 +21521,7 @@
       }
     },
     "Нейтральный хват. Сгибайте руки. Работает брахиалис (толщина руки) и предплечье." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21273,6 +21617,7 @@
       }
     },
     "Неспособность сфокусироваться, тревожность, дерганность, мнительность, страх." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21558,6 +21903,7 @@
       }
     },
     "Неуверенность в себе, робость, стеснительность, неверие в позитивный исход жизни, в свои силы. Общая вялость во всем." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21585,6 +21931,7 @@
       }
     },
     "Нижний блок с канатом. Стоя спиной к блоку, тянем канат из-за головы вверх. Локти зафиксированы у ушей." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21601,6 +21948,7 @@
       }
     },
     "Нижний блок, канатная рукоять. Держите нейтральным хватом (ладони друг к другу). Тяните к плечам." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21617,6 +21965,7 @@
       }
     },
     "Низ груди" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21650,6 +21999,7 @@
       }
     },
     "Низкая перекладина, ноги на полу. Подтягивайтесь грудью к грифу. Хороший вариант для начинающих." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21734,6 +22084,7 @@
       }
     },
     "Низкий уровень:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21744,6 +22095,7 @@
       }
     },
     "Низкоинтенсивное кардио в зоне 2 (60-70% от макс. пульса). Жиросжигание и восстановление." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21895,6 +22247,7 @@
       }
     },
     "Ноги" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21911,6 +22264,7 @@
       }
     },
     "Ноги на ширине плеч. Опускайте платформу до 90° в коленях. Не отрывайте поясницу от спинки! Колени не сводите внутрь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21927,6 +22281,7 @@
       }
     },
     "Ноги чуть согнуты. Наклон вперед за счет отведения таза назад. Гриф скользит по ногам. Спина идеально прямая. Чувствуйте растяжение бицепса бедра." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21943,6 +22298,7 @@
       }
     },
     "НОРАДРЕНАЛИН" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21959,6 +22315,7 @@
       }
     },
     "Нордическое сгибание" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21986,6 +22343,7 @@
       }
     },
     "Нужно есть чуть больше, чем тратишь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22002,6 +22360,7 @@
       }
     },
     "Нужны для гормонов и здоровья. Орехи, масла, авокадо, жирная рыба." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22035,6 +22394,7 @@
       }
     },
     "Обезвоживание" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22095,6 +22455,7 @@
       }
     },
     "Оборудование: Гриф с рукоятками, смещающий центр тяжесть вперед. Преимущества: Позволяет приседать при травмах плеч (не нужно выворачивать руки) и заставляет сильнее работать верх спины, чтобы не «сложиться» вперед." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22111,6 +22472,7 @@
       }
     },
     "Обратная бабочка" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22127,6 +22489,7 @@
       }
     },
     "Обратная гиперэкстензия" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22165,6 +22528,7 @@
       }
     },
     "Обратно связан с кортизолом и пролактином, растет с дофамином, норадреналином и серотонином, снижается с ростом адреналина, и снижается при высоких значениях окситоцина." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22181,6 +22545,7 @@
       }
     },
     "Обратно связан с тестостероном и дофамином. Растет с кортизолом, коррелирует с эстрадиолом." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22208,6 +22573,7 @@
       }
     },
     "Обратные отжимания от скамьи" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22224,6 +22590,7 @@
       }
     },
     "Обратные разведения" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22240,6 +22607,7 @@
       }
     },
     "Обратные разведения (Pec Deck)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22300,6 +22668,7 @@
       }
     },
     "Обратный Нордик" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22474,6 +22843,7 @@
       }
     },
     "Объемный Сплит" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22490,6 +22860,7 @@
       }
     },
     "Овощи" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22506,6 +22877,7 @@
       }
     },
     "Одна нога сзади на скамье. Приседайте на передней ноге. Корпус чуть вперед для ягодиц, прямо для квадрицепса. Адовое упражнение." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22539,6 +22911,7 @@
       }
     },
     "Одной рукой тяните гантель к поясу, другой упирайтесь в скамью. Сводите лопатку, чувствуя широчайшую." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22555,6 +22928,7 @@
       }
     },
     "Одноногая румынская тяга" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22593,6 +22967,7 @@
       }
     },
     "ОКСИТОЦИН" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22671,6 +23046,7 @@
       }
     },
     "Оптимизм" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22704,6 +23080,7 @@
       }
     },
     "Опускайте штангу за голову до уровня ушей (не ниже, если нет гибкости). Жмите вверх. Аккуратно с плечевыми суставами!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22720,6 +23097,7 @@
       }
     },
     "Опускайте штангу за голову до уровня ушей. Жмите вверх, акцентируя средние дельты. Требует хорошей подвижности плеч." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22736,6 +23114,7 @@
       }
     },
     "Опускание производится выше, ближе к ключицам. Важно не допускать чрезмерного прогиба в пояснице, который может нивелировать угол наклона скамьи, превращая упражнение в вариацию горизонтального жима. Угол наклона: Критически важен. 15–30 градусов оптимальны для ключичной (верхней) порции груди. Углы выше 45 градусов катастрофически смещают нагрузку на переднюю дельту, делая упражнение неэффективным для г..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22949,6 +23328,7 @@
       }
     },
     "Отведения руки на блоке" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22993,6 +23373,7 @@
       }
     },
     "Отдых, расслабление" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23009,6 +23390,7 @@
       }
     },
     "Отжимания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23025,6 +23407,7 @@
       }
     },
     "Отжимания 'Алмаз'" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23063,6 +23446,7 @@
       }
     },
     "Отжимания на брусьях" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23079,6 +23463,7 @@
       }
     },
     "Отжимания на брусьях (с весом)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23117,6 +23502,7 @@
       }
     },
     "Отжимания на кольцах" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23133,6 +23519,7 @@
       }
     },
     "Отжимания от перекладины" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23149,6 +23536,7 @@
       }
     },
     "Отжимания от пола" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23176,6 +23564,7 @@
       }
     },
     "Отжимания с дополнительным весом. Наклон вперед для акцента на грудь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23192,6 +23581,7 @@
       }
     },
     "Отжимания с руками на перекладине. Увеличенная амплитуда." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23208,6 +23598,7 @@
       }
     },
     "Отжимания с хлопком" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23224,6 +23615,7 @@
       }
     },
     "Отжимания узким хватом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23431,6 +23823,7 @@
       }
     },
     "Охота и ярость" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23548,6 +23941,7 @@
       }
     },
     "Палец" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23615,6 +24009,7 @@
       }
     },
     "Пей по чуть-чуть между подходами." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23631,6 +24026,7 @@
       }
     },
     "Пей регулярно" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23726,6 +24122,7 @@
       }
     },
     "Перед стартом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23742,6 +24139,7 @@
       }
     },
     "Передние дельты" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23758,6 +24156,7 @@
       }
     },
     "Передний вис" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23931,6 +24330,7 @@
       }
     },
     "Планка" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23947,6 +24347,7 @@
       }
     },
     "Планка боковая" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23963,6 +24364,7 @@
       }
     },
     "Плечи" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23979,6 +24381,7 @@
       }
     },
     "Плиометрика" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24240,6 +24643,7 @@
       }
     },
     "Поднимайте как обычный бицепс (ладони вверх), в верхней точке разворачивайте кисти (ладони вниз) и опускайте обратным хватом." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24256,6 +24660,7 @@
       }
     },
     "Поднимайте плечи к ушам. Руки прямые. Не вращайте плечами, только вверх-вниз." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24272,6 +24677,7 @@
       }
     },
     "Поднимайтесь на носки максимально высоко. Задержитесь в верхней точке. Опускайтесь медленно. Для икроножных мышц." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24355,6 +24761,7 @@
       }
     },
     "Подрыв гири с пола одной рукой и уход под нее. Гиря описывает дугу и мягко ложится на предплечье наверху. Спина прямая." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24399,6 +24806,7 @@
       }
     },
     "Подсобка" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24415,6 +24823,7 @@
       }
     },
     "Подсобка (50 reps)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24431,6 +24840,7 @@
       }
     },
     "Подтягивания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24447,6 +24857,7 @@
       }
     },
     "Подтягивания (Heavy)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24463,6 +24874,7 @@
       }
     },
     "Подтягивания (Австралийские)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24501,6 +24913,7 @@
       }
     },
     "Подтягивания обратным хватом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24517,6 +24930,7 @@
       }
     },
     "Подтягивания с весом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24728,6 +25142,7 @@
       }
     },
     "Подъем из положения лежа в положение стоя, удерживая гирю/гантель на вытянутой руке над головой. Требует поэтапного контроля каждого движения." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24755,6 +25170,7 @@
       }
     },
     "Подъем на носки" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24771,6 +25187,7 @@
       }
     },
     "Подъем на носки сидя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24787,6 +25204,7 @@
       }
     },
     "Подъем ног в висе" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24803,6 +25221,7 @@
       }
     },
     "Подъем ног в упоре" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24819,6 +25238,7 @@
       }
     },
     "Подъем ног к перекладине (Toes to Bar)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24835,6 +25255,7 @@
       }
     },
     "Подъем ног лежа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24873,6 +25294,7 @@
       }
     },
     "Подъем таза на мяче" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24889,6 +25311,7 @@
       }
     },
     "Подъем штанги на бицепс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24905,6 +25328,7 @@
       }
     },
     "Подъем штанги обратным хватом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24932,6 +25356,7 @@
       }
     },
     "Подъемы на носки" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25008,6 +25433,7 @@
       }
     },
     "Поешь белок и углеводы для восстановления." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25131,6 +25557,7 @@
       }
     },
     "Полезно" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25181,6 +25608,7 @@
       }
     },
     "Полноценный обед (каша + мясо)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25214,6 +25642,7 @@
       }
     },
     "Полный контроль, эмоциональная собранность, концентрация, бесстрашие, стрессоустойчивость." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25230,6 +25659,7 @@
       }
     },
     "Полный присед и максимальное выпрыгивание вверх. Руки помогают инерцией. Мягкое приземление." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25307,6 +25737,7 @@
       }
     },
     "Попеременно или одновременно поднимайте гантели перед собой до уровня глаз. Не раскачивайте корпус." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25379,6 +25810,7 @@
       }
     },
     "После" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25518,6 +25950,7 @@
       }
     },
     "Поясница" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25534,6 +25967,7 @@
       }
     },
     "Правильное питание — это не диета, а топливо для твоих побед. Еда влияет на энергию, настроение и восстановление мышц. Мы не будем считать сложные формулы, а разберем базу, которая работает." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25567,6 +26001,7 @@
       }
     },
     "Предвкушение и интерес" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25600,6 +26035,7 @@
       }
     },
     "Предплечья" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25616,6 +26052,7 @@
       }
     },
     "Предплечья на скамье, кисти свисают. Сгибайте кисти вверх к себе. Максимальная амплитуда." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25632,6 +26069,7 @@
       }
     },
     "Преимущество унилатеральности: Позволяет каждой руке двигаться независимо, устраняя силовой дисбаланс. Гантели обеспечивают большую амплитуду движения в нижней точке и возможность конвергенции (сведения рук) в верхней, что усиливает пиковое сокращение. Нюанс: В отличие от штанги, вектор силы всегда направлен вертикально вниз, что требует активной стабилизации." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25648,6 +26086,7 @@
       }
     },
     "Преимущество: Возможность сводить руки в верхней точке (аддукция), как при разводке гантелей, чего нельзя сделать на полу." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25664,6 +26103,7 @@
       }
     },
     "Преимущество: Гриф дает точку опоры, решая проблему баланса, свойственную гантелям. Позволяет нагрузить ягодицу и бицепс бедра одной ноги значительным весом." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25697,6 +26137,7 @@
       }
     },
     "Привязанность" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25713,6 +26154,7 @@
       }
     },
     "Привязка к предвосхищаемым действиям, поисковый инстинкт." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25729,6 +26171,7 @@
       }
     },
     "Прижмитесь спиной к стене и присядьте до угла 90 градусов. Держите позицию до отказа. Жжение гарантировано." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25762,6 +26205,7 @@
       }
     },
     "Присед (Т1 5×3)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25778,6 +26222,7 @@
       }
     },
     "Присед на спине" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25794,6 +26239,7 @@
       }
     },
     "Приседание на одной ноге, вторая выпрямлена вперед. Требует отличного баланса и силы ног." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25810,6 +26256,7 @@
       }
     },
     "Приседание на одной ноге. Требует баланса и силы. Свободная нога выпрямлена вперед." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25826,6 +26273,7 @@
       }
     },
     "Приседания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25842,6 +26290,7 @@
       }
     },
     "Приседания 'Пистолетик'" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25852,6 +26301,7 @@
       }
     },
     "Приседания (5/3/1)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25868,6 +26318,7 @@
       }
     },
     "Приседания Low bar" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25895,6 +26346,7 @@
       }
     },
     "Приседания Дракона" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25911,6 +26363,7 @@
       }
     },
     "Приседания Зерчера" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25927,6 +26380,7 @@
       }
     },
     "Приседания Креветка" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25954,6 +26408,7 @@
       }
     },
     "Приседания Пистолетик" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25975,6 +26430,7 @@
       }
     },
     "Приседания с безопасным грифом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26013,6 +26469,7 @@
       }
     },
     "Приседания со штангой" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26074,6 +26531,7 @@
       }
     },
     "Программа для начинающих на турниках и брусьях. Базовые движения." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26224,6 +26682,7 @@
       }
     },
     "Прогулка фермера" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26251,6 +26710,7 @@
       }
     },
     "Продвинутая программа для уличной площадки. Изучение элементов." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26284,6 +26744,7 @@
       }
     },
     "Продвинутый DUP" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26328,6 +26789,7 @@
       }
     },
     "Прокатка спины на массажном роллере. Расслабляет фасции, снимает напряжение." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26361,6 +26823,7 @@
       }
     },
     "ПРОЛАКТИН" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26399,6 +26862,7 @@
       }
     },
     "Просто о сложном" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26432,6 +26896,7 @@
       }
     },
     "Протяжка (High Pull)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26561,6 +27026,7 @@
       }
     },
     "Прыжки 'звездочка'. Ноги врозь - хлопок над головой, ноги вместе - руки по швам. Держите легкий темп на носках." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26610,6 +27076,7 @@
       }
     },
     "Прыжки на скакалке (Крест-накрест)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26637,6 +27104,7 @@
       }
     },
     "Прыжки на тумбу (Box Jumps): Развитие взрывной силы. Прыжки в длину (Broad Jumps): Горизонтальная мощность. Выпады с прыжком (Jump Lunges): Интервальная выносливость." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26653,6 +27121,7 @@
       }
     },
     "Псевдо-планш (Pseudo Planche Push-ups): Кисти развернуты назад (к ногам), плечи сильно поданы вперед. Биомеханически имитирует жим лежа с огромным весом, нагружая переднюю дельту. Подводящее к горизонту. Лучник (Archer Push-ups): Одна рука прямая (опора), другая сгибается. Переходная ступень к отжиманиям на одной руке. Алмазные (Diamond): Руки вместе, акцент на трицепс и внутреннюю часть груди. Па..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26686,6 +27155,7 @@
       }
     },
     "Психованность, манерность, истероидность, эгоцентризм, вспышки ярости, гнева и обиды." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26702,6 +27172,7 @@
       }
     },
     "Пуловер" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26718,6 +27189,7 @@
       }
     },
     "Пуловер в блоке (Прямые руки)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26745,6 +27217,7 @@
       }
     },
     "Пуловер с гантелью" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26810,6 +27283,7 @@
       }
     },
     "Работа по мешку. Держите стойку, руки у подбородка. Вкладывайте корпус в удар. Двигайтесь вокруг снаряда." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26826,6 +27300,7 @@
       }
     },
     "Работайте руками и ногами одновременно. Чем выше скорость, тем выше сопротивление. Следите за тем, чтобы колени не 'гуляли' в стороны." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26842,6 +27317,7 @@
       }
     },
     "Равномерный бег в комфортном темпе. Пульс 120-140 ударов. Отлично для разминки или заминки." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26902,6 +27378,7 @@
       }
     },
     "Разведение ног (Тренажер)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26929,6 +27406,7 @@
       }
     },
     "Разведения (Т3)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26945,6 +27423,7 @@
       }
     },
     "Разведения/сведения гантелей. Растягивает и сокращает грудные. Чувствуйте stretch." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26961,6 +27440,7 @@
       }
     },
     "Разводка гантелей" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26977,6 +27457,7 @@
       }
     },
     "Разгибание из-за головы на блоке" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27004,6 +27485,7 @@
       }
     },
     "Разгибание на трицепс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27020,6 +27502,7 @@
       }
     },
     "Разгибание ног" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27047,6 +27530,7 @@
       }
     },
     "Разгибание ног сидя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27063,6 +27547,7 @@
       }
     },
     "Разгибание рук на блоке" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27112,6 +27597,7 @@
       }
     },
     "Разгибание руки из-за головы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27139,6 +27625,7 @@
       }
     },
     "Разгибания на блоке из-за головы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27155,6 +27642,7 @@
       }
     },
     "Разгибания на блоке или с гантелями. Локти зафиксированы, работает только трицепс." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27442,6 +27930,7 @@
       }
     },
     "Реализует программу «Бей», ответное наступление на опасность." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27762,6 +28251,7 @@
       }
     },
     "Ровное настроение. Нет лишних мыслей и эмоций, хладнокровие. Отсутствует избыточная мимика." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27778,6 +28268,7 @@
       }
     },
     "Ролик для пресса" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27794,6 +28285,7 @@
       }
     },
     "Ролл спины (МФР)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27810,6 +28302,7 @@
       }
     },
     "Роль: Позволяют нагрузить ноги до полного отказа без риска травмы спины, так как таз зафиксирован. В жиме ногами высокая постановка стоп акцентирует ягодицы/бицепс бедра, низкая — квадрицепс. и Жим ногами (Leg Press)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27871,6 +28364,7 @@
       }
     },
     "Рост коррелирует с пролактином, меньше проявляется при перекосе в адреналин и глутамат." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27932,6 +28426,7 @@
       }
     },
     "Рост сопровождается с пролактином и адреналином. Снижается вместе с серотонином, мелатонином, окситоцином и тестостероном." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27948,6 +28443,7 @@
       }
     },
     "Ротационный выброс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27975,6 +28471,7 @@
       }
     },
     "Ругаетесь, не понимаете друг друга; небезопасность, угнетенность, недоверчивость, поиск подвоха." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27991,6 +28488,7 @@
       }
     },
     "Руки" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28007,6 +28505,7 @@
       }
     },
     "Руки зафиксированы на пюпитре. Исключает читинг. Полная изоляция бицепса." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28023,6 +28522,7 @@
       }
     },
     "Руки под ягодицы. Поднимайте прямые ноги до угла 90 градусов. Опускайте плавно, не касаясь пола." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28039,6 +28539,7 @@
       }
     },
     "Руки сзади на скамье. Опускайте таз вниз, сгибая руки. Не уводите таз далеко от скамьи." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28055,6 +28556,7 @@
       }
     },
     "Румынская тяга" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28071,6 +28573,7 @@
       }
     },
     "Румынская тяга (RDL)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28087,6 +28590,7 @@
       }
     },
     "Румынская тяга гантели" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28103,6 +28607,7 @@
       }
     },
     "Русский твист" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28141,6 +28646,7 @@
       }
     },
     "Рывок гири" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28157,6 +28663,7 @@
       }
     },
     "Рывок штанги (Snatch)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28173,6 +28680,7 @@
       }
     },
     "Рычажная тяга (Hammer)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28200,6 +28708,7 @@
       }
     },
     "С гантелью или на нижнем блоке. Локоть смотрит вверх. Опускайте вес за голову, растягивая трицепс." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28216,6 +28725,7 @@
       }
     },
     "С гантелями в руках. Шагайте на возвышение всей стопой. Вставайте за счет ноги на скамье, не отталкивайтесь нижней." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28232,6 +28742,7 @@
       }
     },
     "С колен катите ролик вперед, растягиваясь почти до пола. Спину держите округлой, не прогибайтесь в пояснице!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28299,6 +28810,7 @@
       }
     },
     "Самая исследованная и эффективная добавка для набора мышечной массы и увеличения силы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28360,6 +28872,7 @@
       }
     },
     "Сведение гантелей или на тренажере. Изолирует грудные мышцы. Локти слегка согнуты." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28398,6 +28911,7 @@
       }
     },
     "Сведение ног (Тренажер)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28425,6 +28939,7 @@
       }
     },
     "Сведение рук" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28463,6 +28978,7 @@
       }
     },
     "Сведения (Flyes)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28479,6 +28995,7 @@
       }
     },
     "Сведения в кроссовере лежа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28630,6 +29147,7 @@
       }
     },
     "Связан с накопленным за день серотонином и окситоцином. Снижается с кортизолом и адреналином." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28663,6 +29181,7 @@
       }
     },
     "Связи:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28696,6 +29215,7 @@
       }
     },
     "Связь с серотонином: при низком окситоцине практически гарантирован низкий серотонин." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28712,6 +29232,7 @@
       }
     },
     "Сгибайте руки с гантелями, большие пальцы вверх (молотковый хват). Акцент на бицепс и плечевую мышцу." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28728,6 +29249,7 @@
       }
     },
     "Сгибание запястий (За спиной)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28766,6 +29288,7 @@
       }
     },
     "Сгибание кистей со штангой" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28782,6 +29305,7 @@
       }
     },
     "Сгибание ног в тренажере" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28798,6 +29322,7 @@
       }
     },
     "Сгибание ног лежа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28814,6 +29339,7 @@
       }
     },
     "Сгибание ног сидя" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28841,6 +29367,7 @@
       }
     },
     "Сгибание Паук" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28857,6 +29384,7 @@
       }
     },
     "Сгибание паука" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28895,6 +29423,7 @@
       }
     },
     "Сгибания Зоттмана" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28922,6 +29451,7 @@
       }
     },
     "Сгибания на скамье Скотта" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28938,6 +29468,7 @@
       }
     },
     "Сгибания Паука" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29035,6 +29566,7 @@
       }
     },
     "Середина груди" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29121,6 +29653,7 @@
       }
     },
     "СЕРОТОНИН" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29198,6 +29731,7 @@
       }
     },
     "Сидя на полу, отклонитесь назад, ноги на весу. Повороты корпуса влево-вправо. Косые мышцы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29214,6 +29748,7 @@
       }
     },
     "Сидя, поднимайте гантели в стороны до уровня плеч. Локти чуть согнуты, ведите движение локтями. Исключает читинг корпусом." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29230,6 +29765,7 @@
       }
     },
     "Сидя, разгибайте ноги в коленях. Изоляция квадрицепса. Контролируемое опускание веса." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29246,6 +29782,7 @@
       }
     },
     "Сидя, сгибайте ноги под собой. Другой вариант изоляции бицепса бедра." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29262,6 +29799,7 @@
       }
     },
     "Сидя, спина прямая. Тяните рукоять к животу, сводя лопатки. Плечи не поднимайте к ушам. При возврате чуть подайте корпус вперед для растяжения." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29278,6 +29816,7 @@
       }
     },
     "Сидя, уприте локоть во внутреннюю часть бедра. Сгибайте руку с гантелей. Полная изоляция, никакого читинга." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29294,6 +29833,7 @@
       }
     },
     "Сидя. Полностью разгибайте ноги, пауза в верхней точке. Изоляция квадрицепса." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29310,6 +29850,7 @@
       }
     },
     "Сидя. Разводите ноги в стороны, задерживаясь в пиковой точке. Прорабатывает среднюю ягодичную." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29326,6 +29867,7 @@
       }
     },
     "Сидя. Сводите ноги вместе. Работает внутренняя поверхность бедра (аддукторы)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29443,6 +29985,7 @@
       }
     },
     "Силовые подтягивания с большим весом. Малое количество повторений (3-5)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29532,6 +30075,7 @@
       }
     },
     "Сисси-приседания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29548,6 +30092,7 @@
       }
     },
     "Скакалка" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29581,6 +30126,7 @@
       }
     },
     "Скамья 30-45 градусов. Опускайте гриф на ключицы. Смит дает изоляцию и безопасность." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29597,6 +30143,7 @@
       }
     },
     "Скамья 30-45°. Жмите гантели вверх, сводя в верхней точке. Акцент на верх груди." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29613,6 +30160,7 @@
       }
     },
     "Скамья 30-45°. Опускайте гантели к плечам, чувствуя растяжение верха груди. Жмите вверх, сводя руки. Предплечья вертикальны в нижней точке." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29629,6 +30177,7 @@
       }
     },
     "Скамья 30-45°. Опускайте штангу на верх груди (ключицы). Локти держите под углом, не разводите широко. Акцент на верхний пучок грудных мышц." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29645,6 +30194,7 @@
       }
     },
     "Складочка (V-Ups)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29683,6 +30233,7 @@
       }
     },
     "Скручивания (Crunch)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29838,6 +30389,7 @@
       }
     },
     "Снижает уровень пролактина. Повышенный пролактин убивает либидо и тестостерон." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30300,6 +30852,7 @@
       }
     },
     "Сон поверхностный, не восстанавливающий, разбитость, вечером настроение падает, склонность к бесплодным рефлексиям." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30404,6 +30957,7 @@
       }
     },
     "Социальное подчинение" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30488,6 +31042,7 @@
       }
     },
     "Специфика: Вариация жима лежа, где штанга опускается прямо к шее. Ноги часто ставятся на скамью, чтобы убрать прогиб и исключить помощь широчайших. Риски и преимущества: Это упражнение создает экстремальное растяжение грудных мышц и полностью исключает трицепс из работы. Однако оно является травмоопасным для плечевых суставов (риск импиджмента) и требует обязательной страховки." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30504,6 +31059,7 @@
       }
     },
     "Специфика: Выполняется с тяжелой гантелей на большое количество повторений (15–25). Допускается легкий читинг корпусом для преодоления инерции в начале. Развивает ментальную устойчивость и силу хвата." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30520,6 +31076,7 @@
       }
     },
     "Спина" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30536,6 +31093,7 @@
       }
     },
     "Спина прижата. Жмите гантели по дуге вверх. Локти не опускайте слишком низко (ниже параллели) для сохранения натяжения." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30552,6 +31110,7 @@
       }
     },
     "Спиной к блоку, рука позади тела. Сгибайте руку на себя, максимально нагружая бицепс в растянутом положении. Наклоняйтесь вперед для пикового сокращения." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30568,6 +31127,7 @@
       }
     },
     "Сплит верх/низ для максимальной силы. Тяжелые базовые движения." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30612,6 +31172,7 @@
       }
     },
     "Спокойствие, безмятежность, удовлетворение жизнью." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30801,6 +31362,7 @@
       }
     },
     "Средние дельты" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -30992,6 +31554,7 @@
       }
     },
     "Становая (Т2)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31008,6 +31571,7 @@
       }
     },
     "Становая сумо" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31024,6 +31588,7 @@
       }
     },
     "Становая тяга" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31040,6 +31605,7 @@
       }
     },
     "Становая тяга (5/3/1)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31056,6 +31622,7 @@
       }
     },
     "Становая тяга (Классика)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31100,6 +31667,7 @@
       }
     },
     "Старт ладонями к себе. Жим с разворотом кистей. Вверху ладони вперед. Увеличивает амплитуду." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31567,6 +32135,7 @@
       }
     },
     "Статика у стены (Стульчик)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31617,6 +32186,7 @@
       }
     },
     "Статус: «Святой Грааль» жимовой статики. Тело параллельно земле, упор только на руки. Биомеханика: Передняя дельта испытывает колоссальную нагрузку. Бицепс работает как стабилизатор локтя (риск разрыва при недостаточной подготовке). Прогрессия: Planche Lean (наклоны) -> Frog Stand (стойка лягушки) -> Tuck Planche -> Straddle Planche -> Full Planche. Push-ups: Отжимания в горизонте без касания ..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31633,6 +32203,7 @@
       }
     },
     "Степпер" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31649,6 +32220,7 @@
       }
     },
     "Степпер (Шаг через ступеньку, Перекрестный шаг)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31665,6 +32237,7 @@
       }
     },
     "Степпер для ягодиц. Шаг через ступеньку, перекрестный шаг. Не держаться за поручни!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31681,6 +32254,7 @@
       }
     },
     "Стероидный гормон, управляющий иммунитетом и тестостероном. K2 обязателен для правильного распределения кальция." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31724,6 +32298,7 @@
       }
     },
     "Стоя или в наклоне. Сделайте полный выдох и втяните живот под ребра. Держите сколько сможете (15-30 сек)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31740,6 +32315,7 @@
       }
     },
     "Стоя на одной ноге без веса. Приседайте, пытаясь коснуться коленом свободной ноги пола. Сложнейшая координация." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31756,6 +32332,7 @@
       }
     },
     "Стоя над грифом, наклон корпуса. Тяните гриф к груди, сводя лопатки. Локти прижаты. Избегайте сильной раскачки." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31772,6 +32349,7 @@
       }
     },
     "Стоя с тяжелыми гантелями. Поднимайте плечи строго вверх к ушам. Задержитесь на секунду. Не вращайте плечами!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31788,6 +32366,7 @@
       }
     },
     "Стоя у блока. Локти прижаты к бокам. Разгибайте руки вниз. Плечи неподвижны." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31804,6 +32383,7 @@
       }
     },
     "Стоя у верхнего блока. Прямыми (чуть согнутыми) руками опускайте рукоять к бедрам по дуге. Изоляция широчайших." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31820,6 +32400,7 @@
       }
     },
     "Стоя, сжимаем блины или гантель перед собой на уровне груди ладонями. Выпрямляем руки вперед, постоянно сдавливая снаряд." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31836,6 +32417,7 @@
       }
     },
     "Стоя. Жим штанги с груди над головой. Корпус напряжен, не прогибайтесь в пояснице. Вверху голова чуть вперед." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31852,6 +32434,7 @@
       }
     },
     "Стоя. Локти прижаты. Поднимайте штангу по дуге. Не читингуйте спиной. Опускайте под контролем." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31885,6 +32468,7 @@
       }
     },
     "Стресс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31946,6 +32530,7 @@
       }
     },
     "Сумо-тяга" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31962,6 +32547,7 @@
       }
     },
     "Суперсет бицепс + трицепс. Чередуйте упражнения на антагонисты без отдыха." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31995,6 +32581,7 @@
       }
     },
     "Суть: Подъем гантелей супинированным хватом (на бицепс), в верхней точке разворот кистей (пронация) и медленное опускание обратным хватом (на брахиалис и предплечья). Комплексное развитие всей руки." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32011,6 +32598,7 @@
       }
     },
     "Сядьте лицом к спинке тренажера. Разводите рукояти назад. Локти на высоте плеч. Акцент на задний пучок." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32027,6 +32615,7 @@
       }
     },
     "Сядьте плотно, лопатки прижаты. Жмите рукояти вперед. Тренажер задает траекторию, фокусируйтесь только на сокращении грудных." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32043,6 +32632,7 @@
       }
     },
     "Сядьте, зафиксируйте ноги. Тяните рукоять к верху груди, прогибаясь в грудном отделе. Опускайте плечи вниз." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32238,6 +32828,7 @@
       }
     },
     "Твоя цель" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32254,6 +32845,7 @@
       }
     },
     "Тейт-пресс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32287,6 +32879,7 @@
       }
     },
     "Тело в одну линию. Опускайтесь до касания грудью пола. Локти направлены назад под углом 45°, не в стороны. Полная амплитуда." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32386,6 +32979,7 @@
       }
     },
     "ТЕСТОСТЕРОН" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32396,6 +32990,7 @@
       }
     },
     "Тестостерон ощущается как уверенность в себе, внушение уважения к себе окружающим." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32456,6 +33051,7 @@
       }
     },
     "Техника: Боковая планка, где верхняя нога лежит на скамье, а нижняя подтянута к ней. Корпус держится на приводящих мышцах (аддукторах). Профилактика травм паха." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32472,6 +33068,7 @@
       }
     },
     "Техника: Взрывное подтягивание, отпускание перекладины, оборот вокруг своей оси на 360 градусов и повторный хват. Требует пространственной ориентации." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32488,6 +33085,7 @@
       }
     },
     "Техника: Лежа животом на вертикальной стороне скамьи Скотта или на наклонной скамье. Руки свисают вертикально вниз. Сгибание происходит без смещения локтей. Максимальная изоляция короткой головки." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32504,6 +33102,7 @@
       }
     },
     "Техника: Наклоны со штангой на плечах. Рычаг силы максимален, поэтому веса должны быть умеренными. Акцент на эксцентрическую фазу работы бицепса бедра." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32520,6 +33119,7 @@
       }
     },
     "Техника: Отклонение корпуса назад с одновременным сгибанием коленей и подъемом на носки. Тело образует прямую линию от колен до шеи. Изолирует квадрицепс, исключая ягодицы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32536,6 +33136,7 @@
       }
     },
     "Техника: Отклонение назад, тяга колец к ушам с разведением рук в позу «Y»." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32552,6 +33153,7 @@
       }
     },
     "Техника: Полный присед на одной ноге, вторая выпрямлена вперед. Требует мобильности голеностопа и силы квадрицепса." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32568,6 +33170,7 @@
       }
     },
     "Техника: Похоже на реверанс. Свободная нога заводится за опорную по диагонали назад, но не касается пола. Корпус скручивается. Развивает координацию и ягодицы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32584,6 +33187,7 @@
       }
     },
     "Техника: Присед на одной ноге, свободная нога согнута в колене и удерживается рукой сзади. В нижней точке колено свободной ноги касается пола. Сложнее пистолетика из-за смещенного центра тяжести." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32600,6 +33204,7 @@
       }
     },
     "Техника: Стоя спиной к нижнему блоку, рука отведена назад. Сгибание происходит из положения максимального растяжения длинной головки бицепса. Считается одним из самых эффективных упражнений для роста бицепса согласно современным данным." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32616,6 +33221,7 @@
       }
     },
     "Техника: Стоя, гриф на вытянутых руках. Перемещение грифа по дуге от бедра к бедру, не поворачивая корпус. Мышцы кора работают в режиме экстремального торможения инерции." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32632,6 +33238,7 @@
       }
     },
     "Техника: Удержание конца грифа у груди (\"намоленная поза\"). Эффект: Позволяет приседать глубже с вертикальной спиной даже людям с плохой мобильностью." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32648,6 +33255,7 @@
       }
     },
     "Техника: Широкие отжимания на кольцах, где руки разводятся в стороны при опускании. Огромная нагрузка на грудь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32664,6 +33272,7 @@
       }
     },
     "Техника: Штанга удерживается в локтевых сгибах перед собой. Эффект: Экстремальная нагрузка на кор и верх спины. Биомеханика близка к становой тяге сумо, но с акцентом на квадрицепс. Развивает «рабочую» силу для борьбы и переноски тяжестей." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32753,6 +33362,7 @@
       }
     },
     "Толчок штанги (Jerk)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32786,6 +33396,7 @@
       }
     },
     "Тонгат Али" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32953,6 +33564,7 @@
       }
     },
     "Трапеции" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32980,6 +33592,7 @@
       }
     },
     "Трастеры (Thrusters)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33030,6 +33643,7 @@
       }
     },
     "Тренажер Pec-Deck. Сядьте лицом к спинке. Отводите руки назад до линии плеч. Локти чуть согнуты. Включает задние дельты." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33046,6 +33660,7 @@
       }
     },
     "Тренажер или штанга на коленях. Поднимайте пятки максимально высоко. Работает камбаловидная мышца." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33100,6 +33715,7 @@
       }
     },
     "Тренировка всего тела 3 раза в неделю. Высокая частота для максимальной гипертрофии." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33238,6 +33854,7 @@
       }
     },
     "Трицепс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33254,6 +33871,7 @@
       }
     },
     "Турецкий подъем" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33343,6 +33961,7 @@
       }
     },
     "Тяга TRX/Блока" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33359,6 +33978,7 @@
       }
     },
     "Тяга блока (Т3 3×15)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33375,6 +33995,7 @@
       }
     },
     "Тяга блока узким хватом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33435,6 +34056,7 @@
       }
     },
     "Тяга в тренажере сидя. Грудь прижата к подушке. Тяните локти назад, сводя лопатки. Работает толщина спины." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33451,6 +34073,7 @@
       }
     },
     "Тяга вертикального блока" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33500,6 +34123,7 @@
       }
     },
     "Тяга верхнего блока" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33549,6 +34173,7 @@
       }
     },
     "Тяга гантели в наклоне" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33587,6 +34212,7 @@
       }
     },
     "Тяга гантели одной рукой" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33603,6 +34229,7 @@
       }
     },
     "Тяга горизонтального блока" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33641,6 +34268,7 @@
       }
     },
     "Тяга к подбородку" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33679,6 +34307,7 @@
       }
     },
     "Тяга каната к лицу (переносице). Локти выше плеч. В конце движения разведите руки ('двойной бицепс'). Для осанки и задней дельты." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33706,6 +34335,7 @@
       }
     },
     "Тяга Кинга (King Deadlift)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33733,6 +34363,7 @@
       }
     },
     "Тяга Мэдоуз" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33760,6 +34391,7 @@
       }
     },
     "Тяга одной рукой" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33776,6 +34408,7 @@
       }
     },
     "Тяга одной рукой в упоре" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33792,6 +34425,7 @@
       }
     },
     "Тяга Пендли" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33808,6 +34442,7 @@
       }
     },
     "Тяга с упором грудью" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33835,6 +34470,7 @@
       }
     },
     "Тяга сумо с гирей" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33851,6 +34487,7 @@
       }
     },
     "Тяга Т-грифа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33867,6 +34504,7 @@
       }
     },
     "Тяга штанги в наклоне" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33894,6 +34532,7 @@
       }
     },
     "Тяга штанги в наклоне, но каждый повтор начинается с 'мертвой точки' (с пола). Спина строго параллельна." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33910,6 +34549,7 @@
       }
     },
     "Тяга штанги обратным хватом" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33943,6 +34583,7 @@
       }
     },
     "Тяните рукоять нижнего блока в сторону через тело. Постоянное натяжение троса обеспечивает качественную проработку." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -33959,6 +34600,7 @@
       }
     },
     "Убийца ГСПГ" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34043,6 +34685,7 @@
       }
     },
     "Углеводы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34059,6 +34702,7 @@
       }
     },
     "Углеводы (Топливо)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34075,6 +34719,7 @@
       }
     },
     "Угли" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34091,6 +34736,7 @@
       }
     },
     "Уголок (L-Sit)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34107,6 +34753,7 @@
       }
     },
     "Уголок (L-sit) на брусьях" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34330,6 +34977,7 @@
       }
     },
     "Удержание угла" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34385,6 +35033,7 @@
       }
     },
     "Ужин" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34401,6 +35050,7 @@
       }
     },
     "Узкая V-рукоять. Тяните к низу живота, максимально сводя лопатки. Акцент на толщину спины." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34417,6 +35067,7 @@
       }
     },
     "Узкая постановка рук, указательные и большие пальцы образуют треугольник. Локти вдоль тела." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34716,6 +35367,7 @@
       }
     },
     "Уникальность: Ноги поднимаются сзади, корпус зафиксирован. Растягивает позвоночник (декомпрессия) при одновременной закачке ягодиц и низа спины. Часто используется для реабилитации." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34732,6 +35384,7 @@
       }
     },
     "Уникальность: Полностью исключает инерцию и нагрузку на поясницу. Атлет лежит на высокой скамье (или использует тренажер), тяга осуществляется строго за счет мышц спины. Это «чистейшая» форма изоляции для верха спины." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34759,6 +35412,7 @@
       }
     },
     "Упор коленом и рукой в скамью. Спина параллельна полу. Тяните гантель к тазу (движение 'в карман'), локоть строго вверх." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34775,6 +35429,7 @@
       }
     },
     "Упор лежа на локтях. Тело прямая струна. Пресс и ягодицы напряжены. Поясница не провисает." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34791,6 +35446,7 @@
       }
     },
     "Упор лежа. Поочередно подтягивайте колени к груди в быстром темпе, имитируя бег. Таз не задирайте. Пресс напряжен." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34807,6 +35463,7 @@
       }
     },
     "Упор локтями в брусья (станок). Поднимайте прямые или согнутые ноги к груди, подкручивая таз." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34823,6 +35480,7 @@
       }
     },
     "Упор на уровне бедер. Опускайтесь с прямой или скругленной спиной (вариации). Поднимайтесь до прямой линии с ногами. Не переразгибайтесь." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34839,6 +35497,7 @@
       }
     },
     "Упор рукой и коленом в скамью. Спина параллельно полу. Тяните гантель к тазу, максимально поднимая локоть." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -34990,6 +35649,7 @@
       }
     },
     "Урежь порции углеводов и жиров." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35150,6 +35810,7 @@
       }
     },
     "Флаг человека" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35166,6 +35827,7 @@
       }
     },
     "Фокус на плечи и руки. Высокий объем работы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35270,6 +35932,7 @@
       }
     },
     "Французский жим" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35308,6 +35971,7 @@
       }
     },
     "Французский жим лежа" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35357,6 +36021,7 @@
       }
     },
     "Фронтальные приседания" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35373,6 +36038,7 @@
       }
     },
     "Фронтальный присед" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35389,6 +36055,7 @@
       }
     },
     "Фулбади Воркаут" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35405,6 +36072,7 @@
       }
     },
     "Фулбади: Фундаментальная" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35421,6 +36089,7 @@
       }
     },
     "Фундамент нервной системы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35454,6 +36123,7 @@
       }
     },
     "Хват на ширине плеч. Локти скользят вдоль туловища. Основная нагрузка на трицепс." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35470,6 +36140,7 @@
       }
     },
     "Хват на ширине плеч. Подрыв штанги вверх, быстрый 'подворот' локтей вперед и прием штанги на передние дельты в седе или полу-седе. Локти смотрят вперед." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35486,6 +36157,7 @@
       }
     },
     "Хват сверху (ладони от себя). Поднимайте штангу на бицепс. Отлично развивает брахиалис и предплечья." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35502,6 +36174,7 @@
       }
     },
     "Хват шире плеч, локти движутся строго вдоль туловища. Траектория штанги — широкая дуга над животом. Требует помощи партнера при съеме штанги. Биомеханический феномен: Исследования показывают, что супинированный хват (ладони к себе) увеличивает активность верхней части груди на 30% по сравнению с обычным наклонным жимом." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35518,6 +36191,7 @@
       }
     },
     "Хват шире плеч. Тянитесь грудью к перекладине, сводя лопатки. Локти вниз. Не сутультесь в верхней точке." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35568,6 +36242,7 @@
       }
     },
     "Ходьба в гору" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35663,6 +36338,7 @@
       }
     },
     "Хочу набрать массу" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35679,6 +36355,7 @@
       }
     },
     "Хочу похудеть" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35751,6 +36428,7 @@
       }
     },
     "Цель: Прямая мышца бедра (квадрицепс) в растянутом положении. Техника: Стоя на коленях, отклонение корпуса назад до касания спиной пяток (в идеале)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35798,6 +36476,7 @@
       }
     },
     "Цинк" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35909,6 +36588,7 @@
       }
     },
     "Человек нервный, раздражительный, злобный." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35925,6 +36605,7 @@
       }
     },
     "Человек чувствует себя замечательно, бодро." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35958,6 +36639,7 @@
       }
     },
     "Чередование периодов максимального ускорения (спринт) и активного отдыха (легкий бег или ходьба). Например: 30 сек спринт / 30 сек отдых. Эффективно для жиросжигания." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36025,6 +36707,7 @@
       }
     },
     "Шаг вперед, опуститесь до параллели. Колено не выходит за носок. Отталкивайтесь передней ногой." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36041,6 +36724,7 @@
       }
     },
     "Шаг назад. Опуститесь, отталкивайтесь назад. Меньше нагрузки на колени, чем при выпадах вперед." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36124,6 +36808,7 @@
       }
     },
     "Широкая постановка ног, носки врозь. Хват узкий. Спина вертикальнее, чем в классике. Больше работают ноги и ягодицы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36140,6 +36825,7 @@
       }
     },
     "Широкая постановка ног, носки развернуты. Больше работы приводящих и ягодиц." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36156,6 +36842,7 @@
       }
     },
     "Широкая стойка. Перенос веса на одну ногу, сгибая ее в колене. Вторая нога прямая. Спина ровная." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36172,6 +36859,7 @@
       }
     },
     "Широкий хват (комфортнее для кистей). Локти тяните вверх через стороны. Гриф до низа груди/подбородка." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36188,6 +36876,7 @@
       }
     },
     "Широкий хват. Мощный подрыв штанги с пола за счет ног и спины, полное выпрямление ('тройное разгибание') и уход в глубокий сед, принимая штангу над головой. Требует гибкости плеч." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36204,6 +36893,7 @@
       }
     },
     "Широкий хват. Тяните штангу вдоль тела к груди, поднимая локти максимально высоко в стороны." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36220,6 +36910,7 @@
       }
     },
     "Широкий шаг. Заднее колено почти касается пола. Корпус вертикально. Угол в коленях 90°." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36236,6 +36927,7 @@
       }
     },
     "Широчайшие" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36296,6 +36988,7 @@
       }
     },
     "Шраги с гантелями" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36312,6 +37005,7 @@
       }
     },
     "Шраги со штангой" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36328,6 +37022,7 @@
       }
     },
     "Штанга за спиной в опущенных руках. Сгибаем кисти вверх. Качает предплечья." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36344,6 +37039,7 @@
       }
     },
     "Штанга на груди. Короткий подсед и выталкивание штанги вверх с одновременным уходом под нее (в ножницы или стойку). Руки выпрямляются мгновенно." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36360,6 +37056,7 @@
       }
     },
     "Штанга на передних дельтах, локти высоко. Спина вертикальна. Акцент на квадрицепсы." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36376,6 +37073,7 @@
       }
     },
     "Штанга на трапециях. Садитесь вниз, разводя колени в стороны. Спина прямая. Опускайтесь ниже параллели. Вставайте, давя пятками." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36392,6 +37090,7 @@
       }
     },
     "Штанга ниже на спине. Больший наклон корпуса, больше работы ягодиц и бицепса бедра." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36408,6 +37107,7 @@
       }
     },
     "Штанга. Сгибание рук в локтях, гриф ко лбу. Локти смотрят вверх и не гуляют в стороны." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36452,6 +37152,7 @@
       }
     },
     "Экстракт брокколи для контроля уровня эстрогена. Делает вас «суше» и здоровее." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36513,6 +37214,7 @@
       }
     },
     "Эллипс (40-60 мин, зона 2)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36529,6 +37231,7 @@
       }
     },
     "Эллипсоид" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36545,6 +37248,7 @@
       }
     },
     "Эмоции и импульс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36599,6 +37303,7 @@
       }
     },
     "Энергия для тренировок и мозга. Крупы, макароны, фрукты, овощи." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36626,6 +37331,7 @@
       }
     },
     "Энергия, которую тело тратит в покое (на дыхание, работу сердца)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36642,6 +37348,7 @@
       }
     },
     "Эстетика и Баланс" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36658,6 +37365,7 @@
       }
     },
     "ЭСТРАДИОЛ" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36708,6 +37416,7 @@
       }
     },
     "Это дополнение к еде, а не замена." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36769,6 +37478,7 @@
       }
     },
     "Ягодицы" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36785,6 +37495,7 @@
       }
     },
     "Ягодичный мост" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36801,6 +37512,7 @@
       }
     },
     "Ягодичный мост (Hip Thrust)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
