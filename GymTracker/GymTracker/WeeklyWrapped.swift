@@ -851,6 +851,9 @@ private struct WeeklyWrappedBackground: View {
 struct WeeklyWrappedSummaryCard: View {
     let snapshot: WeeklyWrappedSnapshot
     var includeFooter: Bool = false
+    /// Vertical spacing between blocks. Bigger when the card is rendered into
+    /// a 9:16 share canvas so it fills more of the taller frame.
+    var blockSpacing: CGFloat = 22
 
     private static let weekFormatter: DateFormatter = {
         let df = DateFormatter()
@@ -882,7 +885,7 @@ struct WeeklyWrappedSummaryCard: View {
     }
 
     var body: some View {
-        VStack(spacing: 22) {
+        VStack(spacing: blockSpacing) {
             brandHero
             headerBlock
             tonnageHero
@@ -1247,17 +1250,17 @@ struct WeeklyWrappedSummaryCard: View {
     }
 }
 
-// MARK: - Share render (4:5 — Instagram feed native, looks BIG in chat previews)
+// MARK: - Share render (9:16 — fills Instagram Stories edge-to-edge)
 //
-// The 9:16 Stories format renders as a tall, narrow strip inside chat previews
-// (Telegram/WhatsApp) which is exactly the "looks tiny" complaint. 4:5 (1080×1350)
-// is the universal share format: native Instagram feed, displays large in chats,
-// and Stories accepts it (centered with the brand background filling the gaps).
+// Stories is 9:16 (1080×1920); a 4:5 image lands centered with empty bars
+// top/bottom — exactly the "обрезанный" complaint. We render at 9:16 and let
+// the brand background fill the whole frame, with content stretched via a
+// larger blockSpacing so the card occupies more vertical space.
 private struct WeeklyWrappedShareRender: View {
     let snapshot: WeeklyWrappedSnapshot
 
     static let canvasWidth: CGFloat = 1080
-    static let canvasHeight: CGFloat = 1350
+    static let canvasHeight: CGFloat = 1920
 
     var body: some View {
         ZStack {
@@ -1270,6 +1273,8 @@ private struct WeeklyWrappedShareRender: View {
                     .aspectRatio(contentMode: .fill)
                     .blur(radius: 14)
                     .opacity(0.36)
+                    .frame(width: Self.canvasWidth, height: Self.canvasHeight)
+                    .clipped()
 
                 LinearGradient(
                     colors: [
@@ -1283,24 +1288,33 @@ private struct WeeklyWrappedShareRender: View {
 
                 Circle()
                     .fill(DesignSystem.Colors.neonGreen)
-                    .frame(width: 720, height: 720)
-                    .blur(radius: 240)
-                    .offset(x: 220, y: -360)
-                    .opacity(0.20)
+                    .frame(width: 900, height: 900)
+                    .blur(radius: 260)
+                    .offset(x: 260, y: -560)
+                    .opacity(0.22)
 
                 Circle()
                     .fill(DesignSystem.Colors.neonGreen)
-                    .frame(width: 540, height: 540)
-                    .blur(radius: 220)
-                    .offset(x: -200, y: 480)
-                    .opacity(0.12)
+                    .frame(width: 620, height: 620)
+                    .blur(radius: 240)
+                    .offset(x: -240, y: 700)
+                    .opacity(0.13)
             }
 
             // Content fills almost edge-to-edge — no top header, the brand
             // logo lives inside the summary card itself (big, centered).
-            WeeklyWrappedSummaryCard(snapshot: snapshot, includeFooter: true)
-                .padding(.horizontal, 56)
-                .padding(.vertical, 56)
+            // blockSpacing bumped so the card breathes inside the taller 9:16 frame.
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
+                WeeklyWrappedSummaryCard(
+                    snapshot: snapshot,
+                    includeFooter: true,
+                    blockSpacing: 38
+                )
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 64)
+            .padding(.vertical, 80)
         }
         .frame(width: Self.canvasWidth, height: Self.canvasHeight)
     }

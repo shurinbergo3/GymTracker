@@ -313,7 +313,17 @@ struct WorkoutCompletionView: View {
         // Snapshot session/calories on the main actor BEFORE async work to
         // avoid passing the @Model reference across actor boundaries.
         let liveCalories = calories
-        var snapshot = WorkoutShareSnapshot.make(from: session, progressData: progressData)
+        let previousSession: WorkoutSession? = {
+            if let day = workoutManager.selectedDay, day.name == session.workoutDayName {
+                return workoutManager.getPreviousSession(for: day)
+            }
+            return nil
+        }()
+        var snapshot = WorkoutShareSnapshot.make(
+            from: session,
+            progressData: progressData,
+            previousSession: previousSession
+        )
         if liveCalories > 0 && snapshot.calories == 0 {
             snapshot = WorkoutShareSnapshot(
                 workoutDayName: snapshot.workoutDayName,
@@ -321,6 +331,7 @@ struct WorkoutCompletionView: View {
                 date: snapshot.date,
                 durationSeconds: snapshot.durationSeconds,
                 totalVolumeKg: snapshot.totalVolumeKg,
+                previousTotalVolumeKg: snapshot.previousTotalVolumeKg,
                 totalSets: snapshot.totalSets,
                 totalReps: snapshot.totalReps,
                 calories: liveCalories,

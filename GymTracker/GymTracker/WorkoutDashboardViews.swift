@@ -1835,7 +1835,21 @@ struct SummaryOverlay: View {
 
         let liveCalories = calories
         let liveHeartRate = heartRate
-        var snapshot = WorkoutShareSnapshot.make(from: session, progressData: progressData)
+        let previousSession: WorkoutSession? = {
+            if let program = workoutManager.activeProgram,
+               let day = program.days.first(where: { $0.name == session.workoutDayName }) {
+                return workoutManager.getPreviousSession(for: day)
+            }
+            if let day = workoutManager.selectedDay, day.name == session.workoutDayName {
+                return workoutManager.getPreviousSession(for: day)
+            }
+            return nil
+        }()
+        var snapshot = WorkoutShareSnapshot.make(
+            from: session,
+            progressData: progressData,
+            previousSession: previousSession
+        )
         // Patch in fields the user just edited but that haven't been written
         // back to the session yet — otherwise the shared card looks "empty".
         if liveCalories > 0 && snapshot.calories == 0 {
@@ -1845,6 +1859,7 @@ struct SummaryOverlay: View {
                 date: snapshot.date,
                 durationSeconds: snapshot.durationSeconds,
                 totalVolumeKg: snapshot.totalVolumeKg,
+                previousTotalVolumeKg: snapshot.previousTotalVolumeKg,
                 totalSets: snapshot.totalSets,
                 totalReps: snapshot.totalReps,
                 calories: liveCalories,

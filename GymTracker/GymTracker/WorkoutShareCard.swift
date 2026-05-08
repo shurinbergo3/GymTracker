@@ -2,8 +2,9 @@
 //  WorkoutShareCard.swift
 //  GymTracker
 //
-//  4:5 (1080×1350) share render of a finished workout: brand mark on top,
-//  hero stats, PR badge and per-exercise breakdown. Rendered offscreen via
+//  9:16 (1080×1920) share render of a finished workout: brand mark on top,
+//  hero stats, % delta vs previous workout, PR badge with per-exercise
+//  highlights and per-exercise breakdown. Rendered offscreen via
 //  ImageRenderer and pushed to the iOS share sheet.
 //
 
@@ -20,6 +21,9 @@ struct WorkoutShareSnapshot {
         let bestReps: Int
         let totalSets: Int
         let progress: ProgressState?
+        /// Previous max weight for this exercise — used for the per-exercise
+        /// "+X%" badge. nil when there's no previous data (new exercise).
+        let previousBestWeight: Double?
     }
 
     let workoutDayName: String
@@ -27,6 +31,9 @@ struct WorkoutShareSnapshot {
     let date: Date
     let durationSeconds: TimeInterval
     let totalVolumeKg: Double
+    /// Volume of the same workout day's previous session (Σ weight×reps over
+    /// completed sets). nil when there's no prior session of this day.
+    let previousTotalVolumeKg: Double?
     let totalSets: Int
     let totalReps: Int
     let calories: Int
@@ -34,9 +41,16 @@ struct WorkoutShareSnapshot {
     let recordsCount: Int
     let exercises: [ExerciseLine]
 
+    /// % change of total volume vs previous session. nil when prev was 0 or absent.
+    var volumeDeltaPercent: Int? {
+        guard let prev = previousTotalVolumeKg, prev > 0 else { return nil }
+        return Int(((totalVolumeKg - prev) / prev * 100).rounded())
+    }
+
     static func make(
         from session: WorkoutSession,
-        progressData: [ExerciseProgress]
+        progressData: [ExerciseProgress],
+        previousSession: WorkoutSession? = nil
     ) -> WorkoutShareSnapshot {
         let completedSets = session.sets.filter { $0.isCompleted }
         let duration = session.endTime?.timeIntervalSince(session.date) ?? 0
@@ -47,6 +61,15 @@ struct WorkoutShareSnapshot {
         }
 
         let progressByName = Dictionary(uniqueKeysWithValues: progressData.map { ($0.exerciseName, $0.progressState) })
+
+        // Previous best weight per exercise from the prior session of this day.
+        var prevBestByName: [String: Double] = [:]
+        if let prev = previousSession {
+            for s in prev.sets where s.isCompleted {
+                let w = s.weight
+                prevBestByName[s.exerciseName] = max(prevBestByName[s.exerciseName] ?? 0, w)
+            }
+        }
 
         // Best set per exercise = heaviest weight, ties broken by reps.
         let lines: [ExerciseLine] = grouped.map { name, sets in
@@ -59,7 +82,8 @@ struct WorkoutShareSnapshot {
                 bestWeight: best?.weight ?? 0,
                 bestReps: best?.reps ?? 0,
                 totalSets: sets.count,
-                progress: progressByName[name]
+                progress: progressByName[name],
+                previousBestWeight: prevBestByName[name]
             )
         }
         // Sort: PRs first, then by volume contribution
@@ -74,12 +98,19 @@ struct WorkoutShareSnapshot {
         let totalReps = completedSets.reduce(0) { $0 + $1.reps }
         let records = progressData.filter { $0.progressState == .improved }.count
 
+        let prevVolume: Double? = previousSession.map { prev in
+            prev.sets
+                .filter { $0.isCompleted }
+                .reduce(0.0) { $0 + ($1.weight * Double($1.reps)) }
+        }
+
         return WorkoutShareSnapshot(
             workoutDayName: session.workoutDayName,
             programName: session.programName,
             date: session.date,
             durationSeconds: duration,
             totalVolumeKg: totalVolume,
+            previousTotalVolumeKg: prevVolume,
             totalSets: completedSets.count,
             totalReps: totalReps,
             calories: session.calories ?? 0,
@@ -90,13 +121,13 @@ struct WorkoutShareSnapshot {
     }
 }
 
-// MARK: - Render canvas (4:5)
+// MARK: - Render canvas (9:16 — fills Instagram Stories edge-to-edge)
 
 struct WorkoutShareRender: View {
     let snapshot: WorkoutShareSnapshot
 
     static let canvasWidth: CGFloat = 1080
-    static let canvasHeight: CGFloat = 1350
+    static let canvasHeight: CGFloat = 1920
 
     private let neon = DesignSystem.Colors.neonGreen
 
@@ -105,35 +136,43 @@ struct WorkoutShareRender: View {
             background
 
             VStack(spacing: 0) {
-                brandHeader
-                    .padding(.top, 64)
+                Spacer(minLength: 80)
 
-                Spacer(minLength: 24)
+                brandHeader
+
+                Spacer(minLength: 40)
 
                 heroBlock
                     .padding(.horizontal, 64)
 
-                Spacer(minLength: 28)
+                if snapshot.volumeDeltaPercent != nil {
+                    Spacer(minLength: 32)
+                    volumeDeltaHero
+                        .padding(.horizontal, 64)
+                }
+
+                Spacer(minLength: 40)
 
                 statsGrid
                     .padding(.horizontal, 56)
 
                 if snapshot.recordsCount > 0 {
+                    Spacer(minLength: 28)
                     recordsBadge
-                        .padding(.top, 28)
+                        .padding(.horizontal, 56)
                 }
 
-                Spacer(minLength: 28)
+                Spacer(minLength: 40)
 
                 if !snapshot.exercises.isEmpty {
                     exercisesBlock
                         .padding(.horizontal, 56)
                 }
 
-                Spacer(minLength: 24)
+                Spacer(minLength: 40)
 
                 footer
-                    .padding(.bottom, 56)
+                    .padding(.bottom, 80)
             }
         }
         .frame(width: Self.canvasWidth, height: Self.canvasHeight)
@@ -144,31 +183,43 @@ struct WorkoutShareRender: View {
         ZStack {
             Color.black
 
+            Image("LaunchScreen")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .blur(radius: 14)
+                .opacity(0.30)
+                .frame(width: Self.canvasWidth, height: Self.canvasHeight)
+                .clipped()
+
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0.55),
+                    Color.black.opacity(0.78),
+                    Color.black.opacity(0.70)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
             Circle()
                 .fill(neon)
-                .frame(width: 800, height: 800)
-                .blur(radius: 240)
-                .offset(x: 240, y: -380)
+                .frame(width: 900, height: 900)
+                .blur(radius: 260)
+                .offset(x: 260, y: -520)
                 .opacity(0.22)
 
             Circle()
                 .fill(Color.cyan)
-                .frame(width: 540, height: 540)
-                .blur(radius: 220)
-                .offset(x: -240, y: 460)
+                .frame(width: 600, height: 600)
+                .blur(radius: 240)
+                .offset(x: -260, y: 640)
                 .opacity(0.14)
-
-            LinearGradient(
-                colors: [Color.black.opacity(0.0), Color.black.opacity(0.55)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
         }
     }
 
     // MARK: Brand header
     private var brandHeader: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 16) {
             ZStack {
                 Circle()
                     .fill(
@@ -176,29 +227,29 @@ struct WorkoutShareRender: View {
                             colors: [neon.opacity(0.45), .clear],
                             center: .center,
                             startRadius: 0,
-                            endRadius: 130
+                            endRadius: 150
                         )
                     )
-                    .frame(width: 220, height: 220)
-                    .blur(radius: 24)
+                    .frame(width: 260, height: 260)
+                    .blur(radius: 28)
 
                 Image("BrandLogo")
                     .resizable()
                     .interpolation(.high)
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 116, height: 116)
-                    .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                    .frame(width: 140, height: 140)
+                    .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        RoundedRectangle(cornerRadius: 32, style: .continuous)
                             .stroke(Color.white.opacity(0.10), lineWidth: 1)
                     )
-                    .shadow(color: neon.opacity(0.55), radius: 24)
-                    .shadow(color: .black.opacity(0.55), radius: 20, x: 0, y: 10)
+                    .shadow(color: neon.opacity(0.55), radius: 28)
+                    .shadow(color: .black.opacity(0.55), radius: 22, x: 0, y: 12)
             }
 
             Text("BODY FORGE")
-                .font(.system(size: 34, weight: .heavy, design: .rounded))
-                .tracking(10)
+                .font(.system(size: 38, weight: .heavy, design: .rounded))
+                .tracking(11)
                 .foregroundStyle(
                     LinearGradient(
                         colors: [.white, .white.opacity(0.85)],
@@ -206,47 +257,119 @@ struct WorkoutShareRender: View {
                         endPoint: .bottom
                     )
                 )
-                .shadow(color: neon.opacity(0.25), radius: 12)
+                .shadow(color: neon.opacity(0.25), radius: 14)
 
-            HStack(spacing: 12) {
-                Rectangle().fill(neon.opacity(0.55)).frame(width: 28, height: 1)
+            HStack(spacing: 14) {
+                Rectangle().fill(neon.opacity(0.55)).frame(width: 32, height: 1)
                 Text("FORGE YOUR BODY")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .tracking(5)
                     .foregroundColor(neon.opacity(0.9))
-                Rectangle().fill(neon.opacity(0.55)).frame(width: 28, height: 1)
+                Rectangle().fill(neon.opacity(0.55)).frame(width: 32, height: 1)
             }
         }
     }
 
     // MARK: Hero
     private var heroBlock: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             Text("ТРЕНИРОВКА ЗАВЕРШЕНА".localized())
-                .font(.system(size: 16, weight: .heavy, design: .rounded))
-                .tracking(6)
+                .font(.system(size: 18, weight: .heavy, design: .rounded))
+                .tracking(7)
                 .foregroundColor(neon)
 
             Text(snapshot.workoutDayName)
-                .font(.system(size: 56, weight: .heavy, design: .rounded))
+                .font(.system(size: 64, weight: .heavy, design: .rounded))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .minimumScaleFactor(0.6)
 
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 if let program = snapshot.programName, !program.isEmpty {
                     Text(program)
-                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .font(.system(size: 20, weight: .semibold, design: .rounded))
                         .foregroundColor(.white.opacity(0.7))
                     Circle().fill(Color.white.opacity(0.3)).frame(width: 4, height: 4)
                 }
                 Text(formattedDate)
-                    .font(.system(size: 18, weight: .medium, design: .rounded))
+                    .font(.system(size: 20, weight: .medium, design: .rounded))
                     .foregroundColor(.white.opacity(0.7))
             }
         }
         .frame(maxWidth: .infinity)
+    }
+
+    // MARK: Volume delta hero — % change vs previous session
+    private var volumeDeltaHero: some View {
+        // We only render this when volumeDeltaPercent is non-nil.
+        let pct = snapshot.volumeDeltaPercent ?? 0
+        let isUp = pct > 0
+        let isFlat = pct == 0
+        let tint: Color = isUp
+            ? Color(red: 0.30, green: 0.95, blue: 0.45)
+            : (isFlat ? .white : Color(red: 1.0, green: 0.42, blue: 0.42))
+        let icon = isUp
+            ? "arrow.up.right"
+            : (isFlat ? "equal" : "arrow.down.right")
+        let title = isUp
+            ? "ЛУЧШЕ ПРОШЛОЙ".localized()
+            : (isFlat ? "СТАБИЛЬНО".localized() : "ОТ ПРОШЛОЙ".localized())
+        let valueText = isUp ? "+\(pct)%" : (isFlat ? "0%" : "\(pct)%")
+
+        return HStack(spacing: 22) {
+            ZStack {
+                Circle()
+                    .fill(tint.opacity(0.22))
+                    .frame(width: 88, height: 88)
+                Circle()
+                    .stroke(tint.opacity(0.5), lineWidth: 1.5)
+                    .frame(width: 88, height: 88)
+                Image(systemName: icon)
+                    .font(.system(size: 36, weight: .heavy))
+                    .foregroundStyle(tint)
+                    .shadow(color: tint.opacity(0.55), radius: 14)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 14, weight: .heavy, design: .rounded))
+                    .tracking(2.4)
+                    .foregroundColor(.white.opacity(0.7))
+                Text(valueText)
+                    .font(.system(size: 60, weight: .black, design: .rounded))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [tint, tint.opacity(0.7)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .shadow(color: tint.opacity(0.45), radius: 16)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 22)
+        .padding(.horizontal, 28)
+        .background(
+            ZStack {
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .fill(Color.white.opacity(0.05))
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [tint.opacity(0.18), .clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .stroke(tint.opacity(0.40), lineWidth: 1.2)
+            }
+        )
     }
 
     private var formattedDate: String {
@@ -258,8 +381,8 @@ struct WorkoutShareRender: View {
 
     // MARK: Stats
     private var statsGrid: some View {
-        VStack(spacing: 16) {
-            HStack(spacing: 16) {
+        VStack(spacing: 18) {
+            HStack(spacing: 18) {
                 statTile(
                     icon: "clock.fill",
                     tint: Color(red: 0.45, green: 0.85, blue: 1.0),
@@ -275,7 +398,7 @@ struct WorkoutShareRender: View {
                     unit: volumeLabel.unit
                 )
             }
-            HStack(spacing: 16) {
+            HStack(spacing: 18) {
                 statTile(
                     icon: "flame.fill",
                     tint: .orange,
@@ -309,13 +432,13 @@ struct WorkoutShareRender: View {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .stroke(tint.opacity(0.35), lineWidth: 1)
 
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 10) {
                     Image(systemName: icon)
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundColor(tint)
                     Text(title)
-                        .font(.system(size: 13, weight: .heavy, design: .rounded))
+                        .font(.system(size: 14, weight: .heavy, design: .rounded))
                         .tracking(2.5)
                         .foregroundColor(.white.opacity(0.7))
                         .lineLimit(1)
@@ -323,19 +446,19 @@ struct WorkoutShareRender: View {
                 }
                 Spacer(minLength: 0)
                 Text(value)
-                    .font(.system(size: 56, weight: .heavy, design: .rounded))
+                    .font(.system(size: 64, weight: .heavy, design: .rounded))
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                 if let unit = unit {
                     Text(unit)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
-            .padding(24)
+            .padding(28)
         }
-        .frame(height: 200)
+        .frame(height: 220)
         .frame(maxWidth: .infinity)
     }
 
@@ -358,47 +481,68 @@ struct WorkoutShareRender: View {
         return ("\(Int(snapshot.totalVolumeKg))", "кг".localized())
     }
 
-    // MARK: Records badge
+    // MARK: Records badge — headline + top PR exercise names
     private var recordsBadge: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "trophy.fill")
-                .font(.system(size: 20, weight: .heavy))
-                .foregroundColor(neon)
-            Text(String(format: "%d %@".localized(), snapshot.recordsCount, "новых рекордов".localized()))
-                .font(.system(size: 22, weight: .heavy, design: .rounded))
-                .foregroundColor(.white)
+        let topPRs = snapshot.exercises
+            .filter { $0.progress == .improved }
+            .prefix(3)
+            .map { $0.name }
+        return VStack(spacing: 14) {
+            HStack(spacing: 14) {
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 26, weight: .heavy))
+                    .foregroundColor(neon)
+                    .shadow(color: neon.opacity(0.6), radius: 12)
+                Text(String(format: "%d %@".localized(), snapshot.recordsCount, "новых рекордов".localized()))
+                    .font(.system(size: 28, weight: .heavy, design: .rounded))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+
+            if !topPRs.isEmpty {
+                Text(topPRs.joined(separator: " · "))
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white.opacity(0.75))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
+            }
         }
-        .padding(.horizontal, 28)
-        .padding(.vertical, 14)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 22)
+        .padding(.horizontal, 32)
         .background(
             ZStack {
-                Capsule().fill(neon.opacity(0.16))
-                Capsule().stroke(neon.opacity(0.55), lineWidth: 1.2)
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .fill(neon.opacity(0.16))
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .stroke(neon.opacity(0.55), lineWidth: 1.2)
             }
         )
-        .shadow(color: neon.opacity(0.35), radius: 18)
+        .shadow(color: neon.opacity(0.35), radius: 22)
     }
 
     // MARK: Exercises
     private var exercisesBlock: some View {
-        let visible = Array(snapshot.exercises.prefix(5))
+        let visible = Array(snapshot.exercises.prefix(6))
         let extras = max(0, snapshot.exercises.count - visible.count)
-        return VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: 14) {
             Text("УПРАЖНЕНИЯ".localized())
-                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                .font(.system(size: 14, weight: .heavy, design: .rounded))
                 .tracking(3)
                 .foregroundColor(.white.opacity(0.6))
                 .padding(.leading, 4)
 
-            VStack(spacing: 10) {
+            VStack(spacing: 12) {
                 ForEach(visible) { line in
                     exerciseRow(line)
                 }
                 if extras > 0 {
                     Text(String(format: "и ещё +%d".localized(), extras))
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold, design: .rounded))
                         .foregroundColor(.white.opacity(0.55))
-                        .padding(.top, 2)
+                        .padding(.top, 4)
                 }
             }
         }
@@ -406,41 +550,80 @@ struct WorkoutShareRender: View {
 
     private func exerciseRow(_ line: WorkoutShareSnapshot.ExerciseLine) -> some View {
         HStack(spacing: 14) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(line.name)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Text(bestSetSummary(line))
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .font(.system(size: 17, weight: .medium, design: .rounded))
                     .foregroundColor(.white.opacity(0.65))
             }
             Spacer(minLength: 8)
 
+            // Per-exercise % delta — only show when meaningful.
+            if let pct = perExerciseDeltaPercent(line) {
+                exerciseDeltaChip(pct: pct, isPR: line.progress == .improved)
+            }
+
             Text(String(format: "×%d".localized(), line.totalSets))
-                .font(.system(size: 18, weight: .heavy, design: .rounded))
+                .font(.system(size: 19, weight: .heavy, design: .rounded))
                 .foregroundColor(.white.opacity(0.85))
 
             if let p = line.progress {
                 Image(systemName: p.icon)
-                    .font(.system(size: 14, weight: .heavy))
+                    .font(.system(size: 15, weight: .heavy))
                     .foregroundColor(p.color)
-                    .padding(8)
+                    .padding(9)
                     .background(Circle().fill(p.color.opacity(0.18)))
                     .overlay(Circle().stroke(p.color.opacity(0.5), lineWidth: 1))
             }
         }
-        .padding(.vertical, 16)
-        .padding(.horizontal, 20)
+        .padding(.vertical, 18)
+        .padding(.horizontal, 22)
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color.white.opacity(0.05))
+                    .fill(line.progress == .improved
+                          ? neon.opacity(0.10)
+                          : Color.white.opacity(0.05))
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    .stroke(
+                        line.progress == .improved
+                            ? neon.opacity(0.45)
+                            : Color.white.opacity(0.08),
+                        lineWidth: 1
+                    )
             }
         )
+    }
+
+    /// % change of best weight vs previous session for this exercise. Returns
+    /// nil when there's no previous data, current weight is 0, or the change
+    /// rounds to 0%.
+    private func perExerciseDeltaPercent(_ line: WorkoutShareSnapshot.ExerciseLine) -> Int? {
+        guard let prev = line.previousBestWeight, prev > 0, line.bestWeight > 0 else { return nil }
+        let pct = Int(((line.bestWeight - prev) / prev * 100).rounded())
+        return pct == 0 ? nil : pct
+    }
+
+    private func exerciseDeltaChip(pct: Int, isPR: Bool) -> some View {
+        let tint: Color = pct > 0
+            ? (isPR ? neon : Color(red: 0.30, green: 0.95, blue: 0.45))
+            : Color(red: 1.0, green: 0.42, blue: 0.42)
+        let label = pct > 0 ? "+\(pct)%" : "\(pct)%"
+        return Text(label)
+            .font(.system(size: 15, weight: .heavy, design: .rounded))
+            .foregroundColor(tint)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(
+                ZStack {
+                    Capsule().fill(tint.opacity(0.18))
+                    Capsule().stroke(tint.opacity(0.45), lineWidth: 0.8)
+                }
+            )
     }
 
     private func bestSetSummary(_ line: WorkoutShareSnapshot.ExerciseLine) -> String {
@@ -458,9 +641,9 @@ struct WorkoutShareRender: View {
 
     // MARK: Footer
     private var footer: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
             Text("Body Forge — твоя личная кузница тела".localized())
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundColor(.white.opacity(0.5))
                 .tracking(1.5)
         }
