@@ -251,7 +251,7 @@ struct FullMonthView: View {
         VStack(spacing: DesignSystem.Spacing.xs) {
             // День недели заголовки
             HStack(spacing: DesignSystem.Spacing.sm) {
-                ForEach(["М", "Т", "С", "Ч", "П", "С", "В"], id: \.self) { day in
+                ForEach(Array(["М", "Т", "С", "Ч", "П", "С", "В"].enumerated()), id: \.offset) { _, day in
                     Text(day)
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(DesignSystem.Colors.secondaryText)
