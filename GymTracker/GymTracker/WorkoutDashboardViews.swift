@@ -217,7 +217,11 @@ struct TodayWorkoutCard: View {
     }
 
     private func estimatedSets(for day: WorkoutDay) -> Int {
-        day.exercises.reduce(0) { $0 + max(1, $1.plannedSets) }
+        // Defensive: skip SwiftData zombies (relationship still references a row
+        // whose backing data is gone — accessing properties would fatalError).
+        day.exercises
+            .filter { $0.modelContext != nil }
+            .reduce(0) { $0 + max(1, $1.plannedSets) }
     }
 
     private func estimatedMinutes(for day: WorkoutDay) -> Int {
@@ -363,7 +367,9 @@ struct TodayWorkoutCard: View {
               let day = workoutManager.selectedDay,
               day.exercises.count > 0 else { return 0 }
         
-        let totalSets = day.exercises.reduce(0) { $0 + $1.plannedSets }
+        let totalSets = day.exercises
+            .filter { $0.modelContext != nil }
+            .reduce(0) { $0 + $1.plannedSets }
         let completedSets = session.sets.count
         
         return min(1.0, CGFloat(completedSets) / CGFloat(max(1, totalSets)))
