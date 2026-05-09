@@ -219,7 +219,6 @@ struct WeeklyWrappedView: View {
     let snapshot: WeeklyWrappedSnapshot
     let onClose: () -> Void
 
-    @State private var sharePayload: SharePayload?
     @State private var revealed = false
 
     /// Master spring for every reveal — keeps the stagger feeling "on the same beat".
@@ -251,10 +250,6 @@ struct WeeklyWrappedView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .sheet(item: $sharePayload) { payload in
-            ActivityShareSheet(items: [payload.image])
-                .ignoresSafeArea()
-        }
         .onAppear {
             // Tiny delay so SwiftUI commits the initial (hidden) layout *before*
             // we flip the flag — otherwise the spring snaps with no animation.
@@ -730,7 +725,7 @@ struct WeeklyWrappedView: View {
             height: WeeklyWrappedShareRender.canvasHeight
         )
         if let img = renderer.uiImage {
-            sharePayload = SharePayload(image: img)
+            ShareSheetPresenter.present(items: [img])
         }
     }
 }
@@ -1318,23 +1313,6 @@ private struct WeeklyWrappedShareRender: View {
         }
         .frame(width: Self.canvasWidth, height: Self.canvasHeight)
     }
-}
-
-// MARK: - Share sheet wrapper
-
-private struct SharePayload: Identifiable {
-    let id = UUID()
-    let image: UIImage
-}
-
-private struct ActivityShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
 }
 
 // MARK: - Dashboard teaser

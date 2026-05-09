@@ -40,6 +40,34 @@ struct WatchRootView: View {
     }
 }
 
+// MARK: - Live wall-clock helper
+//
+// `TimelineView(.everyMinute)` rebuilds the inner closure once a minute (no
+// app-side timer needed, no battery cost on watchOS — the system manages the
+// schedule). Use this any time we want to show wall-clock time inside the
+// app body. We don't bump to second-precision because the system clock at
+// the top of the screen is minute-precision too, and matching it avoids
+// confusing micro-desync between the two clocks.
+
+private struct LiveTimeText: View {
+    let font: Font
+    let color: Color
+
+    init(font: Font, color: Color = .white) {
+        self.font = font
+        self.color = color
+    }
+
+    var body: some View {
+        TimelineView(.everyMinute) { context in
+            Text(context.date, format: .dateTime.hour().minute())
+                .font(font)
+                .monospacedDigit()
+                .foregroundStyle(color)
+        }
+    }
+}
+
 // MARK: - Idle (start workout)
 
 private struct IdleView: View {
@@ -81,16 +109,28 @@ private struct IdleView: View {
 
 private struct IdleHeader: View {
     var body: some View {
-        HStack(spacing: 8) {
-            Image("BrandLogo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 28, height: 28)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-            Text("Body Forge")
-                .font(.system(size: 15, weight: .semibold))
-            Spacer(minLength: 0)
+        VStack(spacing: 6) {
+            // Hero clock — the watch is, after all, a watch. When no workout
+            // is running, surfacing wall-clock time lets the user keep their
+            // wrist up for the rare second longer it takes them to decide
+            // whether to start training.
+            LiveTimeText(
+                font: .system(size: 32, weight: .heavy, design: .rounded),
+                color: .white
+            )
+
+            HStack(spacing: 6) {
+                Image("BrandLogo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 18, height: 18)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                Text("Body Forge")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.65))
+            }
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -278,10 +318,17 @@ private struct ActiveWorkoutView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(model.workoutName)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+            HStack(alignment: .firstTextBaseline) {
+                Text(model.workoutName)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Spacer(minLength: 4)
+                LiveTimeText(
+                    font: .caption2.weight(.medium),
+                    color: .white.opacity(0.55)
+                )
+            }
 
             Text(model.exerciseName ?? model.workoutName)
                 .font(.headline)
@@ -329,6 +376,11 @@ private struct RestModeView: View {
 
     var body: some View {
         VStack(spacing: 6) {
+            LiveTimeText(
+                font: .caption2.weight(.medium),
+                color: .white.opacity(0.55)
+            )
+
             HStack(spacing: 6) {
                 Image(systemName: "hourglass")
                     .font(.system(size: 14, weight: .semibold))

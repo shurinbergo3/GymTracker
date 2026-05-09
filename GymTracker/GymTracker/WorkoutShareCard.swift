@@ -667,6 +667,41 @@ struct WorkoutShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
 }
 
+// Wrapping UIActivityViewController in SwiftUI's `.sheet` is broken on iPad:
+// any share action that pushes a sub-sheet (Mail, Save to Drive, sign-in flow)
+// collapses the parent SwiftUI sheet and dumps the user back to whatever was
+// underneath. Presenting the activity controller straight from UIKit also lets
+// us configure the popover anchor that iPad requires, so use this helper from
+// every share button instead of `.sheet(item:)`.
+@MainActor
+enum ShareSheetPresenter {
+    static func present(items: [Any]) {
+        guard let scene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive }),
+              let window = scene.windows.first(where: { $0.isKeyWindow }),
+              let root = window.rootViewController else { return }
+
+        var top = root
+        while let presented = top.presentedViewController {
+            top = presented
+        }
+
+        let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        if let popover = vc.popoverPresentationController {
+            popover.sourceView = top.view
+            popover.sourceRect = CGRect(
+                x: top.view.bounds.midX,
+                y: top.view.bounds.midY,
+                width: 0,
+                height: 0
+            )
+            popover.permittedArrowDirections = []
+        }
+        top.present(vc, animated: true)
+    }
+}
+
 // MARK: - Renderer helper
 
 @MainActor
