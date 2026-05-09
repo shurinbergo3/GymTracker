@@ -6,28 +6,28 @@
 //
 
 import SwiftUI
-import AudioToolbox
 import UserNotifications
 
 struct RestTimerView: View {
+    @EnvironmentObject var workoutManager: WorkoutManager
     @Binding var isPresented: Bool
     let defaultDuration: Int // in seconds
     let autoStart: Bool // whether to auto-start timer
-    
+
     @State private var remainingTime: Int
     @State private var isRunning: Bool = false
     @State private var timer: Timer?
-    
+
     init(isPresented: Binding<Bool>, defaultDuration: Int = 90, autoStart: Bool = false) {
         self._isPresented = isPresented
         self.defaultDuration = defaultDuration
         self.autoStart = autoStart
         self._remainingTime = State(initialValue: defaultDuration)
     }
-    
+
     @Environment(\.scenePhase) var scenePhase
     @State private var backgroundEntryDate: Date?
-    
+
     var body: some View {
         HStack(spacing: 12) {
             // Bell icon + label compact
@@ -35,13 +35,13 @@ struct RestTimerView: View {
                 Image(systemName: "bell.fill")
                     .font(.system(size: 14))
                     .foregroundColor(DesignSystem.Colors.neonGreen)
-                
+
                 Text("Отдых".localized())
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .fixedSize()
             }
-            
+
             // Minus button
             Button(action: decreaseTime) {
                 Image(systemName: "minus.circle.fill")
@@ -50,13 +50,13 @@ struct RestTimerView: View {
             }
             .disabled(isRunning)
             .opacity(isRunning ? 0.3 : 1.0)
-            
-            // Time Display  
+
+            // Time Display
             Text(formatTime(remainingTime))
                 .font(.system(size: 26, weight: .bold, design: .monospaced))
                 .foregroundColor(timeColor)
                 .frame(minWidth: 75)
-            
+
             // Plus button
             Button(action: increaseTime) {
                 Image(systemName: "plus.circle.fill")
@@ -65,9 +65,9 @@ struct RestTimerView: View {
             }
             .disabled(isRunning)
             .opacity(isRunning ? 0.3 : 1.0)
-            
+
             Spacer()
-            
+
             // Control Buttons
             if !isRunning {
                 Button(action: startTimer) {
@@ -89,7 +89,7 @@ struct RestTimerView: View {
                             .background(Color.white.opacity(0.15))
                             .clipShape(Circle())
                     }
-                    
+
                     Button(action: skipTimer) {
                         Image(systemName: "forward.fill")
                             .font(.system(size: 14))
@@ -112,7 +112,7 @@ struct RestTimerView: View {
         .padding(.horizontal, DesignSystem.Spacing.lg)
         .transition(.move(edge: .top).combined(with: .opacity))
         .onAppear {
-            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge]) { _, _ in }
             if autoStart && !isRunning {
                 startTimer()
             }
@@ -131,7 +131,7 @@ struct RestTimerView: View {
                     let timePassed = Date().timeIntervalSince(bgDate)
                     remainingTime -= Int(timePassed)
                     backgroundEntryDate = nil
-                    
+
                     if remainingTime <= 0 {
                         remainingTime = 0
                         timerCompleted()
@@ -150,9 +150,10 @@ struct RestTimerView: View {
             timer?.invalidate()
             timer = nil
             cancelNotification()
+            workoutManager.clearRest()
         }
     }
-    
+
     private var timeColor: Color {
         if remainingTime <= 10 {
             return .red
@@ -162,13 +163,13 @@ struct RestTimerView: View {
             return .white
         }
     }
-    
+
     private func formatTime(_ seconds: Int) -> String {
         let mins = seconds / 60
         let secs = seconds % 60
         return String(format: "%d:%02d", mins, secs)
     }
-    
+
     private func startTimer() {
         // If timer finished (0), restart it from default duration
         if remainingTime <= 0 {
@@ -177,8 +178,11 @@ struct RestTimerView: View {
 
         // Invalidate existing timer just in case
         timer?.invalidate()
-        
+
         isRunning = true
+        // Push the running rest end into the WorkoutManager so the Live
+        // Activity / Apple Watch can render the same countdown.
+        workoutManager.beginRest(duration: TimeInterval(remainingTime))
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             if remainingTime > 0 {
                 remainingTime -= 1
@@ -187,53 +191,39 @@ struct RestTimerView: View {
             }
         }
     }
-    
+
     private func pauseTimer() {
         isRunning = false
         timer?.invalidate()
         timer = nil
+        workoutManager.clearRest()
     }
-    
+
     private func skipTimer() {
         pauseTimer()
         isPresented = false
     }
-    
+
     private func timerCompleted() {
         pauseTimer()
-        
-        // Play completion sound
-        AudioServicesPlaySystemSound(1057) // Short beep
-        
-        // STRONG vibration pattern: 3 heavy taps + 2 very heavy (with intensity)
+
+        // Strong haptic-only finish — NO sound (per user rule, audio would
+        // interrupt the user's headphone music).
         let heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
         let rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
         heavyGenerator.prepare()
         rigidGenerator.prepare()
-        
-        // First heavy tap
+
+        // Pattern: 3 heavy taps + 3 rigid taps, all at full intensity.
         heavyGenerator.impactOccurred(intensity: 1.0)
-        
-        // Second heavy tap after 0.15s
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             heavyGenerator.impactOccurred(intensity: 1.0)
-            
-            // Third heavy tap after 0.15s
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                 heavyGenerator.impactOccurred(intensity: 1.0)
-                
-                // First VERY STRONG vibration after 0.3s pause
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     rigidGenerator.impactOccurred(intensity: 1.0)
-                    
-                    // Play second beep
-                    AudioServicesPlaySystemSound(1057)
-                    
-                    // Second VERY STRONG vibration after 0.4s
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                         rigidGenerator.impactOccurred(intensity: 1.0)
-                        
-                        // Third for extra emphasis
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                             rigidGenerator.impactOccurred(intensity: 1.0)
                         }
@@ -241,31 +231,38 @@ struct RestTimerView: View {
                 }
             }
         }
-        
-        // Auto-dismiss after all vibrations
+
+        // Auto-dismiss after the haptics finish.
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             isPresented = false
         }
     }
-    
+
     private func increaseTime() {
         remainingTime += 15
     }
-    
+
     private func decreaseTime() {
         if remainingTime > 15 {
             remainingTime -= 15
         }
     }
-    
+
     // MARK: - Notification Helpers
     private func scheduleNotification() {
         let content = UNMutableNotificationContent()
         content.title = "Время отдыха вышло!".localized()
         content.body = "Пора приступать к следующему подходу".localized()
-        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "beep.mp3")) // Fallback to default if custom missing
-        if content.sound == nil { content.sound = .default }
-        
+        // Sound deliberately omitted — see RestTimerView haptic-only rule.
+        // The system still delivers a banner haptic + the watch app fires
+        // its own rich haptic when the mirrored rest timer expires.
+        content.sound = nil
+        if #available(iOS 15.0, *) {
+            // Wakes the device past Focus modes so the haptic is delivered
+            // promptly even if the user has notifications muted by default.
+            content.interruptionLevel = .timeSensitive
+        }
+
         let triggerTime = Double(remainingTime)
         if triggerTime > 0 {
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: triggerTime, repeats: false)
@@ -273,7 +270,7 @@ struct RestTimerView: View {
             UNUserNotificationCenter.current().add(request)
         }
     }
-    
+
     private func cancelNotification() {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["RestTimerDone"])
     }
@@ -282,7 +279,7 @@ struct RestTimerView: View {
 #Preview {
     ZStack {
         DesignSystem.Colors.background.ignoresSafeArea()
-        
+
         VStack {
             Spacer()
             RestTimerView(isPresented: .constant(true), defaultDuration: 90, autoStart: false)

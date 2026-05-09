@@ -357,29 +357,41 @@ struct SocialButton: View {
 // MARK: - Google glyph (multi-color G drawn with shapes)
 
 private struct GoogleGlyph: View {
+    private static let blue   = Color(red: 0.26, green: 0.52, blue: 0.96)
+    private static let red    = Color(red: 0.92, green: 0.26, blue: 0.21)
+    private static let yellow = Color(red: 0.98, green: 0.74, blue: 0.02)
+    private static let green  = Color(red: 0.20, green: 0.66, blue: 0.33)
+
     var body: some View {
-        ZStack {
+        let ringSize: CGFloat = 20
+        let lineWidth: CGFloat = 3.4
+        let style = StrokeStyle(lineWidth: lineWidth, lineCap: .butt)
+
+        return ZStack {
+            // Red: top-left arc (~9 → 12 o'clock)
             Circle()
-                .stroke(
-                    AngularGradient(
-                        colors: [
-                            Color(red: 0.92, green: 0.26, blue: 0.21), // red
-                            Color(red: 0.98, green: 0.74, blue: 0.02), // yellow
-                            Color(red: 0.20, green: 0.66, blue: 0.33), // green
-                            Color(red: 0.26, green: 0.52, blue: 0.96), // blue
-                            Color(red: 0.92, green: 0.26, blue: 0.21)
-                        ],
-                        center: .center
-                    ),
-                    lineWidth: 2.4
-                )
-                .frame(width: 18, height: 18)
+                .trim(from: 0.75, to: 1.00)
+                .stroke(Self.red, style: style)
+            // Blue: top-right arc (~12 → ~3 o'clock), terminates where the bar begins
+            Circle()
+                .trim(from: 0.00, to: 0.21)
+                .stroke(Self.blue, style: style)
+            // Green: right-down arc (~3 → 6 o'clock), starts past the bar opening
+            Circle()
+                .trim(from: 0.30, to: 0.50)
+                .stroke(Self.green, style: style)
+            // Yellow: bottom-left arc (6 → 9 o'clock)
+            Circle()
+                .trim(from: 0.50, to: 0.75)
+                .stroke(Self.yellow, style: style)
+
+            // Horizontal blue bar extending inward from the right opening
             Rectangle()
-                .fill(Color(red: 0.26, green: 0.52, blue: 0.96))
-                .frame(width: 5, height: 2.4)
-                .offset(x: 4)
+                .fill(Self.blue)
+                .frame(width: ringSize * 0.34, height: lineWidth)
+                .offset(x: ringSize * 0.20, y: ringSize * 0.04)
         }
-        .frame(width: 20, height: 20)
+        .frame(width: ringSize, height: ringSize)
     }
 }
 

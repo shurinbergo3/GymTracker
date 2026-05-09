@@ -5,39 +5,48 @@ import SwiftUI
 @MainActor
 class LiveActivityManager: ActivityProvider {
     static let shared = LiveActivityManager()
-    
+
     private var activity: Activity<WorkoutAttributes>?
-    
+
     // We keep track of the start date to ensure updates are consistent
     private var workoutStartDate: Date?
-    
+
+    // Last applied state — used so partial updates (rest, exercise, HR) don't
+    // wipe each other out.
+    private var currentState: WorkoutAttributes.ContentState?
+
     // Configuration Constants
     private enum Constants {
         static let throttleInterval: TimeInterval = 2.0
         static let heartRateChangeThreshold: Int = 5
-        static let dismissalDelay: UInt64 = 500_000_000 // 0.5 seconds
     }
-    
+
     private init() {}
-    
+
     func start(workoutType: String, startDate: Date) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
-        
+
         let attributes = WorkoutAttributes(workoutName: "Training")
         let initialState = WorkoutAttributes.ContentState(
             heartRate: 0,
             calories: 0,
             workoutType: workoutType,
-            startTime: startDate
+            startTime: startDate,
+            currentExerciseName: nil,
+            setNumber: nil,
+            totalSets: nil,
+            restEndsAt: nil,
+            languageCode: LanguageManager.shared.currentLanguageCode
         )
-        
+
         // End any existing activity first
         if activity != nil {
             end()
         }
-        
+
         workoutStartDate = startDate
-        
+        currentState = initialState
+
         do {
             activity = try Activity.request(
                 attributes: attributes,
@@ -52,73 +61,83 @@ class LiveActivityManager: ActivityProvider {
             #endif
         }
     }
-    
+
     private var lastUpdateDate: Date?
     private var lastHeartRate: Int = 0
     private var lastCalories: Int = 0
-    
+
     func update(heartRate: Int, calories: Int) {
-        guard let activity = activity, let startDate = workoutStartDate else { return }
-        
-        // Always update if calories changed significantly OR if it's first update
+        guard activity != nil, var state = currentState else { return }
+
         let caloriesChanged = abs(calories - lastCalories) > 5
-        
+
         if shouldUpdate(heartRate: heartRate) || caloriesChanged {
-            performUpdate(activity: activity, startDate: startDate, heartRate: heartRate, calories: calories)
+            state.heartRate = heartRate
+            state.calories = calories
+            // Cheap to refresh — picks up an in-workout language switch.
+            state.languageCode = LanguageManager.shared.currentLanguageCode
+            lastUpdateDate = Date()
+            lastHeartRate = heartRate
+            lastCalories = calories
+            apply(state)
         }
     }
-    
-    // Logic to determine if update should be throttled
+
+    func updateExercise(name: String?, setNumber: Int?, totalSets: Int?) {
+        guard activity != nil, var state = currentState else { return }
+        state.currentExerciseName = name
+        state.setNumber = setNumber
+        state.totalSets = totalSets
+        apply(state)
+    }
+
+    func startRest(until endDate: Date) {
+        guard activity != nil, var state = currentState else { return }
+        state.restEndsAt = endDate
+        apply(state)
+    }
+
+    func endRest() {
+        guard activity != nil, var state = currentState else { return }
+        state.restEndsAt = nil
+        apply(state)
+    }
+
     private func shouldUpdate(heartRate: Int) -> Bool {
         let now = Date()
         let timeDriven = lastUpdateDate == nil || now.timeIntervalSince(lastUpdateDate!) > Constants.throttleInterval
         let dataDriven = abs(heartRate - lastHeartRate) > Constants.heartRateChangeThreshold
         return timeDriven || dataDriven
     }
-    
-    private func performUpdate(activity: Activity<WorkoutAttributes>, startDate: Date, heartRate: Int, calories: Int) {
-        lastUpdateDate = Date()
-        lastHeartRate = heartRate
-        lastCalories = calories
-        
-        let updatedState = WorkoutAttributes.ContentState(
-            heartRate: heartRate,
-            calories: calories,
-            workoutType: activity.content.state.workoutType,
-            startTime: startDate
-        )
-        
+
+    private func apply(_ state: WorkoutAttributes.ContentState) {
+        currentState = state
+        guard let activity = activity else { return }
         Task {
-            await activity.update(.init(state: updatedState, staleDate: nil))
+            await activity.update(.init(state: state, staleDate: nil))
         }
     }
-    
+
     func end() {
         guard let currentActivity = activity else { return }
-        
-        // 1. Clear state immediately to prevent race conditions with updates
+
+        let finalState = currentState ?? currentActivity.content.state
         resetState()
-        
-        let finalState = currentActivity.content.state
-        
-        // 2. End activity with proper dismissal
+
         Task {
-            // Updated state isn't strictly necessary for immediate dismissal but good practice 
-            // await currentActivity.update(.init(state: finalState, staleDate: nil))
-            
             // End with immediate dismissal policy to clear it from lock screen INSTANTLY
-            // No sleep delay - this prevents "zombie" activities if app is killed/suspended quickly
             await currentActivity.end(.init(state: finalState, staleDate: nil), dismissalPolicy: .immediate)
-            
+
             #if DEBUG
             print("✅ Live Activity ended and dismissed immediately")
             #endif
         }
     }
-    
+
     private func resetState() {
         self.activity = nil
         self.workoutStartDate = nil
+        self.currentState = nil
         self.lastUpdateDate = nil
         self.lastHeartRate = 0
         self.lastCalories = 0

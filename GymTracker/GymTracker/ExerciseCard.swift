@@ -568,11 +568,20 @@ struct ExerciseCard: View {
                     }
                 }
             }
+            if isActive {
+                publishCurrentExerciseFocus()
+            }
         }
         .onChange(of: isActive) { _, newValue in
-             if newValue {
-                 // Auto-expand history if active? Maybe just keep user choice.
-             }
+            if newValue {
+                publishCurrentExerciseFocus()
+            }
+        }
+        .onChange(of: completedSets.count) { _, _ in
+            // Always publish — when the user saves a set, that exercise IS
+            // the focus (regardless of focus-mode state), and the Live
+            // Activity / Watch should reflect it.
+            publishCurrentExerciseFocus()
         }
         .onDisappear {
             timer?.invalidate()
@@ -683,6 +692,19 @@ struct ExerciseCard: View {
                 ? String(format: "%.0f", w)
                 : String(format: "%.1f", w)
         }
+    }
+
+    /// Pushes the current exercise + set position to `WorkoutManager` so the
+    /// Live Activity (Dynamic Island, lock screen) and Apple Watch show the
+    /// same focus the user is on inside the app.
+    private func publishCurrentExerciseFocus() {
+        let nextSet = completedSets.count + 1
+        let total = max(exercise.plannedSets, completedSets.count)
+        workoutManager.setCurrentExercise(
+            name: exercise.name.localized(),
+            setNumber: nextSet,
+            totalSets: total
+        )
     }
 
     /// Перечитывает кеш «прошлая тренировка», предпоследняя тренировка и e1RM

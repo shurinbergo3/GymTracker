@@ -38,11 +38,45 @@ class WorkoutManager: ObservableObject {
     @Published var setCompletionTick: Int = 0
     @Published var prFlashTrigger: Int = 0
 
+    // Current exercise focus + rest timer state — published so the iOS app can
+    // mirror it to the Live Activity, the watchOS app, and any other observer.
+    @Published var currentExerciseName: String?
+    @Published var currentSetNumber: Int?
+    @Published var currentTotalSets: Int?
+    @Published var restEndsAt: Date?
+
     func notifySetCompleted(isPR: Bool) {
         setCompletionTick &+= 1
         if isPR {
             prFlashTrigger &+= 1
         }
+    }
+
+    /// Called by `ExerciseCard` when it gets focus (or input changes) so the
+    /// Live Activity / watch can show the right exercise on the lock screen.
+    func setCurrentExercise(name: String?, setNumber: Int?, totalSets: Int?) {
+        currentExerciseName = name
+        currentSetNumber = setNumber
+        currentTotalSets = totalSets
+        activityProvider.updateExercise(name: name, setNumber: setNumber, totalSets: totalSets)
+        WatchSyncBridge.shared.syncCurrentState(from: self)
+    }
+
+    /// Called by `RestTimerView` when its countdown actually starts running.
+    func beginRest(duration: TimeInterval) {
+        let endDate = Date().addingTimeInterval(duration)
+        restEndsAt = endDate
+        activityProvider.startRest(until: endDate)
+        WatchSyncBridge.shared.syncCurrentState(from: self)
+    }
+
+    /// Called by `RestTimerView` on pause/skip/completion or when the user
+    /// dismisses the timer card.
+    func clearRest() {
+        guard restEndsAt != nil else { return }
+        restEndsAt = nil
+        activityProvider.endRest()
+        WatchSyncBridge.shared.syncCurrentState(from: self)
     }
     
     // HealthKit workout type selection
@@ -91,6 +125,7 @@ class WorkoutManager: ObservableObject {
     
     private var liveActivityTimer: Timer?
     private var programObserver: NSObjectProtocol?
+    private var watchActionObserver: NSObjectProtocol?
     
     @preconcurrency private let modelContext: ModelContext
     
@@ -145,6 +180,19 @@ class WorkoutManager: ObservableObject {
             }
         }
 
+        // Listen for "Start Workout" tap from the watch app.
+        watchActionObserver = NotificationCenter.default.addObserver(
+            forName: WatchSyncBridge.watchActionNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            guard let self else { return }
+            guard (note.userInfo?["action"] as? String) == "startWorkout" else { return }
+            Task { @MainActor in
+                self.startWorkoutFromWatch()
+            }
+        }
+
         let tRestore = CFAbsoluteTimeGetCurrent()
         restoreActiveSession()
         #if DEBUG
@@ -163,8 +211,11 @@ class WorkoutManager: ObservableObject {
         liveActivityTimer?.invalidate()
         liveActivityTimer = nil
         
-        // Remove NotificationCenter observer
+        // Remove NotificationCenter observers
         if let observer = programObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = watchActionObserver {
             NotificationCenter.default.removeObserver(observer)
         }
         
@@ -499,20 +550,50 @@ class WorkoutManager: ObservableObject {
         Task { @MainActor in
             // Stop Live Activity
             stopActivityUpdates()
+            clearLiveContext()
             activityProvider.end()
-            
+
             // Discard HealthKit Session
             await healthProvider.discardWorkout()
-            
+
             // Delete current session without saving
             if let session = currentSession {
                 modelContext.delete(session)
                 try? modelContext.save()
             }
-            
+
             currentSession = nil
             workoutState = .idle
         }
+    }
+
+    /// Triggered when the user taps "Start Workout" on the paired Apple
+    /// Watch. iOS API doesn't let us bring the iPhone app to foreground from
+    /// the watch, but we can still kick off the same flow `startWorkout()`
+    /// uses. The user will see the running workout via Live Activity on the
+    /// iPhone's lock screen / Dynamic Island and a banner notification.
+    func startWorkoutFromWatch() {
+        // Don't double-start.
+        if workoutState == .briefing || workoutState == .countdown || workoutState == .active {
+            return
+        }
+        guard selectedDay != nil else {
+            #if DEBUG
+            print("WatchAction: ignored start — no selectedDay")
+            #endif
+            return
+        }
+        startWorkout()
+    }
+
+    /// Clears the per-workout focus (current exercise, rest) and tells the
+    /// watch app to drop its mirrored state. Called whenever the workout ends.
+    private func clearLiveContext() {
+        currentExerciseName = nil
+        currentSetNumber = nil
+        currentTotalSets = nil
+        restEndsAt = nil
+        WatchSyncBridge.shared.syncWorkoutEnded()
     }
     
     func finishWorkout() async {
@@ -529,6 +610,7 @@ class WorkoutManager: ObservableObject {
             healthProvider.onHeartRateUpdate = nil
             healthProvider.onCalorieUpdate = nil
         }
+        clearLiveContext()
         activityProvider.end()
         
         // 2. Set end time and completion status locally
@@ -777,9 +859,12 @@ class WorkoutManager: ObservableObject {
         }
 
         activityProvider.update(heartRate: Int(hrValue), calories: displayCalories)
-        
+
         // Update local state for UI
         self.currentHeartRate = Int(hrValue)
         self.currentActiveCalories = displayCalories
+
+        // Mirror to Apple Watch (cheap — bridge throttles internally).
+        WatchSyncBridge.shared.syncCurrentState(from: self)
     }
 }

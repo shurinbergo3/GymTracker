@@ -62,6 +62,8 @@ struct WorkoutTrackerApp: App {
         // 2) Только теперь поднимаем менеджеры, которые используют Firebase.
         _authManager = StateObject(wrappedValue: AuthManager.shared)
         _languageManager = StateObject(wrappedValue: LanguageManager.shared)
+        // 3) Apple Watch bridge — silent no-op when no paired watch / companion app.
+        WatchSyncBridge.shared.activate()
         #if DEBUG
         let dt = (CFAbsoluteTimeGetCurrent() - t0) * 1000
         print(String(format: "⏱ App.init() took %.1fms", dt))

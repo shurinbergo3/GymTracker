@@ -27,12 +27,13 @@
 <h3>A native iOS performance lab for serious lifters.</h3>
 
 <p>
-<sub><i>Real-time set logging · HealthKit biometrics · Dynamic Island rest timer · AI coach · Local-first sync</i></sub>
+<sub><i>Real-time set logging · HealthKit biometrics · Dynamic Island rest timer · Apple Watch mirror · AI coach · Local-first sync</i></sub>
 </p>
 
 <br/>
 
 [![iOS](https://img.shields.io/badge/iOS-17.0%2B-0a0a0a?style=for-the-badge&logo=apple&logoColor=white&labelColor=0a0a0a)](https://www.apple.com/ios)
+[![watchOS](https://img.shields.io/badge/watchOS-10.0%2B-0a0a0a?style=for-the-badge&logo=apple&logoColor=white&labelColor=0a0a0a)](https://www.apple.com/watchos)
 [![Swift](https://img.shields.io/badge/Swift-5.9-FA7343?style=for-the-badge&logo=swift&logoColor=white&labelColor=0a0a0a)](https://swift.org)
 [![SwiftUI](https://img.shields.io/badge/SwiftUI-Native-007AFF?style=for-the-badge&logo=swift&logoColor=white&labelColor=0a0a0a)](https://developer.apple.com/swiftui)
 [![Firebase](https://img.shields.io/badge/Firebase-Cloud-FFCA28?style=for-the-badge&logo=firebase&logoColor=black&labelColor=0a0a0a)](https://firebase.google.com)
@@ -90,6 +91,8 @@
 ▸  Streams live HR + calories
 ▸  Persists rest timer to the
    Dynamic Island & Lock Screen
+▸  Mirrors the session to Apple
+   Watch — rest haptic on wrist
 ▸  Syncs to Apple Health
 ▸  Detects PRs automatically
 ▸  Chats with an AI coach
@@ -131,6 +134,7 @@ flowchart LR
 
     B -.live HR.-> H[(❤ HealthKit)]
     B -.timer.-> L[🏝 Dynamic<br/>Island]
+    B -.mirror.-> W[⌚ Apple<br/>Watch]
     B -.write.-> S[(💾 SwiftData)]
 
     C -.workout.-> H
@@ -152,10 +156,11 @@ flowchart LR
 <tr><td><code>01</code></td><td><b>Pick a program</b> — the day's plan loads from local storage</td><td><code>ProgramRepository</code> · <code>ProgramSeeder</code></td></tr>
 <tr><td><code>02</code></td><td><b>Start the session</b> — Live Activity boots on the Dynamic Island</td><td><code>WorkoutStateMachine</code> · <code>LiveActivityManager</code></td></tr>
 <tr><td><code>03</code></td><td><b>Log a set</b> — diff vs. last session, trend arrow rendered instantly</td><td><code>WorkoutManager</code> · <code>ProgressTrend</code></td></tr>
-<tr><td><code>04</code></td><td><b>Rest timer</b> — counts down, updates Dynamic Island, fires haptic</td><td><code>WorkoutTimerService</code></td></tr>
+<tr><td><code>04</code></td><td><b>Rest timer</b> — counts down, updates Dynamic Island, fires haptic on iPhone + watch</td><td><code>WorkoutTimerService</code></td></tr>
 <tr><td><code>05</code></td><td><b>Biometrics</b> — heart rate + active calories stream into the header</td><td><code>HealthKitService</code> · <code>ActiveWorkoutHeader</code></td></tr>
-<tr><td><code>06</code></td><td><b>Complete</b> — write to Apple Health, detect PRs, refresh analytics</td><td><code>PersonalRecordsService</code> · <code>AnalyticsService</code></td></tr>
-<tr><td><code>07</code></td><td><b>Sync</b> — offline queue ships changes to Firestore on reconnect</td><td><code>OfflineQueueManager</code> · <code>WorkoutSyncService</code></td></tr>
+<tr><td><code>06</code></td><td><b>Watch mirror</b> — exercise, set, HR, calories, rest pushed to Apple Watch</td><td><code>WatchSyncBridge</code> · <code>BodyForgeWatch</code></td></tr>
+<tr><td><code>07</code></td><td><b>Complete</b> — write to Apple Health, detect PRs, refresh analytics</td><td><code>PersonalRecordsService</code> · <code>AnalyticsService</code></td></tr>
+<tr><td><code>08</code></td><td><b>Sync</b> — offline queue ships changes to Firestore on reconnect</td><td><code>OfflineQueueManager</code> · <code>WorkoutSyncService</code></td></tr>
 </table>
 
 <br/>
@@ -204,15 +209,15 @@ Heart rate and active calories streamed straight into the active workout header.
 
 ### 🏝 &nbsp; <sub>MODULE 03</sub>
 
-#### Dynamic Island
+#### Dynamic Island + Watch
 
-Rest timer persists on the Dynamic Island and Lock Screen. Current exercise visible without unlocking.
+Rest timer follows you everywhere — Dynamic Island, Lock Screen, and Apple Watch. Haptic fires on iPhone *and* on the wrist when rest ends.
 
 ```
-›  ActivityKit-powered
+›  ActivityKit Live Activity
 ›  Lock Screen presentation
-›  Compact + expanded layouts
-›  Haptic on rest end
+›  Apple Watch mirror
+›  Wrist haptic on rest end
 ```
 
 </td>
@@ -336,6 +341,7 @@ Sign in with Apple, Google, or Email. Local-first storage with offline queue ens
 <tr><td><img src="https://img.shields.io/badge/SwiftData-1F1F1F?style=flat-square&logo=swift&logoColor=white&labelColor=0a0a0a"/></td><td>Local-first persistence layer &nbsp;·&nbsp; entire <code>Storage/</code> module</td></tr>
 <tr><td><img src="https://img.shields.io/badge/Swift%20Charts-007AFF?style=flat-square&logo=swift&logoColor=white&labelColor=0a0a0a"/></td><td>1RM curves, body trends &nbsp;·&nbsp; <code>WorkoutProgressChart</code></td></tr>
 <tr><td><img src="https://img.shields.io/badge/WidgetKit-007AFF?style=flat-square&logo=apple&logoColor=white&labelColor=0a0a0a"/></td><td>Home-screen widgets + Live Activity UI &nbsp;·&nbsp; <code>GymTrackerWidget</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/WatchConnectivity-FF2D55?style=flat-square&logo=apple&logoColor=white&labelColor=0a0a0a"/></td><td>iPhone ↔ Apple Watch state mirror &nbsp;·&nbsp; <code>WatchSyncBridge</code> · <code>BodyForgeWatch</code></td></tr>
 
 <tr>
 <th align="left" colspan="2"><sub>BACKEND &amp; AUTH</sub></th>
@@ -414,6 +420,7 @@ Sign in with Apple, Google, or Email. Local-first storage with offline queue ens
 <tr><td><sub>ASYNC</sub></td><td><b>Swift Concurrency</b></td><td>All async operations</td></tr>
 <tr><td><sub>i18n</sub></td><td><b>String Catalogs</b> (<code>.xcstrings</code>)</td><td>Multi-language support</td></tr>
 <tr><td><sub>WIDGETS</sub></td><td><b>WidgetKit</b></td><td>Home screen + Live Activity UI</td></tr>
+<tr><td><sub>WATCH</sub></td><td><b>watchOS 10 + WatchConnectivity</b></td><td>Wrist mirror of the active workout</td></tr>
 </table>
 
 <br/>
@@ -445,6 +452,7 @@ GymTracker/
 │    │    ├──  CalorieCalculator.swift
 │    │    ├──  PersonalRecordsService.swift
 │    │    ├──  InactivityNotificationService.swift
+│    │    ├──  WatchSyncBridge.swift          ◆ iPhone → Watch state mirror
 │    │    └──  SleepService.swift
 │    │
 │    ├──  Protocols/                          ◆ service contracts
@@ -460,6 +468,12 @@ GymTracker/
 │    └──  DesignSystem.swift                  ◆ colors · typography · modifiers
 │
 ├──  GymTrackerWidget/                        ◆ widget + Live Activity UI
+├──  BodyForgeWatch Watch App/                ◆ watchOS companion app
+│    ├──  BodyForgeWatchApp.swift
+│    ├──  WatchRootView.swift
+│    └──  WatchWorkoutModel.swift
+├──  docs/
+│    └──  WATCHOS_SETUP.md                    ◆ how to wire the Watch target
 ├──  GymTrackerTests/                         ◆ unit tests
 └──  GymTrackerUITests/                       ◆ UI tests
 ```
@@ -513,6 +527,7 @@ let title = String(localized: "Settings")
 |---|---|
 | **Xcode** | 15.0+ |
 | **iOS** | 17.0+ device or simulator |
+| **watchOS** | 10.0+ (optional — for the Apple Watch companion) |
 | **Apple Developer** | required for HealthKit + Live Activities entitlements |
 | **Firebase** | project with Firestore + Google Sign-In enabled |
 | **Groq** | API key for the AI coach |
@@ -534,16 +549,18 @@ open "Body Forge.xcodeproj"
 Drop your `GoogleService-Info.plist` from the Firebase console into `GymTracker/GymTracker/`.
 The file is git-ignored and required for auth and sync to function.
 
-#### <kbd>&nbsp;03&nbsp;</kbd> &nbsp; Sign both targets
+#### <kbd>&nbsp;03&nbsp;</kbd> &nbsp; Sign all targets
 
-In Xcode, select your development team for **both** targets under *Signing & Capabilities → Team*:
+In Xcode, select your development team under *Signing & Capabilities → Team* for:
 
 > `GymTracker`
 > `GymTrackerWidget`
+> `BodyForgeWatch Watch App` *(if you've added the watch target — see [`GymTracker/docs/WATCHOS_SETUP.md`](GymTracker/docs/WATCHOS_SETUP.md))*
 
 #### <kbd>&nbsp;04&nbsp;</kbd> &nbsp; Run
 
 To test the Dynamic Island, pick an **iPhone 15 Pro / 16 Pro** simulator or a real device.
+To test the wrist mirror, pair an **Apple Watch** (or a paired Watch simulator) and run the watch scheme.
 
 ```
 ⌘ + R
