@@ -26,6 +26,10 @@ private enum WatchSyncKey {
     static let heartRate = "heartRate"
     static let calories = "calories"
     static let language = "language"
+    static let totalWorkouts = "totalWorkouts"
+    static let workoutsThisWeek = "workoutsThisWeek"
+    static let weeklyGoal = "weeklyGoal"
+    static let lastWorkoutDate = "lastWorkoutDate"
 }
 
 @MainActor
@@ -46,6 +50,18 @@ final class WatchWorkoutModel: NSObject, ObservableObject {
     /// watch's own system locale so brand-new users still see something
     /// sensible.
     @Published var languageCode: String = Locale.current.language.languageCode?.identifier ?? "en"
+
+    /// Stats shown on the idle screen above the Start button. Populated from
+    /// the iPhone's "idle" / "ended" payloads. nil until the iPhone has at
+    /// least sent one snapshot.
+    @Published var idleStats: IdleStats?
+
+    struct IdleStats: Equatable {
+        let totalWorkouts: Int
+        let workoutsThisWeek: Int
+        let weeklyGoal: Int
+        let lastWorkoutDate: Date?
+    }
 
     /// Helper used by the rest-timer haptic so we don't fire the buzz twice
     /// when the same `restEndsAt` arrives via two messages.
@@ -75,8 +91,28 @@ final class WatchWorkoutModel: NSObject, ObservableObject {
 
     private func applyContext(_ context: [String: Any]) {
         guard !context.isEmpty else { return }
-        if (context[WatchSyncKey.kind] as? String) == "ended" {
+
+        // Always pick up language if present — applies to every payload kind.
+        if let lang = context[WatchSyncKey.language] as? String, !lang.isEmpty {
+            languageCode = lang
+        }
+
+        // Idle stats can ride on either a dedicated "idle" payload (sent at
+        // launch) or piggy-back on "ended" (sent when a workout finishes so
+        // the bumped count shows up immediately).
+        let kind = context[WatchSyncKey.kind] as? String
+        if kind == "idle" || kind == "ended" {
+            applyIdleStats(from: context)
+        }
+
+        if kind == "ended" {
             handleWorkoutEnded()
+            return
+        }
+        if kind == "idle" {
+            // Make sure we render the idle screen.
+            isWorkoutActive = false
+            cancelRestCompletionTimer()
             return
         }
 
@@ -99,11 +135,22 @@ final class WatchWorkoutModel: NSObject, ObservableObject {
 
         if let hr = context[WatchSyncKey.heartRate] as? Int { heartRate = hr }
         if let cal = context[WatchSyncKey.calories] as? Int { calories = cal }
-        if let lang = context[WatchSyncKey.language] as? String, !lang.isEmpty {
-            languageCode = lang
-        }
 
         scheduleRestCompletionHapticIfNeeded()
+    }
+
+    private func applyIdleStats(from context: [String: Any]) {
+        let total = context[WatchSyncKey.totalWorkouts] as? Int ?? 0
+        let week = context[WatchSyncKey.workoutsThisWeek] as? Int ?? 0
+        let goal = context[WatchSyncKey.weeklyGoal] as? Int ?? 0
+        let lastInterval = context[WatchSyncKey.lastWorkoutDate] as? TimeInterval ?? 0
+        let last = lastInterval > 0 ? Date(timeIntervalSince1970: lastInterval) : nil
+        idleStats = IdleStats(
+            totalWorkouts: total,
+            workoutsThisWeek: week,
+            weeklyGoal: goal,
+            lastWorkoutDate: last
+        )
     }
 
     // MARK: - Localization

@@ -46,25 +46,165 @@ private struct IdleView: View {
     @EnvironmentObject var model: WatchWorkoutModel
 
     var body: some View {
-        VStack(spacing: 8) {
+        ScrollView {
+            VStack(spacing: 10) {
+                IdleHeader()
+
+                if let stats = model.idleStats, stats.totalWorkouts > 0 {
+                    IdleStatsCard(stats: stats)
+                        .environmentObject(model)
+                } else if model.idleStats != nil {
+                    // Fresh user — gentle motivator instead of zeros.
+                    Text(model.t(
+                        en: "Your first workout starts here",
+                        ru: "Первая тренировка — здесь",
+                        pl: "Pierwszy trening zaczyna się tu"
+                    ))
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.55))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 6)
+                }
+
+                Button(action: { model.requestStartWorkout() }) {
+                    StartButtonLabel(state: model.startSignalState, t: model.t)
+                }
+                .buttonStyle(.plain)
+                .disabled(model.startSignalState == .sending)
+                .padding(.top, 2)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+        }
+    }
+}
+
+private struct IdleHeader: View {
+    var body: some View {
+        HStack(spacing: 8) {
             Image("BrandLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 44, height: 44)
-
+                .frame(width: 28, height: 28)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
             Text("Body Forge")
-                .font(.headline)
-
-            Spacer(minLength: 2)
-
-            Button(action: { model.requestStartWorkout() }) {
-                StartButtonLabel(state: model.startSignalState, t: model.t)
-            }
-            .buttonStyle(.plain)
-            .disabled(model.startSignalState == .sending)
+                .font(.system(size: 15, weight: .semibold))
+            Spacer(minLength: 0)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
+    }
+}
+
+private struct IdleStatsCard: View {
+    @EnvironmentObject var model: WatchWorkoutModel
+    let stats: WatchWorkoutModel.IdleStats
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Total workouts hero number.
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text("\(stats.totalWorkouts)")
+                    .font(.system(size: 30, weight: .heavy, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(neonGreen)
+                Text(model.t(
+                    en: pluralEn(stats.totalWorkouts),
+                    ru: pluralRu(stats.totalWorkouts),
+                    pl: pluralPl(stats.totalWorkouts)
+                ))
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.6))
+            }
+
+            // Weekly progress: dot row + "X / Y this week"
+            if stats.weeklyGoal > 0 {
+                VStack(alignment: .leading, spacing: 4) {
+                    weeklyDots
+                    Text("\(stats.workoutsThisWeek) / \(stats.weeklyGoal) \(model.t(en: "this week", ru: "в неделю", pl: "w tygodniu"))")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+            }
+
+            if let last = stats.lastWorkoutDate {
+                Text(lastWorkoutLabel(for: last))
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.45))
+                    .lineLimit(1)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var weeklyDots: some View {
+        HStack(spacing: 4) {
+            ForEach(0..<min(stats.weeklyGoal, 7), id: \.self) { idx in
+                Circle()
+                    .fill(idx < stats.workoutsThisWeek ? neonGreen : Color.white.opacity(0.15))
+                    .frame(width: 6, height: 6)
+            }
+        }
+    }
+
+    private func lastWorkoutLabel(for date: Date) -> String {
+        let cal = Calendar.current
+        let days = cal.dateComponents([.day], from: cal.startOfDay(for: date), to: cal.startOfDay(for: Date())).day ?? 0
+        switch days {
+        case 0:  return model.t(en: "Last: today", ru: "Последняя: сегодня", pl: "Ostatni: dziś")
+        case 1:  return model.t(en: "Last: yesterday", ru: "Последняя: вчера", pl: "Ostatni: wczoraj")
+        case 2...6:
+            return model.t(
+                en: "Last: \(days) days ago",
+                ru: "Последняя: \(days) \(daysRu(days)) назад",
+                pl: "Ostatni: \(days) \(daysPl(days)) temu"
+            )
+        default:
+            let weeks = days / 7
+            return model.t(
+                en: "Last: \(weeks) wk ago",
+                ru: "Последняя: \(weeks) \(weeksRu(weeks)) назад",
+                pl: "Ostatni: \(weeks) \(weeksPl(weeks)) temu"
+            )
+        }
+    }
+
+    // Tiny pluralizers — only the forms we actually need.
+    private func pluralEn(_ n: Int) -> String { n == 1 ? "workout" : "workouts" }
+    private func pluralRu(_ n: Int) -> String {
+        let mod10 = n % 10, mod100 = n % 100
+        if mod10 == 1 && mod100 != 11 { return "тренировка" }
+        if (2...4).contains(mod10) && !(12...14).contains(mod100) { return "тренировки" }
+        return "тренировок"
+    }
+    private func pluralPl(_ n: Int) -> String {
+        let mod10 = n % 10, mod100 = n % 100
+        if n == 1 { return "trening" }
+        if (2...4).contains(mod10) && !(12...14).contains(mod100) { return "treningi" }
+        return "treningów"
+    }
+    private func daysRu(_ n: Int) -> String {
+        let mod10 = n % 10, mod100 = n % 100
+        if mod10 == 1 && mod100 != 11 { return "день" }
+        if (2...4).contains(mod10) && !(12...14).contains(mod100) { return "дня" }
+        return "дней"
+    }
+    private func daysPl(_ n: Int) -> String {
+        let mod10 = n % 10, mod100 = n % 100
+        if n == 1 { return "dzień" }
+        if (2...4).contains(mod10) && !(12...14).contains(mod100) { return "dni" }
+        return "dni"
+    }
+    private func weeksRu(_ n: Int) -> String {
+        let mod10 = n % 10, mod100 = n % 100
+        if mod10 == 1 && mod100 != 11 { return "неделю" }
+        if (2...4).contains(mod10) && !(12...14).contains(mod100) { return "недели" }
+        return "недель"
+    }
+    private func weeksPl(_ n: Int) -> String {
+        if n == 1 { return "tydz." }
+        return "tyg."
     }
 }
 

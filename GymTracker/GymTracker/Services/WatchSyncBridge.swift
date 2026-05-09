@@ -27,6 +27,12 @@ enum WatchSyncKey {
     static let language = "language"     // ISO 639-1 code (ru/en/pl) so the
                                          // watch shows the same language as
                                          // the user picked in iPhone settings.
+    // Idle-screen stats: shown above the "Start Workout" button on the
+    // watch when no workout is running. Sent on app launch + on workout end.
+    static let totalWorkouts = "totalWorkouts"
+    static let workoutsThisWeek = "workoutsThisWeek"
+    static let weeklyGoal = "weeklyGoal"
+    static let lastWorkoutDate = "lastWorkoutDate" // TimeInterval since 1970, 0 if never
 }
 
 @MainActor
@@ -95,6 +101,30 @@ final class WatchSyncBridge: NSObject {
         guard let session = session, session.activationState == .activated else { return }
         guard session.isPaired, session.isWatchAppInstalled else { return }
         let payload: [String: Any] = [WatchSyncKey.kind: "ended"]
+        try? session.updateApplicationContext(payload)
+        lastSentAt = .distantPast
+    }
+
+    /// Push stats shown on the watch idle screen above the Start button:
+    /// total workouts, this week's progress, weekly goal, last workout date.
+    /// Send this on iOS launch and after each workout finishes — the watch
+    /// then has fresh data to render even if the user never opens the iOS app
+    /// in the foreground.
+    func syncIdleStats(totalWorkouts: Int,
+                       workoutsThisWeek: Int,
+                       weeklyGoal: Int,
+                       lastWorkoutDate: Date?,
+                       language: String) {
+        guard let session = session, session.activationState == .activated else { return }
+        guard session.isPaired, session.isWatchAppInstalled else { return }
+        let payload: [String: Any] = [
+            WatchSyncKey.kind: "idle",
+            WatchSyncKey.language: language,
+            WatchSyncKey.totalWorkouts: totalWorkouts,
+            WatchSyncKey.workoutsThisWeek: workoutsThisWeek,
+            WatchSyncKey.weeklyGoal: weeklyGoal,
+            WatchSyncKey.lastWorkoutDate: lastWorkoutDate?.timeIntervalSince1970 ?? 0
+        ]
         try? session.updateApplicationContext(payload)
         lastSentAt = .distantPast
     }

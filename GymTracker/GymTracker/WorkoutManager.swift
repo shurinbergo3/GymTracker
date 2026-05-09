@@ -201,6 +201,15 @@ class WorkoutManager: ObservableObject {
         print(String(format: "⏱ WorkoutManager.init total %.0fms", total))
         #endif
 
+        // Push idle stats to the watch on launch — fire-and-forget, the
+        // bridge silently no-ops when no paired watch / companion app.
+        // Defer slightly so SwiftData has a chance to settle and this
+        // doesn't add to perceived launch time.
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 600_000_000)
+            self?.pushIdleStatsToWatch()
+        }
+
         // requestHealthAccess() - Removed from init to prevent UI freeze (called in onAppear instead)
     }
     
@@ -567,6 +576,43 @@ class WorkoutManager: ObservableObject {
         }
     }
 
+    /// Computes the stats shown on the watch idle screen and pushes them via
+    /// WCSession. Called on iOS app launch and after each workout completes.
+    func pushIdleStatsToWatch() {
+        let descriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.isCompleted == true }
+        )
+        let completed = (try? modelContext.fetch(descriptor)) ?? []
+        let total = completed.count
+
+        var cal = Calendar(identifier: .gregorian)
+        cal.firstWeekday = 2
+        let today = cal.startOfDay(for: Date())
+        let weekday = cal.component(.weekday, from: today)
+        let daysFromMonday = (weekday + 5) % 7
+        let monday = cal.date(byAdding: .day, value: -daysFromMonday, to: today) ?? today
+        let thisWeek = completed.filter { $0.date >= monday }.count
+
+        let goal: Int = {
+            let override = UserDefaults.standard.integer(forKey: "weeklyWorkoutGoal")
+            if override >= 1 { return min(7, override) }
+            if let prog = activeProgram, prog.days.count > 0 {
+                return min(6, max(1, prog.days.count))
+            }
+            return 3
+        }()
+
+        let lastDate = completed.map { $0.date }.max()
+
+        WatchSyncBridge.shared.syncIdleStats(
+            totalWorkouts: total,
+            workoutsThisWeek: thisWeek,
+            weeklyGoal: goal,
+            lastWorkoutDate: lastDate,
+            language: LanguageManager.shared.currentLanguageCode
+        )
+    }
+
     /// Triggered when the user taps "Start Workout" on the paired Apple
     /// Watch. iOS API doesn't let us bring the iPhone app to foreground from
     /// the watch, but we can still kick off the same flow `startWorkout()`
@@ -594,6 +640,13 @@ class WorkoutManager: ObservableObject {
         currentTotalSets = nil
         restEndsAt = nil
         WatchSyncBridge.shared.syncWorkoutEnded()
+        // Re-push fresh idle stats so the watch's idle screen shows the
+        // bumped totalWorkouts / workoutsThisWeek immediately after the
+        // workout finishes.
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            self?.pushIdleStatsToWatch()
+        }
     }
     
     func finishWorkout() async {
