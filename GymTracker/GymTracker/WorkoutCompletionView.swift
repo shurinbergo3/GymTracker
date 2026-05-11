@@ -22,7 +22,6 @@ struct WorkoutCompletionView: View {
     @State private var heartRate: Int = 0
     @State private var workoutNotes: String = ""
     @State private var progressData: [ExerciseProgress] = []
-    @State private var sharePayload: WorkoutSharePayload?
     @State private var isPreparingShare = false
     
     // Combine history with current session for the chart

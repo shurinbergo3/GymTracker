@@ -248,10 +248,10 @@ struct WorkoutTrackerApp: App {
     private func checkForFreshInstall() {
         // Only trigger if we are NOT already checking auth (i.e. this is a user-initiated login)
         // OR if it's auto-login but database is wiped.
-        
+
         let context = sharedModelContainer.mainContext
         let descriptor = FetchDescriptor<WorkoutSession>()
-        
+
         do {
             let count = try context.fetchCount(descriptor)
             if count == 0 {
@@ -293,9 +293,10 @@ struct ContentViewWrapper: View {
                         await ExerciseLibrary.migrateExerciseTypes(container: container)
                         await MainActor.run {
                             hasSeeded = true
+                            DemoDataSeeder.seedIfNeeded(context: modelContext)
                         }
                     }
-                    
+
                     if needsRestore {
                         await restoreUserProfileFromFirestore()
                         await MainActor.run {
