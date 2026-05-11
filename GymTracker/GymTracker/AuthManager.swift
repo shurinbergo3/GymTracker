@@ -98,6 +98,11 @@ class AuthManager: ObservableObject {
         _ = try await Auth.auth().signIn(withEmail: email, password: password)
         // State listener will update UI
     }
+
+    func sendPasswordReset(email: String) async throws {
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        try await Auth.auth().sendPasswordReset(withEmail: trimmed)
+    }
     
     func signUpWithEmail(email: String, password: String) async throws {
         let authResult = try await Auth.auth().createUser(withEmail: email, password: password)

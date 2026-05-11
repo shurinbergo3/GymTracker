@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct LoginView: View {
     @StateObject private var authManager = AuthManager.shared
@@ -16,6 +17,7 @@ struct LoginView: View {
     @State private var isSignUp = false
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @State private var infoMessage: String?
     @State private var appear: Bool = false
 
     @FocusState private var focusedField: Field?
@@ -81,6 +83,47 @@ struct LoginView: View {
                     .opacity(appear ? 1 : 0)
                     .offset(y: appear ? 0 : 12)
 
+                    if !isSignUp {
+                        HStack {
+                            Spacer()
+                            Button(action: { Task { await sendPasswordReset() } }) {
+                                Text("Забыли пароль?".localized())
+                                    .font(.system(.footnote, design: .rounded, weight: .medium))
+                                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                                    .underline()
+                            }
+                            .disabled(isLoading)
+                        }
+                        .padding(.horizontal, 28)
+                        .padding(.top, 10)
+                        .opacity(appear ? 1 : 0)
+                    }
+
+                    if let infoMessage = infoMessage {
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.caption)
+                            Text(infoMessage)
+                                .font(.system(.caption, design: .rounded))
+                                .multilineTextAlignment(.leading)
+                            Spacer(minLength: 0)
+                        }
+                        .foregroundColor(DesignSystem.Colors.neonGreen)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(DesignSystem.Colors.neonGreen.opacity(0.10))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(DesignSystem.Colors.neonGreen.opacity(0.3), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 28)
+                        .padding(.top, 12)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+
                     if let errorMessage = errorMessage {
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
@@ -126,6 +169,7 @@ struct LoginView: View {
                         withAnimation(.easeInOut) {
                             isSignUp.toggle()
                             errorMessage = nil
+                            infoMessage = nil
                         }
                     }) {
                         HStack(spacing: 6) {
@@ -217,33 +261,61 @@ struct LoginView: View {
     // MARK: - Actions
 
     private func handleAuth() {
-        guard !email.isEmpty, !password.isEmpty else { return }
+        let cleanedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !cleanedEmail.isEmpty, !password.isEmpty else { return }
+        email = cleanedEmail
         focusedField = nil
         isLoading = true
         errorMessage = nil
+        infoMessage = nil
 
         Task {
             do {
                 if isSignUp {
-                    try await authManager.signUpWithEmail(email: email, password: password)
+                    try await authManager.signUpWithEmail(email: cleanedEmail, password: password)
                 } else {
-                    try await authManager.signInWithEmail(email: email, password: password)
+                    try await authManager.signInWithEmail(email: cleanedEmail, password: password)
                 }
             } catch {
-                withAnimation { errorMessage = error.localizedDescription }
+                withAnimation { errorMessage = friendlyAuthError(error) }
             }
             isLoading = false
         }
+    }
+
+    private func sendPasswordReset() async {
+        let cleanedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !cleanedEmail.isEmpty else {
+            withAnimation {
+                errorMessage = "Введи e-mail, чтобы получить ссылку для сброса пароля".localized()
+            }
+            return
+        }
+        email = cleanedEmail
+        focusedField = nil
+        isLoading = true
+        errorMessage = nil
+        infoMessage = nil
+        do {
+            try await authManager.sendPasswordReset(email: cleanedEmail)
+            withAnimation {
+                infoMessage = "Ссылка для сброса пароля отправлена на \(cleanedEmail). Проверь почту (и папку «Спам»).".localized()
+            }
+        } catch {
+            withAnimation { errorMessage = friendlyAuthError(error) }
+        }
+        isLoading = false
     }
 
     private func signInWithGoogle() async {
         focusedField = nil
         isLoading = true
         errorMessage = nil
+        infoMessage = nil
         do {
             try await authManager.signInWithGoogle()
         } catch {
-            withAnimation { errorMessage = error.localizedDescription }
+            withAnimation { errorMessage = friendlyAuthError(error) }
         }
         isLoading = false
     }
@@ -252,12 +324,41 @@ struct LoginView: View {
         focusedField = nil
         isLoading = true
         errorMessage = nil
+        infoMessage = nil
         do {
             try await authManager.signInWithApple()
         } catch {
-            withAnimation { errorMessage = error.localizedDescription }
+            withAnimation { errorMessage = friendlyAuthError(error) }
         }
         isLoading = false
+    }
+
+    /// Map Firebase Auth error codes to short, actionable Russian messages.
+    private func friendlyAuthError(_ error: Error) -> String {
+        let nsError = error as NSError
+        let code = AuthErrorCode(rawValue: nsError.code)
+        switch code {
+        case .wrongPassword, .invalidCredential:
+            return "Неверный e-mail или пароль. Если уверен в пароле — попробуй «Забыли пароль?» или вход через Apple/Google.".localized()
+        case .userNotFound:
+            return "Пользователь с таким e-mail не найден. Нажми «Создать», чтобы зарегистрироваться.".localized()
+        case .invalidEmail:
+            return "E-mail указан в неверном формате.".localized()
+        case .emailAlreadyInUse:
+            return "Этот e-mail уже зарегистрирован. Войди или сбрось пароль.".localized()
+        case .weakPassword:
+            return "Пароль слишком простой — минимум 6 символов.".localized()
+        case .userDisabled:
+            return "Аккаунт отключён. Свяжись с поддержкой.".localized()
+        case .networkError:
+            return "Проблемы с сетью. Проверь подключение и повтори.".localized()
+        case .tooManyRequests:
+            return "Слишком много попыток. Подожди немного и попробуй снова.".localized()
+        case .accountExistsWithDifferentCredential:
+            return "Этот e-mail привязан к другому способу входа (Apple/Google). Войди через него.".localized()
+        default:
+            return error.localizedDescription
+        }
     }
 }
 
