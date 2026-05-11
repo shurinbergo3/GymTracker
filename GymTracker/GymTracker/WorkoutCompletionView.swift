@@ -23,7 +23,8 @@ struct WorkoutCompletionView: View {
     @State private var workoutNotes: String = ""
     @State private var progressData: [ExerciseProgress] = []
     @State private var isPreparingShare = false
-    
+    @State private var sharePayload: WorkoutSharePayload?
+
     // Combine history with current session for the chart
     private var chartSessions: [WorkoutSession] {
         var sessions = allHistorySessions.filter { $0.isCompleted }
