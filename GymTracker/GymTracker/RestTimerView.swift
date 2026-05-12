@@ -145,6 +145,16 @@ struct RestTimerView: View {
             }
                 }
 
+        .onReceive(NotificationCenter.default.publisher(
+            for: WatchSyncBridge.watchActionNotification
+        )) { note in
+            guard (note.userInfo?["action"] as? String) == "skipRest" else { return }
+            // Mirror the iPhone-side forward-button tap so haptics / cleanup
+            // run through the same code path. Safe to call even if the timer
+            // hasn't started yet — pauseTimer() just clears state.
+            skipTimer()
+        }
+
         .onDisappear {
             // Ensure timer is stopped when view is removed
             timer?.invalidate()

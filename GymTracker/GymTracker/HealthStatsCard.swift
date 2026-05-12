@@ -522,6 +522,15 @@ private struct HealthStatDetailView: View {
                         )
                         .foregroundStyle(stat.accent.gradient)
                         .cornerRadius(6)
+                        .annotation(position: .top, alignment: .center, spacing: 4) {
+                            if item.value > 0 {
+                                Text(formatBarLabel(item.value))
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                            }
+                        }
                     }
                 }
                 .chartXAxis {
@@ -711,6 +720,25 @@ private struct HealthStatDetailView: View {
         formatter.numberStyle = .decimal
         formatter.groupingSeparator = " "
         return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
+    }
+
+    /// Compact label for bar annotations. Steps get `k`-suffix (e.g. `8.5k`)
+    /// so the number fits above narrow weekly bars; minutes/workouts use the
+    /// raw integer.
+    private func formatBarLabel(_ value: Double) -> String {
+        switch stat {
+        case .steps:
+            if value >= 1000 {
+                let k = value / 1000
+                if k >= 10 {
+                    return "\(Int(k.rounded()))k"
+                }
+                return String(format: "%.1fk", k)
+            }
+            return "\(Int(value.rounded()))"
+        default:
+            return "\(Int(value.rounded()))"
+        }
     }
 
     private func formatSleepHM(_ duration: TimeInterval) -> String {

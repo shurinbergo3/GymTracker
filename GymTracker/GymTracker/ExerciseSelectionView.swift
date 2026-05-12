@@ -10,145 +10,130 @@ import SwiftData
 
 struct ExerciseSelectionView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext  // Added for SwiftData
+    @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
+    @State private var selectedCategory: ExerciseCategory? = nil
     @State private var showingCustomExercise = false
     @State private var customExerciseName = ""
-    @State private var expandedCategories: Set<ExerciseCategory> = Set(ExerciseCategory.allCases) // All expanded by default
-    
+
     let onExerciseSelected: (LibraryExercise) -> Void
-    
+
     private var filteredExercises: [LibraryExercise] {
-        if searchText.isEmpty {
-            return ExerciseLibrary.allExercises
+        var exercises = ExerciseLibrary.allExercises
+        if !searchText.isEmpty {
+            exercises = exercises.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
         }
-        return ExerciseLibrary.search(searchText)
+        if let category = selectedCategory {
+            exercises = exercises.filter { $0.category == category }
+        }
+        return exercises
     }
-    
+
     private var groupedExercises: [ExerciseCategory: [LibraryExercise]] {
         Dictionary(grouping: filteredExercises, by: { $0.category })
     }
-    
+
+    private var availableCategories: [ExerciseCategory] {
+        let all = Dictionary(grouping: ExerciseLibrary.allExercises, by: { $0.category })
+        return ExerciseCategory.allCases.filter { all[$0]?.isEmpty == false }
+    }
+
     var body: some View {
         NavigationStack {
-            exerciseList
-                .background(DesignSystem.Colors.background)
-                .searchable(
-                    text: $searchText,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "search_exercises_placeholder"
-                )
-                .navigationTitle("exercise_selection_title".localized())
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("cancel_button".localized()) {
-                            dismiss()
-                        }
-                    }
+            ZStack {
+                DesignSystem.Colors.background
+                    .ignoresSafeArea()
 
-                    ToolbarItem(placement: .primaryAction) {
-                        Button(action: { showingCustomExercise = true }) {
-                            Image(systemName: "plus")
-                        }
+                exerciseList
+            }
+            .searchable(
+                text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "search_exercises_placeholder"
+            )
+            .navigationTitle("exercise_selection_title".localized())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("cancel_button".localized()) {
+                        dismiss()
                     }
                 }
-                .alert("new_exercise_title".localized(), isPresented: $showingCustomExercise) {
-                    TextField("exercise_name_placeholder".localized(), text: $customExerciseName)
-                    Button("cancel_button".localized(), role: .cancel) {
-                        customExerciseName = ""
-                    }
-                    Button("add_button".localized()) {
-                        addCustomExercise()
-                    }
-                } message: {
-                    Text("enter_exercise_name_message".localized())
-                }
-        }
-    }
-    
-    @ViewBuilder
-    private var exerciseList: some View {
-        ScrollView {
-            LazyVStack(spacing: DesignSystem.Spacing.sm, pinnedViews: [.sectionHeaders]) {
-                ForEach(ExerciseCategory.allCases, id: \.self) { category in
-                    if let exercises = groupedExercises[category], !exercises.isEmpty {
-                        let isExpanded = expandedCategories.contains(category)
-                        
-                        Section {
-                            if isExpanded {
-                                VStack(spacing: 0) {
-                                    ForEach(exercises) { exercise in
-                                        SelectionRow(exercise: exercise) {
-                                            onExerciseSelected(exercise)
-                                            dismiss()
-                                        }
-                                        
-                                        if exercise.id != exercises.last?.id {
-                                            Divider()
-                                                .padding(.leading, DesignSystem.Spacing.md)
-                                        }
-                                    }
-                                }
-                                .background(DesignSystem.Colors.cardBackground)
-                                .cornerRadius(DesignSystem.CornerRadius.medium)
-                                .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                            }
-                        } header: {
-                            Button(action: {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    if expandedCategories.contains(category) {
-                                        expandedCategories.remove(category)
-                                    } else {
-                                        expandedCategories.insert(category)
-                                    }
-                                }
-                            }) {
-                                HStack {
-                                    Label(category.rawValue, systemImage: category.icon)
-                                        .font(DesignSystem.Typography.headline())
-                                        .foregroundColor(DesignSystem.Colors.accent)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 12, weight: .semibold))
-                                        .foregroundColor(DesignSystem.Colors.accent)
-                                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExpanded)
-                                    
-                                    Text("(\(exercises.count))")
-                                        .font(DesignSystem.Typography.caption())
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                                }
-                                .padding(.vertical, DesignSystem.Spacing.sm)
-                                .padding(.horizontal, DesignSystem.Spacing.md)
-                                .background(DesignSystem.Colors.cardBackground.opacity(0.5))
-                                .cornerRadius(DesignSystem.CornerRadius.small)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
+
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: { showingCustomExercise = true }) {
+                        Image(systemName: "plus")
                     }
                 }
             }
-            .padding(DesignSystem.Spacing.md)
+            .alert("new_exercise_title".localized(), isPresented: $showingCustomExercise) {
+                TextField("exercise_name_placeholder".localized(), text: $customExerciseName)
+                Button("cancel_button".localized(), role: .cancel) {
+                    customExerciseName = ""
+                }
+                Button("add_button".localized()) {
+                    addCustomExercise()
+                }
+            } message: {
+                Text("enter_exercise_name_message".localized())
+            }
         }
     }
-    
+
+    @ViewBuilder
+    private var exerciseList: some View {
+        ScrollView {
+            LazyVStack(spacing: DesignSystem.Spacing.lg, pinnedViews: [.sectionHeaders]) {
+                CategoryCarousel(
+                    categories: availableCategories,
+                    selectedCategory: selectedCategory,
+                    onSelect: { newValue in
+                        selectedCategory = newValue
+                    }
+                )
+                .padding(.horizontal, -DesignSystem.Spacing.md)
+                .padding(.top, DesignSystem.Spacing.xs)
+
+                ForEach(ExerciseCategory.allCases, id: \.self) { category in
+                    section(for: category)
+                }
+            }
+            .padding(.horizontal, DesignSystem.Spacing.md)
+            .padding(.bottom, DesignSystem.Spacing.xl)
+        }
+    }
+
+    @ViewBuilder
+    private func section(for category: ExerciseCategory) -> some View {
+        if let exercises = groupedExercises[category], !exercises.isEmpty {
+            Section {
+                VStack(spacing: DesignSystem.Spacing.sm) {
+                    ForEach(exercises) { exercise in
+                        SelectionRow(exercise: exercise, accent: category.accentColor) {
+                            onExerciseSelected(exercise)
+                            dismiss()
+                        }
+                    }
+                }
+                .padding(.top, DesignSystem.Spacing.xs)
+            } header: {
+                CategorySectionHeader(category: category, count: exercises.count)
+            }
+        }
+    }
+
     private func addCustomExercise() {
         guard !customExerciseName.isEmpty else { return }
-        
+
         let customExercise = LibraryExercise(
             name: customExerciseName,
-            category: .custom,     // User-created exercises go to custom category
-            muscleGroup: .fullBody // Default muscle group for custom exercises
+            category: .custom,
+            muscleGroup: .fullBody
         )
-        
-        // Save to SwiftData
+
         let customExerciseModel = CustomExercise(from: customExercise)
         modelContext.insert(customExerciseModel)
-        
-        // Trigger async sync to Firestore
+
         Task {
             do {
                 let dto = CustomExerciseDTO(from: customExerciseModel)
@@ -162,72 +147,124 @@ struct ExerciseSelectionView: View {
                 #endif
             }
         }
-        
+
         onExerciseSelected(customExercise)
         customExerciseName = ""
         dismiss()
     }
 }
 
-// MARK: - Selection Row (Styled like ExerciseListRow)
+// MARK: - Colorful Selection Row (mirrors ExerciseListRow with "+" instead of YouTube)
+
 struct SelectionRow: View {
     let exercise: LibraryExercise
-    let onSelect: () -> Void
+    let accent: Color
+    let onAdd: () -> Void
     @State private var showingTechnique = false
-    @Environment(\.openURL) var openURL
-    
+
     var body: some View {
-        HStack {
-            Button(action: onSelect) {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    Text(exercise.name.localized())
-                        .font(DesignSystem.Typography.body())
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                        .multilineTextAlignment(.leading)
-                    
+        HStack(spacing: 14) {
+            // Vertical accent bar
+            RoundedRectangle(cornerRadius: 3)
+                .fill(
+                    LinearGradient(
+                        colors: [accent, accent.opacity(0.45)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 4, height: 44)
+
+            // Title + muscle chip
+            VStack(alignment: .leading, spacing: 6) {
+                Text(exercise.name.localized())
+                    .font(.system(.body, design: .rounded, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.primaryText)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+
+                HStack(spacing: 4) {
+                    Image(systemName: "circle.fill")
+                        .font(.system(size: 5, weight: .bold))
+                        .foregroundColor(accent)
                     Text(exercise.muscleGroup.rawValue)
-                        .font(DesignSystem.Typography.caption())
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .font(.system(.caption2, design: .rounded, weight: .semibold))
+                        .foregroundColor(accent)
+                        .tracking(0.4)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(
+                    Capsule().fill(accent.opacity(0.15))
+                )
+                .overlay(
+                    Capsule().stroke(accent.opacity(0.3), lineWidth: 0.7)
+                )
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture { onAdd() }
+
+            // Add button (neon "+")
+            Button(action: onAdd) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    DesignSystem.Colors.accent,
+                                    DesignSystem.Colors.accent.opacity(0.75)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 44, height: 32)
+                        .shadow(color: DesignSystem.Colors.accent.opacity(0.45), radius: 6, x: 0, y: 3)
+
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .heavy))
+                        .foregroundColor(.black)
                 }
             }
             .buttonStyle(PlainButtonStyle())
-            
-            Spacer()
-            
-            // Add Button (Visual indicator)
-            Button(action: onSelect) {
-                Image(systemName: "plus.circle.fill")
-                    .foregroundColor(DesignSystem.Colors.accent)
-                    .font(.title3)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .padding(.trailing, 8)
-            
-            // Info Button
-            Button(action: { showingTechnique = true }) {
+
+            // Info chevron → opens technique sheet
+            Button {
+                showingTechnique = true
+            } label: {
                 Image(systemName: "info.circle")
-                    .foregroundColor(DesignSystem.Colors.secondaryText) // Distinct color for info
-                    .font(.title3)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(accent.opacity(0.85))
             }
             .buttonStyle(PlainButtonStyle())
         }
-        .padding(.vertical, DesignSystem.Spacing.md) // Increased padding for touch targets
+        .padding(.vertical, DesignSystem.Spacing.sm + 2)
         .padding(.horizontal, DesignSystem.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            accent.opacity(0.10),
+                            DesignSystem.Colors.cardBackground
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
+                .stroke(accent.opacity(0.18), lineWidth: 1)
+        )
+        .shadow(color: accent.opacity(0.15), radius: 8, x: 0, y: 3)
         .sheet(isPresented: $showingTechnique) {
             ExerciseTechniqueDetailView(exerciseName: exercise.name)
         }
-    }
-    
-    private func youtubeSearchURL(for exerciseName: String) -> URL? {
-        let localizedName = exerciseName.localized()
-        let suffix = LanguageManager.shared.currentLanguageCode == "en" ? "technique" : "техника"
-        let searchQuery = "\(localizedName) \(suffix)"
-        let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        return URL(string: "https://www.youtube.com/results?search_query=\(encodedQuery)")
     }
 }
 
 #Preview {
     ExerciseSelectionView { _ in }
 }
-

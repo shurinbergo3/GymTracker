@@ -30,6 +30,10 @@ private enum WatchSyncKey {
     static let workoutsThisWeek = "workoutsThisWeek"
     static let weeklyGoal = "weeklyGoal"
     static let lastWorkoutDate = "lastWorkoutDate"
+    static let lastWeight = "lastWeight"
+    static let lastReps = "lastReps"
+    static let lastWeightUnit = "lastWeightUnit"
+    static let canCompleteSet = "canCompleteSet"
 }
 
 @MainActor
@@ -44,6 +48,17 @@ final class WatchWorkoutModel: NSObject, ObservableObject {
     @Published var restEndsAt: Date?
     @Published var heartRate: Int = 0
     @Published var calories: Int = 0
+
+    /// Predicted values that would be logged if the user taps "Complete Set"
+    /// on the watch. The iPhone derives these from previous sets so the watch
+    /// stays a thin client (no SwiftData / history lookup on this side).
+    @Published var lastWeight: Double?
+    @Published var lastReps: Int?
+    @Published var lastWeightUnit: String = "kg"
+    /// When false, the Complete Set button is hidden — happens for
+    /// first-ever sets (no prior data) and for duration/cardio exercises
+    /// where a one-tap log doesn't make sense.
+    @Published var canCompleteSet: Bool = false
 
     /// Language code (ru/en/pl/...) the iPhone-side `LanguageManager` is
     /// currently set to. Until we get the first state push, fall back to the
@@ -136,6 +151,12 @@ final class WatchWorkoutModel: NSObject, ObservableObject {
         if let hr = context[WatchSyncKey.heartRate] as? Int { heartRate = hr }
         if let cal = context[WatchSyncKey.calories] as? Int { calories = cal }
 
+        // Reset preview each tick; iPhone re-sends current values.
+        lastWeight = context[WatchSyncKey.lastWeight] as? Double
+        lastReps = context[WatchSyncKey.lastReps] as? Int
+        lastWeightUnit = context[WatchSyncKey.lastWeightUnit] as? String ?? "kg"
+        canCompleteSet = context[WatchSyncKey.canCompleteSet] as? Bool ?? false
+
         scheduleRestCompletionHapticIfNeeded()
     }
 
@@ -176,6 +197,14 @@ final class WatchWorkoutModel: NSObject, ObservableObject {
     /// to foreground from the watch — but Live Activity will surface on the
     /// iPhone's lock screen / Dynamic Island once the workout starts.
     @Published private(set) var startSignalState: StartSignalState = .idle
+
+    /// Mirrors `startSignalState` for the in-workout Complete Set button so
+    /// each request has its own visual feedback (one button being mid-send
+    /// shouldn't dim the other).
+    @Published private(set) var completeSetState: StartSignalState = .idle
+
+    /// Same idea for the rest-mode Skip button.
+    @Published private(set) var skipRestState: StartSignalState = .idle
 
     enum StartSignalState: Equatable {
         case idle
@@ -228,6 +257,95 @@ final class WatchWorkoutModel: NSObject, ObservableObject {
         }
     }
 
+    /// "Complete Set" tap during an active workout. Uses the same delivery
+    /// strategy as `requestStartWorkout` — try sendMessage (instant) and fall
+    /// back to transferUserInfo (queues for delivery when the iPhone is
+    /// reachable again).
+    func requestCompleteSet() {
+        guard WCSession.isSupported() else { return }
+        guard canCompleteSet else { return }
+        let session = WCSession.default
+        guard session.activationState == .activated else { return }
+
+        WKInterfaceDevice.current().play(.click)
+        completeSetState = .sending
+
+        guard session.isReachable else {
+            session.transferUserInfo(["action": "completeSet"])
+            completeSetState = .sent
+            WKInterfaceDevice.current().play(.success)
+            resetCompleteSetStateAfterDelay()
+            return
+        }
+
+        session.sendMessage(["action": "completeSet"], replyHandler: { [weak self] _ in
+            Task { @MainActor in
+                self?.completeSetState = .sent
+                WKInterfaceDevice.current().play(.success)
+                self?.resetCompleteSetStateAfterDelay()
+            }
+        }, errorHandler: { [weak self] error in
+            Task { @MainActor in
+                WCSession.default.transferUserInfo(["action": "completeSet"])
+                self?.completeSetState = .failed(error.localizedDescription)
+                self?.resetCompleteSetStateAfterDelay()
+            }
+        })
+    }
+
+    private func resetCompleteSetStateAfterDelay() {
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 1_800_000_000)
+            self?.completeSetState = .idle
+        }
+    }
+
+    /// "Skip Rest" tap. Tells the iPhone to dismiss its RestTimerView so
+    /// rest ends across both devices. Optimistically also clears the watch's
+    /// own `restEndsAt` so the UI snaps back to ActiveWorkoutView without
+    /// waiting for the round-trip context push.
+    func requestSkipRest() {
+        guard WCSession.isSupported() else { return }
+        let session = WCSession.default
+        guard session.activationState == .activated else { return }
+
+        WKInterfaceDevice.current().play(.click)
+        skipRestState = .sending
+
+        // Optimistic local clear — the phone will re-confirm via the next
+        // applicationContext push. Cancel any scheduled rest haptic so it
+        // doesn't fire after the user already moved on.
+        restEndsAt = nil
+        cancelRestCompletionTimer()
+
+        guard session.isReachable else {
+            session.transferUserInfo(["action": "skipRest"])
+            skipRestState = .sent
+            resetSkipRestStateAfterDelay()
+            return
+        }
+
+        session.sendMessage(["action": "skipRest"], replyHandler: { [weak self] _ in
+            Task { @MainActor in
+                self?.skipRestState = .sent
+                self?.resetSkipRestStateAfterDelay()
+            }
+        }, errorHandler: { [weak self] error in
+            Task { @MainActor in
+                WCSession.default.transferUserInfo(["action": "skipRest"])
+                self?.skipRestState = .failed(error.localizedDescription)
+                self?.resetSkipRestStateAfterDelay()
+            }
+        })
+    }
+
+    private func resetSkipRestStateAfterDelay() {
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            self?.skipRestState = .idle
+        }
+    }
+
     private func handleWorkoutEnded() {
         isWorkoutActive = false
         exerciseName = nil
@@ -236,6 +354,11 @@ final class WatchWorkoutModel: NSObject, ObservableObject {
         restEndsAt = nil
         heartRate = 0
         calories = 0
+        lastWeight = nil
+        lastReps = nil
+        canCompleteSet = false
+        completeSetState = .idle
+        skipRestState = .idle
         cancelRestCompletionTimer()
     }
 

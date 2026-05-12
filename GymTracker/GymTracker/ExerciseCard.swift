@@ -583,6 +583,12 @@ struct ExerciseCard: View {
             // Activity / Watch should reflect it.
             publishCurrentExerciseFocus()
         }
+        .onReceive(NotificationCenter.default.publisher(
+            for: WatchSyncBridge.watchActionNotification
+        )) { note in
+            guard (note.userInfo?["action"] as? String) == "completeSet" else { return }
+            handleWatchCompleteSetRequest()
+        }
         .onDisappear {
             timer?.invalidate()
             timer = nil
@@ -692,6 +698,7 @@ struct ExerciseCard: View {
                 ? String(format: "%.0f", w)
                 : String(format: "%.1f", w)
         }
+        if isActive { publishCurrentExerciseFocus() }
     }
 
     /// Pushes the current exercise + set position to `WorkoutManager` so the
@@ -705,6 +712,93 @@ struct ExerciseCard: View {
             setNumber: nextSet,
             totalSets: total
         )
+        publishWatchPreview()
+    }
+
+    /// Push the "Complete Set would save: weight × reps" preview to the watch.
+    /// Picks the best fallback in this order:
+    ///   1) Same-numbered set from the previous workout (most predictive)
+    ///   2) Last completed set in the current workout (user just did one)
+    ///   3) Last set from previous workout
+    /// `canCompleteFromWatch` is false for duration/cardio, or when we have
+    /// neither weight nor reps to suggest.
+    private func publishWatchPreview() {
+        let type = effectiveWorkoutType
+        guard type == .strength || type == .repsOnly else {
+            workoutManager.setCurrentSetPreview(
+                lastWeight: nil,
+                lastReps: nil,
+                weightUnit: "kg",
+                canCompleteFromWatch: false
+            )
+            return
+        }
+
+        let nextSetNum = completedSets.count + 1
+        let priorSameNumber = cachedPreviousSets.first { $0.setNumber == nextSetNum }
+        let priorLastInSession = completedSets.last
+        let priorLastInHistory = cachedPreviousSets.last
+
+        let weightSource = priorSameNumber ?? priorLastInSession ?? priorLastInHistory
+        let repsSource = priorSameNumber ?? priorLastInSession ?? priorLastInHistory
+
+        let weight: Double? = {
+            guard type == .strength, let w = weightSource?.weight, w > 0 else { return nil }
+            return w
+        }()
+        let reps: Int? = {
+            guard let r = repsSource?.reps, r > 0 else { return nil }
+            return r
+        }()
+
+        let canComplete: Bool = {
+            switch type {
+            case .strength: return weight != nil && reps != nil
+            case .repsOnly: return reps != nil
+            default: return false
+            }
+        }()
+
+        workoutManager.setCurrentSetPreview(
+            lastWeight: weight,
+            lastReps: reps,
+            weightUnit: "kg",
+            canCompleteFromWatch: canComplete
+        )
+    }
+
+    /// Triggered by a `completeSet` message from the watch. Autofills weight
+    /// and reps from prior data (the watch already showed the user what would
+    /// be saved), then calls the same code path as tapping the checkmark on
+    /// the iPhone — keeping rest-timer, PR detection, haptics, and Live
+    /// Activity updates identical regardless of trigger source.
+    private func handleWatchCompleteSetRequest() {
+        guard isActive else { return }
+        let focusedOnThisCard =
+            workoutManager.currentExerciseName == exercise.name.localized()
+        guard focusedOnThisCard else { return }
+
+        let type = effectiveWorkoutType
+        let nextSetNum = completedSets.count + 1
+        let priorSameNumber = cachedPreviousSets.first { $0.setNumber == nextSetNum }
+        let lastInSession = completedSets.last
+        let lastInHistory = cachedPreviousSets.last
+
+        if type == .strength, weight.isEmpty {
+            if let w = (priorSameNumber ?? lastInSession ?? lastInHistory)?.weight, w > 0 {
+                weight = w.truncatingRemainder(dividingBy: 1) == 0
+                    ? String(format: "%.0f", w)
+                    : String(format: "%.1f", w)
+            }
+        }
+        if (type == .strength || type == .repsOnly), reps.isEmpty {
+            if let r = (priorSameNumber ?? lastInSession ?? lastInHistory)?.reps, r > 0 {
+                reps = String(r)
+            }
+        }
+
+        guard canSave else { return }
+        saveCurrentSet()
     }
 
     /// Перечитывает кеш «прошлая тренировка», предпоследняя тренировка и e1RM

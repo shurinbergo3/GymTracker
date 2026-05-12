@@ -40,15 +40,15 @@ enum ExerciseCategory: CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .chest: return "figure.cooldown"
-        case .back: return "figure.strengthtraining.functional"
-        case .legs: return "figure.walk"
-        case .shoulders: return "figure.boxing"
-        case .arms: return "figure.strengthtraining.traditional"
-        case .core: return "figure.core.training"
-        case .cardio: return "heart.fill"
-        case .complex: return "figure.mixed.cardio"
-        case .custom: return "person.fill"
+        case .chest:     return "figure.arms.open"
+        case .back:      return "figure.rower"
+        case .legs:      return "figure.run"
+        case .shoulders: return "figure.archery"
+        case .arms:      return "dumbbell.fill"
+        case .core:      return "figure.core.training"
+        case .cardio:    return "heart.fill"
+        case .complex:   return "figure.cross.training"
+        case .custom:    return "person.fill"
         }
     }
 

@@ -45,6 +45,16 @@ class WorkoutManager: ObservableObject {
     @Published var currentTotalSets: Int?
     @Published var restEndsAt: Date?
 
+    // Last completed set values for the focused exercise — surfaced to the
+    // watch app so the user sees "Last: 50 kg × 8" before tapping
+    // "Complete Set" (the watch button reuses these values, no manual entry).
+    @Published var currentExerciseLastWeight: Double?
+    @Published var currentExerciseLastReps: Int?
+    @Published var currentExerciseWeightUnit: String = "kg"
+    /// `true` only when there's a focused strength exercise with prior data —
+    /// otherwise the watch hides the Complete Set button.
+    @Published var canCompleteCurrentSetFromWatch: Bool = false
+
     func notifySetCompleted(isPR: Bool) {
         setCompletionTick &+= 1
         if isPR {
@@ -59,6 +69,21 @@ class WorkoutManager: ObservableObject {
         currentSetNumber = setNumber
         currentTotalSets = totalSets
         activityProvider.updateExercise(name: name, setNumber: setNumber, totalSets: totalSets)
+        WatchSyncBridge.shared.syncCurrentState(from: self)
+    }
+
+    /// Update the "what would Complete Set save" preview for the focused
+    /// exercise. `canCompleteFromWatch` is the focused card's decision — it
+    /// stays false for first-ever sets (no prior data to reuse) and for
+    /// duration/cardio exercises where a one-tap log makes no sense.
+    func setCurrentSetPreview(lastWeight: Double?,
+                              lastReps: Int?,
+                              weightUnit: String,
+                              canCompleteFromWatch: Bool) {
+        currentExerciseLastWeight = lastWeight
+        currentExerciseLastReps = lastReps
+        currentExerciseWeightUnit = weightUnit
+        canCompleteCurrentSetFromWatch = canCompleteFromWatch
         WatchSyncBridge.shared.syncCurrentState(from: self)
     }
 
@@ -638,6 +663,9 @@ class WorkoutManager: ObservableObject {
         currentExerciseName = nil
         currentSetNumber = nil
         currentTotalSets = nil
+        currentExerciseLastWeight = nil
+        currentExerciseLastReps = nil
+        canCompleteCurrentSetFromWatch = false
         restEndsAt = nil
         WatchSyncBridge.shared.syncWorkoutEnded()
         // Re-push fresh idle stats so the watch's idle screen shows the
@@ -690,13 +718,36 @@ class WorkoutManager: ObservableObject {
                 profile = .init(weightKg: user.currentWeight, age: Double(user.age))
             }
 
-            let finalCalories = WorkoutCaloriesResolver.resolve(
+            let durationMin = endDate.timeIntervalSince(session.date) / 60.0
+            let resolverCalories = WorkoutCaloriesResolver.resolve(
                 healthKitCalories: calories,
                 heartRate: Double(session.averageHeartRate ?? 0),
-                durationMinutes: endDate.timeIntervalSince(session.date) / 60.0,
+                durationMinutes: durationMin,
                 activityType: selectedActivityType,
                 profile: profile
             )
+
+            // No-Watch path: also compute a set-volume-based estimate from
+            // the actual completed sets. Persist max(resolver, sets) so
+            // iPhone-only users get a meaningful saved number instead of 0.
+            var finalCalories = resolverCalories
+            if let profile, profile.weightKg > 0 {
+                let samples = session.sets
+                    .filter(\.isCompleted)
+                    .map {
+                        CalorieCalculator.SetSample(
+                            weightKg: $0.weight,
+                            reps: $0.reps,
+                            isBodyweightWithLoad: $0.isWeighted
+                        )
+                    }
+                let setBased = CalorieCalculator.iPhoneOnlyEstimate(
+                    completedSets: samples,
+                    durationMinutes: durationMin,
+                    userWeightKg: profile.weightKg
+                )
+                finalCalories = max(resolverCalories, setBased)
+            }
 
             if finalCalories > 0 { session.calories = Int(finalCalories) }
         }
@@ -883,32 +934,57 @@ class WorkoutManager: ObservableObject {
         async let heartRate = healthProvider.fetchLatestHeartRate(since: nil)
         
         let (calValue, hrValue) = await (calories, heartRate)
-        
-        // Live Estimate Fallback.
+
+        // Live calorie display — two paths:
         //
-        // HK alone gives 0 kcal for the entire gym session if the user has
-        // no Apple Watch — Apple Fitness in this case uses MET-driven estimates
-        // on iPhone, which is what we replicate here via `smartEstimate`.
+        //  1. WITH real workout signal (Apple Watch HR or HK active energy):
+        //     trust HK and let `smartEstimate` (Keytel + MET) top it up so
+        //     a real Watch session is never undercounted. Mirrors Apple
+        //     Fitness exactly.
         //
-        // Keep `max(HK, smart)` so a real Watch never gets undercounted.
+        //  2. WITHOUT real signal (iPhone-only, no Watch, simulator):
+        //     Apple Fitness shows 0 for strength here because it has no HR.
+        //     We do better by using the data we DO have — the actual sets
+        //     the user completed — via `iPhoneOnlyEstimate`. Until the
+        //     first set is marked complete the estimate stays at 0, so the
+        //     simulator and idle screens never inflate.
         var displayCalories = Int(calValue)
         let durationMinutes = now.timeIntervalSince(startDate) / 60.0
+        let hasRealSignal = hrValue > 0 || calValue > 0
 
-        if durationMinutes > 0.5 && displayCalories < Int(durationMinutes * 1.5) {
-            let descriptor = FetchDescriptor<UserProfile>()
-            if let profile = try? modelContext.fetch(descriptor).last,
-               profile.currentWeight > 0 {
-                let estimatedTotal = CalorieCalculator.smartEstimate(
-                    heartRate: hrValue,
-                    weightKg: profile.currentWeight,
-                    age: Double(profile.age),
-                    durationMinutes: durationMinutes,
-                    activityType: selectedActivityType
-                )
-                if estimatedTotal > Double(displayCalories) {
-                    displayCalories = Int(estimatedTotal)
-                }
+        let descriptor = FetchDescriptor<UserProfile>()
+        let profile = try? modelContext.fetch(descriptor).last
+
+        if hasRealSignal && durationMinutes > 0.5,
+           let profile, profile.currentWeight > 0 {
+            let estimatedTotal = CalorieCalculator.smartEstimate(
+                heartRate: hrValue,
+                weightKg: profile.currentWeight,
+                age: Double(profile.age),
+                durationMinutes: durationMinutes,
+                activityType: selectedActivityType
+            )
+            if estimatedTotal > Double(displayCalories) {
+                displayCalories = Int(estimatedTotal)
             }
+        } else if !hasRealSignal,
+                  let session = currentSession,
+                  let profile, profile.currentWeight > 0 {
+            let samples = session.sets
+                .filter(\.isCompleted)
+                .map {
+                    CalorieCalculator.SetSample(
+                        weightKg: $0.weight,
+                        reps: $0.reps,
+                        isBodyweightWithLoad: $0.isWeighted
+                    )
+                }
+            let estimate = CalorieCalculator.iPhoneOnlyEstimate(
+                completedSets: samples,
+                durationMinutes: durationMinutes,
+                userWeightKg: profile.currentWeight
+            )
+            displayCalories = max(displayCalories, Int(estimate))
         }
 
         activityProvider.update(heartRate: Int(hrValue), calories: displayCalories)

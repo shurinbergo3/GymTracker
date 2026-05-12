@@ -172,50 +172,117 @@ struct WorkoutDayRow: View {
                         Text(day.name.localized())
                             .font(DesignSystem.Typography.headline())
                             .foregroundColor(DesignSystem.Colors.primaryText)
-                        
+
                         Text(String(format: "%d упражнений".localized(), day.exercises.count))
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
-                    
+
                     Spacer()
-                    
+
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.caption)
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(PlainButtonStyle())
             
             if isExpanded {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                VStack(spacing: 0) {
                     ForEach(Array(sortedExercises.enumerated()), id: \.element) { index, exercise in
-                        HStack(spacing: DesignSystem.Spacing.sm) {
-                            Text("\(index + 1).")
-                                .font(DesignSystem.Typography.callout())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                                .frame(width: 25, alignment: .leading)
-                            
-                            Text(exercise.name.localized())
-                                .font(DesignSystem.Typography.body())
-                                .foregroundColor(DesignSystem.Colors.primaryText)
-                            
-                            ExerciseInfoButton(exerciseName: exercise.name)
-                            
-                            Spacer()
-                            
-                            Text(String(format: "%d × подходов".localized(), exercise.plannedSets))
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        ExpandedExerciseRow(index: index + 1, exercise: exercise)
+
+                        if index < sortedExercises.count - 1 {
+                            Rectangle()
+                                .fill(DesignSystem.Colors.accent.opacity(0.08))
+                                .frame(height: 0.5)
+                                .padding(.leading, 40)
                         }
-                        .padding(.vertical, 2)
                     }
                 }
-                .padding(.leading, DesignSystem.Spacing.md)
-                .padding(.top, DesignSystem.Spacing.xs)
+                .padding(.top, DesignSystem.Spacing.sm)
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .padding(.vertical, DesignSystem.Spacing.xs)
+    }
+}
+
+// MARK: - Expanded Exercise Row
+
+private struct ExpandedExerciseRow: View {
+    let index: Int
+    let exercise: ExerciseTemplate
+    @State private var showingTechnique = false
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            // Numbered badge — neon orb with monospaced digit
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.accent.opacity(0.28),
+                                DesignSystem.Colors.accent.opacity(0.10)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                Circle()
+                    .stroke(DesignSystem.Colors.accent.opacity(0.55), lineWidth: 1)
+                Text("\(index)")
+                    .font(.system(.footnote, design: .rounded, weight: .heavy).monospacedDigit())
+                    .foregroundColor(DesignSystem.Colors.accent)
+            }
+            .frame(width: 28, height: 28)
+
+            // Exercise name — wraps inside its column without disturbing trailing
+            Text(exercise.name.localized())
+                .font(.system(.callout, design: .rounded, weight: .semibold))
+                .foregroundColor(DesignSystem.Colors.primaryText)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            // Trailing column — fixed-width chip + info icon
+            HStack(spacing: 8) {
+                HStack(spacing: 3) {
+                    Image(systemName: "multiply")
+                        .font(.system(size: 9, weight: .heavy))
+                    Text("\(exercise.plannedSets)")
+                        .font(.system(.caption, design: .rounded, weight: .heavy).monospacedDigit())
+                }
+                .foregroundColor(DesignSystem.Colors.accent)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule().fill(DesignSystem.Colors.accent.opacity(0.13))
+                )
+                .overlay(
+                    Capsule().stroke(DesignSystem.Colors.accent.opacity(0.32), lineWidth: 0.8)
+                )
+                .accessibilityLabel(Text(String(format: "%d × подходов".localized(), exercise.plannedSets)))
+
+                Button {
+                    showingTechnique = true
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(DesignSystem.Colors.accent)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .sheet(isPresented: $showingTechnique) {
+                    ExerciseTechniqueDetailView(exerciseName: exercise.name)
+                }
+            }
+            .padding(.top, 2) // align trailing column with first text baseline
+        }
+        .padding(.vertical, 9)
+        .padding(.horizontal, 2)
     }
 }
 

@@ -33,6 +33,14 @@ enum WatchSyncKey {
     static let workoutsThisWeek = "workoutsThisWeek"
     static let weeklyGoal = "weeklyGoal"
     static let lastWorkoutDate = "lastWorkoutDate" // TimeInterval since 1970, 0 if never
+
+    // Last completed set for the focused exercise — shown on the watch so the
+    // user can confirm "Complete Set" without entering weight/reps. Zero means
+    // "no prior data" and the watch hides the row.
+    static let lastWeight = "lastWeight"           // kg
+    static let lastReps = "lastReps"
+    static let lastWeightUnit = "lastWeightUnit"   // "kg" or "lb"
+    static let canCompleteSet = "canCompleteSet"   // Bool — false hides the watch button
 }
 
 @MainActor
@@ -84,6 +92,14 @@ final class WatchSyncBridge: NSObject {
         if let totalSets = manager.currentTotalSets {
             payload[WatchSyncKey.totalSets] = totalSets
         }
+        if let lastWeight = manager.currentExerciseLastWeight {
+            payload[WatchSyncKey.lastWeight] = lastWeight
+        }
+        if let lastReps = manager.currentExerciseLastReps {
+            payload[WatchSyncKey.lastReps] = lastReps
+        }
+        payload[WatchSyncKey.lastWeightUnit] = manager.currentExerciseWeightUnit
+        payload[WatchSyncKey.canCompleteSet] = manager.canCompleteCurrentSetFromWatch
 
         // updateApplicationContext keeps only the LATEST value — perfect for
         // a "what's on screen right now" snapshot. It also delivers in the

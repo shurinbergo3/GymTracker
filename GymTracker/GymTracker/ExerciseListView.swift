@@ -36,6 +36,14 @@ struct ExerciseListView: View {
     private var exerciseList: some View {
         ScrollView {
             LazyVStack(spacing: DesignSystem.Spacing.lg, pinnedViews: [.sectionHeaders]) {
+                CategoryCarousel(
+                    categories: viewModel.availableCategories,
+                    selectedCategory: viewModel.selectedCategory,
+                    onSelect: { viewModel.selectCategory($0) }
+                )
+                .padding(.horizontal, -DesignSystem.Spacing.md)
+                .padding(.top, DesignSystem.Spacing.xs)
+
                 ForEach(ExerciseCategory.allCases, id: \.self) { category in
                     exerciseSection(for: category)
                 }
@@ -62,9 +70,104 @@ struct ExerciseListView: View {
     }
 }
 
+// MARK: - Muscle Group Carousel
+
+struct CategoryCarousel: View {
+    let categories: [ExerciseCategory]
+    let selectedCategory: ExerciseCategory?
+    let onSelect: (ExerciseCategory?) -> Void
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    CategoryPill(
+                        title: "Все".localized(),
+                        icon: "square.grid.2x2.fill",
+                        accent: DesignSystem.Colors.accent,
+                        accentSecondary: DesignSystem.Colors.accent,
+                        isSelected: selectedCategory == nil
+                    ) {
+                        onSelect(nil)
+                    }
+                    .id("all")
+
+                    ForEach(categories, id: \.self) { category in
+                        CategoryPill(
+                            title: category.rawValue,
+                            icon: category.icon,
+                            accent: category.accentColor,
+                            accentSecondary: category.accentColorSecondary,
+                            isSelected: selectedCategory == category
+                        ) {
+                            onSelect(selectedCategory == category ? nil : category)
+                        }
+                        .id(category)
+                    }
+                }
+                .padding(.horizontal, DesignSystem.Spacing.md)
+                .padding(.vertical, 4)
+            }
+            .onChange(of: selectedCategory) { _, newValue in
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    if let newValue {
+                        proxy.scrollTo(newValue, anchor: .center)
+                    } else {
+                        proxy.scrollTo("all", anchor: .leading)
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct CategoryPill: View {
+    let title: String
+    let icon: String
+    let accent: Color
+    let accentSecondary: Color
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 13, weight: .heavy))
+                Text(title)
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .lineLimit(1)
+            }
+            .foregroundColor(isSelected ? .black : accent)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 9)
+            .background(
+                Group {
+                    if isSelected {
+                        Capsule().fill(
+                            LinearGradient(
+                                colors: [accent, accentSecondary],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                    } else {
+                        Capsule().fill(accent.opacity(0.14))
+                    }
+                }
+            )
+            .overlay(
+                Capsule().stroke(accent.opacity(isSelected ? 0 : 0.35), lineWidth: 1)
+            )
+            .shadow(color: accent.opacity(isSelected ? 0.4 : 0), radius: 8, x: 0, y: 3)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
 // MARK: - Vibrant Category Header (sticky)
 
-private struct CategorySectionHeader: View {
+struct CategorySectionHeader: View {
     let category: ExerciseCategory
     let count: Int
 

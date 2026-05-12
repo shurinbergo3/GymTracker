@@ -843,6 +843,12 @@ struct DashboardView: View {
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                 }
 
+                if !history.isEmpty {
+                    WorkoutProgressChart(sessions: history)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                }
+
                 // Last Workout Preview (moved to main column)
                 if let lastSession = recentHistory.first {
                     NavigationLink(destination: WorkoutHistoryDetailView(session: lastSession)) {

@@ -317,41 +317,82 @@ private struct ActiveWorkoutView: View {
     @EnvironmentObject var model: WatchWorkoutModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(model.workoutName)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                Spacer(minLength: 4)
-                LiveTimeText(
-                    font: .caption2.weight(.medium),
-                    color: .white.opacity(0.55)
-                )
+        ScrollView {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(model.workoutName)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                    Spacer(minLength: 4)
+                    LiveTimeText(
+                        font: .caption2.weight(.medium),
+                        color: .white.opacity(0.55)
+                    )
+                }
+
+                Text(model.exerciseName ?? model.workoutName)
+                    .font(.headline)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
+
+                if let setNumber = model.setNumber, let totalSets = model.totalSets, totalSets > 0 {
+                    Text("\(model.t(en: "Set", ru: "Подход", pl: "Seria")) \(setNumber) / \(totalSets)")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+
+                if let lastLine = lastSetSummary {
+                    Text(lastLine)
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.55))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                }
+
+                if model.canCompleteSet {
+                    Button(action: { model.requestCompleteSet() }) {
+                        CompleteSetButtonLabel(state: model.completeSetState, t: model.t)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(model.completeSetState == .sending)
+                    .padding(.top, 2)
+                }
+
+                workoutTimer
+
+                HStack(spacing: 10) {
+                    MetricChip(icon: "heart.fill", value: "\(model.heartRate)", color: .red)
+                    MetricChip(icon: "flame.fill", value: "\(model.calories)", color: .orange)
+                }
+                .padding(.top, 2)
             }
-
-            Text(model.exerciseName ?? model.workoutName)
-                .font(.headline)
-                .lineLimit(2)
-                .minimumScaleFactor(0.7)
-
-            if let setNumber = model.setNumber, let totalSets = model.totalSets, totalSets > 0 {
-                Text("\(model.t(en: "Set", ru: "Подход", pl: "Seria")) \(setNumber) / \(totalSets)")
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.7))
-            }
-
-            workoutTimer
-
-            Spacer(minLength: 4)
-
-            HStack(spacing: 10) {
-                MetricChip(icon: "heart.fill", value: "\(model.heartRate)", color: .red)
-                MetricChip(icon: "flame.fill", value: "\(model.calories)", color: .orange)
-            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
         }
-        .padding(.horizontal, 6)
-        .padding(.vertical, 4)
+    }
+
+    /// "Last: 50 kg × 8" / "Last: × 8" for reps-only / nil when no data.
+    private var lastSetSummary: String? {
+        let lastLabel = model.t(en: "Last", ru: "Было", pl: "Ostatnio")
+        let reps = model.lastReps
+        let weight = model.lastWeight
+
+        if let w = weight, w > 0, let r = reps, r > 0 {
+            return "\(lastLabel): \(formatWeight(w)) \(model.lastWeightUnit) × \(r)"
+        }
+        if let r = reps, r > 0 {
+            let repsWord = model.t(en: "reps", ru: "повт.", pl: "powt.")
+            return "\(lastLabel): \(r) \(repsWord)"
+        }
+        return nil
+    }
+
+    private func formatWeight(_ w: Double) -> String {
+        if w.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f", w)
+        }
+        return String(format: "%.1f", w)
     }
 
     @ViewBuilder
@@ -365,6 +406,72 @@ private struct ActiveWorkoutView: View {
             Text("--:--")
                 .font(.system(.title2, design: .rounded).weight(.bold))
                 .foregroundStyle(.secondary)
+        }
+    }
+}
+
+/// Variant of `StartButtonLabel` styled for the in-workout "Complete Set"
+/// tap. Smaller height than Start (this button lives mid-screen, not on its
+/// own page) and uses a check icon to mirror the iPhone-side affordance.
+private struct CompleteSetButtonLabel: View {
+    let state: WatchWorkoutModel.StartSignalState
+    let t: (String, String, String) -> String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            iconView
+            Text(label)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(state == .idle ? .black : Color.white.opacity(0.85))
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+        }
+        .frame(maxWidth: .infinity, minHeight: 32)
+        .padding(.horizontal, 8)
+        .background(backgroundStyle, in: Capsule())
+    }
+
+    @ViewBuilder
+    private var iconView: some View {
+        switch state {
+        case .idle:
+            Image(systemName: "checkmark")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(.black)
+        case .sending:
+            ProgressView()
+                .scaleEffect(0.55)
+                .tint(.white)
+        case .sent:
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(.white)
+        case .failed:
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 12))
+                .foregroundStyle(.white)
+        }
+    }
+
+    private var backgroundStyle: AnyShapeStyle {
+        switch state {
+        case .idle: return AnyShapeStyle(neonGreen)
+        case .sending: return AnyShapeStyle(Color.white.opacity(0.18))
+        case .sent: return AnyShapeStyle(neonGreen.opacity(0.5))
+        case .failed: return AnyShapeStyle(Color.red.opacity(0.7))
+        }
+    }
+
+    private var label: String {
+        switch state {
+        case .idle:
+            return t("Complete Set", "Подход выполнен", "Seria gotowa")
+        case .sending:
+            return t("Sending…", "Отправка…", "Wysyłanie…")
+        case .sent:
+            return t("Saved", "Сохранено", "Zapisano")
+        case .failed:
+            return t("Tap iPhone", "Открой iPhone", "Otwórz iPhone")
         }
     }
 }
@@ -416,6 +523,13 @@ private struct RestModeView: View {
                     .lineLimit(1)
             }
 
+            Button(action: { model.requestSkipRest() }) {
+                SkipRestButtonLabel(state: model.skipRestState, t: model.t)
+            }
+            .buttonStyle(.plain)
+            .disabled(model.skipRestState == .sending)
+            .padding(.top, 4)
+
             HStack(spacing: 8) {
                 MetricChip(icon: "heart.fill", value: "\(model.heartRate)", color: .red)
             }
@@ -424,6 +538,69 @@ private struct RestModeView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 6)
         .padding(.vertical, 4)
+    }
+}
+
+/// Outline-style button — secondary action vs. the dominant amber timer.
+/// Tapping it skips rest on iPhone so the user can start the next set early.
+private struct SkipRestButtonLabel: View {
+    let state: WatchWorkoutModel.StartSignalState
+    let t: (String, String, String) -> String
+
+    var body: some View {
+        HStack(spacing: 5) {
+            iconView
+            Text(label)
+                .font(.system(size: 12, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+        }
+        .foregroundStyle(foreground)
+        .frame(maxWidth: .infinity, minHeight: 28)
+        .padding(.horizontal, 8)
+        .overlay(
+            Capsule().stroke(foreground.opacity(0.55), lineWidth: 1)
+        )
+    }
+
+    @ViewBuilder
+    private var iconView: some View {
+        switch state {
+        case .idle:
+            Image(systemName: "forward.fill")
+                .font(.system(size: 11, weight: .semibold))
+        case .sending:
+            ProgressView()
+                .scaleEffect(0.5)
+                .tint(restAmber)
+        case .sent:
+            Image(systemName: "checkmark")
+                .font(.system(size: 11, weight: .bold))
+        case .failed:
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 11))
+        }
+    }
+
+    private var foreground: Color {
+        switch state {
+        case .idle, .sending: return restAmber
+        case .sent: return Color.white.opacity(0.85)
+        case .failed: return .red
+        }
+    }
+
+    private var label: String {
+        switch state {
+        case .idle:
+            return t("Skip Rest", "Пропустить", "Pomiń")
+        case .sending:
+            return t("Sending…", "Отправка…", "Wysyłanie…")
+        case .sent:
+            return t("Skipped", "Пропущено", "Pominięto")
+        case .failed:
+            return t("Tap iPhone", "Открой iPhone", "Otwórz iPhone")
+        }
     }
 }
 
