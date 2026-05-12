@@ -338,7 +338,7 @@ extension ExerciseTemplate {
             if let custom = _customWorkoutType { return custom }
             // Smart fallback: respect the library default for the exercise name
             // (e.g. "Бег трусцой" / "Велотренажёр" → .duration even if the day is .strength).
-            if let library = LibraryExercise.getExercise(for: name) {
+            if let library = ExerciseLibrary.getExercise(for: name) {
                 return library.defaultType
             }
             return workoutDay?.workoutType ?? .strength

@@ -2432,7 +2432,7 @@ struct ExerciseLibrary {
         LibraryExercise(
             name: "Велотренажёр",
             category: .cardio,
-            muscleGroup: .legs,
+            muscleGroup: .quadriceps,
             defaultType: .duration,
             technique: "Сядьте, отрегулируйте высоту седла — нога в нижней точке слегка согнута.\n\nДвижение: педалируйте плавно, темп 80–100 об/мин. Спина прямая, корпус не раскачивается.\n\nКлючи: щадящее кардио для коленей. Зона 2 (60–70% макс. пульса) — 30–60 минут для жиросжигания. Интервалы 30/30 или 1/1 — для роста выносливости.",
             videoUrl: ytSearch("stationary bike technique")

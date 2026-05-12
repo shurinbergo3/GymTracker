@@ -25,7 +25,7 @@ struct ActiveWorkoutHeader: View {
         // Progress ring interpolates smoothly via .animation(.linear).
         TimelineView(.periodic(from: Date(), by: 1.0)) { context in
             HStack(spacing: 12) {
-                timerCapsule(context: context)
+                timerCapsule(date: context.date)
 
                 Spacer(minLength: 6)
 
@@ -70,7 +70,7 @@ struct ActiveWorkoutHeader: View {
     // MARK: - Timer with progress ring (centerpiece)
 
     @ViewBuilder
-    private func timerCapsule(context: TimelineView<PeriodicTimelineSchedule, Never>.Context) -> some View {
+    private func timerCapsule(date: Date) -> some View {
         HStack(spacing: 11) {
             ZStack {
                 Circle()
@@ -78,7 +78,7 @@ struct ActiveWorkoutHeader: View {
                     .frame(width: 44, height: 44)
 
                 Circle()
-                    .trim(from: 0, to: timerProgress(context.date))
+                    .trim(from: 0, to: timerProgress(date))
                     .stroke(
                         AngularGradient(
                             colors: [
@@ -93,7 +93,7 @@ struct ActiveWorkoutHeader: View {
                     .rotationEffect(.degrees(-90))
                     .frame(width: 44, height: 44)
                     .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 5)
-                    .animation(.linear(duration: 1.0), value: context.date)
+                    .animation(.linear(duration: 1.0), value: date)
 
                 Image(systemName: "timer")
                     .font(.system(size: 13, weight: .semibold))
@@ -101,7 +101,7 @@ struct ActiveWorkoutHeader: View {
                     .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.7), radius: 3)
             }
 
-            Text(formatTime(context.date))
+            Text(formatTime(date))
                 .font(DesignSystem.Typography.monospaced(.title2, weight: .heavy))
                 .foregroundColor(DesignSystem.Colors.primaryText)
                 .kerning(0.5)
