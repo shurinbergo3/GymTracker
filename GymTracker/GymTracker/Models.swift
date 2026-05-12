@@ -334,7 +334,15 @@ final class WorkoutSet {
 
 extension ExerciseTemplate {
     var resolvedWorkoutType: WorkoutType {
-        get { _customWorkoutType ?? workoutDay?.workoutType ?? .strength }
+        get {
+            if let custom = _customWorkoutType { return custom }
+            // Smart fallback: respect the library default for the exercise name
+            // (e.g. "Бег трусцой" / "Велотренажёр" → .duration even if the day is .strength).
+            if let library = LibraryExercise.getExercise(for: name) {
+                return library.defaultType
+            }
+            return workoutDay?.workoutType ?? .strength
+        }
         set { _customWorkoutType = newValue }
     }
 }

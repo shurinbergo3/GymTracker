@@ -10,60 +10,25 @@ import Combine
 
 struct ActiveWorkoutHeader: View {
     @EnvironmentObject var workoutManager: WorkoutManager
-    
-    // Timer properties
-    @State private var progress: CGFloat = 0.0
-    
+
     private var totalTonnage: Int {
         guard let session = workoutManager.currentSession else { return 0 }
-        // Считаем тоннаж по ЛЮБЫМ выполненным подходам с весом > 0,
-        // не только по флагу isWeighted (он включается лишь для bodyweight+вес,
-        // из-за чего обычные силовые показывали 0 KG).
         return session.sets
             .filter { $0.isCompleted && $0.weight > 0 && $0.reps > 0 }
             .reduce(0) { $0 + Int($1.weight * Double($1.reps)) }
     }
 
     private var liveCalories: Int { workoutManager.currentActiveCalories }
-    
+
     var body: some View {
-        // Раньше было 0.1с (10 Hz) — это перерисовывало весь header 10 раз в секунду
-        // и было главным источником разряда батареи во время активной тренировки.
-        // 1.0с достаточно для таймера MM:SS, а кольцо прогресса плавно интерполируется
-        // через .animation(.linear(duration: 1.0)).
+        // 1 Hz tick — sufficient for MM:SS display, friendly to battery.
+        // Progress ring interpolates smoothly via .animation(.linear).
         TimelineView(.periodic(from: Date(), by: 1.0)) { context in
-            HStack(spacing: 14) {
-                // 1. Digital Time (Left)
-                HStack(spacing: 10) {
-                    ZStack {
-                        Circle()
-                            .stroke(Color.white.opacity(0.1), lineWidth: 3)
-                            .frame(width: 40, height: 40)
+            HStack(spacing: 12) {
+                timerCapsule(context: context)
 
-                        Circle()
-                            .trim(from: 0, to: timerProgress(context.date))
-                            .stroke(
-                                DesignSystem.Colors.neonGreen,
-                                style: StrokeStyle(lineWidth: 3, lineCap: .round)
-                            )
-                            .rotationEffect(.degrees(-90))
-                            .frame(width: 40, height: 40)
-                            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 4)
-                            .animation(.linear(duration: 1.0), value: context.date)
+                Spacer(minLength: 6)
 
-                        Image(systemName: "timer")
-                            .font(.system(size: 12))
-                            .foregroundColor(DesignSystem.Colors.neonGreen)
-                    }
-
-                    Text(formatTime(context.date))
-                        .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                }
-
-                Spacer(minLength: 4)
-
-                // 2. Heart Rate
                 metricPill(
                     icon: "heart.fill",
                     iconColor: .red,
@@ -72,7 +37,6 @@ struct ActiveWorkoutHeader: View {
                     animate: workoutManager.currentHeartRate
                 )
 
-                // 3. Calories — live (HK + HR-fallback)
                 metricPill(
                     icon: "flame.fill",
                     iconColor: .orange,
@@ -81,7 +45,6 @@ struct ActiveWorkoutHeader: View {
                     animate: liveCalories
                 )
 
-                // 4. Tonnage
                 metricPill(
                     icon: "scalemass.fill",
                     iconColor: DesignSystem.Colors.neonGreen,
@@ -90,12 +53,58 @@ struct ActiveWorkoutHeader: View {
                     animate: totalTonnage
                 )
             }
-            .padding(.horizontal, 16)
-            .frame(height: 74)
-            .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(40) // Pill shape for header
-            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
+            .padding(.horizontal, 14)
+            .frame(height: 70)
+            .background(headerBackground)
+            .overlay(
+                Capsule()
+                    .stroke(headerStroke, lineWidth: 1)
+            )
+            .clipShape(Capsule())
+            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.18), radius: 14, x: 0, y: 6)
+            .shadow(color: Color.black.opacity(0.35), radius: 14, x: 0, y: 8)
             .padding(.horizontal, DesignSystem.Spacing.lg)
+        }
+    }
+
+    // MARK: - Timer with progress ring (centerpiece)
+
+    @ViewBuilder
+    private func timerCapsule(context: TimelineView<PeriodicTimelineSchedule, Never>.Context) -> some View {
+        HStack(spacing: 11) {
+            ZStack {
+                Circle()
+                    .stroke(Color.white.opacity(0.08), lineWidth: 3.5)
+                    .frame(width: 44, height: 44)
+
+                Circle()
+                    .trim(from: 0, to: timerProgress(context.date))
+                    .stroke(
+                        AngularGradient(
+                            colors: [
+                                DesignSystem.Colors.neonGreen,
+                                Color(red: 0.55, green: 0.95, blue: 0.10),
+                                DesignSystem.Colors.neonGreen
+                            ],
+                            center: .center
+                        ),
+                        style: StrokeStyle(lineWidth: 3.5, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: 44, height: 44)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 5)
+                    .animation(.linear(duration: 1.0), value: context.date)
+
+                Image(systemName: "timer")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.neonGreen)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.7), radius: 3)
+            }
+
+            Text(formatTime(context.date))
+                .font(DesignSystem.Typography.monospaced(.title2, weight: .heavy))
+                .foregroundColor(DesignSystem.Colors.primaryText)
+                .kerning(0.5)
         }
     }
 
@@ -103,9 +112,9 @@ struct ActiveWorkoutHeader: View {
     private func metricPill(icon: String, iconColor: Color, value: String, unit: String, animate: Int) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(iconColor)
-                .shadow(color: iconColor.opacity(0.5), radius: 4)
+                .shadow(color: iconColor.opacity(0.55), radius: 4)
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(value)
@@ -120,7 +129,44 @@ struct ActiveWorkoutHeader: View {
             }
         }
     }
-    
+
+    // MARK: - Background
+
+    private var headerBackground: some View {
+        ZStack {
+            // Frosted base
+            Capsule()
+                .fill(.ultraThinMaterial)
+
+            // Subtle dark tint to lift the glass off bright wallpapers
+            Capsule()
+                .fill(Color.black.opacity(0.25))
+
+            // Neon glow accent in the top-left corner
+            RadialGradient(
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.18), .clear],
+                center: .topLeading,
+                startRadius: 4,
+                endRadius: 180
+            )
+            .clipShape(Capsule())
+        }
+    }
+
+    private var headerStroke: LinearGradient {
+        LinearGradient(
+            colors: [
+                DesignSystem.Colors.neonGreen.opacity(0.45),
+                Color.white.opacity(0.08),
+                DesignSystem.Colors.neonGreen.opacity(0.25)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    // MARK: - Helpers
+
     private func timerProgress(_ date: Date) -> CGFloat {
         let elapsed: TimeInterval
         if let startDate = workoutManager.currentSession?.date {
@@ -128,14 +174,13 @@ struct ActiveWorkoutHeader: View {
         } else {
             elapsed = 0
         }
-        
-        // Return 0 if negative to avoid crashes/weird UI
+
         if elapsed < 0 { return 0 }
-        
+
         let secondsInMinute = elapsed.truncatingRemainder(dividingBy: 60)
         return CGFloat(secondsInMinute) / 60.0
     }
-    
+
     private func formatTime(_ currentDate: Date) -> String {
         let elapsed: TimeInterval
         if let startDate = workoutManager.currentSession?.date {
@@ -143,9 +188,9 @@ struct ActiveWorkoutHeader: View {
         } else {
             elapsed = 0
         }
-        
+
         if elapsed < 0 { return "00:00" }
-        
+
         let totalSeconds = Int(elapsed)
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60
@@ -157,16 +202,16 @@ struct ActiveWorkoutHeader: View {
 struct HeaderBentoCard<Content: View>: View {
     let color: Color
     let content: Content
-    
+
     init(color: Color = DesignSystem.Colors.cardBackground, @ViewBuilder content: () -> Content) {
         self.color = color
         self.content = content()
     }
-    
+
     var body: some View {
         ZStack(alignment: .leading) {
             color
-            
+
             content
                 .padding(12)
         }
@@ -177,4 +222,3 @@ struct HeaderBentoCard<Content: View>: View {
         )
     }
 }
- 

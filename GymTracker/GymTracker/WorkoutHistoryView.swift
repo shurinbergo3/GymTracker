@@ -692,123 +692,320 @@ struct WorkoutHistoryCard: View {
 
 struct WorkoutHistoryDetailView: View {
     let session: WorkoutSession
-    
+
     private var formattedDate: String {
         let formatter = DateFormatter()
-        // formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = LanguageManager.shared.currentLocale
         formatter.setLocalizedDateFormatFromTemplate("dMMMMyyyyHHmm")
         return formatter.string(from: session.date).capitalized
     }
-    
-    // Группировка подходов по упражнениям
+
     private var exerciseGroups: [(name: String, sets: [WorkoutSet])] {
         let grouped = Dictionary(grouping: session.sets, by: { $0.exerciseName })
-        return grouped.map { (name: $0.key, sets: $0.value.sorted { 
-            // Сортируем по времени создания, потом по номеру подхода
+        return grouped.map { (name: $0.key, sets: $0.value.sorted {
             if $0.date != $1.date {
                 return $0.date < $1.date
             }
             return $0.setNumber < $1.setNumber
         }) }.sorted { $0.name < $1.name }
     }
-    
+
+    private var totalVolume: Int {
+        Int(session.sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) })
+    }
+
+    private var durationMinutes: Int {
+        guard let end = session.endTime else { return 0 }
+        return max(0, Int(end.timeIntervalSince(session.date) / 60))
+    }
+
     var body: some View {
         ZStack {
             DesignSystem.Colors.background
                 .ignoresSafeArea()
-            
+
             ScrollView {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
-                    // Заголовок с датой
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        Text(session.workoutDayName.localized())
-                            .font(DesignSystem.Typography.title())
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                        
-                        Text(formattedDate)
-                            .font(DesignSystem.Typography.callout())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.xl)
-                    
-                    // MARK: - Stats Grid
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DesignSystem.Spacing.md) {
-                        // Time
-                        StatCard(
-                            title: "Время".localized(),
-                            value: formatDuration(session.endTime?.timeIntervalSince(session.date) ?? 0),
-                            icon: "clock.fill",
-                            color: .blue
-                        )
-                        
-                        // Calories
-                        StatCard(
-                            title: "Калории".localized(),
-                            value: session.calories != nil ? "\(session.calories!)" : "--",
-                            icon: "flame.fill",
-                            color: .orange
-                        )
-                        
-                        // Heart Rate
-                        StatCard(
-                            title: "Средний пульс".localized(),
-                            value: session.averageHeartRate != nil ? "\(session.averageHeartRate!) bpm" : "--",
-                            icon: "heart.fill",
-                            color: .red
-                        )
-                        
-                        // Sets Count (As a filler for 4th slot if needed, or remove)
-                         StatCard(
-                            title: "Подходов".localized(),
-                            value: "\(session.sets.count)",
-                            icon: "dumbbell.fill",
-                            color: DesignSystem.Colors.neonGreen
-                        )
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                    
-                    // Комментарий (если есть)
+                    heroHeader
+
+                    statsGrid
+
                     if let notes = session.notes, !notes.isEmpty {
-                        CardView {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                Text("ОТЗЫВ О ТРЕНИРОВКЕ".localized())
-                                    .font(DesignSystem.Typography.caption())
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    .tracking(1.2)
-                                
-                                Text(notes)
-                                    .font(DesignSystem.Typography.body())
-                                    .foregroundColor(DesignSystem.Colors.primaryText)
-                            }
-                            .padding(DesignSystem.Spacing.xl)
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        notesCard(notes: notes)
                     }
-                    
-                    // Упражнения
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                        ForEach(exerciseGroups, id: \.name) { group in
-                            ExerciseHistoryCard(exerciseName: group.name, sets: group.sets)
-                        }
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                    exercisesSection
                 }
-                .padding(.vertical, DesignSystem.Spacing.xl)
+                .padding(.top, DesignSystem.Spacing.md)
+                .padding(.bottom, DesignSystem.Spacing.xxl)
             }
         }
         .navigationTitle("Детали тренировки".localized())
         .navigationBarTitleDisplayMode(.inline)
     }
-    
-    private func formatDuration(_ duration: TimeInterval) -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.hour, .minute]
-        formatter.unitsStyle = .abbreviated
-        let calendar = Calendar(identifier: .gregorian)
-        // calendar.locale = Locale(identifier: "ru_RU")
-        formatter.calendar = calendar
-        
-        return formatter.string(from: duration) ?? "0 мин"
+
+    // MARK: - Hero Header
+
+    private var heroHeader: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle()
+                        .fill(DesignSystem.Colors.neonGreen.opacity(0.16))
+                        .frame(width: 32, height: 32)
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 14, weight: .heavy))
+                        .foregroundStyle(DesignSystem.Colors.neonGreen)
+                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 4)
+                }
+
+                Text("ЗАВЕРШЕНО".localized())
+                    .font(DesignSystem.Typography.sectionHeader())
+                    .tracking(1.4)
+                    .foregroundStyle(DesignSystem.Colors.secondaryText)
+
+                Spacer()
+            }
+
+            Text(session.workoutDayName.localized())
+                .font(.system(size: 32, weight: .heavy, design: .rounded))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [DesignSystem.Colors.primaryText, DesignSystem.Colors.primaryText.opacity(0.85)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .lineLimit(2)
+                .minimumScaleFactor(0.7)
+
+            Text(formattedDate)
+                .font(DesignSystem.Typography.callout())
+                .foregroundStyle(DesignSystem.Colors.tertiaryText)
+
+            if totalVolume > 0 {
+                volumeHeroPill
+                    .padding(.top, 6)
+            }
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(heroBackground)
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                .stroke(heroStroke, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.12), radius: 18, x: 0, y: 8)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+    }
+
+    private var volumeHeroPill: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "scalemass.fill")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(DesignSystem.Colors.neonGreen)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 4)
+
+            HStack(alignment: .lastTextBaseline, spacing: 4) {
+                Text("\(totalVolume)")
+                    .font(DesignSystem.Typography.monospaced(.title3, weight: .heavy))
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                Text("кг".localized() + " " + "тоннаж".localized())
+                    .font(DesignSystem.Typography.sectionHeader())
+                    .tracking(1.0)
+                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .background(DesignSystem.Colors.neonGreen.opacity(0.10))
+        .overlay(
+            Capsule()
+                .stroke(DesignSystem.Colors.neonGreen.opacity(0.30), lineWidth: 0.5)
+        )
+        .clipShape(Capsule())
+    }
+
+    private var heroBackground: some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(white: 0.09),
+                    Color(white: 0.04)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            RadialGradient(
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.14), .clear],
+                center: .topTrailing,
+                startRadius: 4,
+                endRadius: 260
+            )
+            RadialGradient(
+                colors: [DesignSystem.Colors.accentPurple.opacity(0.07), .clear],
+                center: .bottomLeading,
+                startRadius: 4,
+                endRadius: 240
+            )
+        }
+    }
+
+    private var heroStroke: LinearGradient {
+        LinearGradient(
+            colors: [
+                DesignSystem.Colors.neonGreen.opacity(0.32),
+                Color.white.opacity(0.05),
+                DesignSystem.Colors.neonGreen.opacity(0.18)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    // MARK: - Stats Grid
+
+    private var statsGrid: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DesignSystem.Spacing.md) {
+            statTile(
+                icon: "clock.fill",
+                tint: Color(red: 0.45, green: 0.85, blue: 1.0),
+                value: durationMinutes > 0 ? "\(durationMinutes)" : "—",
+                unit: durationMinutes > 0 ? "мин".localized() : nil,
+                label: "Время".localized()
+            )
+            statTile(
+                icon: "flame.fill",
+                tint: .orange,
+                value: session.calories.map { "\($0)" } ?? "—",
+                unit: session.calories != nil ? "ккал".localized() : nil,
+                label: "Калории".localized()
+            )
+            statTile(
+                icon: "heart.fill",
+                tint: .red,
+                value: session.averageHeartRate.map { "\($0)" } ?? "—",
+                unit: session.averageHeartRate != nil ? "уд/мин".localized() : nil,
+                label: "Средний пульс".localized()
+            )
+            statTile(
+                icon: "list.number",
+                tint: DesignSystem.Colors.neonGreen,
+                value: "\(session.sets.count)",
+                unit: "подх.".localized(),
+                label: "Подходов".localized()
+            )
+        }
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+    }
+
+    @ViewBuilder
+    private func statTile(icon: String, tint: Color, value: String, unit: String?, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(tint)
+                    .shadow(color: tint.opacity(0.5), radius: 5)
+                Spacer()
+            }
+
+            Spacer(minLength: 4)
+
+            HStack(alignment: .lastTextBaseline, spacing: 4) {
+                Text(value)
+                    .font(DesignSystem.Typography.monospaced(.title2, weight: .heavy))
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                if let unit = unit {
+                    Text(unit)
+                        .font(DesignSystem.Typography.monospaced(.caption, weight: .bold))
+                        .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                }
+            }
+
+            Text(label.uppercased())
+                .font(DesignSystem.Typography.sectionHeader())
+                .tracking(1.2)
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+        }
+        .frame(maxWidth: .infinity, minHeight: 110, alignment: .leading)
+        .padding(DesignSystem.Spacing.md)
+        .background(
+            ZStack {
+                Color(white: 0.07)
+                LinearGradient(
+                    colors: [tint.opacity(0.08), .clear],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(tint.opacity(0.20), lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+    }
+
+    // MARK: - Notes
+
+    private func notesCard(notes: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "quote.bubble.fill")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(DesignSystem.Colors.accentPurple)
+                Text("ОТЗЫВ О ТРЕНИРОВКЕ".localized())
+                    .font(DesignSystem.Typography.sectionHeader())
+                    .tracking(1.2)
+                    .foregroundStyle(DesignSystem.Colors.secondaryText)
+            }
+
+            Text(notes)
+                .font(DesignSystem.Typography.body())
+                .foregroundStyle(DesignSystem.Colors.primaryText)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(white: 0.07))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(DesignSystem.Colors.accentPurple.opacity(0.25), lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+    }
+
+    // MARK: - Exercises
+
+    private var exercisesSection: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+            HStack(spacing: 8) {
+                Image(systemName: "dumbbell.fill")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(DesignSystem.Colors.neonGreen)
+                Text("УПРАЖНЕНИЯ".localized())
+                    .font(DesignSystem.Typography.sectionHeader())
+                    .tracking(1.4)
+                    .foregroundStyle(DesignSystem.Colors.secondaryText)
+                Spacer()
+                Text("\(exerciseGroups.count)")
+                    .font(DesignSystem.Typography.monospaced(.caption, weight: .bold))
+                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+            }
+            .padding(.horizontal, DesignSystem.Spacing.lg)
+
+            VStack(spacing: DesignSystem.Spacing.md) {
+                ForEach(exerciseGroups, id: \.name) { group in
+                    ExerciseHistoryCard(exerciseName: group.name, sets: group.sets)
+                }
+            }
+            .padding(.horizontal, DesignSystem.Spacing.lg)
+        }
     }
 }
 
@@ -817,71 +1014,150 @@ struct WorkoutHistoryDetailView: View {
 struct ExerciseHistoryCard: View {
     let exerciseName: String
     let sets: [WorkoutSet]
-    
-    private var totalVolume: Double {
-        sets.reduce(0) { $0 + ($1.weight * Double($1.reps)) }
+
+    private var totalVolume: Int {
+        Int(sets.reduce(0.0) { $0 + ($1.weight * Double($1.reps)) })
     }
-    
-    // Получаем комментарий из первого сета
+
     private var exerciseComment: String? {
         sets.first?.comment
     }
-    
+
+    /// 1-based index of the heaviest set by weight × reps (used to highlight the best set).
+    private var bestSetIndex: Int? {
+        guard !sets.isEmpty else { return nil }
+        let volumes = sets.map { $0.weight * Double($0.reps) }
+        guard let maxVol = volumes.max(), maxVol > 0 else { return nil }
+        return (volumes.firstIndex(of: maxVol) ?? 0) + 1
+    }
+
     var body: some View {
-        CardView {
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                // Название упражнения
-                HStack {
+        VStack(alignment: .leading, spacing: 14) {
+            // Title row
+            HStack(alignment: .top, spacing: 10) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(exerciseName.localized())
-                        .font(DesignSystem.Typography.title3())
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                    
-                    Spacer()
-                    
-                    // Show arrow if we can calculate progress (need logic or pass it in)
-                    // For now, removing volume as requested. Can add simple text if needed.
-                    Text(sets.count > 0 ? "\(sets.count) \("подх.".localized())" : "")
-                        .font(DesignSystem.Typography.callout())
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                }
-                
-                // Комментарий к упражнению (если есть)
-                if let comment = exerciseComment, !comment.isEmpty {
-                    HStack(spacing: DesignSystem.Spacing.sm) {
-                        Image(systemName: "text.bubble.fill")
-                            .font(.caption)
-                            .foregroundColor(DesignSystem.Colors.accent)
-                        
-                        Text(comment)
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                            .italic()
-                    }
-                }
-                
-                Divider()
-                    .background(DesignSystem.Colors.secondaryText.opacity(0.3))
-                
-                // Подходы
-                VStack(spacing: DesignSystem.Spacing.sm) {
-                    ForEach(Array(sets.enumerated()), id: \.element.id) { index, set in
-                        HStack {
-                            Text("\("Подход".localized()) \(index + 1)")
-                                .font(DesignSystem.Typography.callout())
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                            
-                            Spacer()
-                            
-                            Text("\(Int(set.weight)) \("кг".localized()) × \(set.reps)")
-                                .font(DesignSystem.Typography.headline())
-                                .foregroundColor(DesignSystem.Colors.primaryText)
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundStyle(DesignSystem.Colors.primaryText)
+                        .lineLimit(2)
+
+                    HStack(spacing: 6) {
+                        Text("\(sets.count)")
+                            .font(DesignSystem.Typography.monospaced(.caption, weight: .heavy))
+                            .foregroundStyle(DesignSystem.Colors.neonGreen)
+                        Text("подх.".localized())
+                            .font(DesignSystem.Typography.sectionHeader())
+                            .tracking(0.8)
+                            .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                        if totalVolume > 0 {
+                            Text("·")
+                                .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                            Text("\(totalVolume)")
+                                .font(DesignSystem.Typography.monospaced(.caption, weight: .heavy))
+                                .foregroundStyle(DesignSystem.Colors.primaryText)
+                            Text("кг".localized())
+                                .font(DesignSystem.Typography.sectionHeader())
+                                .tracking(0.8)
+                                .foregroundStyle(DesignSystem.Colors.tertiaryText)
                         }
-                        .padding(.vertical, DesignSystem.Spacing.xs)
                     }
+                }
+
+                Spacer(minLength: 4)
+            }
+
+            if let comment = exerciseComment, !comment.isEmpty {
+                HStack(spacing: 8) {
+                    Image(systemName: "text.bubble.fill")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(DesignSystem.Colors.accentPurple)
+                    Text(comment)
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        .italic()
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(DesignSystem.Colors.accentPurple.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(DesignSystem.Colors.accentPurple.opacity(0.20), lineWidth: 0.5)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+
+            // Sets list
+            VStack(spacing: 6) {
+                ForEach(Array(sets.enumerated()), id: \.element.id) { index, set in
+                    setRow(index: index + 1, set: set, isBest: bestSetIndex == index + 1)
                 }
             }
-            .padding(DesignSystem.Spacing.xl)
         }
+        .padding(DesignSystem.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(white: 0.07))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+    }
+
+    @ViewBuilder
+    private func setRow(index: Int, set: WorkoutSet, isBest: Bool) -> some View {
+        HStack(spacing: 12) {
+            // Set number badge
+            ZStack {
+                Circle()
+                    .fill(isBest ? DesignSystem.Colors.neonGreen.opacity(0.18) : Color.white.opacity(0.06))
+                Text("\(index)")
+                    .font(DesignSystem.Typography.monospaced(.caption, weight: .heavy))
+                    .foregroundStyle(isBest ? DesignSystem.Colors.neonGreen : DesignSystem.Colors.secondaryText)
+            }
+            .frame(width: 26, height: 26)
+            .overlay(
+                Circle()
+                    .stroke(isBest ? DesignSystem.Colors.neonGreen.opacity(0.45) : .clear, lineWidth: 0.8)
+            )
+
+            Spacer(minLength: 0)
+
+            HStack(alignment: .lastTextBaseline, spacing: 5) {
+                Text("\(Int(set.weight))")
+                    .font(DesignSystem.Typography.monospaced(.headline, weight: .heavy))
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                Text("кг".localized())
+                    .font(DesignSystem.Typography.sectionHeader())
+                    .tracking(0.8)
+                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+
+                Text("×")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                    .padding(.horizontal, 2)
+
+                Text("\(set.reps)")
+                    .font(DesignSystem.Typography.monospaced(.headline, weight: .heavy))
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                Text("повт.".localized())
+                    .font(DesignSystem.Typography.sectionHeader())
+                    .tracking(0.8)
+                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+            }
+
+            if isBest {
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(DesignSystem.Colors.neonGreen)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 3)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(isBest ? DesignSystem.Colors.neonGreen.opacity(0.06) : Color.white.opacity(0.025))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 

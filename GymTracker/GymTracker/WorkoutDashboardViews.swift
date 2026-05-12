@@ -854,6 +854,7 @@ struct DashboardView: View {
                     NavigationLink(destination: WorkoutHistoryDetailView(session: lastSession)) {
                         LastWorkoutBento(session: lastSession)
                     }
+                    .buttonStyle(PressableCardButtonStyle())
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                 }
 
@@ -1198,20 +1199,59 @@ struct PreviousProgressCard: View {
 struct ActiveWorkoutView: View {
     @EnvironmentObject var workoutManager: WorkoutManager
     @State private var showingCancelConfirmation = false
-    
+
+    /// Sticky bar that stays pinned above the scrollable content during a workout.
+    /// Combines the live header (timer/HR/calories/tonnage) with the gamification strip
+    /// inside a single frosted-glass surface that fades into scrolled content below.
+    private var stickyTopBar: some View {
+        VStack(spacing: DesignSystem.Spacing.md) {
+            ActiveWorkoutHeader()
+                .environmentObject(workoutManager)
+
+            WorkoutProgressStrip()
+                .environmentObject(workoutManager)
+        }
+        .padding(.top, DesignSystem.Spacing.sm)
+        .padding(.bottom, DesignSystem.Spacing.md)
+        .background(
+            ZStack {
+                // Frosted glass surface — blurs whatever scrolls underneath
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+
+                // Darken slightly so neon accents read clean on top
+                Rectangle()
+                    .fill(Color.black.opacity(0.18))
+
+                // Soft neon halo at top
+                LinearGradient(
+                    colors: [DesignSystem.Colors.neonGreen.opacity(0.08), .clear],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+            .ignoresSafeArea(edges: .top)
+        )
+        .overlay(alignment: .bottom) {
+            // Hairline divider so the bar reads as separate from scroll content
+            LinearGradient(
+                colors: [.clear, Color.white.opacity(0.10), .clear],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(height: 1)
+        }
+    }
+
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.md) {
-                    // Active Workout Bento Header
-                    ActiveWorkoutHeader()
-                        .environmentObject(workoutManager)
+                    // Anchor for scroll-to-top
+                    Color.clear
+                        .frame(height: 0)
                         .id("top")
 
-                    // Real-time gamification strip: sets progress + streak + PR flash
-                    WorkoutProgressStrip()
-                        .environmentObject(workoutManager)
-                    
                     // Current workout card
                     if let selectedDay = workoutManager.selectedDay,
                        let programName = workoutManager.activeProgram?.name {
@@ -1227,6 +1267,9 @@ struct ActiveWorkoutView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .scrollBounceBehavior(.basedOnSize)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                stickyTopBar
+            }
             .onTapGesture {
                 hideKeyboard()
             }
@@ -2165,12 +2208,13 @@ struct ActiveWorkoutContent: View {
         let newExercise = ExerciseTemplate(
             name: exercise.name,
             plannedSets: 3,
-            orderIndex: workoutDay.exercises.count
+            orderIndex: workoutDay.exercises.count,
+            type: exercise.defaultType
         )
-        
+
         workoutDay.exercises.append(newExercise)
         modelContext.insert(newExercise)
-        
+
         showingAddExercise = false
     }
     
@@ -2269,54 +2313,226 @@ struct StatBentoCard: View {
 
 struct LastWorkoutBento: View {
     let session: WorkoutSession
-    
+
+    private var durationMinutes: Int {
+        guard let end = session.endTime else { return 0 }
+        return max(0, Int(end.timeIntervalSince(session.date) / 60))
+    }
+
+    private var relativeDateLabel: String {
+        let cal = Calendar.current
+        let days = cal.dateComponents([.day], from: cal.startOfDay(for: session.date), to: cal.startOfDay(for: Date())).day ?? 0
+        switch days {
+        case 0: return "сегодня".localized()
+        case 1: return "вчера".localized()
+        case 2..<7:
+            return "\(days) " + dayPlural(days) + " " + "назад".localized()
+        default:
+            let f = DateFormatter()
+            f.locale = LanguageManager.shared.currentLocale
+            f.dateFormat = "d MMM"
+            return f.string(from: session.date)
+        }
+    }
+
+    private var exercisesCount: Int {
+        Set(session.sets.map { $0.exerciseName }).count
+    }
+
     var body: some View {
-        BentoCard {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .foregroundStyle(DesignSystem.Colors.neonGreen)
-                    Text("Последняя тренировка".localized())
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                    Spacer()
-                    Text(formatDate(session.date))
-                        .font(.caption)
-                        .foregroundStyle(.gray)
-                }
-                
-                Text(session.workoutDayName.localized())
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.8))
-                    .lineLimit(1)
-                
-                HStack(spacing: 12) {
-                    if let cals = session.calories {
-                        Label("\(cals) kcal", systemImage: "flame.fill")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
-                    
-                    if let duration = session.endTime?.timeIntervalSince(session.date) {
-                        Label(formatDuration(duration), systemImage: "timer")
-                            .font(.caption)
-                            .foregroundStyle(.blue)
-                    }
-                }
+        VStack(alignment: .leading, spacing: 14) {
+            header
+            heroTitle
+            metricsRow
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(cardBackground)
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                .stroke(neonStroke, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.12), radius: 18, x: 0, y: 8)
+        .shadow(color: Color.black.opacity(0.35), radius: 14, x: 0, y: 6)
+    }
+
+    // MARK: - Header (icon + label + date pill)
+
+    private var header: some View {
+        HStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen.opacity(0.16))
+                    .frame(width: 30, height: 30)
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 14, weight: .heavy))
+                    .foregroundStyle(DesignSystem.Colors.neonGreen)
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 4)
+            }
+
+            Text("Последняя тренировка".localized().uppercased())
+                .font(DesignSystem.Typography.sectionHeader())
+                .tracking(1.2)
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+
+            Spacer(minLength: 4)
+
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen)
+                    .frame(width: 5, height: 5)
+                Text(relativeDateLabel)
+                    .font(DesignSystem.Typography.monospaced(.caption, weight: .bold))
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+            }
+            .padding(.horizontal, 9)
+            .padding(.vertical, 5)
+            .background(Color.white.opacity(0.05))
+            .clipShape(Capsule())
+            .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 0.5))
+
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(DesignSystem.Colors.tertiaryText)
+        }
+    }
+
+    // MARK: - Hero (Day name)
+
+    private var heroTitle: some View {
+        Text(session.workoutDayName.localized())
+            .font(.system(size: 26, weight: .heavy, design: .rounded))
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [DesignSystem.Colors.primaryText, DesignSystem.Colors.primaryText.opacity(0.85)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .lineLimit(2)
+            .minimumScaleFactor(0.7)
+    }
+
+    // MARK: - Metrics
+
+    private var metricsRow: some View {
+        HStack(spacing: 8) {
+            if let cals = session.calories, cals > 0 {
+                metricChip(
+                    icon: "flame.fill",
+                    value: "\(cals)",
+                    unit: "kcal",
+                    tint: .orange
+                )
+            }
+            if durationMinutes > 0 {
+                metricChip(
+                    icon: "timer",
+                    value: "\(durationMinutes)",
+                    unit: "мин".localized(),
+                    tint: Color(red: 0.45, green: 0.85, blue: 1.0)
+                )
+            }
+            if exercisesCount > 0 {
+                metricChip(
+                    icon: "dumbbell.fill",
+                    value: "\(exercisesCount)",
+                    unit: "упр.".localized(),
+                    tint: DesignSystem.Colors.neonGreen
+                )
             }
         }
-        .frame(height: 120)
     }
-    
-    func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd MMM"
-        return formatter.string(from: date)
+
+    @ViewBuilder
+    private func metricChip(icon: String, value: String, unit: String, tint: Color) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(tint)
+                .shadow(color: tint.opacity(0.5), radius: 3)
+
+            HStack(alignment: .lastTextBaseline, spacing: 3) {
+                Text(value)
+                    .font(DesignSystem.Typography.monospaced(.subheadline, weight: .heavy))
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                Text(unit)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+            }
+        }
+        .padding(.horizontal, 11)
+        .padding(.vertical, 7)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(tint.opacity(0.10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(tint.opacity(0.22), lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
-    
-    func formatDuration(_ duration: TimeInterval) -> String {
-        let minutes = Int(duration) / 60
-        return "\(minutes) \("мин".localized())"
+
+    // MARK: - Background
+
+    private var cardBackground: some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(white: 0.09),
+                    Color(white: 0.04)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            RadialGradient(
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.13), .clear],
+                center: .topTrailing,
+                startRadius: 4,
+                endRadius: 220
+            )
+            RadialGradient(
+                colors: [DesignSystem.Colors.accentPurple.opacity(0.06), .clear],
+                center: .bottomLeading,
+                startRadius: 4,
+                endRadius: 200
+            )
+        }
+    }
+
+    private var neonStroke: LinearGradient {
+        LinearGradient(
+            colors: [
+                DesignSystem.Colors.neonGreen.opacity(0.32),
+                Color.white.opacity(0.04),
+                DesignSystem.Colors.neonGreen.opacity(0.18)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    // MARK: - Helpers
+
+    private func dayPlural(_ n: Int) -> String {
+        let mod10 = n % 10
+        let mod100 = n % 100
+        if mod10 == 1 && mod100 != 11 { return "день".localized() }
+        if (2...4).contains(mod10) && !(12...14).contains(mod100) { return "дня".localized() }
+        return "дней".localized()
+    }
+}
+
+// MARK: - Button Styles
+
+/// Subtle press feedback for card-style NavigationLinks: gentle scale + brightness dip.
+/// Keeps the original card visuals intact, but gives haptic-quality tactile response.
+struct PressableCardButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .brightness(configuration.isPressed ? -0.03 : 0)
+            .animation(.spring(response: 0.28, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
