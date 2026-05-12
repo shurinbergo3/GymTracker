@@ -847,6 +847,13 @@ struct DashboardView: View {
                     WorkoutProgressChart(sessions: history)
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, DesignSystem.Spacing.lg)
+                } else {
+                    EmptyHistoryPlaceholder(
+                        icon: "chart.line.uptrend.xyaxis",
+                        title: "Прогресс появится здесь".localized(),
+                        subtitle: "После первой тренировки тут будет график твоего объёма за последние недели.".localized()
+                    )
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
                 }
 
                 // Last Workout Preview (moved to main column)
@@ -855,6 +862,13 @@ struct DashboardView: View {
                         LastWorkoutBento(session: lastSession)
                     }
                     .buttonStyle(PressableCardButtonStyle())
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                } else {
+                    EmptyHistoryPlaceholder(
+                        icon: "clock.arrow.circlepath",
+                        title: "Последняя тренировка".localized(),
+                        subtitle: "Заверши тренировку — и здесь появится её сводка: время, ккал, упражнения.".localized()
+                    )
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                 }
 
@@ -2520,6 +2534,72 @@ struct LastWorkoutBento: View {
         if mod10 == 1 && mod100 != 11 { return "день".localized() }
         if (2...4).contains(mod10) && !(12...14).contains(mod100) { return "дня".localized() }
         return "дней".localized()
+    }
+}
+
+// MARK: - Empty States
+
+/// Friendly placeholder shown on the dashboard when there are no completed workouts yet.
+/// Matches the bento aesthetic (gradient + neon stroke) so the UI feels intentional
+/// rather than "the block disappeared".
+struct EmptyHistoryPlaceholder: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen.opacity(0.12))
+                    .frame(width: 42, height: 42)
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .heavy))
+                    .foregroundStyle(DesignSystem.Colors.neonGreen.opacity(0.85))
+                    .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.45), radius: 4)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(DesignSystem.Typography.headline())
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                Text(subtitle)
+                    .font(DesignSystem.Typography.caption())
+                    .foregroundStyle(DesignSystem.Colors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            ZStack {
+                LinearGradient(
+                    colors: [Color(white: 0.07), Color(white: 0.035)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                RadialGradient(
+                    colors: [DesignSystem.Colors.neonGreen.opacity(0.08), .clear],
+                    center: .topTrailing,
+                    startRadius: 4,
+                    endRadius: 180
+                )
+            }
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                .stroke(
+                    LinearGradient(
+                        colors: [DesignSystem.Colors.neonGreen.opacity(0.18), Color.white.opacity(0.04)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
     }
 }
 

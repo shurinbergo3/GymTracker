@@ -1515,6 +1515,7 @@
       }
     },
     "%lld kcal" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1986,6 +1987,9 @@
           }
         }
       }
+    },
+    "×" : {
+
     },
     "×%d" : {
       "extractionState" : "manual",
