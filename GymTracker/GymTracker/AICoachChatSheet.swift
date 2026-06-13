@@ -145,13 +145,23 @@ struct AICoachChatSheet: View {
                     }
 
                     ForEach(cycleMessages) { msg in
-                        MessageBubble(message: msg)
-                            .id(msg.id)
+                        if msg.isAssistant && msg.isCycleAnalysis {
+                            // The headline analysis gets the rich, sectioned layout.
+                            AICoachInsightView(text: msg.text)
+                                .id(msg.id)
+                        } else {
+                            MessageBubble(message: msg)
+                                .id(msg.id)
+                        }
                     }
 
                     if store.isAnalyzing || store.isReplying {
                         TypingIndicator()
                             .id("typing")
+                    }
+
+                    if showSuggestedQuestions {
+                        suggestedQuestions
                     }
 
                     if let err = store.lastError {
@@ -259,6 +269,41 @@ struct AICoachChatSheet: View {
             .foregroundStyle(DesignSystem.Colors.tertiaryText)
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // MARK: - Suggested questions
+
+    /// Show quick-start chips once the analysis exists but the user hasn't asked
+    /// anything yet, and they still have budget to ask.
+    private var showSuggestedQuestions: Bool {
+        store.hasInsight(for: .post)
+            && !cycleMessages.contains(where: { $0.isUser })
+            && store.questionsRemaining(mode: .post) > 0
+            && !store.isAnalyzing && !store.isReplying
+    }
+
+    private static let suggestionPrompts: [(icon: String, text: String)] = [
+        ("dumbbell.fill", "Какой вес ставить в следующий раз?"),
+        ("arrow.up.forward", "Что мне улучшить в технике?"),
+        ("bed.double.fill", "Хватает ли мне восстановления?"),
+        ("bolt.heart.fill", "Как добавить прогресс без травм?")
+    ]
+
+    private var suggestedQuestions: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Быстрые вопросы".localized().uppercased())
+                .font(DesignSystem.Typography.sectionHeader())
+                .tracking(1.0)
+                .foregroundStyle(DesignSystem.Colors.tertiaryText)
+
+            FlowChips(items: Self.suggestionPrompts.map { $0.text },
+                      icons: Self.suggestionPrompts.map { $0.icon }) { question in
+                guard store.canAskQuestion(mode: .post) else { return }
+                inputFocused = false
+                Task { await store.askFollowUp(question.localized(), mode: .post) }
+            }
+        }
+        .padding(.top, 4)
     }
 
     // MARK: - Input bar
@@ -452,6 +497,44 @@ struct MessageBubble: View {
         message.isAssistant
             ? Color.white.opacity(0.06)
             : DesignSystem.Colors.neonGreen.opacity(0.25)
+    }
+}
+
+// MARK: - Suggested-question chips
+
+/// Wrapping row of tappable suggestion chips.
+struct FlowChips: View {
+    let items: [String]
+    let icons: [String]
+    let onTap: (String) -> Void
+
+    var body: some View {
+        FlowLayout(spacing: 8) {
+            ForEach(Array(items.enumerated()), id: \.offset) { idx, item in
+                Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    onTap(item)
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: icons.indices.contains(idx) ? icons[idx] : "sparkles")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(DesignSystem.Colors.neonGreen)
+                        Text(item.localized())
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(DesignSystem.Colors.primaryText)
+                            .lineLimit(1)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 9)
+                    .background(Color.white.opacity(0.06))
+                    .overlay(
+                        Capsule().stroke(DesignSystem.Colors.neonGreen.opacity(0.30), lineWidth: 0.75)
+                    )
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 }
 

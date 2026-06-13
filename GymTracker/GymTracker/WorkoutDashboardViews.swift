@@ -1441,6 +1441,10 @@ struct SummaryOverlay: View {
                         achievementStrip
                         compactStatsGrid
 
+                        // AI coach analysis of the just-finished workout.
+                        PostWorkoutAICard()
+                            .environmentObject(workoutManager)
+
                         ActivityHeroSection(
                             totalWorkouts: totalWorkoutsIncludingCurrent,
                             workoutsThisWeek: workoutsThisWeekIncludingCurrent,
@@ -2254,8 +2258,10 @@ struct ActiveWorkoutContent: View {
     }
     
     private func getRecommendation(for exercise: ExerciseTemplate) -> String? {
-        // Placeholder for AI recommendation
-        // In real app, this would come from a service or analysis model
+        // Per-exercise tips are generated at workout start and resolved inside
+        // ExerciseCard directly from AICoachStore (it observes the store, so the
+        // card refreshes when tips finish generating). Returning nil here lets the
+        // card pull its own tip; pass a non-nil string only to force an override.
         return nil
     }
 }

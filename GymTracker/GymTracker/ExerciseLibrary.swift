@@ -3365,6 +3365,51 @@ struct ExerciseLibrary {
         return bestMatch?.exercise
     }
 
+    /// Normalized form used to compare two stored exercise names. Tolerates the
+    /// name drift that accumulates across app versions: casing, leading/trailing
+    /// and collapsed internal whitespace, and the Russian ё/е spelling variation.
+    nonisolated static func normalizedExerciseName(_ name: String) -> String {
+        let lowered = name.lowercased().replacingOccurrences(of: "ё", with: "е")
+        let tokens = lowered
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+        return tokens.joined(separator: " ")
+    }
+
+    /// Returns a fast predicate that tests whether a stored exercise name refers
+    /// to the same movement as `name`.
+    ///
+    /// History is matched to the current exercise by NAME (sets store
+    /// `exerciseName`, not a stable id), so a single-character difference would
+    /// silently hide a user's previous sets. The predicate resolves the target's
+    /// normalized and canonical forms ONCE, then for each candidate tries, in
+    /// order: exact equality → normalized equality (casing / whitespace / ё-е) →
+    /// canonical library identity (bilingual "(English)" suffixes, renamed
+    /// catalog entries). The canonical lookup — the only expensive step — runs
+    /// solely when the cheap checks miss, so it's safe to call across many sets.
+    nonisolated static func sameExerciseMatcher(as name: String) -> (String) -> Bool {
+        let target = name
+        let targetNorm = normalizedExerciseName(name)
+        let targetCanonical = getExercise(for: name)?.name
+        return { candidate in
+            if candidate == target { return true }
+            let candidateNorm = normalizedExerciseName(candidate)
+            if !candidateNorm.isEmpty && candidateNorm == targetNorm { return true }
+            guard let targetCanonical,
+                  let candidateCanonical = getExercise(for: candidate)?.name else {
+                return false
+            }
+            return candidateCanonical.caseInsensitiveCompare(targetCanonical) == .orderedSame
+        }
+    }
+
+    /// Convenience one-shot form of ``sameExerciseMatcher(as:)`` for single
+    /// comparisons. Prefer the matcher when testing many candidates against the
+    /// same target so the canonical form is resolved only once.
+    nonisolated static func namesReferToSameExercise(_ a: String, _ b: String) -> Bool {
+        sameExerciseMatcher(as: b)(a)
+    }
+
     static func getTechnique(for name: String) -> String? {
         getExercise(for: name)?.technique
     }

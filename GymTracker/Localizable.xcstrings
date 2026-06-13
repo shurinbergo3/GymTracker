@@ -392,6 +392,7 @@
       }
     },
     "%@ %@ %@ e1RM" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4460,6 +4461,7 @@
       }
     },
     "AI: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6581,6 +6583,7 @@
       }
     },
     "e1RM" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

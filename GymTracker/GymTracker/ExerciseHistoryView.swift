@@ -17,20 +17,21 @@ struct ExerciseHistoryView: View {
     
     // Фильтруем сессии с подходами для этого упражнения
     private var exerciseSessions: [(date: Date, sets: [WorkoutSet])] {
+        let matchesExercise = ExerciseLibrary.sameExerciseMatcher(as: exerciseName)
         let sessionsWithExercise = allSessions.filter { session in
-            session.sets.contains { $0.exerciseName == exerciseName }
+            session.sets.contains { matchesExercise($0.exerciseName) }
         }
-        
+
         // Группируем подходы по датам
         let grouped = Dictionary(grouping: sessionsWithExercise) { session in
             Calendar.current.startOfDay(for: session.date)
         }
-        
+
         // Сортируем по дате (новые сверху) и подходы по номерам
         return grouped.map { date, sessions in
             // Собираем все подходы для этого упражнения в этот день
             let sets = sessions.flatMap { $0.sets }
-                .filter { $0.exerciseName == exerciseName }
+                .filter { matchesExercise($0.exerciseName) }
                 .sorted { $0.setNumber < $1.setNumber }
             return (date: date, sets: sets)
         }

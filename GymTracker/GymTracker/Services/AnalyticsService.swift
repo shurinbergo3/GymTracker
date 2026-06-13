@@ -17,9 +17,10 @@ struct AnalyticsService {
             return .new
         }
         
+        let matchesExercise = ExerciseLibrary.sameExerciseMatcher(as: exercise.name)
         let currentSets = currentSession.sets.filter { $0.exerciseName == exercise.name }
-        let previousSets = previousSession.sets.filter { $0.exerciseName == exercise.name }
-        
+        let previousSets = previousSession.sets.filter { matchesExercise($0.exerciseName) }
+
         guard !currentSets.isEmpty else { return .new }
         guard !previousSets.isEmpty else { return .new }
         
@@ -55,8 +56,9 @@ struct AnalyticsService {
     ) -> [ExerciseProgress] {
         
         return workoutDay.exercises.sorted { $0.orderIndex < $1.orderIndex }.compactMap { exercise in
+            let matchesExercise = ExerciseLibrary.sameExerciseMatcher(as: exercise.name)
             let currentSets = session.sets.filter { $0.exerciseName == exercise.name }
-            let previousSets = previousSession?.sets.filter { $0.exerciseName == exercise.name } ?? []
+            let previousSets = previousSession?.sets.filter { matchesExercise($0.exerciseName) } ?? []
             
             guard !currentSets.isEmpty else { return nil }
             
@@ -96,8 +98,9 @@ struct AnalyticsService {
         }
         
         return workoutDay.exercises.sorted { $0.orderIndex < $1.orderIndex }.compactMap { exercise in
-            let previousSets = previousSession.sets.filter { $0.exerciseName == exercise.name }
-            
+            let matchesExercise = ExerciseLibrary.sameExerciseMatcher(as: exercise.name)
+            let previousSets = previousSession.sets.filter { matchesExercise($0.exerciseName) }
+
             guard !previousSets.isEmpty else { return nil }
             
             let maxWeight = previousSets.map { $0.weight }.max() ?? 0

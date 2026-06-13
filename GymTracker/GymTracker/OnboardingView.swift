@@ -19,6 +19,7 @@ struct OnboardingView: View {
 
     @State private var currentPage: Int = 0
     @State private var appear: Bool = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let pages: [OnboardingPage] = [
         OnboardingPage(
@@ -82,6 +83,7 @@ struct OnboardingView: View {
     var body: some View {
         ZStack {
             AtmosphericBackground()
+            OnboardingAurora()
 
             VStack(spacing: 0) {
                 // Top bar — Skip + step indicator
@@ -112,6 +114,7 @@ struct OnboardingView: View {
                     ForEach(pages.indices, id: \.self) { index in
                         OnboardingPageView(
                             page: pages[index],
+                            isActive: index == currentPage,
                             selectedCoachStyleRaw: $pickedCoachStyleRaw
                         )
                             .tag(index)
@@ -119,7 +122,6 @@ struct OnboardingView: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.easeInOut, value: currentPage)
 
                 // Bottom CTA
                 VStack(spacing: 14) {
@@ -170,7 +172,8 @@ struct OnboardingView: View {
 
     private func advance() {
         if currentPage < pages.count - 1 {
-            withAnimation(.easeInOut) {
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
                 currentPage += 1
             }
         } else {
@@ -179,18 +182,21 @@ struct OnboardingView: View {
     }
 
     private func back() {
-        withAnimation(.easeInOut) {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             currentPage = max(0, currentPage - 1)
         }
     }
 
     private func skip() {
-        withAnimation(.easeInOut) {
+        UISelectionFeedbackGenerator().selectionChanged()
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             currentPage = pages.count - 1
         }
     }
 
     private func finish() {
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
         withAnimation(.easeOut(duration: 0.4)) {
             hasSeenOnboarding = true
         }
@@ -213,6 +219,7 @@ private struct OnboardingPage: Identifiable {
 
 private struct OnboardingPageView: View {
     let page: OnboardingPage
+    let isActive: Bool
     @Binding var selectedCoachStyleRaw: String
 
     var body: some View {
@@ -220,6 +227,7 @@ private struct OnboardingPageView: View {
             Spacer(minLength: 0)
 
             visual
+                .reveal(active: isActive, order: 0, scales: true)
 
             VStack(spacing: 18) {
                 Text(page.title.localized())
@@ -228,6 +236,7 @@ private struct OnboardingPageView: View {
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
+                    .reveal(active: isActive, order: 1)
 
                 Text(page.subtitle.localized())
                     .font(.system(.callout, design: .rounded))
@@ -235,11 +244,13 @@ private struct OnboardingPageView: View {
                     .multilineTextAlignment(.center)
                     .lineSpacing(5)
                     .padding(.horizontal, 8)
+                    .reveal(active: isActive, order: 2)
             }
 
             if page.kind == .coachStyle {
                 CoachStylePicker(selectedRaw: $selectedCoachStyleRaw)
                     .padding(.top, 4)
+                    .reveal(active: isActive, order: 3)
             }
 
             Spacer(minLength: 0)
@@ -349,6 +360,7 @@ private struct StyleRow: View {
 private struct WatchQuestionVisual: View {
     @State private var ringPhase: Double = 0
     @State private var pulse: Bool = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let moveColor   = Color(red: 1.00, green: 0.18, blue: 0.34)
     private let exerciseColor = Color(red: 0.30, green: 0.95, blue: 0.45)
@@ -390,6 +402,7 @@ private struct WatchQuestionVisual: View {
         }
         .frame(height: 300)
         .onAppear {
+            guard !reduceMotion else { return }
             pulse = true
             withAnimation(.linear(duration: 22).repeatForever(autoreverses: false)) {
                 ringPhase = 360
@@ -645,6 +658,7 @@ private struct FeatureIcon: View {
     let tint: Color
 
     @State private var rotate: Bool = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -696,7 +710,7 @@ private struct FeatureIcon: View {
                 .shadow(color: tint.opacity(0.6), radius: 12)
         }
         .frame(height: 280)
-        .onAppear { rotate = true }
+        .onAppear { rotate = !reduceMotion }
     }
 }
 
@@ -705,6 +719,7 @@ private struct FeatureIcon: View {
 private struct HealthSyncVisual: View {
     let tint: Color
     @State private var pulse: Bool = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -777,7 +792,94 @@ private struct HealthSyncVisual: View {
             .frame(width: 60)
         }
         .frame(height: 280)
-        .onAppear { pulse = true }
+        .onAppear { pulse = !reduceMotion }
+    }
+}
+
+// MARK: - Staggered reveal
+
+/// Drives a per-element entrance: when the owning page becomes active, the element
+/// blurs/slides (and optionally scales) into place, staggered by `order`. When the page
+/// leaves, it resets after the slide-out completes so a return swipe re-plays the reveal.
+/// Honors Reduce Motion by snapping straight to the final state.
+private struct Reveal: ViewModifier {
+    let active: Bool
+    let order: Int
+    var scales: Bool = false
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var shown = false
+    @State private var resetWork: DispatchWorkItem?
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(shown ? 1 : 0)
+            .offset(y: shown ? 0 : 24)
+            .scaleEffect(scales ? (shown ? 1 : 0.84) : 1, anchor: .center)
+            .blur(radius: shown ? 0 : (scales ? 10 : 4))
+            .onAppear { apply(active) }
+            .onChange(of: active) { _, newValue in apply(newValue) }
+    }
+
+    private func apply(_ active: Bool) {
+        resetWork?.cancel()
+
+        guard !reduceMotion else { shown = active; return }
+
+        if active {
+            withAnimation(.spring(response: 0.55, dampingFraction: 0.82)
+                .delay(0.07 * Double(order))) {
+                shown = true
+            }
+        } else {
+            // Keep content visible while this page slides off-screen, then reset
+            // so the entrance can replay if the user swipes back.
+            let work = DispatchWorkItem { shown = false }
+            resetWork = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45, execute: work)
+        }
+    }
+}
+
+private extension View {
+    func reveal(active: Bool, order: Int, scales: Bool = false) -> some View {
+        modifier(Reveal(active: active, order: order, scales: scales))
+    }
+}
+
+// MARK: - Living aurora backdrop
+
+/// Slow-drifting, heavily-blurred neon blobs layered over the static atmospheric
+/// background to give the onboarding depth and a sense of life. Purely decorative —
+/// disabled under Reduce Motion and transparent to touch.
+private struct OnboardingAurora: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var drift = false
+
+    var body: some View {
+        ZStack {
+            blob(DesignSystem.Colors.neonGreen.opacity(0.22), size: 380)
+                .offset(x: drift ? -90 : -40, y: drift ? -200 : -140)
+            blob(DesignSystem.Colors.accentPurple.opacity(0.20), size: 320)
+                .offset(x: drift ? 120 : 60, y: drift ? 230 : 300)
+            blob(DesignSystem.Colors.secondaryAccent.opacity(0.13), size: 280)
+                .offset(x: drift ? -130 : -70, y: drift ? 280 : 340)
+        }
+        .blur(radius: 70)
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 16).repeatForever(autoreverses: true)) {
+                drift = true
+            }
+        }
+    }
+
+    private func blob(_ color: Color, size: CGFloat) -> some View {
+        Circle()
+            .fill(color)
+            .frame(width: size, height: size)
     }
 }
 
@@ -793,6 +895,8 @@ private struct StepIndicator: View {
                 Capsule()
                     .fill(idx == current ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.15))
                     .frame(width: idx == current ? 22 : 6, height: 6)
+                    .shadow(color: idx == current ? DesignSystem.Colors.neonGreen.opacity(0.6) : .clear,
+                            radius: 5)
                     .animation(.spring(response: 0.4, dampingFraction: 0.8), value: current)
             }
         }

@@ -62,6 +62,12 @@ final class AICoachStore: ObservableObject {
     @Published private(set) var isAnalyzing = false   // post-workout analysis
     @Published private(set) var isBriefing = false    // pre-workout brief generation
     @Published private(set) var isReplying = false
+    /// True while the batched per-exercise recommendations are being generated.
+    @Published private(set) var isGeneratingTips = false
+    /// Per-exercise coaching tips for the CURRENT workout day, keyed by the
+    /// normalized exercise name. Populated by `generateExerciseTips` at workout
+    /// start and surfaced inside each `ExerciseCard` as a collapsible box.
+    @Published private(set) var exerciseTips: [String: String] = [:]
     @Published private(set) var followUpQuestionsUsedPre: Int = 0
     @Published private(set) var followUpQuestionsUsedPost: Int = 0
     @Published private(set) var lastError: String?
@@ -77,15 +83,23 @@ final class AICoachStore: ObservableObject {
     private var tickTimer: Timer?
     private var didPullCloudThisSession = false
 
+    /// Brief signature the cached `exerciseTips` belong to. When the planned day
+    /// changes we drop the tips so a stale set isn't shown for a different workout.
+    private var exerciseTipsSignature: String?
+
     private let defaults = UserDefaults.standard
     private static let kCounters = "AICoachStore.counters.v3"
     /// Old counter keys we migrate from on first launch after the v3 refactor.
     private static let kCountersLegacyV2 = "AICoachStore.counters.v2"
+    /// Cached per-exercise tips (JSON: {signature, tips}). Survives relaunch so
+    /// reopening the same workout the same day doesn't burn another AI call.
+    private static let kExerciseTips = "AICoachStore.exerciseTips.v1"
 
     // MARK: Lifecycle
 
     private init() {
         loadCountersFromDisk()
+        loadExerciseTipsFromDisk()
         startTick()
     }
 
@@ -251,6 +265,174 @@ final class AICoachStore: ObservableObject {
         }
     }
 
+    // MARK: - Per-exercise recommendations
+
+    /// Normalizes an exercise name for use as a tips dictionary key. Lower-cases,
+    /// trims and collapses internal whitespace so "Жим  лёжа " and "жим лёжа"
+    /// resolve to the same bucket.
+    private static func tipKey(_ name: String) -> String {
+        name.lowercased()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+    }
+
+    /// Recommendation for a single exercise, if one was generated for the
+    /// current workout day. Tolerant to minor naming drift from the model:
+    /// tries an exact key match first, then a contains-match both ways.
+    func exerciseTip(for name: String) -> String? {
+        let key = Self.tipKey(name)
+        if let exact = exerciseTips[key] { return exact }
+        // Fuzzy fallback — model occasionally rewords the name slightly.
+        if let fuzzy = exerciseTips.first(where: { key.contains($0.key) || $0.key.contains(key) }) {
+            return fuzzy.value
+        }
+        return nil
+    }
+
+    /// Generates one short, data-driven coaching tip per planned exercise in a
+    /// SINGLE batched Groq call. Called from `WorkoutManager.startWorkout()` in
+    /// parallel with the pre-workout brief. Idempotent per (program, day,
+    /// calendar-day): reopening the same workout the same day reuses the cache.
+    func generateExerciseTips(plannedDay: WorkoutDay,
+                              program: Program?,
+                              modelContext: ModelContext,
+                              healthManager: HealthManager) async {
+
+        attach(modelContext)
+
+        let signature = preBriefSignature(programName: program?.name, dayName: plannedDay.name)
+
+        // Already generated for this exact workout day today — don't burn tokens.
+        if signature == exerciseTipsSignature, !exerciseTips.isEmpty { return }
+
+        // New workout day → clear any stale tips immediately so cards don't show
+        // recommendations meant for a different session while we regenerate.
+        if signature != exerciseTipsSignature {
+            exerciseTips = [:]
+            exerciseTipsSignature = signature
+        }
+
+        let plannedExercises = plannedDay.exercises.sorted { $0.orderIndex < $1.orderIndex }
+        guard !plannedExercises.isEmpty else { return }
+
+        isGeneratingTips = true
+
+        let ctx = await AICoachContextBuilder.build(
+            modelContext: modelContext,
+            healthManager: healthManager,
+            limit: 6,
+            lastProgressionNudgeAt: loadOrCreateProfile()?.lastProgressionNudgeAt
+        )
+
+        let names = plannedExercises.map { $0.name }
+        let historyBlock = Self.renderExerciseHistory(for: names, ctx: ctx)
+        let memory = currentMemoryBlock()
+        let style = currentCoachStyle()
+
+        let messages: [GroqMessage] = [
+            .init(role: .system, content: Self.exerciseTipsSystemPrompt(style: style, memoryBlock: memory)),
+            .init(role: .user, content: Self.exerciseTipsUserPrompt(names: names, historyBlock: historyBlock))
+        ]
+
+        do {
+            let reply = try await GroqClient.shared.complete(
+                messages: messages,
+                temperature: 0.5,
+                maxTokens: 700
+            )
+            let parsed = Self.parseExerciseTips(reply, plannedNames: names)
+            if !parsed.isEmpty {
+                exerciseTips = parsed
+                exerciseTipsSignature = signature
+                persistExerciseTips()
+            }
+            isGeneratingTips = false
+        } catch {
+            isGeneratingTips = false
+            // Tips are a nicety — never surface an error banner for them.
+            #if DEBUG
+            print("⚠️ AICoachStore.generateExerciseTips: \(error.localizedDescription)")
+            #endif
+        }
+    }
+
+    /// Compact per-exercise recent-performance digest fed into the tips prompt.
+    /// For each planned exercise we surface the last 1–2 logged sessions as
+    /// "weight × reps" so the model can apply real progressive overload.
+    private static func renderExerciseHistory(for names: [String],
+                                              ctx: AICoachContext) -> String {
+        var lines: [String] = []
+        for name in names {
+            let key = tipKey(name)
+            // Walk recent workouts (newest first) collecting this exercise's sets.
+            var sessionsRendered = 0
+            var perSession: [String] = []
+            for w in ctx.workouts {
+                guard let ex = w.exercises.first(where: { tipKey($0.name) == key }) else { continue }
+                let done = ex.sets.filter { $0.isCompleted }
+                guard !done.isEmpty else { continue }
+                let setStr = done.map { s -> String in
+                    if s.weight > 0 {
+                        return "\(String(format: "%g", s.weight))×\(s.reps)"
+                    } else {
+                        return "\(s.reps)"
+                    }
+                }.joined(separator: ", ")
+                perSession.append(setStr)
+                sessionsRendered += 1
+                if sessionsRendered >= 2 { break }
+            }
+            if perSession.isEmpty {
+                lines.append("\(name): no history")
+            } else {
+                lines.append("\(name): " + perSession.enumerated().map { idx, s in
+                    idx == 0 ? "last [\(s)]" : "prev [\(s)]"
+                }.joined(separator: ", "))
+            }
+        }
+        return lines.joined(separator: "\n")
+    }
+
+    // MARK: - Exercise-tips persistence
+
+    private struct ExerciseTipsCache: Codable {
+        var signature: String
+        var tips: [String: String]
+    }
+
+    private func loadExerciseTipsFromDisk() {
+        guard let data = defaults.data(forKey: Self.kExerciseTips),
+              let cache = try? JSONDecoder().decode(ExerciseTipsCache.self, from: data) else { return }
+        self.exerciseTipsSignature = cache.signature
+        self.exerciseTips = cache.tips
+    }
+
+    private func persistExerciseTips() {
+        guard let sig = exerciseTipsSignature else { return }
+        let cache = ExerciseTipsCache(signature: sig, tips: exerciseTips)
+        if let data = try? JSONEncoder().encode(cache) {
+            defaults.set(data, forKey: Self.kExerciseTips)
+        }
+    }
+
+    /// Synchronously establish the post-workout analysis cycle for a finished
+    /// session. Must run BEFORE the summary screen mounts so `PostWorkoutAICard`
+    /// captures the right signature for its @Query (mirrors `prepareBriefSignature`).
+    @discardableResult
+    func prepareAnalysisSignature(for session: WorkoutSession) -> String {
+        let sig = signature(for: session)
+        if sig != lastWorkoutSignature {
+            followUpQuestionsUsedPost = 0
+            lastQuestionAt = nil
+            lastWorkoutSignature = sig
+            lastError = nil
+            persistCounters()
+        }
+        return sig
+    }
+
     /// Called from `WorkoutManager.finishWorkout()` after a session is saved.
     func analyzeFinishedWorkout(session: WorkoutSession,
                                 modelContext: ModelContext,
@@ -391,6 +573,9 @@ final class AICoachStore: ObservableObject {
         lastWorkoutSignature = nil
         lastBriefSignature = nil
         lastError = nil
+        exerciseTips = [:]
+        exerciseTipsSignature = nil
+        defaults.removeObject(forKey: Self.kExerciseTips)
         persistCounters()
 
         if let ctx = modelContext {
@@ -841,6 +1026,82 @@ final class AICoachStore: ObservableObject {
         """
     }
 
+    // MARK: Exercise-tips prompts + parser
+
+    private static let tipDelimiter = "=>|"
+
+    private static func exerciseTipsSystemPrompt(style: AICoachStyle, memoryBlock: String) -> String {
+        let lang = appLanguageName()
+        let memorySection: String = {
+            let trimmed = memoryBlock.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return "" }
+            return "\n\nWHAT YOU KNOW ABOUT THIS USER (honor across every tip):\n\(trimmed)"
+        }()
+        return """
+        You are an elite strength & conditioning coach writing a one-line, actionable cue for each exercise \
+        the user is about to perform TODAY. Reply in \(lang).
+
+        TONE: \(style.promptDirective)
+
+        For every exercise produce ONE tip (max 2 short sentences, ≤ 200 characters) that combines, in priority order:
+        • A concrete target for today derived from the history given — apply GENTLE progressive overload \
+          (e.g. +2.5 kg, +1 rep, or hold) only when there are no pain/injury signals; otherwise hold or regress.
+        • ONE specific technique or focus cue for that movement (e.g. "scapula retracted", "control the eccentric 2 s", \
+          "drive through mid-foot").
+        • A safety caution ONLY if the user's injuries/notes make it relevant.
+
+        HARD RULES:
+        • Use ONLY the numbers in the history block. If an exercise has "no history", give a sensible conservative \
+          starting cue and say it's a starting point — never invent past numbers.
+        • Be specific and personal, not generic platitudes. No greetings, no exercise theory lectures.
+        • PLAIN TEXT. No markdown, no bullet characters, no emoji.\(memorySection)
+        """
+    }
+
+    private static func exerciseTipsUserPrompt(names: [String], historyBlock: String) -> String {
+        let lang = appLanguageName()
+        let list = names.map { "• \($0)" }.joined(separator: "\n")
+        return """
+        Write today's coaching tip for each of these exercises. Reply in \(lang).
+
+        OUTPUT FORMAT — this is critical for parsing:
+        • Output EXACTLY one line per exercise, nothing else (no intro, no summary).
+        • Each line must be: <exercise name copied verbatim from the list>\(tipDelimiter)<your tip>
+        • Keep the exercise name on the left EXACTLY as written in the list.
+
+        EXERCISES:
+        \(list)
+
+        RECENT HISTORY (weight×reps; "last" = most recent session):
+        \(historyBlock)
+        """
+    }
+
+    /// Parses the delimited tips reply into a normalized [key: tip] map, matching
+    /// each returned line back to a planned exercise name.
+    private static func parseExerciseTips(_ reply: String, plannedNames: [String]) -> [String: String] {
+        var result: [String: String] = [:]
+        let plannedKeys = plannedNames.map { tipKey($0) }
+
+        for rawLine in reply.split(whereSeparator: \.isNewline) {
+            let line = rawLine.trimmingCharacters(in: .whitespaces)
+            guard let range = line.range(of: tipDelimiter) else { continue }
+            let namePart = String(line[..<range.lowerBound])
+            var tipPart = String(line[range.upperBound...]).trimmingCharacters(in: .whitespaces)
+            // Strip stray leading markdown the model might emit despite instructions.
+            tipPart = tipPart.trimmingCharacters(in: CharacterSet(charactersIn: "-*• "))
+            guard !tipPart.isEmpty else { continue }
+
+            let nameKey = tipKey(namePart)
+            // Map to a planned key: exact, else fuzzy contains.
+            if let match = plannedKeys.first(where: { $0 == nameKey })
+                ?? plannedKeys.first(where: { $0.contains(nameKey) || nameKey.contains($0) }) {
+                result[match] = tipPart
+            }
+        }
+        return result
+    }
+
     private static func weeklyDigestSystemPrefix() -> String {
         // English so the model can understand it regardless of user language.
         // The digest text itself is in whichever language(s) the source chat was in.
@@ -864,6 +1125,8 @@ final class AICoachStore: ObservableObject {
 
         FORMATTING (strict):
         • Plain text only. No markdown. No `*`, no `-`, no `#`, no `**bold**`.
+        • Start each numbered section on its OWN new line, beginning with the digit and ")" \
+          (e.g. a line break before "2)", "3)", "4)"). This is required so the app can render each section as a card.
         • Inside section 4, put each exercise on its own line as: "<Exercise name>: <weight> × <reps>/<reps>/<reps>". \
           Do NOT prefix lines with `*` or `-`.
         • Be specific, no fluff. Maximum 220 words.

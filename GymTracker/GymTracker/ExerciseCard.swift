@@ -12,6 +12,7 @@ import Combine
 struct ExerciseCard: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject var workoutManager: WorkoutManager
+    @ObservedObject private var aiCoach = AICoachStore.shared
     let exercise: ExerciseTemplate
     let programName: String
     let session: WorkoutSession?
@@ -34,11 +35,13 @@ struct ExerciseCard: View {
     @State private var showingWorkoutTypeChange = false
     @State private var currentWorkoutType: WorkoutType? = nil
     @State private var isHistoryExpanded: Bool = true // Expanded by default
+    @State private var showAIRecommendation: Bool = false // Collapsible AI tip box
+    @State private var didInitAIRecommendation: Bool = false
+    @State private var aiGlow: Bool = false
     @State private var isWeighted: Bool = false
     @State private var showRestTimer: Bool = false
     @State private var isTimerEnabledForExercise: Bool = true // Timer toggle state
-    @State private var showingE1RMInfo: Bool = false
-    
+
     @State private var timer: Timer? = nil
     
     // Cached expensive computation - computed once in onAppear, not on every render
@@ -53,6 +56,20 @@ struct ExerciseCard: View {
     // Derived properties
     private var effectiveWorkoutType: WorkoutType {
         currentWorkoutType ?? workoutType
+    }
+
+    /// AI coaching tip for this exercise: explicit override (if the parent passed
+    /// one) takes priority, otherwise pull the current day's batched tip from the
+    /// store. `aiCoach` is observed so cards refresh when tips finish generating.
+    private var aiTip: String? {
+        if let explicit = aiRecommendation, !explicit.isEmpty { return explicit }
+        return aiCoach.exerciseTip(for: exercise.name)
+    }
+
+    /// Whether to show the AI recommendation box at all (a tip exists, or we're
+    /// actively generating one for the focused exercise).
+    private var showsAIBox: Bool {
+        aiTip != nil || (isActive && aiCoach.isGeneratingTips)
     }
     
     private var previousSets: [WorkoutSet] {
@@ -83,7 +100,9 @@ struct ExerciseCard: View {
         case .repsOnly:
             return !reps.isEmpty
         case .duration:
-            return !duration.isEmpty || elapsedTime > 0
+            // Require an actual positive time — typing "0" used to save an empty set.
+            let typed = Double(duration.replacingOccurrences(of: ",", with: ".")) ?? 0
+            return typed > 0 || elapsedTime > 0
         }
     }
     
@@ -207,28 +226,6 @@ struct ExerciseCard: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                         Spacer()
-                        if personalBestE1RM > 0 {
-                            Button(action: { showingE1RMInfo = true }) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "trophy.fill")
-                                        .font(.system(size: 10))
-                                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                                    Text("\("Макс.".localized()) \(formatBest(personalBestE1RM)) \("кг".localized()) e1RM")
-                                        .font(.caption2)
-                                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                                    Image(systemName: "info.circle")
-                                        .font(.system(size: 10))
-                                        .foregroundColor(DesignSystem.Colors.neonGreen.opacity(0.7))
-                                }
-                            }
-                            .buttonStyle(.plain)
-                            .popover(isPresented: $showingE1RMInfo,
-                                     attachmentAnchor: .point(.top),
-                                     arrowEdge: .bottom) {
-                                E1RMInfoPopover(value: personalBestE1RM)
-                                    .presentationCompactAdaptation(.popover)
-                            }
-                        }
                     }
 
                     ForEach(previousSets, id: \.self) { set in
@@ -294,22 +291,12 @@ struct ExerciseCard: View {
                 .transition(.opacity)
             }
             
-            // MARK: - AI Banner
-            if isActive, let recommendation = aiRecommendation {
-                HStack {
-                    Text("AI: \(recommendation)")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                }
-                .background(
-                    Capsule()
-                        .stroke(Color.purple, lineWidth: 1)
-                        .background(Color.purple.opacity(0.2).clipShape(Capsule()))
-                )
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+            // MARK: - AI Recommendation (collapsible)
+            if showsAIBox {
+                aiRecommendationBox
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
             
             // MARK: - Main Content (Inputs) - ONLY IF ACTIVE
@@ -571,10 +558,17 @@ struct ExerciseCard: View {
             if isActive {
                 publishCurrentExerciseFocus()
             }
+            // Expand the AI box by default for the focused exercise; keep it
+            // collapsed elsewhere so the list stays compact.
+            if !didInitAIRecommendation {
+                didInitAIRecommendation = true
+                showAIRecommendation = isActive
+            }
         }
         .onChange(of: isActive) { _, newValue in
             if newValue {
                 publishCurrentExerciseFocus()
+                withAnimation(.easeInOut(duration: 0.25)) { showAIRecommendation = true }
             }
         }
         .onChange(of: completedSets.count) { _, _ in
@@ -595,8 +589,106 @@ struct ExerciseCard: View {
         }
     }
     
+    // MARK: - AI Recommendation Box
+
+    private var aiRecommendationBox: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header — always visible, tappable to expand/collapse.
+            Button {
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                    showAIRecommendation.toggle()
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [DesignSystem.Colors.accentPurple, DesignSystem.Colors.neonGreen],
+                                    startPoint: .topLeading, endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 26, height: 26)
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 12, weight: .heavy))
+                            .foregroundColor(.black)
+                    }
+                    .shadow(color: DesignSystem.Colors.accentPurple.opacity(aiGlow ? 0.7 : 0.3),
+                            radius: aiGlow ? 7 : 3)
+
+                    Text("Рекомендация ИИ".localized())
+                        .font(.system(size: 13, weight: .heavy))
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .tracking(0.4)
+
+                    if aiCoach.isGeneratingTips && aiTip == nil {
+                        ProgressView()
+                            .scaleEffect(0.6)
+                            .tint(DesignSystem.Colors.neonGreen)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .rotationEffect(.degrees(showAIRecommendation ? 0 : -90))
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+            }
+            .buttonStyle(.plain)
+
+            if showAIRecommendation {
+                Group {
+                    if let tip = aiTip {
+                        Text(tip)
+                            .font(DesignSystem.Typography.body())
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        // Generating placeholder.
+                        HStack(spacing: 8) {
+                            Image(systemName: "wand.and.stars")
+                                .foregroundColor(DesignSystem.Colors.neonGreen)
+                            Text("Коуч готовит персональную подсказку…".localized())
+                                .font(DesignSystem.Typography.body())
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 12)
+                .transition(.opacity)
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.accentPurple.opacity(0.14),
+                            DesignSystem.Colors.neonGreen.opacity(0.05)
+                        ],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(DesignSystem.Colors.accentPurple.opacity(0.30), lineWidth: 0.75)
+        )
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
+                aiGlow = true
+            }
+        }
+    }
+
     // MARK: - Logic Helpers
-    
+
     private func saveCurrentSet() {
         guard let session = session else { return }
         
@@ -655,10 +747,11 @@ struct ExerciseCard: View {
         // Notify the gamification strip so it can pulse / flash for a PR.
         workoutManager.notifySetCompleted(isPR: isPR)
         
-        // Start rest timer only if NOT the last planned set
-        // Don't start timer if user just completed their last planned set
-        let isLastPlannedSet = completedSets.count >= exercise.plannedSets
-        
+        // Start rest timer unless this is exactly the last planned set.
+        // Using `==` (not `>=`) so extra sets beyond the plan still get a rest
+        // timer between them — only the final planned set suppresses it.
+        let isLastPlannedSet = completedSets.count == exercise.plannedSets
+
         if isTimerEnabledForExercise && !isLastPlannedSet {
             withAnimation {
                 showRestTimer = true
@@ -804,16 +897,23 @@ struct ExerciseCard: View {
     /// Перечитывает кеш «прошлая тренировка», предпоследняя тренировка и e1RM
     /// под текущее `exercise.name`. Вызывается на onAppear и после замены упражнения.
     private func reloadHistoryForCurrentExercise() {
+        // Match history by movement, not by exact string. Stored sets keep the
+        // exercise name they were logged under; casing / whitespace / ё-е drift
+        // or a catalog rename would otherwise leave the "Прошлая тренировка"
+        // block empty even though the user has done this exercise before.
+        let nameMatches = ExerciseLibrary.sameExerciseMatcher(as: exercise.name)
+        let matchesExercise: (WorkoutSet) -> Bool = { nameMatches($0.exerciseName) }
+
         let sessionsWithExercise = allCompletedSessions
             .filter { session in
                 guard session.id != self.session?.id else { return false }
-                return session.sets.contains { $0.exerciseName == exercise.name }
+                return session.sets.contains(where: matchesExercise)
             }
             .sorted { $0.date > $1.date }
 
         if let lastSession = sessionsWithExercise.first {
             cachedPreviousSets = lastSession.sets
-                .filter { $0.exerciseName == exercise.name }
+                .filter(matchesExercise)
                 .sorted {
                     if $0.date != $1.date { return $0.date < $1.date }
                     return $0.setNumber < $1.setNumber
@@ -824,7 +924,7 @@ struct ExerciseCard: View {
 
         if sessionsWithExercise.count >= 2 {
             cachedPenultimateSets = sessionsWithExercise[1].sets
-                .filter { $0.exerciseName == exercise.name }
+                .filter(matchesExercise)
                 .sorted {
                     if $0.date != $1.date { return $0.date < $1.date }
                     return $0.setNumber < $1.setNumber
@@ -835,7 +935,7 @@ struct ExerciseCard: View {
 
         var best: Double = 0
         for session in sessionsWithExercise {
-            for set in session.sets where set.exerciseName == exercise.name {
+            for set in session.sets where matchesExercise(set) {
                 guard set.weight > 0, set.reps > 0 else { continue }
                 let e1RM = set.weight * (1.0 + Double(set.reps) / 30.0)
                 if e1RM > best { best = e1RM }
@@ -895,15 +995,6 @@ struct ExerciseCard: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
-    private func formatBest(_ value: Double) -> String {
-        if value >= 100 {
-            return String(format: "%.0f", value)
-        }
-        if value.truncatingRemainder(dividingBy: 1) == 0 {
-            return String(format: "%.0f", value)
-        }
-        return String(format: "%.1f", value)
-    }
 }
 
 // MARK: - Completed Set Chip Component
@@ -974,77 +1065,5 @@ struct CompletedSetChip: View {
         } else {
             return String(format: "%.1f", w)
         }
-    }
-}
-
-// MARK: - e1RM Info Popover
-
-struct E1RMInfoPopover: View {
-    let value: Double
-
-    private var formattedValue: String {
-        if value.truncatingRemainder(dividingBy: 1) == 0 {
-            return String(format: "%.0f", value)
-        }
-        return String(format: "%.1f", value)
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 10) {
-                ZStack {
-                    Circle()
-                        .fill(DesignSystem.Colors.neonGreen.opacity(0.15))
-                        .frame(width: 38, height: 38)
-                    Image(systemName: "trophy.fill")
-                        .font(.system(size: 16))
-                        .foregroundColor(DesignSystem.Colors.neonGreen)
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("e1RM").font(.headline).foregroundColor(.white)
-                    Text("Estimated 1 Rep Max".localized())
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-            }
-
-            Text("Расчётный максимум на одно повторение — оценка веса, который ты теоретически осилил бы один раз с правильной техникой.".localized())
-                .font(.system(size: 13))
-                .foregroundColor(.white.opacity(0.85))
-                .fixedSize(horizontal: false, vertical: true)
-
-            Divider().background(Color.white.opacity(0.1))
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Формула Эпли".localized())
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(DesignSystem.Colors.neonGreen)
-                Text("e1RM = вес × (1 + повторы / 30)".localized())
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.9))
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Зачем смотреть".localized())
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(DesignSystem.Colors.neonGreen)
-                Text("Видно прогресс силы, даже если меняешь веса/повторы. Подход 80×10 и 100×5 сравнимы между собой через e1RM.".localized())
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.85))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            HStack {
-                Spacer()
-                Text(String(format: "Личный максимум: %@ кг".localized(), formattedValue))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(DesignSystem.Colors.neonGreen)
-                Spacer()
-            }
-            .padding(.top, 4)
-        }
-        .padding(16)
-        .frame(width: 280)
-        .background(DesignSystem.Colors.cardBackground)
     }
 }

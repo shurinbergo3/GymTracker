@@ -454,6 +454,19 @@ class WorkoutManager: ObservableObject {
                 healthManager: healthMgr
             )
         }
+
+        // Batched per-exercise coaching tips — surfaced inside each ExerciseCard
+        // as a collapsible "Рекомендация ИИ" box once the active session begins.
+        // Runs alongside the brief; idempotent per (program, day, calendar-day).
+        Task { [weak self] in
+            guard let self else { return }
+            await AICoachStore.shared.generateExerciseTips(
+                plannedDay: day,
+                program: self.activeProgram,
+                modelContext: self.modelContext,
+                healthManager: healthMgr
+            )
+        }
     }
 
     /// Called from `PreWorkoutBriefView` when the user taps "Поехали".
@@ -795,6 +808,10 @@ class WorkoutManager: ObservableObject {
         if let healthMgr = healthProvider as? HealthManager {
             let ctx = modelContext
             let aiSession = session
+            // Pin the analysis signature synchronously so the summary screen's
+            // PostWorkoutAICard @Query captures it before the async task runs.
+            AICoachStore.shared.attach(modelContext)
+            AICoachStore.shared.prepareAnalysisSignature(for: session)
             Task { @MainActor in
                 await AICoachStore.shared.analyzeFinishedWorkout(
                     session: aiSession,
