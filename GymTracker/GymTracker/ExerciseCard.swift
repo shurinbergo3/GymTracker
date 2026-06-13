@@ -37,7 +37,6 @@ struct ExerciseCard: View {
     @State private var isHistoryExpanded: Bool = true // Expanded by default
     @State private var showAIRecommendation: Bool = false // Collapsible AI tip box
     @State private var didInitAIRecommendation: Bool = false
-    @State private var aiGlow: Bool = false
     @State private var isWeighted: Bool = false
     @State private var showRestTimer: Bool = false
     @State private var isTimerEnabledForExercise: Bool = true // Timer toggle state
@@ -600,21 +599,7 @@ struct ExerciseCard: View {
                 }
             } label: {
                 HStack(spacing: 10) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [DesignSystem.Colors.accentPurple, DesignSystem.Colors.neonGreen],
-                                    startPoint: .topLeading, endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 26, height: 26)
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 12, weight: .heavy))
-                            .foregroundColor(.black)
-                    }
-                    .shadow(color: DesignSystem.Colors.accentPurple.opacity(aiGlow ? 0.7 : 0.3),
-                            radius: aiGlow ? 7 : 3)
+                    AICoachAvatar(size: 28)
 
                     Text("Рекомендация ИИ".localized())
                         .font(.system(size: 13, weight: .heavy))
@@ -680,11 +665,6 @@ struct ExerciseCard: View {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(DesignSystem.Colors.accentPurple.opacity(0.30), lineWidth: 0.75)
         )
-        .onAppear {
-            withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
-                aiGlow = true
-            }
-        }
     }
 
     // MARK: - Logic Helpers

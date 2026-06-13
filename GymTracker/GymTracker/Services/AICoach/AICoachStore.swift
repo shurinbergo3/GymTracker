@@ -964,6 +964,7 @@ final class AICoachStore: ObservableObject {
     private static func appLanguageName() -> String {
         let id = LanguageManager.shared.currentLocale.identifier.lowercased()
         if id.hasPrefix("ru") { return "Russian" }
+        if id.hasPrefix("pl") { return "Polish" }
         if id.hasPrefix("uk") { return "Ukrainian" }
         if id.hasPrefix("es") { return "Spanish" }
         if id.hasPrefix("de") { return "German" }
@@ -1020,6 +1021,8 @@ final class AICoachStore: ObservableObject {
 
         LANGUAGE RULES (very important):
         • For your VERY FIRST message in this conversation, reply in **\(initialLang)**.
+        • Write your ENTIRE reply in ONE single language. NEVER mix languages inside one reply — \
+          not even section labels. Every word, including headings, must be in the SAME language as the rest.
         • From then on, ALWAYS mirror the language the user writes in. If the user switches language mid-conversation, \
           switch with them on the next reply.
         • Localise units, dates and number formatting to that language naturally.

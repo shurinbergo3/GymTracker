@@ -17,6 +17,66 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Shared AI avatar
+
+/// The single, polished "AI orb" mark used everywhere the coach appears.
+/// A glossy purple→lime gradient sphere with a clean, fully-rendered sparkle —
+/// replaces the scattered, sometimes-clipped ad-hoc icons.
+struct AICoachAvatar: View {
+    var size: CGFloat = 44
+    /// Adds a slow breathing glow (use for hero placements).
+    var glow: Bool = false
+
+    @State private var pulse = false
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.accentPurple,
+                            Color(red: 0.45, green: 0.65, blue: 1.0),
+                            DesignSystem.Colors.neonGreen
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            // Glossy top-left highlight for depth.
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [Color.white.opacity(0.55), .clear],
+                        center: .topLeading,
+                        startRadius: size * 0.02,
+                        endRadius: size * 0.7
+                    )
+                )
+
+            Circle()
+                .strokeBorder(Color.white.opacity(0.28), lineWidth: max(0.75, size * 0.03))
+
+            Image(systemName: "sparkles")
+                .font(.system(size: size * 0.46, weight: .bold))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.white)
+                .shadow(color: .black.opacity(0.30), radius: size * 0.05, y: 1)
+        }
+        .frame(width: size, height: size)
+        .shadow(color: DesignSystem.Colors.accentPurple.opacity(glow ? 0.55 : 0.35),
+                radius: glow ? (pulse ? size * 0.34 : size * 0.20) : size * 0.16,
+                y: size * 0.06)
+        .onAppear {
+            guard glow else { return }
+            withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
+                pulse = true
+            }
+        }
+    }
+}
+
 // MARK: - Parsing
 
 /// One labelled section of an AI analysis.
@@ -326,19 +386,7 @@ struct PostWorkoutAICard: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [DesignSystem.Colors.accentPurple, DesignSystem.Colors.neonGreen],
-                            startPoint: .topLeading, endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 42, height: 42)
-                Image(systemName: "sparkles")
-                    .font(.system(size: 20, weight: .heavy))
-                    .foregroundStyle(.black)
-            }
+            AICoachAvatar(size: 44, glow: true)
             VStack(alignment: .leading, spacing: 2) {
                 Text("Разбор от ИИ-коуча".localized())
                     .font(DesignSystem.Typography.title3())

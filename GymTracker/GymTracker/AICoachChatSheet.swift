@@ -192,45 +192,44 @@ struct AICoachChatSheet: View {
 
     private var heroBanner: some View {
         HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                DesignSystem.Colors.accentPurple,
-                                DesignSystem.Colors.neonGreen.opacity(0.85)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 48, height: 48)
-                Circle()
-                    .strokeBorder(Color.white.opacity(0.18), lineWidth: 1)
-                    .frame(width: 48, height: 48)
-                Image(systemName: "sparkles")
-                    .font(.system(size: 22, weight: .heavy))
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.35), radius: 4, y: 1)
+            AICoachAvatar(size: 54, glow: true)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Анализ тренировки".localized())
+                    .font(DesignSystem.Typography.title2())
+                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                Text("Разбор, прогресс и план на основе твоих данных".localized())
+                    .font(DesignSystem.Typography.caption())
+                    .foregroundStyle(DesignSystem.Colors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
-            Text("Анализ тренировки".localized())
-                .font(DesignSystem.Typography.title2())
-                .foregroundStyle(DesignSystem.Colors.primaryText)
-
-            Spacer()
+            Spacer(minLength: 0)
         }
         .padding(DesignSystem.Spacing.md)
         .background(
-            LinearGradient(
-                colors: [DesignSystem.Colors.accentPurple.opacity(0.20), Color.white.opacity(0.02)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            ZStack {
+                LinearGradient(
+                    colors: [DesignSystem.Colors.accentPurple.opacity(0.28), Color.white.opacity(0.02)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                RadialGradient(
+                    colors: [DesignSystem.Colors.neonGreen.opacity(0.12), .clear],
+                    center: .bottomTrailing, startRadius: 4, endRadius: 220
+                )
+            }
         )
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                .stroke(DesignSystem.Colors.accentPurple.opacity(0.35), lineWidth: 0.5)
+                .stroke(
+                    LinearGradient(
+                        colors: [DesignSystem.Colors.accentPurple.opacity(0.45),
+                                 DesignSystem.Colors.neonGreen.opacity(0.25)],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.75
+                )
         )
         .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
     }
@@ -423,7 +422,7 @@ struct MessageBubble: View {
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
             if message.isAssistant {
-                avatar
+                AICoachAvatar(size: 28)
             } else {
                 Spacer(minLength: 40)
             }
@@ -452,23 +451,6 @@ struct MessageBubble: View {
             } else {
                 Spacer(minLength: 40)
             }
-        }
-    }
-
-    private var avatar: some View {
-        ZStack {
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [DesignSystem.Colors.accentPurple, DesignSystem.Colors.neonGreen],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 28, height: 28)
-            Image(systemName: "sparkles")
-                .font(.system(size: 13, weight: .heavy))
-                .foregroundStyle(.black)
         }
     }
 
@@ -545,20 +527,7 @@ struct TypingIndicator: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [DesignSystem.Colors.accentPurple, DesignSystem.Colors.neonGreen],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 28, height: 28)
-                Image(systemName: "sparkles")
-                    .font(.system(size: 13, weight: .heavy))
-                    .foregroundStyle(.black)
-            }
+            AICoachAvatar(size: 28)
 
             HStack(spacing: 5) {
                 ForEach(0..<3) { i in

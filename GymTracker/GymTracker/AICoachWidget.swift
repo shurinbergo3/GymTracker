@@ -28,7 +28,6 @@ struct AICoachWidget: View {
     )
     private var assistantMessages: [AICoachMessage]
 
-    @State private var glowPhase: Double = 0
     @State private var showingChat = false
 
     init(lastSession: WorkoutSession?, previousSession: WorkoutSession? = nil) {
@@ -63,9 +62,6 @@ struct AICoachWidget: View {
         .disabled(lastSession == nil)
         .onAppear {
             store.attach(modelContext)
-            withAnimation(.easeInOut(duration: 2.6).repeatForever(autoreverses: true)) {
-                glowPhase = 1
-            }
         }
         .sheet(isPresented: $showingChat) {
             AICoachChatSheet()
@@ -78,34 +74,7 @@ struct AICoachWidget: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [DesignSystem.Colors.accentPurple.opacity(0.55), .clear],
-                            center: .center,
-                            startRadius: 2,
-                            endRadius: 32
-                        )
-                    )
-                    .frame(width: 64, height: 64)
-                    .blur(radius: 8)
-                    .opacity(0.55 + glowPhase * 0.45)
-
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [DesignSystem.Colors.accentPurple, DesignSystem.Colors.neonGreen],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 44, height: 44)
-
-                Image(systemName: "sparkles")
-                    .font(.system(size: 22, weight: .heavy))
-                    .foregroundStyle(.black)
-            }
+            AICoachAvatar(size: 48, glow: true)
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
