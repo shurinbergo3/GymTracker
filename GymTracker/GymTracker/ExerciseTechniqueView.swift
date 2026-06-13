@@ -262,9 +262,7 @@ struct ExerciseTechniqueDetailView: View {
 
     private func openVideo() {
         let urlString: String
-        let localizedName = exerciseName.localized()
-        let suffix = LanguageManager.shared.currentLanguageCode == "en" ? "technique" : "техника выполнения"
-        let searchQuery = "\(localizedName) \(suffix)"
+        let searchQuery = LanguageManager.shared.youtubeSearchQuery(forExerciseNamed: exerciseName)
         if let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
             urlString = "https://www.youtube.com/results?search_query=\(encodedQuery)"
         } else {

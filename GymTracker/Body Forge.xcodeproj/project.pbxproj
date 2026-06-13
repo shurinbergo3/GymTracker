@@ -354,7 +354,7 @@
 		01B86D2E2F0FAEBD00695F47 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
+				BuildIndependentTargetsInParallel = NO;
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
@@ -385,6 +385,7 @@
 				Base,
 				ru,
 				pl,
+				de,
 			);
 			mainGroup = 01B86D2D2F0FAEBD00695F47;
 			minimizedProjectReferenceProxies = 1;

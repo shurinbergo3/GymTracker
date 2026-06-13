@@ -367,9 +367,7 @@ struct ExerciseListRow: View {
 // MARK: - Localized YouTube search
 
 private func youtubeSearchURL(for exerciseName: String) -> URL? {
-    let localizedName = exerciseName.localized()
-    let suffix = LanguageManager.shared.currentLanguageCode == "en" ? "technique" : "техника"
-    let searchQuery = "\(localizedName) \(suffix)"
+    let searchQuery = LanguageManager.shared.youtubeSearchQuery(forExerciseNamed: exerciseName)
     let encodedQuery = searchQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
     return URL(string: "https://www.youtube.com/results?search_query=\(encodedQuery)")
 }

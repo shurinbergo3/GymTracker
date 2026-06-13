@@ -52,8 +52,8 @@ enum InactivityNotificationService {
             }
 
             let content = UNMutableNotificationContent()
-            content.title = String(localized: "Время тренироваться")
-            content.body = String(localized: "Прошла неделя без тренировки. Возвращайся и продолжи прогресс.")
+            content.title = "Время тренироваться".localized()
+            content.body = "Прошла неделя без тренировки. Возвращайся и продолжи прогресс.".localized()
             content.sound = .default
 
             let interval = TimeInterval(inactivityDays * 24 * 60 * 60)
@@ -99,26 +99,26 @@ enum InactivityNotificationService {
             schedule(
                 id: decayWarningIDs[0],
                 fireAt: last.addingTimeInterval(day * 3),
-                title: String(localized: "Форма начинает падать"),
-                body: String(localized: "Третий день без зала. XP пошёл вниз — одна тренировка вернёт пик."),
+                title: "Форма начинает падать".localized(),
+                body: "Третий день без зала. XP пошёл вниз — одна тренировка вернёт пик.".localized(),
                 now: now
             )
 
             schedule(
                 id: decayWarningIDs[1],
                 fireAt: last.addingTimeInterval(day * 8),
-                title: String(localized: "Уровень под угрозой"),
-                body: String(localized: "Неделя без тренировок. Скоро потеряешь уровень — приходи в зал."),
+                title: "Уровень под угрозой".localized(),
+                body: "Неделя без тренировок. Скоро потеряешь уровень — приходи в зал.".localized(),
                 now: now
             )
 
             schedule(
                 id: decayWarningIDs[2],
                 fireAt: last.addingTimeInterval(day * 14),
-                title: String(localized: "Уровень упал"),
+                title: "Уровень упал".localized(),
                 body: peakLevel > 1
-                    ? String(localized: "Сохраним «ПИК \(peakLevel)» как трофей. Возвращайся — и заберёшь уровень обратно.")
-                    : String(localized: "Тело начинает терять адаптацию. Возвращайся в зал."),
+                    ? String(format: "Сохраним «ПИК %lld» как трофей. Возвращайся — и заберёшь уровень обратно.".localized(), peakLevel)
+                    : "Тело начинает терять адаптацию. Возвращайся в зал.".localized(),
                 now: now
             )
         }

@@ -1405,7 +1405,7 @@ struct ProgressHubView: View {
     }
 
     private func formatWeight(_ kg: Double) -> String {
-        let unit = String(localized: "кг")
+        let unit = "кг".localized()
         if kg.truncatingRemainder(dividingBy: 1) == 0 {
             return "\(Int(kg)) \(unit)"
         }
@@ -1417,10 +1417,10 @@ struct ProgressHubView: View {
         let days = cal.dateComponents([.day],
                                        from: cal.startOfDay(for: date),
                                        to: cal.startOfDay(for: Date())).day ?? 0
-        if days == 0 { return String(localized: "сегодня") }
-        if days == 1 { return String(localized: "вчера") }
+        if days == 0 { return "сегодня".localized() }
+        if days == 1 { return "вчера".localized() }
         if days < 7 {
-            return "\(days) \(streakSuffix(days)) \(String(localized: "назад"))"
+            return "\(days) \(streakSuffix(days)) \("назад".localized())"
         }
         let f = DateFormatter()
         f.locale = Locale.current

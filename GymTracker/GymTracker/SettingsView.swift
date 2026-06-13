@@ -100,22 +100,22 @@ struct SettingsView: View {
             } message: {
                 Text("delete_account_message".localized())
             }
-            .alert(String(localized: "Очистить историю AI Coach?"), isPresented: $showingWipeCoachConfirmation) {
+            .alert("Очистить историю AI Coach?".localized(), isPresented: $showingWipeCoachConfirmation) {
                 Button("cancel_button".localized(), role: .cancel) { }
-                Button(String(localized: "Очистить"), role: .destructive) {
+                Button("Очистить".localized(), role: .destructive) {
                     Task { await handleWipeCoach() }
                 }
             } message: {
-                Text(String(localized: "Все диалоги и разборы будут удалены с этого устройства и из облака. Действие нельзя отменить."))
+                Text("Все диалоги и разборы будут удалены с этого устройства и из облака. Действие нельзя отменить.".localized())
             }
-            .alert(String(localized: "Выйти из аккаунта?"), isPresented: $showingSignOutConfirmation) {
+            .alert("Выйти из аккаунта?".localized(), isPresented: $showingSignOutConfirmation) {
                 Button("cancel_button".localized(), role: .cancel) { }
-                Button(String(localized: "Выйти"), role: .destructive) {
+                Button("Выйти".localized(), role: .destructive) {
                     authManager.signOut()
                     dismiss()
                 }
             } message: {
-                Text(String(localized: "Вы сможете вернуться в любой момент — данные сохранены в облаке."))
+                Text("Вы сможете вернуться в любой момент — данные сохранены в облаке.".localized())
             }
             .fullScreenCover(isPresented: $showingOnboardingPreview) {
                 OnboardingPreviewSheet { showingOnboardingPreview = false }
@@ -222,8 +222,8 @@ struct SettingsView: View {
                     SettingsToggleRow(
                         icon: "applewatch",
                         iconColor: DesignSystem.Colors.neonGreen,
-                        title: String(localized: "Подключить Apple Watch"),
-                        subtitle: String(localized: "Кольца активности на главном и в тренировке"),
+                        title: "Подключить Apple Watch".localized(),
+                        subtitle: "Кольца активности на главном и в тренировке".localized(),
                         isOn: $isAppleWatchEnabled
                     )
                     .onChange(of: isAppleWatchEnabled) { _, newValue in
@@ -270,6 +270,13 @@ struct SettingsView: View {
                                 subtitle: "Język polski",
                                 tag: "pl",
                                 index: 3
+                            )
+                            SettingsInnerDivider()
+                            languageOptionRow(
+                                title: "German".localized(),
+                                subtitle: "Deutsch",
+                                tag: "de",
+                                index: 4
                             )
                         }
                         .transition(.asymmetric(
@@ -360,6 +367,7 @@ struct SettingsView: View {
         case "ru": return "Russian".localized()
         case "en": return "English".localized()
         case "pl": return "Polish".localized()
+        case "de": return "German".localized()
         default: return "System".localized()
         }
     }
@@ -369,6 +377,7 @@ struct SettingsView: View {
         case "ru": return "Русский язык"
         case "en": return "English language"
         case "pl": return "Język polski"
+        case "de": return "Deutsch"
         default: return "Follows system settings".localized()
         }
     }
@@ -438,7 +447,7 @@ struct SettingsView: View {
     }
 
     private var appearanceAndDataSection: some View {
-        SettingsSection(title: String(localized: "Облако и данные")) {
+        SettingsSection(title: "Облако и данные".localized()) {
             SettingsCard {
                 NavigationLink {
                     DataManagementView()
@@ -447,8 +456,8 @@ struct SettingsView: View {
                         icon: "externaldrive.badge.icloud",
                         iconTint: DesignSystem.Colors.accent,
                         iconBackground: DesignSystem.Colors.accent.opacity(0.18),
-                        title: String(localized: "Управление данными"),
-                        subtitle: String(localized: "Резервные копии и синхронизация"),
+                        title: "Управление данными".localized(),
+                        subtitle: "Резервные копии и синхронизация".localized(),
                         accessory: .chevron
                     )
                 }
@@ -460,7 +469,7 @@ struct SettingsView: View {
     private var supportSection: some View {
         SettingsSection(
             title: "support_section".localized(),
-            footer: String(localized: "Мы отвечаем обычно в течение дня.")
+            footer: "Мы отвечаем обычно в течение дня.".localized()
         ) {
             SettingsCard {
                 VStack(spacing: 0) {
@@ -497,7 +506,7 @@ struct SettingsView: View {
     private var aiCoachSection: some View {
         SettingsSection(
             title: "AI Coach",
-            footer: String(localized: "Удалит все диалоги, разборы и кеш дайджеста — локально и в облаке. Следующая тренировка начнёт историю с чистого листа.")
+            footer: "Удалит все диалоги, разборы и кеш дайджеста — локально и в облаке. Следующая тренировка начнёт историю с чистого листа.".localized()
         ) {
             SettingsCard {
                 VStack(spacing: 0) {
@@ -506,8 +515,8 @@ struct SettingsView: View {
                     SettingsToggleRow(
                         icon: "bell.badge.fill",
                         iconColor: DesignSystem.Colors.accentPurple,
-                        title: String(localized: "Push-уведомления от ИИ"),
-                        subtitle: String(localized: "Напоминания, разборы и инсайты от коуча"),
+                        title: "Push-уведомления от ИИ".localized(),
+                        subtitle: "Напоминания, разборы и инсайты от коуча".localized(),
                         isOn: $aiPushEnabled
                     )
                     .onChange(of: aiPushEnabled) { _, isOn in
@@ -532,7 +541,7 @@ struct SettingsView: View {
                             icon: "sparkles",
                             iconTint: DesignSystem.Colors.accentPurple,
                             iconBackground: DesignSystem.Colors.accentPurple.opacity(0.18),
-                            title: String(localized: "Очистить историю AI Coach"),
+                            title: "Очистить историю AI Coach".localized(),
                             subtitle: nil,
                             accessory: isWipingCoach ? .progress : .destructiveIcon("trash")
                         )
@@ -572,7 +581,7 @@ struct SettingsView: View {
                 icon: "person.wave.2.fill",
                 iconTint: DesignSystem.Colors.neonGreen,
                 iconBackground: DesignSystem.Colors.neonGreen.opacity(0.18),
-                title: String(localized: "Стиль коуча"),
+                title: "Стиль коуча".localized(),
                 subtitle: localizedTitle(for: current),
                 accessory: .text(current.emoji)
             )
@@ -582,10 +591,10 @@ struct SettingsView: View {
 
     private func localizedTitle(for style: AICoachStyle) -> String {
         switch style {
-        case .strict:    return String(localized: "Жёсткий")
-        case .friendly:  return String(localized: "Дружелюбный")
-        case .technical: return String(localized: "Технарь")
-        case .motivator: return String(localized: "Мотиватор")
+        case .strict:    return "Жёсткий".localized()
+        case .friendly:  return "Дружелюбный".localized()
+        case .technical: return "Технарь".localized()
+        case .motivator: return "Мотиватор".localized()
         }
     }
 

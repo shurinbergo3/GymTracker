@@ -517,7 +517,7 @@ class SyncManager: ObservableObject {
             #if DEBUG
             print("❌ SyncManager: Failed to restore programs: \(error)")
             #endif
-            return .failure(SyncError.message("\(String(localized: "Ошибка загрузки:")) \(error.localizedDescription)"))
+            return .failure(SyncError.message("\("Ошибка загрузки:".localized()) \(error.localizedDescription)"))
         }
     }
 
@@ -630,7 +630,7 @@ class SyncManager: ObservableObject {
             #if DEBUG
             print("❌ SyncManager: Failed to restore custom exercises: \(error)")
             #endif
-            return .failure(SyncError.message("\(String(localized: "Ошибка загрузки:")) \(error.localizedDescription)"))
+            return .failure(SyncError.message("\("Ошибка загрузки:".localized()) \(error.localizedDescription)"))
         }
     }
 
@@ -643,7 +643,7 @@ class SyncManager: ObservableObject {
         var errorDescription: String? {
             switch self {
             case .message(let msg): return msg
-            case .unauthorized: return String(localized: "Пользователь не авторизован")
+            case .unauthorized: return "Пользователь не авторизован".localized()
             }
         }
     }
@@ -742,7 +742,7 @@ class SyncManager: ObservableObject {
             #if DEBUG
             print("❌ Error during restore: \(error)")
             #endif
-            return .failure(SyncError.message("\(String(localized: "Ошибка загрузки:")) \(error.localizedDescription)"))
+            return .failure(SyncError.message("\("Ошибка загрузки:".localized()) \(error.localizedDescription)"))
         }
     }
     
@@ -901,7 +901,7 @@ class SyncManager: ObservableObject {
             let localSessions = try bgContext.fetch(descriptor)
             
             if localSessions.isEmpty {
-                return .failure(SyncError.message(String(localized: "Нет локальных тренировок для выгрузки. Запись в облако отменена.")))
+                return .failure(SyncError.message("Нет локальных тренировок для выгрузки. Запись в облако отменена.".localized()))
             }
             
             // 2. Clear Firestore
@@ -1034,7 +1034,7 @@ class SyncManager: ObservableObject {
             #if DEBUG
             print("❌ Force Upload Error: \(error)")
             #endif
-            return .failure(SyncError.message("\(String(localized: "Ошибка выгрузки:")) \(error.localizedDescription)"))
+            return .failure(SyncError.message("\("Ошибка выгрузки:".localized()) \(error.localizedDescription)"))
         }
     }
     

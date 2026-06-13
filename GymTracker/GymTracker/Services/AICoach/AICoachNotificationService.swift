@@ -94,8 +94,8 @@ enum AICoachNotificationService {
         }
 
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "Время тренироваться")
-        content.body = String(localized: "По твоему расписанию — самое то для зала. Открой план, разберём вместе.")
+        content.title = "Время тренироваться".localized()
+        content.body = "По твоему расписанию — самое то для зала. Открой план, разберём вместе.".localized()
         content.sound = .default
         content.categoryIdentifier = "ai_coach_reminder"
 
@@ -122,7 +122,7 @@ enum AICoachNotificationService {
         guard let fire = cal.date(from: comps), fire > Date().addingTimeInterval(60) else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "Сегодня — на лёгком")
+        content.title = "Сегодня — на лёгком".localized()
         content.body = signal
         content.sound = .default
         content.categoryIdentifier = "ai_coach_recovery"
@@ -145,7 +145,7 @@ enum AICoachNotificationService {
         center.removePendingNotificationRequests(withIdentifiers: [id])
 
         let content = UNMutableNotificationContent()
-        content.title = String(format: String(localized: "🔥 %d дней подряд"), streakDays)
+        content.title = String(format: "🔥 %d дней подряд".localized(), streakDays)
         content.body = streakBody(for: streakDays)
         content.sound = .default
         content.categoryIdentifier = "ai_coach_streak"
@@ -212,7 +212,7 @@ enum AICoachNotificationService {
         // path stays silent. Wire them in incrementally.
         // Default heuristic: derive purely from `restingHeartRate` jumps.
         if let rhr = await fetchRestingHRDelta(healthManager: healthManager), rhr.elevatedBpm >= 5 {
-            return String(format: String(localized: "Пульс покоя выше нормы на %d уд/мин — поспи лишний час и убавь интенсивность."),
+            return String(format: "Пульс покоя выше нормы на %d уд/мин — поспи лишний час и убавь интенсивность.".localized(),
                           rhr.elevatedBpm)
         }
         return nil
@@ -255,8 +255,8 @@ enum AICoachNotificationService {
         guard let fire else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "Твоя неделя готова")
-        content.body = String(localized: "Тоннаж, рекорды, серия — всё в одном экране. Сохрани и поделись.")
+        content.title = "Твоя неделя готова".localized()
+        content.body = "Тоннаж, рекорды, серия — всё в одном экране. Сохрани и поделись.".localized()
         content.sound = .default
         content.categoryIdentifier = "ai_coach_wrapped"
 
@@ -296,11 +296,11 @@ enum AICoachNotificationService {
 
     private static func streakBody(for days: Int) -> String {
         switch days {
-        case ..<7:   return String(localized: "Серия растёт. Завтра — ещё одна.")
-        case 7..<14: return String(localized: "Неделя без пропусков. Это уже привычка.")
-        case 14..<30: return String(localized: "Две недели подряд — твоя дисциплина даёт результат.")
-        case 30..<100: return String(localized: "Месячная серия. Это уровень атлета.")
-        default:      return String(localized: "Сотня тренировок без пропусков — редкая лига.")
+        case ..<7:   return "Серия растёт. Завтра — ещё одна.".localized()
+        case 7..<14: return "Неделя без пропусков. Это уже привычка.".localized()
+        case 14..<30: return "Две недели подряд — твоя дисциплина даёт результат.".localized()
+        case 30..<100: return "Месячная серия. Это уровень атлета.".localized()
+        default:      return "Сотня тренировок без пропусков — редкая лига.".localized()
         }
     }
 }

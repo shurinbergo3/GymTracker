@@ -32,6 +32,7 @@ class LanguageManager: ObservableObject {
         case "ru": return "ru"
         case "en": return "en"
         case "pl": return "pl"
+        case "de": return "de"
         default: return Locale.current.language.languageCode?.identifier ?? "ru"
         }
     }
@@ -63,6 +64,21 @@ class LanguageManager: ObservableObject {
     
     func localizedString(_ key: String) -> String {
         return stringsDict[key] ?? key
+    }
+
+    /// Builds a YouTube search query for an exercise in the user's current app language.
+    /// The exercise name is localized and a language-specific "technique" suffix is appended,
+    /// so a user gets results in the same language the app is set to.
+    func youtubeSearchQuery(forExerciseNamed exerciseName: String) -> String {
+        let localizedName = exerciseName.localized()
+        let suffix: String
+        switch currentLanguageCode {
+        case "en": suffix = "technique"
+        case "pl": suffix = "technika"
+        case "de": suffix = "Technik"
+        default:   suffix = "техника выполнения"
+        }
+        return "\(localizedName) \(suffix)"
     }
 }
 

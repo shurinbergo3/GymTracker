@@ -176,19 +176,19 @@ struct CalendarSheet: View {
             statTile(
                 icon: "dumbbell.fill",
                 value: "\(workoutsThisMonth)",
-                label: String(localized: "calendar_workouts_count_label"),
+                label: "calendar_workouts_count_label".localized(),
                 tint: DesignSystem.Colors.neonGreen
             )
             statTile(
                 icon: "flame.fill",
                 value: "\(currentStreak)",
-                label: String(localized: "Серия"),
+                label: "Серия".localized(),
                 tint: .orange
             )
             statTile(
                 icon: "calendar",
                 value: "\(activeDaysThisMonth)",
-                label: String(localized: "Активных дней"),
+                label: "Активных дней".localized(),
                 tint: DesignSystem.Colors.accentPurple
             )
         }
@@ -235,7 +235,7 @@ struct CalendarSheet: View {
                 UIImpactFeedbackGenerator(style: .soft).impactOccurred()
             } label: {
                 Label {
-                    Text(String(localized: "Авто (по программе)"))
+                    Text("Авто (по программе)".localized())
                 } icon: {
                     if weeklyWorkoutGoal == 0 { Image(systemName: "checkmark") }
                 }
@@ -246,7 +246,7 @@ struct CalendarSheet: View {
                     UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                 } label: {
                     Label {
-                        Text(String(format: String(localized: "%d в неделю"), n))
+                        Text(String(format: "%d в неделю".localized(), n))
                     } icon: {
                         if weeklyWorkoutGoal == n { Image(systemName: "checkmark") }
                     }
@@ -263,10 +263,10 @@ struct CalendarSheet: View {
                         .foregroundStyle(DesignSystem.Colors.neonGreen)
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "Цель: тренировок в неделю"))
+                    Text("Цель: тренировок в неделю".localized())
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(DesignSystem.Colors.primaryText)
-                    Text(String(localized: "Влияет на круг прогресса и серию недель"))
+                    Text("Влияет на круг прогресса и серию недель".localized())
                         .font(.caption)
                         .foregroundStyle(DesignSystem.Colors.secondaryText)
                         .lineLimit(1)
@@ -307,9 +307,9 @@ struct CalendarSheet: View {
 
     private var legend: some View {
         HStack(spacing: 16) {
-            legendItem(icon: "dumbbell.fill", color: DesignSystem.Colors.neonGreen, text: String(localized: "Тренировка"))
+            legendItem(icon: "dumbbell.fill", color: DesignSystem.Colors.neonGreen, text: "Тренировка".localized())
             legendItem(icon: "heart.fill", color: Color.pink, text: "Apple Health")
-            legendItem(icon: "figure.mind.and.body", color: DesignSystem.Colors.secondaryText.opacity(0.6), text: String(localized: "Отдых"))
+            legendItem(icon: "figure.mind.and.body", color: DesignSystem.Colors.secondaryText.opacity(0.6), text: "Отдых".localized())
             Spacer()
         }
         .padding(.horizontal, 4)

@@ -3,13 +3,14 @@
 //  GymTracker
 //
 //  Talks to our Vercel proxy at `/api/ai-coach`, which sits in front of the
-//  Groq Chat Completions API. We never ship the Groq key in the IPA — every
-//  request is signed with a Firebase ID token and the proxy forwards to
-//  Groq using a server-side secret.
+//  OpenAI Chat Completions API (model: gpt-5-mini). We never ship the API key
+//  in the IPA — every request is signed with a Firebase ID token and the proxy
+//  forwards to OpenAI using a server-side secret. The proxy also picks the
+//  model and reasoning effort, so switching models needs no app update.
 //
 //  Proxy source: ../../../../../groq-proxy/api/ai-coach.js
 //  Deploy: `vercel deploy --prod` from that folder, then set
-//          GROQ_API_KEY and FIREBASE_SERVICE_ACCOUNT in the Vercel dashboard.
+//          OPENAI_API_KEY and FIREBASE_SERVICE_ACCOUNT in the Vercel dashboard.
 //
 
 import Foundation

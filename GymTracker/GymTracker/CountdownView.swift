@@ -27,15 +27,15 @@ struct CountdownView: View {
     @State private var finished: Bool = false
 
     private var displayDayName: String {
-        dayName ?? String(localized: "Тренировка")
+        dayName ?? "Тренировка".localized()
     }
 
     private var motivation: String {
         switch count {
-        case 3: return String(localized: "Дыши. Сфокусируйся.")
-        case 2: return String(localized: "Заряжайся.")
-        case 1: return String(localized: "Взрыв энергии.")
-        default: return String(localized: "Поехали!")
+        case 3: return "Дыши. Сфокусируйся.".localized()
+        case 2: return "Заряжайся.".localized()
+        case 1: return "Взрыв энергии.".localized()
+        default: return "Поехали!".localized()
         }
     }
 
