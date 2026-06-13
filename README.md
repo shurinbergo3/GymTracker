@@ -37,6 +37,7 @@
 [![Swift](https://img.shields.io/badge/Swift-5.9-FA7343?style=for-the-badge&logo=swift&logoColor=white&labelColor=0a0a0a)](https://swift.org)
 [![SwiftUI](https://img.shields.io/badge/SwiftUI-Native-007AFF?style=for-the-badge&logo=swift&logoColor=white&labelColor=0a0a0a)](https://developer.apple.com/swiftui)
 [![Firebase](https://img.shields.io/badge/Firebase-Cloud-FFCA28?style=for-the-badge&logo=firebase&logoColor=black&labelColor=0a0a0a)](https://firebase.google.com)
+[![OpenAI](https://img.shields.io/badge/OpenAI-gpt--5--mini-10a37f?style=for-the-badge&logo=openai&logoColor=white&labelColor=0a0a0a)](https://openai.com)
 [![License](https://img.shields.io/badge/License-MIT-ff6b1a?style=for-the-badge&labelColor=0a0a0a)](#-license)
 
 </div>
@@ -141,8 +142,10 @@ flowchart LR
     C -.sync.-> F[(☁ Firestore)]
     S <-.queue.-> F
 
-    A -.context.-> AI{{🤖 AI Coach<br/>Groq}}
+    A -.context.-> AI{{🤖 AI Coach<br/>OpenAI via proxy}}
     C -.context.-> AI
+    AI -.signed token.-> P[/🔐 Vercel<br/>Proxy/]
+    P -.gpt-5-mini.-> O[(🧠 OpenAI)]
 ```
 
 <br/>
@@ -185,7 +188,8 @@ Multi-day programs with full exercise customization. Per-set trend arrows compar
 ›  Strength  ·  Cardio  ·  Circuit
 ›  Superset support
 ›  100+ technique videos
-›  Weekly streaks + calendar
+›  Weekly goal · streaks · calendar
+›  Shareable workout cards
 ```
 
 </td>
@@ -245,13 +249,13 @@ Per-exercise 1RM trends rendered with Swift Charts. Body measurements, weight lo
 
 #### AI Coach
 
-Conversational coach powered by Groq. Context auto-built from your last sessions and metrics — no copy-paste required.
+Conversational coach powered by **OpenAI `gpt-5-mini`**, reached through a Firebase-signed Vercel proxy — the API key never ships in the IPA. Context auto-built from your last sessions and metrics.
 
 ```
-›  Groq inference backend
-›  Auto-built context
+›  OpenAI gpt-5-mini backend
+›  Key-less app — signed proxy
+›  Auto-built workout context
 ›  History synced to Firestore
-›  Quick-question widget
 ```
 
 </td>
@@ -311,12 +315,12 @@ Local notifications nudge you back after a week off the iron. No server-side pus
 
 #### Auth + Sync
 
-Sign in with Apple, Google, or Email. Local-first storage with offline queue ensures zero data loss when network drops.
+Sign in with Apple, Google, or Email — with password reset. Local-first storage with offline queue ensures zero data loss when network drops.
 
 ```
 ›  Sign in with Apple
 ›  Google Sign-In
-›  Email + Password
+›  Email + Password + reset
 ›  GDPR account deletion
 ```
 
@@ -354,7 +358,8 @@ Sign in with Apple, Google, or Email. Local-first storage with offline queue ens
 <tr>
 <th align="left" colspan="2"><sub>AI</sub></th>
 </tr>
-<tr><td><img src="https://img.shields.io/badge/Groq-F55036?style=flat-square&labelColor=0a0a0a"/></td><td>LLM inference for the in-app coach &nbsp;·&nbsp; <code>GroqClient</code> · <code>AICoachContextBuilder</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/OpenAI-gpt--5--mini-10a37f?style=flat-square&logo=openai&logoColor=white&labelColor=0a0a0a"/></td><td>LLM inference for the in-app coach &nbsp;·&nbsp; <code>GroqClient</code> · <code>AICoachContextBuilder</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/Vercel-Proxy-000000?style=flat-square&logo=vercel&logoColor=white&labelColor=0a0a0a"/></td><td>Firebase-signed proxy in front of OpenAI — model &amp; key live server-side &nbsp;·&nbsp; <code>/api/ai-coach</code></td></tr>
 </table>
 
 <br/>
@@ -386,8 +391,8 @@ Sign in with Apple, Google, or Email. Local-first storage with offline queue ens
    │                     INFRASTRUCTURE                            │
    │                                                               │
    │   ╔══════════╗   ╔══════════╗   ╔══════════╗   ╔══════════╗   │
-   │   ║SwiftData ║   ║HealthKit ║   ║ Firebase ║   ║   Groq   ║   │
-   │   ║  Local   ║   ║   Apple  ║   ║   Cloud  ║   ║    AI    ║   │
+   │   ║SwiftData ║   ║HealthKit ║   ║ Firebase ║   ║  Vercel  ║   │
+   │   ║  Local   ║   ║   Apple  ║   ║   Cloud  ║   ║  → OpenAI║   │
    │   ╚══════════╝   ╚══════════╝   ╚══════════╝   ╚══════════╝   │
    │                                                               │
    └───────────────────────────────────────────────────────────────┘
@@ -416,9 +421,9 @@ Sign in with Apple, Google, or Email. Local-first storage with offline queue ens
 <tr><td><sub>CHARTS</sub></td><td><b>Swift Charts</b></td><td>Trend visualization</td></tr>
 <tr><td><sub>BACKEND</sub></td><td><b>Firebase Firestore</b></td><td>Cloud sync</td></tr>
 <tr><td><sub>AUTH</sub></td><td><b>Firebase Auth</b> + Apple + Google</td><td>Identity</td></tr>
-<tr><td><sub>AI</sub></td><td><b>Groq</b></td><td>LLM inference for coach</td></tr>
+<tr><td><sub>AI</sub></td><td><b>OpenAI gpt-5-mini</b> via Vercel proxy</td><td>LLM inference for coach (key-less app)</td></tr>
 <tr><td><sub>ASYNC</sub></td><td><b>Swift Concurrency</b></td><td>All async operations</td></tr>
-<tr><td><sub>i18n</sub></td><td><b>String Catalogs</b> (<code>.xcstrings</code>)</td><td>Multi-language support</td></tr>
+<tr><td><sub>i18n</sub></td><td><b>String Catalog</b> + custom <code>LanguageManager</code></td><td>4 languages — 🇷🇺 RU · 🇬🇧 EN · 🇵🇱 PL · 🇩🇪 DE</td></tr>
 <tr><td><sub>WIDGETS</sub></td><td><b>WidgetKit</b></td><td>Home screen + Live Activity UI</td></tr>
 <tr><td><sub>WATCH</sub></td><td><b>watchOS 10 + WatchConnectivity</b></td><td>Wrist mirror of the active workout</td></tr>
 </table>
@@ -442,7 +447,7 @@ GymTracker/
 │    │    └──  ValueObjects/                  ◆ Email · Password · UserId
 │    │
 │    ├──  Services/
-│    │    ├──  AICoach/                       ◆ Groq client + context builder
+│    │    ├──  AICoach/                       ◆ OpenAI proxy client + context builder
 │    │    ├──  Auth/                          ◆ Firebase Auth + Apple + Google
 │    │    ├──  Health/                        ◆ HealthKit wrapper
 │    │    ├──  Storage/                       ◆ SwiftData persistence
@@ -484,7 +489,7 @@ GymTracker/
 
 ## ◢ &nbsp; LOCALIZATION
 
-The app is fully localized through **String Catalogs** (`.xcstrings`). Every user-facing string is added to the catalog the moment it's introduced — no exceptions.
+The app ships in **4 languages** — 🇷🇺 Russian · 🇬🇧 English · 🇵🇱 Polish · 🇩🇪 German. Strings live in a String Catalog, but the active language is driven by an in-app **`LanguageManager`** (switchable in Settings, independent of the system locale). Always resolve through `.localized()` — `String(localized:)` reads the *system* locale and silently ignores the user's in-app choice.
 
 <table>
 <tr>
@@ -495,16 +500,15 @@ The app is fully localized through **String Catalogs** (`.xcstrings`). Every use
 <td>
 
 ```swift
-Text(exercise.name)
 let title = "Settings"
+let title = String(localized: "Settings") // ignores in-app language
 ```
 
 </td>
 <td>
 
 ```swift
-Text(LocalizedStringKey(exercise.name))
-let title = String(localized: "Settings")
+let title = "settings_title".localized()
 ```
 
 </td>
@@ -530,7 +534,7 @@ let title = String(localized: "Settings")
 | **watchOS** | 10.0+ (optional — for the Apple Watch companion) |
 | **Apple Developer** | required for HealthKit + Live Activities entitlements |
 | **Firebase** | project with Firestore + Google Sign-In enabled |
-| **Groq** | API key for the AI coach |
+| **AI coach** | *(optional)* a deployed Vercel proxy with `OPENAI_API_KEY` + `FIREBASE_SERVICE_ACCOUNT` set — the app talks to OpenAI only through it |
 
 </details>
 
@@ -549,7 +553,20 @@ open "Body Forge.xcodeproj"
 Drop your `GoogleService-Info.plist` from the Firebase console into `GymTracker/GymTracker/`.
 The file is git-ignored and required for auth and sync to function.
 
-#### <kbd>&nbsp;03&nbsp;</kbd> &nbsp; Sign all targets
+#### <kbd>&nbsp;03&nbsp;</kbd> &nbsp; Wire up the AI coach *(optional)*
+
+The app never holds an OpenAI key — it calls a small **Vercel proxy** (`/api/ai-coach`) that authenticates each request with a Firebase ID token and forwards to OpenAI (`gpt-5-mini`). The model and reasoning effort are chosen server-side, so swapping models needs **no app update**.
+
+```bash
+vercel deploy --prod        # from the proxy folder
+# then in the Vercel dashboard set:
+#   OPENAI_API_KEY            — your OpenAI secret
+#   FIREBASE_SERVICE_ACCOUNT  — service-account JSON for token verification
+```
+
+Point `GroqProxyConfig.endpoint` in [`GroqClient.swift`](GymTracker/GymTracker/Services/AICoach/GroqClient.swift) at your deployment.
+
+#### <kbd>&nbsp;04&nbsp;</kbd> &nbsp; Sign all targets
 
 In Xcode, select your development team under *Signing & Capabilities → Team* for:
 
@@ -557,7 +574,7 @@ In Xcode, select your development team under *Signing & Capabilities → Team* f
 > `GymTrackerWidget`
 > `BodyForgeWatch Watch App` *(if you've added the watch target — see [`GymTracker/docs/WATCHOS_SETUP.md`](GymTracker/docs/WATCHOS_SETUP.md))*
 
-#### <kbd>&nbsp;04&nbsp;</kbd> &nbsp; Run
+#### <kbd>&nbsp;05&nbsp;</kbd> &nbsp; Run
 
 To test the Dynamic Island, pick an **iPhone 15 Pro / 16 Pro** simulator or a real device.
 To test the wrist mirror, pair an **Apple Watch** (or a paired Watch simulator) and run the watch scheme.
@@ -607,7 +624,7 @@ To test the wrist mirror, pair an **Apple Watch** (or a paired Watch simulator) 
 <br/>
 
 <sub>
-<kbd>iOS 17+</kbd> &nbsp; <kbd>Swift 5.9</kbd> &nbsp; <kbd>SwiftUI</kbd> &nbsp; <kbd>SwiftData</kbd> &nbsp; <kbd>HealthKit</kbd> &nbsp; <kbd>ActivityKit</kbd> &nbsp; <kbd>Firebase</kbd> &nbsp; <kbd>Groq</kbd>
+<kbd>iOS 17+</kbd> &nbsp; <kbd>Swift 5.9</kbd> &nbsp; <kbd>SwiftUI</kbd> &nbsp; <kbd>SwiftData</kbd> &nbsp; <kbd>HealthKit</kbd> &nbsp; <kbd>ActivityKit</kbd> &nbsp; <kbd>Firebase</kbd> &nbsp; <kbd>OpenAI</kbd>
 </sub>
 
 </div>
