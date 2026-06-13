@@ -65,18 +65,17 @@ final class FirestoreStorageService: StorageService {
     // MARK: - Programs
     
     func saveProgram(_ program: ProgramDTO) async throws {
-        // TODO: Implement when ProgramDTO is created
-        #if DEBUG
-        print("⚠️ Program save not yet implemented")
-        #endif
+        // NOT IMPLEMENTED + NOT WIRED. The live app saves programs via
+        // FirestoreManager.saveProgram. Previously this silently returned
+        // success, so any caller routed here would lose data without error.
+        // Now it throws so the failure is visible.
+        assertionFailure("FirestoreStorageService.saveProgram is a stub — use FirestoreManager")
+        throw StorageError.notImplemented
     }
-    
+
     func fetchPrograms() async throws -> [ProgramDTO] {
-        // TODO: Implement when ProgramDTO is created
-        #if DEBUG
-        print("⚠️ Program fetch not yet implemented")
-        #endif
-        return []
+        assertionFailure("FirestoreStorageService.fetchPrograms is a stub — use FirestoreManager")
+        throw StorageError.notImplemented
     }
     
     func deleteProgram(id: String) async throws {
@@ -197,4 +196,5 @@ final class FirestoreStorageService: StorageService {
 enum StorageError: Error {
     case notAuthenticated
     case encodingFailed
+    case notImplemented
 }

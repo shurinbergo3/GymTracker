@@ -330,7 +330,7 @@ struct DayCell: View {
                         }
                     }
                 )
-                .cornerRadius(18)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
 
             // Иконка тренировки или отдыха
             if hasWorkout {

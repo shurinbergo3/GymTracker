@@ -221,7 +221,7 @@ struct AICoachChatSheet: View {
             }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(
                     LinearGradient(
                         colors: [DesignSystem.Colors.accentPurple.opacity(0.45),
@@ -231,7 +231,7 @@ struct AICoachChatSheet: View {
                     lineWidth: 0.75
                 )
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     private var emptyHint: some View {
@@ -241,7 +241,7 @@ struct AICoachChatSheet: View {
             .padding(DesignSystem.Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(DesignSystem.Colors.cardBackground.opacity(0.5))
-            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     private func errorBanner(_ message: String) -> some View {
@@ -256,10 +256,10 @@ struct AICoachChatSheet: View {
         .padding(DesignSystem.Spacing.md)
         .background(Color.orange.opacity(0.10))
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(Color.orange.opacity(0.35), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     private var disclaimer: some View {
@@ -330,9 +330,9 @@ struct AICoachChatSheet: View {
                         .disabled(!store.canAskQuestion(mode: .post))
                 }
                 .background(Color.white.opacity(0.06))
-                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 18)
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
                 )
 

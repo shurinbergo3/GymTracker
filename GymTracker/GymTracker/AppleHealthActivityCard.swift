@@ -48,10 +48,10 @@ struct AppleHealthActivityCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(cardBackground)
             .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                     .stroke(borderGradient, lineWidth: 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
             .shadow(color: Color.pink.opacity(0.10), radius: 14, x: 0, y: 6)
         }
         .buttonStyle(.plain)
@@ -164,10 +164,10 @@ struct AppleHealthActivityCard: View {
         .padding(.vertical, 8)
         .background(tint.opacity(0.08))
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .stroke(tint.opacity(0.20), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     // MARK: - Activity strip
@@ -307,11 +307,11 @@ struct AppleHealthWorkoutsSheet: View {
                             ExternalWorkoutRow(workout: w, dense: false)
                                 .padding(14)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 14)
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                                         .fill(Color.white.opacity(0.04))
                                 )
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                                         .stroke(w.tint.opacity(0.15), lineWidth: 1)
                                 )
                         }

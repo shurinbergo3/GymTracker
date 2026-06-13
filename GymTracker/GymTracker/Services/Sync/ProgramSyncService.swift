@@ -33,19 +33,16 @@ final class ProgramSyncService {
     }
     
     private func syncProgram(_ program: Program) async {
-        // TODO: Implement when ProgramDTO is created
-        #if DEBUG
-        print("⚠️ Program sync not yet fully implemented for '\(program.name)'")
-        #endif
+        // NOT IMPLEMENTED + NOT WIRED. The live app syncs programs via
+        // SyncManager. Trap in DEBUG so accidentally routing real sync through
+        // this stub is caught immediately instead of silently dropping data.
+        assertionFailure("ProgramSyncService.syncProgram is a stub — use SyncManager")
     }
-    
+
     // MARK: - Download (Pull)
-    
+
     func restorePrograms(container: ModelContainer) async -> Bool {
-        // TODO: Implement when storage.fetchPrograms() is ready
-        #if DEBUG
-        print("⚠️ Program restore not yet implemented")
-        #endif
+        assertionFailure("ProgramSyncService.restorePrograms is a stub — use SyncManager")
         return false
     }
 }

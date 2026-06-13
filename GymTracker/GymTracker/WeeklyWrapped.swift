@@ -1371,9 +1371,9 @@ struct WeeklyWrappedTeaser: View {
                     endPoint: .trailing
                 )
             )
-            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                     .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
             )
         }

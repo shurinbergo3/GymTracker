@@ -284,7 +284,7 @@ struct AICoachInsightView: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 7)
                         .background(Color.white.opacity(0.04))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             }
@@ -365,10 +365,10 @@ struct PostWorkoutAICard: View {
         .padding(DesignSystem.Spacing.lg)
         .background(cardBackground)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                 .stroke(neonStroke, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
         .shadow(color: DesignSystem.Colors.accentPurple.opacity(0.25), radius: 18, x: 0, y: 8)
         .padding(.horizontal, DesignSystem.Spacing.lg)
         .onAppear {

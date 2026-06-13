@@ -140,9 +140,9 @@ struct AICoachHistoryView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(Color.white.opacity(0.06))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
         )
     }
@@ -181,10 +181,10 @@ struct AICoachHistoryView: View {
             )
         )
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(DesignSystem.Colors.accentPurple.opacity(0.25), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     // MARK: - Stats strip
@@ -217,9 +217,9 @@ struct AICoachHistoryView: View {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(tint.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .stroke(tint.opacity(0.20), lineWidth: 0.5)
         )
     }
@@ -256,10 +256,10 @@ private struct DaySection: View {
         .padding(DesignSystem.Spacing.md)
         .background(DesignSystem.Colors.cardBackground.opacity(0.5))
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(Color.white.opacity(0.05), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     private var header: some View {
@@ -347,7 +347,7 @@ private struct DaySection: View {
         .padding(.vertical, 6)
         .padding(.horizontal, 8)
         .background(Color.white.opacity(0.03))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private func formatDay(_ d: Date) -> String {

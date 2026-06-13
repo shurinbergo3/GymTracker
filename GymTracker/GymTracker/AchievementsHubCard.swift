@@ -97,7 +97,7 @@ struct AchievementsHubCard: View {
         .padding(DesignSystem.Spacing.lg)
         .background(background)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(
                     LinearGradient(
                         colors: [
@@ -111,7 +111,7 @@ struct AchievementsHubCard: View {
                     lineWidth: 1
                 )
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .shadow(color: Color(red: 1.0, green: 0.7, blue: 0.2).opacity(0.18), radius: 18, x: 0, y: 8)
     }
 
@@ -209,13 +209,13 @@ struct AchievementsHubCard: View {
 
                 ZStack(alignment: .leading) {
                     // Track
-                    RoundedRectangle(cornerRadius: 6)
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .fill(Color.white.opacity(0.08))
                         .frame(height: 10)
 
                     // Ghost only meaningful when decay is within the same level.
                     if hasDecayWarning && !hasLostLevel {
-                        RoundedRectangle(cornerRadius: 6)
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
                             .fill(
                                 LinearGradient(
                                     colors: [
@@ -228,13 +228,13 @@ struct AchievementsHubCard: View {
                             )
                             .frame(width: max(0, earnedWidth), height: 10)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 6)
+                                RoundedRectangle(cornerRadius: 6, style: .continuous)
                                     .stroke(formState.color.opacity(0.3), style: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
                             )
                     }
 
                     // Effective (kept) XP
-                    RoundedRectangle(cornerRadius: 6)
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .fill(
                             LinearGradient(
                                 colors: [
@@ -361,9 +361,9 @@ struct AchievementsHubCard: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(message.tint.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .stroke(message.tint.opacity(0.20), lineWidth: 0.5)
         )
     }

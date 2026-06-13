@@ -118,7 +118,7 @@ struct WorkoutHistoryView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(DesignSystem.Colors.neonGreen)
-                            .cornerRadius(16)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                     .padding(.horizontal, 32)
                     .padding(.bottom, 20)
@@ -307,11 +307,11 @@ private struct AppleHealthHistorySection: View {
                     ExternalWorkoutRow(workout: w, dense: false)
                         .padding(12)
                         .background(
-                            RoundedRectangle(cornerRadius: 14)
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .fill(Color.white.opacity(0.04))
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14)
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .stroke(w.tint.opacity(0.15), lineWidth: 1)
                         )
                 }
@@ -323,7 +323,7 @@ private struct AppleHealthHistorySection: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
                             .background(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
                                     .fill(Color.pink.opacity(0.10))
                             )
                     }
@@ -592,7 +592,7 @@ struct WorkoutHistoryCard: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 44, height: 44)
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         // Program Name Label
@@ -629,7 +629,7 @@ struct WorkoutHistoryCard: View {
                         .padding(.vertical, 4)
                         .padding(.horizontal, 8)
                         .background(state.color.opacity(0.15))
-                        .cornerRadius(8)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                 }
                 
@@ -792,10 +792,10 @@ struct WorkoutHistoryDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(heroBackground)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(heroStroke, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.12), radius: 18, x: 0, y: 8)
         .padding(.horizontal, DesignSystem.Spacing.lg)
     }
@@ -944,10 +944,10 @@ struct WorkoutHistoryDetailView: View {
             }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(tint.opacity(0.20), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     // MARK: - Notes
@@ -973,10 +973,10 @@ struct WorkoutHistoryDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(white: 0.07))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(DesignSystem.Colors.accentPurple.opacity(0.25), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .padding(.horizontal, DesignSystem.Spacing.lg)
     }
 
@@ -1082,10 +1082,10 @@ struct ExerciseHistoryCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(DesignSystem.Colors.accentPurple.opacity(0.08))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
                         .stroke(DesignSystem.Colors.accentPurple.opacity(0.20), lineWidth: 0.5)
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
 
             // Sets list
@@ -1099,10 +1099,10 @@ struct ExerciseHistoryCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(white: 0.07))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     @ViewBuilder
@@ -1157,7 +1157,7 @@ struct ExerciseHistoryCard: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(isBest ? DesignSystem.Colors.neonGreen.opacity(0.06) : Color.white.opacity(0.025))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
@@ -1227,7 +1227,7 @@ struct WorkoutTypeDistributionChart: View {
                                     )
                                     .foregroundStyle(item.color)
                                     .opacity(selectedType == nil || selectedType == item.type ? 1 : 0.5)
-                                    .cornerRadius(4)
+                                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                                 }
                                 .chartAngleSelection(value: $selectedType)
                                 .animation(.bouncy, value: selectedType)
@@ -1362,7 +1362,7 @@ struct WorkoutTypesDetailView: View {
                     )
                     .foregroundStyle(item.color)
                     .opacity(selectedType == nil || selectedType == item.type ? 1 : 0.4)
-                    .cornerRadius(6)
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 }
                 .chartAngleSelection(value: $selectedType)
                 .animation(.bouncy, value: selectedType)
@@ -1412,7 +1412,7 @@ struct WorkoutTypesDetailView: View {
                             item.color.opacity(0.2) :
                             Color.white.opacity(0.05)
                         )
-                        .cornerRadius(12)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }
@@ -1420,7 +1420,7 @@ struct WorkoutTypesDetailView: View {
         }
         .padding()
         .background(Color(white: 0.1))
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     private var barChartSection: some View {
@@ -1435,7 +1435,7 @@ struct WorkoutTypesDetailView: View {
                     y: .value("Count", item.count)
                 )
                 .foregroundStyle(item.color)
-                .cornerRadius(8)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .opacity(selectedType == nil || selectedType == item.type ? 1 : 0.4)
             }
             .chartXAxis {
@@ -1455,7 +1455,7 @@ struct WorkoutTypesDetailView: View {
         }
         .padding()
         .background(Color(white: 0.1))
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     private var exerciseTypesSection: some View {
@@ -1477,10 +1477,10 @@ struct WorkoutTypesDetailView: View {
                     // Progress bar
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 4)
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
                                 .fill(Color.white.opacity(0.1))
                             
-                            RoundedRectangle(cornerRadius: 4)
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
                                 .fill(item.color)
                                 .frame(width: geo.size.width * item.percentage)
                         }
@@ -1496,7 +1496,7 @@ struct WorkoutTypesDetailView: View {
         }
         .padding()
         .background(Color(white: 0.1))
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     private var typeDetailsList: some View {
@@ -1533,7 +1533,7 @@ struct WorkoutTypesDetailView: View {
                 }
                 .padding()
                 .background(Color.white.opacity(0.05))
-                .cornerRadius(12)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
         }
     }

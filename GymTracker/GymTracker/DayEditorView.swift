@@ -170,7 +170,7 @@ struct ExerciseEditRow: View {
                     .padding(.horizontal, DesignSystem.Spacing.sm)
                     .padding(.vertical, DesignSystem.Spacing.xs)
                     .background(DesignSystem.Colors.accent.opacity(0.15))
-                    .cornerRadius(DesignSystem.CornerRadius.small)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous))
                 }
                 
                 Spacer()

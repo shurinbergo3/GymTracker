@@ -209,7 +209,7 @@ struct PreWorkoutBriefView: View {
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.white.opacity(0.04))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func errorBanner(_ message: String) -> some View {
@@ -223,8 +223,8 @@ struct PreWorkoutBriefView: View {
         }
         .padding(14)
         .background(Color.orange.opacity(0.10))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.orange.opacity(0.35), lineWidth: 0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.orange.opacity(0.35), lineWidth: 0.5))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     // MARK: - Bottom actions
@@ -371,10 +371,10 @@ private struct PreBriefComposerSheet: View {
                 }
                 .background(Color.white.opacity(0.05))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .frame(maxHeight: .infinity)
 
                 if let err = store.lastError {

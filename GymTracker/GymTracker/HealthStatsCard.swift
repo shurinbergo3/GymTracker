@@ -268,9 +268,9 @@ struct HealthStatsCard: View {
                 endPoint: .bottomTrailing
             )
         )
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(Color.white.opacity(0.05), lineWidth: 0.5)
         )
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
@@ -349,7 +349,7 @@ struct HealthStatsCard: View {
                         .foregroundStyle(kind.accent)
                         .frame(width: 26, height: 26)
                         .background(kind.accent.opacity(0.15))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.system(size: 9, weight: .bold))
@@ -377,10 +377,10 @@ struct HealthStatsCard: View {
             .padding(10)
             .background(Color.white.opacity(0.04))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(kind.accent.opacity(0.18), lineWidth: 0.5)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -463,7 +463,7 @@ private struct HealthStatDetailView: View {
                     .foregroundStyle(stat.accent)
                     .frame(width: 44, height: 44)
                     .background(stat.accent.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(stat.title.uppercased())
@@ -499,10 +499,10 @@ private struct HealthStatDetailView: View {
             )
         )
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(stat.accent.opacity(0.3), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     // MARK: - Chart
@@ -521,7 +521,7 @@ private struct HealthStatDetailView: View {
                             y: .value("Value", item.value)
                         )
                         .foregroundStyle(stat.accent.gradient)
-                        .cornerRadius(6)
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                         .annotation(position: .top, alignment: .center, spacing: 4) {
                             if item.value > 0 {
                                 Text(formatBarLabel(item.value))
@@ -555,7 +555,7 @@ private struct HealthStatDetailView: View {
         }
         .padding(DesignSystem.Spacing.lg)
         .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     // MARK: - Breakdown
@@ -587,7 +587,7 @@ private struct HealthStatDetailView: View {
         }
         .padding(DesignSystem.Spacing.lg)
         .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     // MARK: - Per-stat content

@@ -76,9 +76,9 @@ struct SupplementDetailView: View {
                                         .padding(.vertical, 8)
                                         .padding(.horizontal, 16)
                                         .background(DesignSystem.Colors.cardBackground)
-                                        .cornerRadius(20)
+                                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                                         .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
+                                            RoundedRectangle(cornerRadius: 20, style: .continuous)
                                                 .stroke(DesignSystem.Colors.accent.opacity(0.3), lineWidth: 1)
                                         )
                                 }
@@ -106,7 +106,7 @@ struct SupplementDetailView: View {
                             }
                             .padding()
                             .background(DesignSystem.Colors.cardBackground)
-                            .cornerRadius(16)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         }
                         
                         // Usage / Dosage
@@ -119,7 +119,7 @@ struct SupplementDetailView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(DesignSystem.Colors.cardBackground)
-                                .cornerRadius(16)
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         }
                         
                         // Interaction / Warning
@@ -135,7 +135,7 @@ struct SupplementDetailView: View {
                             }
                             .padding()
                             .background(Color.orange.opacity(0.1))
-                            .cornerRadius(12)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
                         
                         Spacer().frame(height: 50)

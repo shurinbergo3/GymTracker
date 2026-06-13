@@ -159,6 +159,13 @@ class AuthManager: ObservableObject {
             try Auth.auth().signOut()
             // Reset onboarding so the welcome preview shows again on next launch
             UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
+            // Privacy: wipe the previous user's locally-cached data so the next
+            // account that signs in on this device cannot see their history.
+            // Without this, `checkForFreshInstall()` finds count > 0 and never
+            // restores, leaving User A's workouts/profile visible to User B.
+            if let context = modelContainer?.mainContext {
+                clearLocalUserData(modelContext: context)
+            }
             // Listener will handle clearing state
         } catch {
             #if DEBUG
@@ -166,10 +173,38 @@ class AuthManager: ObservableObject {
             #endif
         }
     }
-    
+
     // Alias for SettingsView compatibility
     func signOut() {
         logout()
+    }
+
+    /// Deletes every locally-cached SwiftData model for the current user.
+    /// Shared by `logout()` and `deleteAccount(modelContext:)` so both paths
+    /// clear the *complete* schema (including AI-coach history) — keep this
+    /// list in sync with `WorkoutTrackerApp.sharedModelContainer`'s schema.
+    func clearLocalUserData(modelContext: ModelContext) {
+        do {
+            try modelContext.delete(model: WorkoutSession.self)
+            try modelContext.delete(model: WorkoutSet.self)
+            try modelContext.delete(model: UserProfile.self)
+            try modelContext.delete(model: WeightRecord.self)
+            try modelContext.delete(model: BodyMeasurement.self)
+            try modelContext.delete(model: Program.self)
+            try modelContext.delete(model: WorkoutDay.self)
+            try modelContext.delete(model: ExerciseTemplate.self)
+            try modelContext.delete(model: AICoachMessage.self)
+            try modelContext.delete(model: AICoachWeeklySummary.self)
+            try modelContext.delete(model: AICoachUserProfile.self)
+            try modelContext.save()
+            #if DEBUG
+            print("✅ Local user data cleared")
+            #endif
+        } catch {
+            #if DEBUG
+            print("⚠️ Failed to clear local user data: \(error.localizedDescription)")
+            #endif
+        }
     }
     
     // MARK: - Auto-Sync
@@ -247,26 +282,8 @@ class AuthManager: ObservableObject {
             throw error
         }
         
-        // Phase 3: Clear SwiftData (all models)
-        do {
-            try modelContext.delete(model: WorkoutSession.self)
-            try modelContext.delete(model: WorkoutSet.self)
-            try modelContext.delete(model: UserProfile.self)
-            try modelContext.delete(model: WeightRecord.self)
-            try modelContext.delete(model: BodyMeasurement.self)
-            try modelContext.delete(model: Program.self)
-            try modelContext.delete(model: WorkoutDay.self)
-            try modelContext.delete(model: ExerciseTemplate.self)
-            try modelContext.save()
-            #if DEBUG
-            print("✅ SwiftData cleared")
-            #endif
-        } catch {
-            #if DEBUG
-            print("⚠️ Failed to clear SwiftData: \(error.localizedDescription)")
-            #endif
-            // Continue anyway
-        }
+        // Phase 3: Clear SwiftData (all models, including AI-coach history)
+        clearLocalUserData(modelContext: modelContext)
         
         // Phase 4: Clear UserDefaults
         if let bundleID = Bundle.main.bundleIdentifier {

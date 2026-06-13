@@ -76,7 +76,7 @@ struct ActivityRingsCard: View {
         }
         .padding(DesignSystem.Spacing.lg)
         .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
 
         .onTapGesture {

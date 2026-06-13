@@ -87,7 +87,7 @@ struct CalorieCalculatorView: View {
                 }
                 .padding()
                 .background(DesignSystem.Colors.cardBackground)
-                .cornerRadius(DesignSystem.CornerRadius.medium)
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
             }
             .buttonStyle(PlainButtonStyle())
             
@@ -109,19 +109,19 @@ struct CalorieCalculatorView: View {
                             .foregroundColor(DesignSystem.Colors.primaryText)
                             .padding(12)
                             .background(Color.white.opacity(0.05))
-                            .cornerRadius(8)
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         TextField("", text: $height, prompt: Text("Рост (см)".localized()).foregroundColor(.gray))
                             .keyboardType(.numberPad)
                             .foregroundColor(DesignSystem.Colors.primaryText)
                             .padding(12)
                             .background(Color.white.opacity(0.05))
-                            .cornerRadius(8)
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         TextField("", text: $weight, prompt: Text("Вес (кг)".localized()).foregroundColor(.gray))
                             .keyboardType(.decimalPad)
                             .foregroundColor(DesignSystem.Colors.primaryText)
                             .padding(12)
                             .background(Color.white.opacity(0.05))
-                            .cornerRadius(8)
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     
                     // Activity Picker
@@ -150,7 +150,7 @@ struct CalorieCalculatorView: View {
                             }
                             .padding()
                             .background(Color.white.opacity(0.05))
-                            .cornerRadius(8)
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         }
                     }
                     
@@ -176,7 +176,7 @@ struct CalorieCalculatorView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(DesignSystem.Colors.neonGreen)
-                            .cornerRadius(DesignSystem.CornerRadius.medium)
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                     }
                     
                     // Result
@@ -195,7 +195,7 @@ struct CalorieCalculatorView: View {
                 }
                 .padding()
                 .background(DesignSystem.Colors.cardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                 .padding(.top, 1)
                 // Actually if I want it to look like one card opening up, I should probably put them in one ZStack background.
                 // But simplifying: just having it below works. 

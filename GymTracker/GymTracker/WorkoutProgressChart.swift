@@ -124,7 +124,7 @@ struct WorkoutProgressBanner: View {
                 if !chartData.isEmpty {
                     ZStack {
                         // Background gradient
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                             .fill(
                                 LinearGradient(
                                     colors: [
@@ -184,7 +184,7 @@ struct WorkoutProgressBanner: View {
                 } else {
                     // Empty state
                     ZStack {
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                             .fill(DesignSystem.Colors.cardBackground.opacity(0.5))
                         
                         Text("Начни тренироваться".localized())

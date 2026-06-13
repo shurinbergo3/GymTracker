@@ -45,20 +45,17 @@ final class WorkoutSyncService {
     }
     
     private func syncSession(_ session: WorkoutSession, context: ModelContext) async -> Bool {
-        // TODO: Implement when Workout DTO is ready
-        #if DEBUG
-        print("⚠️ Workout sync not yet fully implemented")
-        #endif
+        // NOT IMPLEMENTED + NOT WIRED. The live app syncs workouts via
+        // SyncManager / FirestoreManager. Trap in DEBUG so accidentally routing
+        // real sync through this stub is caught instead of silently dropping data.
+        assertionFailure("WorkoutSyncService.syncSession is a stub — use SyncManager")
         return false
     }
-    
+
     // MARK: - Download (Pull)
-    
+
     func restoreWorkouts(container: ModelContainer) async -> Bool {
-        // TODO: Implement when Workout DTO and storage methods are ready
-        #if DEBUG
-        print("⚠️ Workout restore not yet implemented")
-        #endif
+        assertionFailure("WorkoutSyncService.restoreWorkouts is a stub — use SyncManager")
         return false
     }
 }

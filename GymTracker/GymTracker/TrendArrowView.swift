@@ -65,7 +65,7 @@ struct TrendCard: View {
         .frame(maxWidth: .infinity)
         .padding(DesignSystem.Spacing.xl)
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                 .fill(DesignSystem.Colors.cardBackground)
         )
     }

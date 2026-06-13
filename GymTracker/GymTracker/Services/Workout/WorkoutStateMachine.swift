@@ -10,6 +10,12 @@ import Combine
 
 /// Workout state machine
 /// Single Responsibility: Manage workout state transitions
+///
+/// ⚠️ NOT WIRED INTO THE APP. The live workout flow lives in `WorkoutManager`,
+/// which manages `workoutState` directly. This type is only instantiated by the
+/// unused `AppDependencies` container. Do not assume transitions route through
+/// here — and note its `WorkoutState` cases differ from `WorkoutManager`'s
+/// (e.g. no `.briefing`). Either wire it in deliberately or delete it.
 @MainActor
 final class WorkoutStateMachine: ObservableObject {
     @Published var state: WorkoutState = .idle

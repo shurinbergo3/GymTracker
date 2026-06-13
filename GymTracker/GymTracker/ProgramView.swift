@@ -198,7 +198,7 @@ struct ProgramView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, DesignSystem.Spacing.lg)
                     .background(DesignSystem.Colors.neonGreen)
-                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                     .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 12, x: 0, y: 6)
                 }
 
@@ -212,7 +212,7 @@ struct ProgramView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, DesignSystem.Spacing.md)
                     .background(DesignSystem.Colors.neonGreen.opacity(0.12))
-                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                 }
             }
             .padding(.horizontal, DesignSystem.Spacing.xl)
@@ -235,7 +235,7 @@ struct ProgramView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, DesignSystem.Spacing.xxl)
         .background(DesignSystem.Colors.cardBackground.opacity(0.5))
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     // MARK: - Helpers
@@ -321,9 +321,9 @@ private struct ProgramsOnboardingTip: View {
                 endPoint: .bottomTrailing
             )
         )
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(DesignSystem.Colors.neonGreen.opacity(0.35), lineWidth: 1)
         )
     }
@@ -792,7 +792,7 @@ struct ProgramCard: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, DesignSystem.Spacing.sm)
                                 .background(meta.category.color)
-                                .cornerRadius(DesignSystem.CornerRadius.small)
+                                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous))
                             }
                             .buttonStyle(PlainButtonStyle())
                         }

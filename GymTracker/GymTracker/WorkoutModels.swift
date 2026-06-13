@@ -45,6 +45,29 @@ struct ExerciseSet: Codable, Identifiable {
     var comment: String? // Added comment support
 }
 
+// MARK: - Stable identity
+
+extension Workout {
+    /// Deterministic Firestore document ID derived from the workout's immutable
+    /// (date, type) identity. Re-uploading the same workout — including a session
+    /// restored from the cloud — yields the same ID, so `setData` overwrites the
+    /// existing document instead of creating a duplicate. This makes sync
+    /// idempotent and retry-safe without a stored UUID on `WorkoutSession`.
+    ///
+    /// Second-level precision is robust to the microsecond drift introduced by a
+    /// Firestore `Date`↔`Timestamp` round-trip, and is unique in practice (a user
+    /// cannot start two workouts of the same type within the same second).
+    var deterministicDocumentID: String {
+        let seconds = Int(date.timeIntervalSince1970.rounded())
+        let safeType = workoutType
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ".", with: "-")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        // Firestore document IDs must be ≤1500 bytes; clamp defensively.
+        return String("\(seconds)_\(safeType)".prefix(1400))
+    }
+}
+
 // MARK: - Mappers
 
 extension Workout {

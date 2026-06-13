@@ -28,7 +28,7 @@ struct SleepGuideView: View {
                                     endPoint: .top
                                 )
                             )
-                            .cornerRadius(DesignSystem.CornerRadius.large)
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
                         
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Механика идеального сна".localized())
@@ -183,7 +183,7 @@ struct SectionCard<Content: View>: View {
         }
         .padding(DesignSystem.Spacing.lg)
         .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .padding(.horizontal, DesignSystem.Spacing.lg)
     }
 }

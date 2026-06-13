@@ -105,9 +105,12 @@ class SyncManager: ObservableObject {
         
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             do {
+                // Idempotent write: deterministic doc ID keyed on the workout's
+                // identity so retries / re-syncs overwrite instead of duplicating.
                 try FirebaseFirestore.Firestore.firestore()
                     .collection(collectionPath)
-                    .addDocument(from: workout) { error in
+                    .document(workout.deterministicDocumentID)
+                    .setData(from: workout, merge: false) { error in
                         if let error = error {
                             continuation.resume(throwing: error)
                         } else {
@@ -251,43 +254,51 @@ class SyncManager: ObservableObject {
             // Yield before heavy operations
             await Task.yield()
             
-            // Restore weight history
+            // Restore weight history — MERGE (union by timestamp), never a
+            // destructive replace. The previous code deleted all local records
+            // first; if the cloud copy was partial/stale, local weight entries
+            // were lost permanently. Now we only add cloud records whose date
+            // isn't already present locally.
             if let weightHistory = profileData.weightHistory, !weightHistory.isEmpty {
-                // Clear existing weight history
-                for record in profile.weightHistory {
-                    context.delete(record)
-                }
-                profile.weightHistory.removeAll()
-                
-                // Add restored weight history
+                let dayKey: (Date) -> Int = { Int($0.timeIntervalSince1970.rounded()) }
+                var existingDates = Set(profile.weightHistory.map { dayKey($0.date) })
+
                 for (index, weightDTO) in weightHistory.enumerated() {
+                    let key = dayKey(weightDTO.date)
+                    if existingDates.contains(key) { continue }
+                    existingDates.insert(key)
+
                     let record = WeightRecord(weight: weightDTO.weight, date: weightDTO.date)
                     record.userProfile = profile
                     profile.weightHistory.append(record)
                     context.insert(record)
-                    
+
                     // Yield every 20 records
                     if index % 20 == 0 {
                         await Task.yield()
                     }
                 }
             }
-            
+
             // Yield before measurements
             await Task.yield()
-            
-            // Restore body measurements
+
+            // Restore body measurements — MERGE (union by type + timestamp),
+            // never a destructive replace (same data-loss reasoning as above).
             if let measurements = profileData.bodyMeasurements, !measurements.isEmpty {
-                // Clear existing measurements
                 let measurementDescriptor = FetchDescriptor<BodyMeasurement>()
                 let existingMeasurements = try context.fetch(measurementDescriptor)
-                for measurement in existingMeasurements {
-                    context.delete(measurement)
+                let measurementKey: (String, Date) -> String = { type, date in
+                    "\(type)_\(Int(date.timeIntervalSince1970.rounded()))"
                 }
-                
-                // Add restored measurements
+                var existingKeys = Set(existingMeasurements.map { measurementKey($0.type.rawValue, $0.date) })
+
                 for (index, measurementDTO) in measurements.enumerated() {
                     if let type = MeasurementType(rawValue: measurementDTO.type) {
+                        let key = measurementKey(measurementDTO.type, measurementDTO.date)
+                        if existingKeys.contains(key) { continue }
+                        existingKeys.insert(key)
+
                         let measurement = BodyMeasurement(
                             date: measurementDTO.date,
                             type: type,
@@ -295,7 +306,7 @@ class SyncManager: ObservableObject {
                         )
                         context.insert(measurement)
                     }
-                    
+
                     // Yield every 10 measurements
                     if index % 10 == 0 {
                         await Task.yield()
@@ -371,8 +382,18 @@ class SyncManager: ObservableObject {
             var updatedCount = 0
             
             for (index, cloudProgram) in cloudPrograms.enumerated() {
-                // Check if exists by name
-                if let existingProgram = localPrograms.first(where: { $0.name == cloudProgram.name }) {
+                // Match by stable UUID (the cloud document ID *is* the local
+                // Program.id — see ProgramDTO.init(from:) / saveProgram). Falling
+                // back to name only covers legacy docs saved before UUID IDs.
+                // Matching by name caused duplicates when a program was renamed
+                // locally and mis-merges when two programs shared a name.
+                let existingProgram = localPrograms.first(where: { prog in
+                    guard let cloudId = cloudProgram.id else { return false }
+                    return prog.id.uuidString == cloudId
+                }) ?? localPrograms.first(where: { $0.name == cloudProgram.name })
+
+                if let existingProgram = existingProgram {
+                    existingProgram.name = cloudProgram.name
                     // Always update lightweight metadata
                     existingProgram.desc = cloudProgram.desc
                     existingProgram.startDate = cloudProgram.startDate
@@ -429,6 +450,12 @@ class SyncManager: ObservableObject {
                         isActive: cloudProgram.isActive,
                         displayOrder: cloudProgram.displayOrder
                     )
+                    // Preserve the cloud UUID so a later push reuses the same
+                    // document instead of creating a duplicate (stable round-trip
+                    // identity, mirrors the workout idempotency fix).
+                    if let cloudId = cloudProgram.id, let uuid = UUID(uuidString: cloudId) {
+                        newProgram.id = uuid
+                    }
                     newProgram.isUserModified = cloudProgram.isUserModified
                     context.insert(newProgram)
                     

@@ -29,7 +29,7 @@ struct WorkoutGuideView: View {
                                     endPoint: .top
                                 )
                             )
-                            .cornerRadius(DesignSystem.CornerRadius.large)
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
                         
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Гайд по тренировкам".localized())

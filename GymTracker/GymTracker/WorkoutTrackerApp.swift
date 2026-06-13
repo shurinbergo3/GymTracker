@@ -172,6 +172,9 @@ struct WorkoutTrackerApp: App {
                 }
             }
             .onAppear {
+                // Дать AuthManager доступ к контейнеру, чтобы logout() мог
+                // очистить локальные данные предыдущего пользователя.
+                authManager.setModelContainer(sharedModelContainer)
                 // Дублирующий путь сброса сплеша — DispatchQueue не зависит от
                 // SwiftUI Task lifecycle, гарантированно фаерится через 1.5с.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {

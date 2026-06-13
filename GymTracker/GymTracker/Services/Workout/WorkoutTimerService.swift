@@ -10,6 +10,13 @@ import Combine
 
 /// Manages workout timing
 /// Single Responsibility: Track workout duration and rest periods
+///
+/// ⚠️ NOT WIRED INTO THE APP. The live rest timer lives in `RestTimerView` +
+/// `WorkoutManager.restEndsAt` (an absolute end date). This type is only
+/// instantiated by the unused `AppDependencies` container, and its
+/// `decrementRestTime` uses a per-tick counter — the drift bug that was
+/// deliberately removed from the real timer. Don't wire it in as-is; rework it
+/// to use an absolute end date first, or delete it.
 final class WorkoutTimerService: ObservableObject {
     @Published var workoutDuration: TimeInterval = 0
     @Published var restTimeRemaining: Int = 0

@@ -27,7 +27,7 @@ struct CommentEditorView: View {
                         .textFieldStyle(.plain)
                         .padding(DesignSystem.Spacing.md)
                         .background(DesignSystem.Colors.cardBackground)
-                        .cornerRadius(DesignSystem.CornerRadius.medium)
+                        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                         .lineLimit(3...6)
                         .focused($isFieldFocused)
                 }
@@ -41,7 +41,7 @@ struct CommentEditorView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, DesignSystem.Spacing.md)
                         .background(DesignSystem.Colors.neonGreen.opacity(0.15))
-                        .cornerRadius(DesignSystem.CornerRadius.medium)
+                        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                 }
                 .padding(.horizontal, DesignSystem.Spacing.lg)
             }

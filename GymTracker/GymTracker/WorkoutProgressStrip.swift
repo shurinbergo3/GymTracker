@@ -71,10 +71,10 @@ struct WorkoutProgressStrip: View {
         .padding(.vertical, 14)
         .background(stripBackground)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                 .stroke(prFlashActive ? Color.yellow.opacity(0.85) : DesignSystem.Colors.neonGreen.opacity(0.18), lineWidth: prFlashActive ? 2 : 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
         .shadow(color: prFlashActive ? Color.yellow.opacity(0.5) : DesignSystem.Colors.neonGreen.opacity(0.10),
                 radius: prFlashActive ? 18 : 10, x: 0, y: 4)
         .overlay(prOverlay)
@@ -111,15 +111,15 @@ struct WorkoutProgressStrip: View {
     @ViewBuilder
     private var segmentedBar: some View {
         if totalPlannedSets == 0 {
-            RoundedRectangle(cornerRadius: 4).fill(Color.white.opacity(0.08)).frame(height: 8)
+            RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.white.opacity(0.08)).frame(height: 8)
         } else if totalPlannedSets <= 16 {
             HStack(spacing: 3) {
                 ForEach(0..<totalPlannedSets, id: \.self) { idx in
                     Group {
                         if idx < completedSets {
-                            RoundedRectangle(cornerRadius: 3).fill(filledStyle)
+                            RoundedRectangle(cornerRadius: 3, style: .continuous).fill(filledStyle)
                         } else {
-                            RoundedRectangle(cornerRadius: 3).fill(Color.white.opacity(0.08))
+                            RoundedRectangle(cornerRadius: 3, style: .continuous).fill(Color.white.opacity(0.08))
                         }
                     }
                     .frame(height: 8)
@@ -132,8 +132,8 @@ struct WorkoutProgressStrip: View {
         } else {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4).fill(Color.white.opacity(0.08))
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.white.opacity(0.08))
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
                         .fill(filledStyle)
                         .frame(width: max(8, geo.size.width * progress))
                         .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 4)

@@ -357,17 +357,17 @@ struct ProgressHubView: View {
                 let earnedW = max(0, geo.size.width * Double(rawXPInLevel) / 5.0)
                 let effW = max(0, geo.size.width * xpProgress)
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 5).fill(Color.white.opacity(0.07))
+                    RoundedRectangle(cornerRadius: 5, style: .continuous).fill(Color.white.opacity(0.07))
                     if hasDecay && !hasLostLevel {
-                        RoundedRectangle(cornerRadius: 5)
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
                             .fill(formState.color.opacity(0.22))
                             .frame(width: earnedW)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 5)
+                                RoundedRectangle(cornerRadius: 5, style: .continuous)
                                     .stroke(formState.color.opacity(0.35), style: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
                             )
                     }
-                    RoundedRectangle(cornerRadius: 5)
+                    RoundedRectangle(cornerRadius: 5, style: .continuous)
                         .fill(
                             LinearGradient(
                                 colors: [
@@ -632,9 +632,9 @@ struct ProgressHubView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(formState.color.opacity(0.22), lineWidth: 1)
         )
     }
@@ -698,9 +698,9 @@ struct ProgressHubView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(tint.opacity(0.30), lineWidth: 1)
         )
     }
@@ -742,9 +742,9 @@ struct ProgressHubView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(tint.opacity(0.22), lineWidth: 1)
         )
     }
@@ -787,9 +787,9 @@ struct ProgressHubView: View {
                     startPoint: .leading, endPoint: .trailing
                 )
             )
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(next.tint.opacity(0.30), lineWidth: 1)
             )
         }
@@ -823,9 +823,9 @@ struct ProgressHubView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(DesignSystem.Colors.neonGreen.opacity(0.15), lineWidth: 1)
         )
     }
@@ -885,9 +885,9 @@ struct ProgressHubView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(accent.opacity(0.30), lineWidth: 1)
         )
     }
@@ -937,9 +937,9 @@ struct ProgressHubView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(gold.opacity(0.20), lineWidth: 1)
         )
     }
@@ -1099,9 +1099,9 @@ struct ProgressHubView: View {
         .padding(.vertical, 22)
         .padding(.horizontal, 16)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(progressTrend.color.opacity(0.20), lineWidth: 1)
         )
     }
@@ -1146,9 +1146,9 @@ struct ProgressHubView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(DesignSystem.Colors.neonGreen.opacity(0.15), lineWidth: 1)
         )
     }
@@ -1194,7 +1194,7 @@ struct ProgressHubView: View {
         .padding(.vertical, 6)
         .padding(.horizontal, 8)
         .background(Color.white.opacity(0.03))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private var volumeChartCard: some View {
@@ -1217,7 +1217,7 @@ struct ProgressHubView: View {
                     .foregroundStyle(DesignSystem.Colors.secondaryText)
                     .frame(maxWidth: .infinity, minHeight: 120)
                     .background(Color.white.opacity(0.03))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             } else {
                 Chart {
                     ForEach(Array(chartData.enumerated()), id: \.offset) { index, data in
@@ -1252,9 +1252,9 @@ struct ProgressHubView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(progressTrend.color.opacity(0.18), lineWidth: 1)
         )
     }
@@ -1303,9 +1303,9 @@ struct ProgressHubView: View {
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 96, alignment: .leading)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(tint.opacity(0.18), lineWidth: 1)
         )
     }
@@ -1329,7 +1329,7 @@ struct ProgressHubView: View {
         .padding(.vertical, 30)
         .padding(.horizontal, 16)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     // MARK: - Helpers
@@ -1507,9 +1507,9 @@ struct BadgeCardCompact: View {
         .padding(14)
         .frame(maxWidth: .infinity, minHeight: 160, alignment: .leading)
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(unlocked ? badge.tint.opacity(0.30) : Color.white.opacity(0.05), lineWidth: 1)
         )
     }

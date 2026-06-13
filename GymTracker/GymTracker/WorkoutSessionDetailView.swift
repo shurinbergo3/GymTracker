@@ -83,7 +83,7 @@ struct WorkoutSessionDetailView: View {
         }
         .padding()
         .background(Color(white: 0.1))
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
     
     private func statBox(title: String, value: String, icon: String, color: Color) -> some View {
@@ -104,7 +104,7 @@ struct WorkoutSessionDetailView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .background(Color.white.opacity(0.05))
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - Exercises Section
@@ -206,7 +206,7 @@ struct WorkoutSessionDetailView: View {
         }
         .padding()
         .background(Color(white: 0.1))
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     
     // MARK: - Summary Section
@@ -227,7 +227,7 @@ struct WorkoutSessionDetailView: View {
             }
             .padding()
             .background(Color.white.opacity(0.05))
-            .cornerRadius(12)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
     }
     

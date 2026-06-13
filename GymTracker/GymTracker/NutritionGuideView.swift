@@ -29,7 +29,7 @@ struct NutritionGuideView: View {
                                     endPoint: .top
                                 )
                             )
-                            .cornerRadius(DesignSystem.CornerRadius.large)
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
                         
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Nutrition Guide".localized())

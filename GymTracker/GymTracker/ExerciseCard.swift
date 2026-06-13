@@ -134,7 +134,7 @@ struct ExerciseCard: View {
                                 let isCurrent = setNum == completedSets.count + 1
                                 
                                 ZStack {
-                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous)
                                         .fill(
                                             isCompleted ? (isExtra ? DesignSystem.Colors.secondaryAccent : DesignSystem.Colors.neonGreen) :
                                                 (isCurrent ? Color.white.opacity(0.15) : Color.white.opacity(0.05))
@@ -320,9 +320,9 @@ struct ExerciseCard: View {
                                     .foregroundColor(DesignSystem.Colors.primaryText)
                                     .frame(height: 70)
                                     .background(Color.white.opacity(0.05))
-                                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                                             .stroke(Color.white.opacity(0.15), lineWidth: 1)
                                     )
                             }
@@ -341,9 +341,9 @@ struct ExerciseCard: View {
                                     .foregroundColor(DesignSystem.Colors.primaryText)
                                     .frame(height: 70)
                                     .background(Color.white.opacity(0.05))
-                                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                                             .stroke(Color.white.opacity(0.15), lineWidth: 1)
                                     )
                             }
@@ -365,9 +365,9 @@ struct ExerciseCard: View {
                                     .foregroundColor(DesignSystem.Colors.primaryText)
                                     .frame(height: 100)
                                     .background(Color.white.opacity(0.05))
-                                    .cornerRadius(DesignSystem.CornerRadius.large)
+                                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                                             .stroke(Color.white.opacity(0.15), lineWidth: 1)
                                     )
                             }
@@ -381,7 +381,7 @@ struct ExerciseCard: View {
                                             .frame(width: 60)
                                             .multilineTextAlignment(.center)
                                             .background(Color.white.opacity(0.1))
-                                            .cornerRadius(8)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                             .foregroundColor(.white)
                                         
                                         Button(action: { isWeighted = false; weight = "" }) {
@@ -420,7 +420,7 @@ struct ExerciseCard: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
                             .background(Color.white.opacity(0.05))
-                            .cornerRadius(16)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             
                             // Distance Input (Optional)
                             HStack {
@@ -454,7 +454,7 @@ struct ExerciseCard: View {
                         }
                         .padding(8)
                         .background(Color.white.opacity(0.05))
-                        .cornerRadius(8)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     
                     // NOTE & SAVE FOOTER
@@ -505,12 +505,12 @@ struct ExerciseCard: View {
             }
         }
         .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
         // Focus Mode Styles
         .opacity(isActive ? 1.0 : 0.6)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(isActive ? DesignSystem.Colors.neonGreen.opacity(0.4) : Color.clear, lineWidth: 2)
         )
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isActive)
@@ -1008,10 +1008,10 @@ struct CompletedSetChip: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(Color.white.opacity(0.08))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .stroke(DesignSystem.Colors.neonGreen.opacity(0.3), lineWidth: 1)
                 )
         )

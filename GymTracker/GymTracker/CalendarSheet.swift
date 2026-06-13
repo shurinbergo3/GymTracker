@@ -131,11 +131,11 @@ struct CalendarSheet: View {
                                 }
                                 .padding(14)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 14)
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                                         .fill(Color.pink.opacity(0.10))
                                 )
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                                         .stroke(Color.pink.opacity(0.25), lineWidth: 1)
                                 )
                             }
@@ -214,11 +214,11 @@ struct CalendarSheet: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(Color.white.opacity(0.04))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(tint.opacity(0.20), lineWidth: 1)
         )
     }
@@ -292,11 +292,11 @@ struct CalendarSheet: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(Color.white.opacity(0.04))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .stroke(DesignSystem.Colors.neonGreen.opacity(0.20), lineWidth: 1)
             )
         }

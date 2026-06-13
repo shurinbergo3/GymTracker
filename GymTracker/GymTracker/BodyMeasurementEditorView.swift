@@ -97,7 +97,7 @@ struct BodyMeasurementEditorView: View {
                             .frame(maxWidth: .infinity)
                             .padding(DesignSystem.Spacing.xl)
                             .background(DesignSystem.Colors.cardBackground)
-                            .cornerRadius(DesignSystem.CornerRadius.large)
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
                         }
                         .padding(.horizontal, DesignSystem.Spacing.lg)
                     }

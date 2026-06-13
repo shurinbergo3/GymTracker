@@ -20,21 +20,15 @@ final class ProfileSyncService {
     // MARK: - Upload (Push)
     
     func syncProfile(profile: UserProfile, activeProgram: Program?, context: ModelContext) async {
-        // TODO: Implement when ProfileDTO is created
-        // Real UserProfile fields: height, age, weightHistory
-        #if DEBUG
-        print("⚠️ Profile sync not yet fully implemented")
-        print("   Height: \(profile.height), Age: \(profile.age)")
-        print("   Weight history: \(profile.weightHistory.count) records")
-        #endif
+        // NOT IMPLEMENTED + NOT WIRED. The live app syncs the profile via
+        // SyncManager. Trap in DEBUG so accidentally routing real sync through
+        // this stub is caught immediately instead of silently dropping data.
+        assertionFailure("ProfileSyncService.syncProfile is a stub — use SyncManager")
     }
-    
+
     // MARK: - Download (Pull)
-    
+
     func restoreProfile(container: ModelContext) async {
-        // TODO: Implement when storage methods are ready
-        #if DEBUG
-        print("⚠️ Profile restore not yet implemented")
-        #endif
+        assertionFailure("ProfileSyncService.restoreProfile is a stub — use SyncManager")
     }
 }

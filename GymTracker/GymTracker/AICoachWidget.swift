@@ -52,10 +52,10 @@ struct AICoachWidget: View {
             .padding(DesignSystem.Spacing.lg)
             .background(cardBackground)
             .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                     .stroke(neonStroke, lineWidth: 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
             .shadow(color: DesignSystem.Colors.accentPurple.opacity(0.25), radius: 20, x: 0, y: 8)
         }
         .buttonStyle(PlainButtonStyle())
@@ -137,9 +137,9 @@ struct AICoachWidget: View {
                     endPoint: .bottomTrailing
                 )
             )
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
             )
         }

@@ -50,7 +50,7 @@ struct WorkoutTypeSelectorView: View {
                             }
                             .padding(DesignSystem.Spacing.lg)
                             .background(selectedType == type ? DesignSystem.Colors.neonGreen.opacity(0.1) : DesignSystem.Colors.cardBackground)
-                            .cornerRadius(DesignSystem.CornerRadius.large)
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
                         }
                         .buttonStyle(PlainButtonStyle())
                     }

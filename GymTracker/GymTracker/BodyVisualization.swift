@@ -19,7 +19,7 @@ struct BodyVisualizationView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .cornerRadius(DesignSystem.CornerRadius.large)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
             
             // Body silhouette with muscle groups
             Canvas { context, size in
@@ -145,7 +145,7 @@ struct BodyVisualizationView: View {
                 let x = centerX + (col == 0 ? -10 : 10) * scale - 6 * scale
                 let y = 105 * scale + CGFloat(row) * 12 * scale
                 
-                let abPath = RoundedRectangle(cornerRadius: 3 * scale)
+                let abPath = RoundedRectangle(cornerRadius: 3 * scale, style: .continuous)
                     .path(in: CGRect(
                         x: x,
                         y: y,
@@ -198,6 +198,11 @@ struct WeightChartView: View {
                     let chartHeight = size.height - padding * 2
                     
                     let weightRange = maxWeight - minWeight
+                    // Guard against a zero range (all weights identical): a 0/0
+                    // would produce NaN coordinates and break the Canvas/Path
+                    // render. Falling back to 1 flattens the line to the
+                    // baseline, matching the dashboard chart's behaviour.
+                    let safeRange = weightRange == 0 ? 1 : weightRange
                     let stepX = chartWidth / CGFloat(sortedHistory.count - 1)
                     
                     // Draw gradient background
@@ -206,7 +211,7 @@ struct WeightChartView: View {
                     
                     for (index, record) in sortedHistory.enumerated() {
                         let x = padding + CGFloat(index) * stepX
-                        let normalizedWeight = (record.weight - minWeight) / weightRange
+                        let normalizedWeight = (record.weight - minWeight) / safeRange
                         let y = size.height - padding - (normalizedWeight * chartHeight)
                         
                         if index == 0 {
@@ -236,7 +241,7 @@ struct WeightChartView: View {
                     var linePath = Path()
                     for (index, record) in sortedHistory.enumerated() {
                         let x = padding + CGFloat(index) * stepX
-                        let normalizedWeight = (record.weight - minWeight) / weightRange
+                        let normalizedWeight = (record.weight - minWeight) / safeRange
                         let y = size.height - padding - (normalizedWeight * chartHeight)
                         
                         if index == 0 {
@@ -255,7 +260,7 @@ struct WeightChartView: View {
                     // Draw points
                     for (index, record) in sortedHistory.enumerated() {
                         let x = padding + CGFloat(index) * stepX
-                        let normalizedWeight = (record.weight - minWeight) / weightRange
+                        let normalizedWeight = (record.weight - minWeight) / safeRange
                         let y = size.height - padding - (normalizedWeight * chartHeight)
                         
                         let dotPath = Circle()

@@ -26,7 +26,6 @@ struct RestTimerView: View {
     }
 
     @Environment(\.scenePhase) var scenePhase
-    @State private var backgroundEntryDate: Date?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -77,7 +76,7 @@ struct RestTimerView: View {
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
                         .background(DesignSystem.Colors.neonGreen)
-                        .cornerRadius(18)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 }
             } else {
                 HStack(spacing: 10) {
@@ -104,9 +103,9 @@ struct RestTimerView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(Color(red: 0.12, green: 0.12, blue: 0.12))
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .stroke(DesignSystem.Colors.neonGreen.opacity(0.3), lineWidth: 1)
         )
         .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -120,30 +119,23 @@ struct RestTimerView: View {
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background {
                 if isRunning {
-                    // Pause timer to save CPU
+                    // Stop the UI tick to save CPU; the absolute end date
+                    // (workoutManager.restEndsAt) remains the source of truth,
+                    // so no elapsed time is lost while backgrounded.
                     timer?.invalidate()
-                    backgroundEntryDate = Date()
-                    // Schedule notification just in case
+                    timer = nil
                     scheduleNotification()
                 }
             } else if newPhase == .active {
-                if isRunning, let bgDate = backgroundEntryDate {
-                    let timePassed = Date().timeIntervalSince(bgDate)
-                    remainingTime -= Int(timePassed)
-                    backgroundEntryDate = nil
-
-                    if remainingTime <= 0 {
-                        remainingTime = 0
-                        timerCompleted()
-                    } else {
-                        // Restart UI timer
-                        startTimer()
-                    }
-                    // Cancel notification as we are back
+                if isRunning {
                     cancelNotification()
+                    // Recompute purely from the absolute end date — robust to
+                    // any amount of time spent in the background.
+                    syncRemainingFromEndDate()
+                    if isRunning { startTick() }
                 }
             }
-                }
+        }
 
         .onReceive(NotificationCenter.default.publisher(
             for: WatchSyncBridge.watchActionNotification
@@ -186,19 +178,44 @@ struct RestTimerView: View {
             remainingTime = defaultDuration
         }
 
-        // Invalidate existing timer just in case
-        timer?.invalidate()
-
         isRunning = true
-        // Push the running rest end into the WorkoutManager so the Live
-        // Activity / Apple Watch can render the same countdown.
+        // Push the running rest end into the WorkoutManager. `restEndsAt`
+        // (an absolute Date) is the single source of truth — it drives the
+        // Live Activity, the Apple Watch, AND the local countdown below.
         workoutManager.beginRest(duration: TimeInterval(remainingTime))
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            if remainingTime > 0 {
-                remainingTime -= 1
-            } else {
-                timerCompleted()
-            }
+        startTick()
+    }
+
+    /// Starts (or restarts) the 1-second UI tick. The tick does NOT decrement a
+    /// counter — it re-derives `remainingTime` from the absolute end date every
+    /// fire, so dropped ticks (RunLoop busy with scrolling/animation) and
+    /// backgrounding never cause drift.
+    private func startTick() {
+        timer?.invalidate()
+        // `.common` mode keeps the tick firing during scroll/animation tracking.
+        let t = Timer(timeInterval: 0.5, repeats: true) { _ in
+            syncRemainingFromEndDate()
+        }
+        RunLoop.main.add(t, forMode: .common)
+        timer = t
+    }
+
+    /// Re-derives the displayed remaining seconds from `restEndsAt` and finishes
+    /// when the absolute end date has passed.
+    private func syncRemainingFromEndDate() {
+        guard let endDate = workoutManager.restEndsAt else {
+            // Rest was cleared elsewhere (skip / new set). Stop ticking.
+            timer?.invalidate()
+            timer = nil
+            isRunning = false
+            return
+        }
+        let remaining = endDate.timeIntervalSinceNow
+        if remaining <= 0 {
+            remainingTime = 0
+            timerCompleted()
+        } else {
+            remainingTime = Int(remaining.rounded(.up))
         }
     }
 
@@ -273,7 +290,9 @@ struct RestTimerView: View {
             content.interruptionLevel = .timeSensitive
         }
 
-        let triggerTime = Double(remainingTime)
+        // Fire exactly when the absolute end date is reached, not after a
+        // counter that may have drifted.
+        let triggerTime = workoutManager.restEndsAt?.timeIntervalSinceNow ?? Double(remainingTime)
         if triggerTime > 0 {
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: triggerTime, repeats: false)
             let request = UNNotificationRequest(identifier: "RestTimerDone", content: content, trigger: trigger)

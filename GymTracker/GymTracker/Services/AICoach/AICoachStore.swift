@@ -100,7 +100,14 @@ final class AICoachStore: ObservableObject {
     private init() {
         loadCountersFromDisk()
         loadExerciseTipsFromDisk()
-        startTick()
+        // Only run the 1 Hz tick if a cooldown is already in progress (e.g.
+        // restored from disk). Otherwise it stays idle until a question starts
+        // one — see `startTickIfNeeded()`.
+        startTickIfNeeded()
+    }
+
+    deinit {
+        tickTimer?.invalidate()
     }
 
     /// Call once from a long-lived view (e.g. AICoachWidget.onAppear) so the
@@ -117,10 +124,27 @@ final class AICoachStore: ObservableObject {
     private func startTick() {
         tickTimer?.invalidate()
         let t = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.nowTick = Date() }
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.nowTick = Date()
+                // The cooldown countdown is the tick's only consumer. Once it
+                // reaches zero, stop ticking so the store isn't running a 1 Hz
+                // timer on the main RunLoop for the entire app lifetime.
+                if self.cooldownRemaining <= 0 {
+                    self.tickTimer?.invalidate()
+                    self.tickTimer = nil
+                }
+            }
         }
         RunLoop.main.add(t, forMode: .common)
         tickTimer = t
+    }
+
+    /// Starts the 1 Hz tick only when there is an active cooldown to count
+    /// down, and only if it isn't already running.
+    private func startTickIfNeeded() {
+        guard cooldownRemaining > 0 else { return }
+        if tickTimer == nil { startTick() }
     }
 
     // MARK: Derived
@@ -517,6 +541,7 @@ final class AICoachStore: ObservableObject {
         case .post: followUpQuestionsUsedPost += 1
         }
         lastQuestionAt = Date()
+        startTickIfNeeded() // begin counting down the freshly-started cooldown
         isReplying = true
         lastError = nil
         persistCounters()

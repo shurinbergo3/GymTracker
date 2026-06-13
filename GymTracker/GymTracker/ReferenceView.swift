@@ -129,7 +129,7 @@ struct ReferenceHeroCard: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             // Layered gradient background
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                 .fill(
                     LinearGradient(
                         colors: [
@@ -142,7 +142,7 @@ struct ReferenceHeroCard: View {
                     )
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                         .stroke(accent.opacity(0.25), lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.35), radius: 14, x: 0, y: 8)
@@ -229,7 +229,7 @@ struct ReferenceBentoCard: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             // Background gradient
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                 .fill(
                     LinearGradient(
                         colors: [
@@ -241,7 +241,7 @@ struct ReferenceBentoCard: View {
                     )
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                         .stroke(color.opacity(0.18), lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)

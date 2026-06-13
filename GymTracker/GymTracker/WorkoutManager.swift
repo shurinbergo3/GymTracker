@@ -87,10 +87,15 @@ class WorkoutManager: ObservableObject {
         WatchSyncBridge.shared.syncCurrentState(from: self)
     }
 
+    /// UserDefaults key that persists the active rest end date so a rest in
+    /// progress survives an app kill / relaunch (see `restoreActiveSession`).
+    private static let restEndsAtKey = "activeRestEndsAt"
+
     /// Called by `RestTimerView` when its countdown actually starts running.
     func beginRest(duration: TimeInterval) {
         let endDate = Date().addingTimeInterval(duration)
         restEndsAt = endDate
+        UserDefaults.standard.set(endDate, forKey: Self.restEndsAtKey)
         activityProvider.startRest(until: endDate)
         WatchSyncBridge.shared.syncCurrentState(from: self)
     }
@@ -100,6 +105,7 @@ class WorkoutManager: ObservableObject {
     func clearRest() {
         guard restEndsAt != nil else { return }
         restEndsAt = nil
+        UserDefaults.standard.removeObject(forKey: Self.restEndsAtKey)
         activityProvider.endRest()
         WatchSyncBridge.shared.syncCurrentState(from: self)
     }
@@ -284,14 +290,32 @@ class WorkoutManager: ObservableObject {
             // Restore state if valid
             currentSession = session
             workoutState = .active
-            
+
             // Try to match selectedDay if possible (active program)
             if let program = activeProgram {
                  selectedDay = program.days.first(where: { $0.name == session.workoutDayName })
             }
-            
+
             // Resume live data fetch
             startActivityUpdates(startDate: session.date)
+
+            // Restore an in-progress rest timer (Live Activity / Apple Watch)
+            // if the app was killed mid-rest and the rest hasn't expired yet.
+            restoreRestIfNeeded()
+        }
+    }
+
+    /// Re-arms `restEndsAt` (and the Live Activity) from the persisted end date
+    /// after a relaunch. Clears it if the rest already expired while the app
+    /// was dead.
+    private func restoreRestIfNeeded() {
+        guard let endDate = UserDefaults.standard.object(forKey: Self.restEndsAtKey) as? Date else { return }
+        if endDate.timeIntervalSinceNow > 0 {
+            restEndsAt = endDate
+            activityProvider.startRest(until: endDate)
+            WatchSyncBridge.shared.syncCurrentState(from: self)
+        } else {
+            UserDefaults.standard.removeObject(forKey: Self.restEndsAtKey)
         }
     }
     
@@ -578,16 +602,12 @@ class WorkoutManager: ObservableObject {
             Task { @MainActor in
                 self.healthProvider.onHeartRateUpdate = { [weak self] hr in
                     self?.currentHeartRate = hr
-                    Task {
-                        await self?.updateLiveActivity(startDate: startDate)
-                    }
+                    self?.scheduleLiveActivityUpdate(startDate: startDate)
                 }
-                
+
                 self.healthProvider.onCalorieUpdate = { [weak self] cals in
                     self?.currentActiveCalories = cals
-                    Task {
-                        await self?.updateLiveActivity(startDate: startDate)
-                    }
+                    self?.scheduleLiveActivityUpdate(startDate: startDate)
                 }
             }
         }
@@ -680,6 +700,7 @@ class WorkoutManager: ObservableObject {
         currentExerciseLastReps = nil
         canCompleteCurrentSetFromWatch = false
         restEndsAt = nil
+        UserDefaults.standard.removeObject(forKey: Self.restEndsAtKey)
         WatchSyncBridge.shared.syncWorkoutEnded()
         // Re-push fresh idle stats so the watch's idle screen shows the
         // bumped totalWorkouts / workoutsThisWeek immediately after the
@@ -692,12 +713,17 @@ class WorkoutManager: ObservableObject {
     
     func finishWorkout() async {
         guard let session = currentSession else { return }
-        
-        // Prevent double-saving (race condition protection)
-        // If finishWorkout is called twice (e.g. double tap), the first call sets isCompleted = true synchronously.
-        // Subsequent calls will hit this guard and exit before saving duplicates.
+
+        // Prevent double-saving (race condition protection).
+        // `finishWorkout` is @MainActor but suspends at the first `await` below;
+        // a second tap could otherwise slip past the guard during that
+        // suspension. Setting `isCompleted` synchronously *before* any `await`
+        // makes the guard atomic — the second call returns immediately.
         if session.isCompleted { return }
-        
+        let endDate = Date()
+        session.endTime = endDate
+        session.isCompleted = true
+
         // 1. Stop live updates immediately
         stopActivityUpdates()
         await MainActor.run {
@@ -706,11 +732,6 @@ class WorkoutManager: ObservableObject {
         }
         clearLiveContext()
         activityProvider.end()
-        
-        // 2. Set end time and completion status locally
-        let endDate = Date()
-        session.endTime = endDate
-        session.isCompleted = true
         
         // Optimistically set values if we have them
         if currentActiveCalories > 0 { session.calories = currentActiveCalories }
@@ -932,16 +953,41 @@ class WorkoutManager: ObservableObject {
         liveActivityTimer?.invalidate()
         liveActivityTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                await self?.updateLiveActivity(startDate: startDate)
+                self?.scheduleLiveActivityUpdate(startDate: startDate)
             }
         }
     }
-    
+
     private func stopActivityUpdates() {
         liveActivityTimer?.invalidate()
         liveActivityTimer = nil
     }
-    
+
+    // Serializes Live Activity updates. The 5 s timer and the HR/calorie
+    // callbacks all trigger updates; running them concurrently let a slow,
+    // older fetch finish last and overwrite fresher HR/calorie values (visible
+    // flicker/rollback). This guard guarantees a single in-flight update and
+    // coalesces any requests that arrive while one is running into exactly one
+    // follow-up, so the final state always reflects the most recent fetch.
+    private var isUpdatingLiveActivity = false
+    private var liveActivityUpdatePending = false
+
+    private func scheduleLiveActivityUpdate(startDate: Date) {
+        if isUpdatingLiveActivity {
+            liveActivityUpdatePending = true
+            return
+        }
+        isUpdatingLiveActivity = true
+        Task { @MainActor in
+            await self.updateLiveActivity(startDate: startDate)
+            self.isUpdatingLiveActivity = false
+            if self.liveActivityUpdatePending {
+                self.liveActivityUpdatePending = false
+                self.scheduleLiveActivityUpdate(startDate: startDate)
+            }
+        }
+    }
+
     private func updateLiveActivity(startDate: Date) async {
         // We attempt to fetch data regardless of cached 'isAuthorized' state.
         // HealthManager handles errors gracefully and returns 0 if access is denied/unavailable.

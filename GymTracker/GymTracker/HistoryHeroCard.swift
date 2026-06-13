@@ -88,10 +88,10 @@ struct HistoryHeroCard: View {
         .padding(DesignSystem.Spacing.lg)
         .background(cardBackground)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(neonStroke, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.15), radius: 18, x: 0, y: 8)
     }
 
@@ -205,7 +205,7 @@ struct HistoryHeroCard: View {
                         ? AnyShapeStyle(DesignSystem.Colors.neonGreen.gradient)
                         : AnyShapeStyle(Color.white.opacity(0.06))
                     )
-                    .cornerRadius(3)
+                    .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
                 }
             }
             .chartXAxis(.hidden)
@@ -255,10 +255,10 @@ struct HistoryHeroCard: View {
         .padding(.vertical, 8)
         .background(tint.opacity(0.08))
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .stroke(tint.opacity(0.20), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     // MARK: - Background

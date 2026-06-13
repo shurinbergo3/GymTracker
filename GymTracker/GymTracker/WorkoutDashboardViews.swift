@@ -374,11 +374,11 @@ struct TodayWorkoutCard: View {
                 // Progress Bar
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
                             .fill(Color.white.opacity(0.1))
                             .frame(height: 8)
                         
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
                             .fill(
                                 LinearGradient(colors: [DesignSystem.Colors.neonGreen, Color(red: 0.6, green: 0.9, blue: 0.15)], startPoint: .leading, endPoint: .trailing)
                             )
@@ -399,10 +399,10 @@ struct TodayWorkoutCard: View {
                     }
                     .padding(.vertical, 14)
                     .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small))
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous))
                     .foregroundStyle(DesignSystem.Colors.primaryText)
                     .overlay(
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous)
                             .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
                     )
                 }
@@ -545,7 +545,7 @@ struct SleepDetailView: View {
             }
             .padding()
             .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(16)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding(.horizontal)
             
             // Legend / Breakdown
@@ -565,7 +565,7 @@ struct SleepDetailView: View {
             }
             .padding()
             .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(16)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding(.horizontal)
         }
     }
@@ -631,7 +631,7 @@ struct SleepDetailView: View {
             }
             .padding()
             .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(16)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding(.horizontal)
         }
     }
@@ -689,7 +689,7 @@ struct SleepStatBox: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
@@ -986,9 +986,9 @@ struct PremiumBentoCard<Content: View>: View {
                     endPoint: .bottom
                 )
             )
-            .cornerRadius(20)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .stroke(
                         LinearGradient(
                             colors: [DesignSystem.Colors.neonGreen.opacity(0.3), .clear],
@@ -1053,9 +1053,9 @@ struct HistoryCardView: View {
         }
         .padding()
         .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(Color.white.opacity(0.05), lineWidth: 1)
         )
     }
@@ -1519,7 +1519,7 @@ struct SummaryOverlay: View {
 
     private var heroMetricCard: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                 .fill(
                     LinearGradient(
                         colors: [
@@ -1531,7 +1531,7 @@ struct SummaryOverlay: View {
                     )
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                         .stroke(DesignSystem.Colors.neonGreen.opacity(0.4), lineWidth: 1)
                 )
                 .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.25), radius: 20)
@@ -1643,11 +1643,11 @@ struct SummaryOverlay: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .fill(DesignSystem.Colors.cardBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(isOn ? color.opacity(0.4) : Color.white.opacity(0.06), lineWidth: 1)
         )
     }
@@ -1691,11 +1691,11 @@ struct SummaryOverlay: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous)
                 .fill(DesignSystem.Colors.cardBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous)
                 .stroke(color.opacity(0.18), lineWidth: 1)
         )
     }
@@ -1733,7 +1733,7 @@ struct SummaryOverlay: View {
 
     private func breakdownRow(_ item: ExerciseProgress) -> some View {
         HStack(spacing: 10) {
-            RoundedRectangle(cornerRadius: 2)
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
                 .fill(item.progressState.color)
                 .frame(width: 3, height: 30)
 
@@ -1760,7 +1760,7 @@ struct SummaryOverlay: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous)
                 .fill(DesignSystem.Colors.cardBackground)
         )
     }
@@ -1845,9 +1845,9 @@ struct SummaryOverlay: View {
                         endPoint: .bottomTrailing
                     )
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
                 )
             }
@@ -1855,10 +1855,10 @@ struct SummaryOverlay: View {
         .padding(DesignSystem.Spacing.lg)
         .background(notesCardBackground)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(notesNeonStroke, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .shadow(color: DesignSystem.Colors.accentPurple.opacity(0.25), radius: 20, x: 0, y: 8)
         .padding(.horizontal, DesignSystem.Spacing.lg)
     }
@@ -2107,7 +2107,7 @@ struct ProgressSummaryCard: View {
                         progress.progressState == .improved ?
                         DesignSystem.Colors.neonGreen.opacity(0.1) : Color.clear
                     )
-                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                     
                     if index < progressData.count - 1 {
                         Divider()
@@ -2195,7 +2195,7 @@ struct ActiveWorkoutContent: View {
                 .frame(maxWidth: .infinity)
                 .padding(DesignSystem.Spacing.xl)
                 .background(DesignSystem.Colors.cardBackground)
-                .cornerRadius(DesignSystem.CornerRadius.medium)
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                 .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
             }
             .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -2278,7 +2278,7 @@ struct BentoCard<Content: View>: View {
         content
             .padding()
             .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(DesignSystem.CornerRadius.medium)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
             .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
     
     }
@@ -2369,10 +2369,10 @@ struct LastWorkoutBento: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(cardBackground)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(neonStroke, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.12), radius: 18, x: 0, y: 8)
         .shadow(color: Color.black.opacity(0.35), radius: 14, x: 0, y: 6)
     }
@@ -2487,10 +2487,10 @@ struct LastWorkoutBento: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(tint.opacity(0.10))
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .stroke(tint.opacity(0.22), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     // MARK: - Background
@@ -2595,7 +2595,7 @@ struct EmptyHistoryPlaceholder: View {
             }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(
                     LinearGradient(
                         colors: [DesignSystem.Colors.neonGreen.opacity(0.18), Color.white.opacity(0.04)],
@@ -2605,7 +2605,7 @@ struct EmptyHistoryPlaceholder: View {
                     lineWidth: 1
                 )
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 }
 

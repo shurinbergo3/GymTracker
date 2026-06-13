@@ -15101,6 +15101,12 @@
     },
     "Влияет на круг прогресса и серию недель" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affects the progress ring and weekly streak"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",

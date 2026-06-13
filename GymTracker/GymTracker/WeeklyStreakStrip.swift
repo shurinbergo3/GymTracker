@@ -21,6 +21,10 @@ struct WeeklyStreakStrip: View {
     let weeklyGoal: Int
 
     @State private var selectedDay: Date?
+    /// Cached streak value. Computed once per appearance / data change in a
+    /// lifecycle hook (see `body`), NOT during rendering, because the streak
+    /// calculation has a side effect (`StreakFreezeStorage.consume()`).
+    @State private var weekStreak: Int = 0
 
     // MARK: - Calendar
 
@@ -146,7 +150,14 @@ struct WeeklyStreakStrip: View {
     /// completed week, adding 1 per week that meets the goal. The current
     /// week is added on top if already complete (so an in-progress week
     /// doesn't break the streak).
-    private var weekStreak: Int {
+    ///
+    /// NOTE: this is a *function*, not a computed property, because it mutates
+    /// persistent state via `StreakFreezeStorage.consume()`. It must be invoked
+    /// from a lifecycle hook (`.onAppear` / `.onChange`) — never from `body` —
+    /// and its result cached in `weekStreak`. Calling it during view rendering
+    /// would write to UserDefaults on every (repeated, unpredictable) `body`
+    /// evaluation.
+    private func computeWeekStreak() -> Int {
         var count = goalMet ? 1 : 0
         var cursor = calendar.date(byAdding: .day, value: -7, to: mondayOf(Date())) ?? Date()
         var freezeAvailable = StreakFreezeStorage.shared.isAvailableThisMonth()
@@ -215,13 +226,15 @@ struct WeeklyStreakStrip: View {
         .padding(DesignSystem.Spacing.lg)
         .background(background)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(DesignSystem.Colors.neonGreen.opacity(goalMet ? 0.32 : 0.18),
                         lineWidth: goalMet ? 1.0 : 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .shadow(color: DesignSystem.Colors.neonGreen.opacity(goalMet ? 0.22 : 0.12),
                 radius: goalMet ? 18 : 14, x: 0, y: 6)
+        .onAppear { weekStreak = computeWeekStreak() }
+        .onChange(of: sessions.count) { _, _ in weekStreak = computeWeekStreak() }
         .sheet(item: Binding(
             get: { selectedDay.map { DayContext(date: $0) } },
             set: { selectedDay = $0?.date }
@@ -666,7 +679,7 @@ private struct DayDetailsSheet: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 14))
+        .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func externalRow(_ ext: ExternalWorkout) -> some View {
@@ -696,7 +709,7 @@ private struct DayDetailsSheet: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 14))
+        .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func timeRange(start: Date, end: Date?) -> String {

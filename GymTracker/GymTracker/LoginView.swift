@@ -112,11 +112,11 @@ struct LoginView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .background(
-                            RoundedRectangle(cornerRadius: 12)
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .fill(DesignSystem.Colors.neonGreen.opacity(0.10))
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .stroke(DesignSystem.Colors.neonGreen.opacity(0.3), lineWidth: 1)
                         )
                         .padding(.horizontal, 28)
@@ -137,11 +137,11 @@ struct LoginView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .background(
-                            RoundedRectangle(cornerRadius: 12)
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .fill(Color(red: 1.0, green: 0.2, blue: 0.2).opacity(0.10))
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .stroke(Color(red: 1.0, green: 0.3, blue: 0.3).opacity(0.3), lineWidth: 1)
                         )
                         .padding(.horizontal, 28)
@@ -393,11 +393,11 @@ struct ForgeTextField: View {
         .padding(.horizontal, 18)
         .padding(.vertical, 18)
         .background(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(Color.white.opacity(0.05))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(
                     isFocused ? DesignSystem.Colors.neonGreen.opacity(0.85) : Color.white.opacity(0.08),
                     lineWidth: isFocused ? 1.5 : 1
@@ -440,15 +440,15 @@ struct SocialButton: View {
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(
-                RoundedRectangle(cornerRadius: 18)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(background)
                     .background(
-                        RoundedRectangle(cornerRadius: 18)
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
                             .fill(.ultraThinMaterial)
                     )
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 18)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(border, lineWidth: 1)
             )
         }

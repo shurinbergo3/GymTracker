@@ -263,7 +263,7 @@ struct ExerciseListRow: View {
     var body: some View {
         HStack(spacing: 14) {
             // Vertical accent bar
-            RoundedRectangle(cornerRadius: 3)
+            RoundedRectangle(cornerRadius: 3, style: .continuous)
                 .fill(
                     LinearGradient(
                         colors: [accent, accent.opacity(0.45)],

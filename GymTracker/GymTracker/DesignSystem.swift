@@ -131,7 +131,7 @@ struct CardView<Content: View>: View {
             } else {
                 content
                     .background(DesignSystem.Colors.cardBackground)
-                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                     .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
             }
         }
@@ -180,9 +180,9 @@ struct NeonTextField: View {
             .focused($isFocused)
             .padding(DesignSystem.Spacing.md)
             .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(DesignSystem.CornerRadius.small)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small, style: .continuous)
                     .stroke(isFocused ? DesignSystem.Colors.neonGreen : Color.clear, lineWidth: 2)
             )
             .font(DesignSystem.Typography.title3())
@@ -237,7 +237,7 @@ struct GradientButton: View {
                     endPoint: .trailing
                 )
             )
-            .cornerRadius(DesignSystem.CornerRadius.extraLarge)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.extraLarge, style: .continuous))
             .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.4), radius: 12, x: 0, y: 6)
         }
     }
@@ -263,7 +263,7 @@ struct WorkoutBannerCard<Content: View>: View {
                     endPoint: .bottomTrailing
                 )
             )
-            .cornerRadius(DesignSystem.CornerRadius.large)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
             .shadow(color: Color.black.opacity(0.4), radius: 15, x: 0, y: 8)
     }
 }
@@ -356,9 +356,9 @@ struct GlassModifier: ViewModifier {
         content
             .background(.ultraThinMaterial)
             .background(DesignSystem.Colors.glassBackground)
-            .cornerRadius(DesignSystem.CornerRadius.medium)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                     .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
             )
             .shadow(color: Color.black.opacity(0.2), radius: 20, x: 0, y: 10)

@@ -215,9 +215,9 @@ struct HeaderBentoCard<Content: View>: View {
             content
                 .padding(12)
         }
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(Color.white.opacity(0.05), lineWidth: 1)
         )
     }

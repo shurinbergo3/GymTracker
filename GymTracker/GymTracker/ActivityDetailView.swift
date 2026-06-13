@@ -185,7 +185,7 @@ struct ActivityDetailView: View {
             // Bar chart placeholder
             HStack(alignment: .bottom, spacing: 2) {
                 ForEach(0..<24, id: \.self) { hour in
-                    RoundedRectangle(cornerRadius: 2)
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
                         .fill(color)
                         .frame(width: 8, height: CGFloat.random(in: 5...50))
                 }

@@ -248,7 +248,7 @@ struct WorkoutCompletionView: View {
                                             .padding(.vertical, 4)
                                             .padding(.horizontal, 8)
                                             .background(item.progressState.color.opacity(0.15))
-                                            .cornerRadius(8)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                                         }
                                     }
                                 }
@@ -412,9 +412,9 @@ fileprivate struct CompletionBentoCard<Content: View>: View {
                     endPoint: .bottom
                 )
             )
-            .cornerRadius(20)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .stroke(Color.white.opacity(0.05), lineWidth: 1)
             )
     }

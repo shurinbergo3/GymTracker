@@ -26,7 +26,18 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
     var onCalorieUpdate: ((Int) -> Void)?
 
     private override init() {}
-    
+
+    deinit {
+        // Stop any long-lived HealthKit queries so they don't outlive the
+        // manager. Harmless for the shared singleton (lives for the app's
+        // lifetime), but keeps the class correct if it's ever used non-shared.
+        if let observer = externalWorkoutsObserver {
+            healthStore.stop(observer)
+        }
+        if let hr = heartRateQuery { healthStore.stop(hr) }
+        if let cal = calorieQuery { healthStore.stop(cal) }
+    }
+
     func requestAuthorization() async -> Bool {
         // Optimization: Don't request if already authorized
         if isAuthorized { return true }

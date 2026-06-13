@@ -217,7 +217,7 @@ struct ExerciseTechniqueDetailView: View {
             .padding(20)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(DesignSystem.Colors.cardBackground)
-            .cornerRadius(20)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .padding(.horizontal, 16)
         } else {
             VStack(spacing: 14) {
@@ -252,7 +252,7 @@ struct ExerciseTechniqueDetailView: View {
                     endPoint: .trailing
                 )
             )
-            .cornerRadius(16)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .shadow(color: Color.red.opacity(0.3), radius: 10, x: 0, y: 5)
         }
         .padding(.horizontal, 16)
@@ -371,11 +371,11 @@ private struct TechniqueCard: View {
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(DesignSystem.Colors.cardBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .stroke(section.color.opacity(0.15), lineWidth: 1)
         )
     }

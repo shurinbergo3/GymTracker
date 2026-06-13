@@ -105,7 +105,7 @@ struct TheoryBlock: View {
         }
         .padding(DesignSystem.Spacing.md)
         .background(DesignSystem.Colors.cardBackground)
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 }
 
@@ -246,9 +246,9 @@ struct HormoneCard: View {
                 .background(DesignSystem.Colors.cardBackground.opacity(0.5))
             }
         }
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
                 .stroke(isExpanded ? data.color.opacity(0.5) : Color.white.opacity(0.1), lineWidth: 1)
         )
     }

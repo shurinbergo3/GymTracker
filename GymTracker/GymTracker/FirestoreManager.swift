@@ -32,7 +32,11 @@ class FirestoreManager {
         let collectionPath = "users/\(userId)/workouts"
         
         do {
-            try db.collection(collectionPath).addDocument(from: workout) { error in
+            // Idempotent write: deterministic doc ID keyed on the workout's
+            // identity so retries / re-syncs overwrite instead of duplicating.
+            try db.collection(collectionPath)
+                .document(workout.deterministicDocumentID)
+                .setData(from: workout, merge: false) { error in
                 if let error = error {
                     #if DEBUG
                     print("Error saving workout to Firestore: \(error.localizedDescription)")
@@ -112,7 +116,10 @@ class FirestoreManager {
         
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             do {
-                try db.collection(collectionPath).addDocument(from: workout) { error in
+                // Idempotent write: deterministic doc ID so retries overwrite.
+                try db.collection(collectionPath)
+                    .document(workout.deterministicDocumentID)
+                    .setData(from: workout, merge: false) { error in
                     if let error = error {
                         continuation.resume(throwing: error)
                     } else {
@@ -124,7 +131,7 @@ class FirestoreManager {
             }
         }
     }
-    
+
     // MARK: - Delete User Data
     
     /// Remove duplicate workouts from Firestore
