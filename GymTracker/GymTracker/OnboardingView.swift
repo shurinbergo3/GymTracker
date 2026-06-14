@@ -31,36 +31,22 @@ struct OnboardingView: View {
         ),
         OnboardingPage(
             kind: .feature,
-            iconSystem: "list.bullet.rectangle.portrait.fill",
-            title: "ПРОГРАММЫ И ТРЕНИРОВКИ",
-            subtitle: "Готовые программы или собственные. Мы фиксируем подходы, веса, повторения и считаем объём — ты только тренируешься.",
+            iconSystem: "chart.line.uptrend.xyaxis",
+            title: "ТРЕНИРОВКИ В ЦИФРАХ",
+            subtitle: "Готовые программы или свои. Фиксируем каждый подход и вес, а графики показывают рост силы, объёма и рекордов — неделя за неделей.",
             tint: DesignSystem.Colors.neonGreen
-        ),
-        OnboardingPage(
-            kind: .feature,
-            iconSystem: "brain.head.profile",
-            title: "ИИ-ТРЕНЕР",
-            subtitle: "Анализирует прогресс, отвечает на вопросы, корректирует план. Личный тренер, который всегда на связи.",
-            tint: Color(red: 0.6, green: 0.4, blue: 1.0)
         ),
         OnboardingPage(
             kind: .coachStyle,
-            iconSystem: "person.wave.2.fill",
+            iconSystem: "brain.head.profile",
             title: "ВЫБЕРИ СТИЛЬ КОУЧА",
-            subtitle: "Любой стиль можно поменять в настройках. Тон ответов и пушей подстроится под тебя.",
-            tint: DesignSystem.Colors.neonGreen
-        ),
-        OnboardingPage(
-            kind: .feature,
-            iconSystem: "chart.line.uptrend.xyaxis",
-            title: "ПРОГРЕСС, А НЕ ИНТУИЦИЯ",
-            subtitle: "Графики силы, объёма, измерения тела, личные рекорды. Видишь, как растёшь — неделя за неделей.",
-            tint: DesignSystem.Colors.secondaryAccent
+            subtitle: "ИИ-тренер анализирует прогресс, отвечает на вопросы и корректирует план. Выбери тон — поменять можно в настройках.",
+            tint: Color(red: 0.6, green: 0.4, blue: 1.0)
         ),
         OnboardingPage(
             kind: .health,
             iconSystem: "heart.fill",
-            title: "СИНХРОНИЗАЦИЯ С APPLE ЗДОРОВЬЕ",
+            title: "СИНХРОНИЗАЦИЯ С APPLE HEALTH",
             subtitle: "Тренировки автоматически попадают в Apple Health. Кольца активности, пульс, калории — всё считается и хранится у тебя.",
             tint: Color(red: 1.0, green: 0.27, blue: 0.4)
         ),
@@ -74,7 +60,7 @@ struct OnboardingView: View {
         OnboardingPage(
             kind: .cta,
             iconSystem: nil,
-            title: "ГОТОВ?",
+            title: "ПОЕХАЛИ!",
             subtitle: "Создай аккаунт за 30 секунд — и начнём ковать форму уже сегодня.",
             tint: DesignSystem.Colors.neonGreen
         )
@@ -154,9 +140,11 @@ struct OnboardingView: View {
                             Text("Назад".localized())
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                                 .foregroundColor(DesignSystem.Colors.tertiaryText)
+                                .frame(minWidth: 44, minHeight: 44)
+                                .contentShape(Rectangle())
                         }
                     } else {
-                        Spacer().frame(height: 22)
+                        Spacer().frame(height: 44)
                     }
                 }
                 .padding(.bottom, 32)
@@ -530,7 +518,7 @@ private struct WatchChoiceRow: View {
 
             WatchChoiceButton(
                 label: "Нет",
-                sublabel: "Скроем рингы",
+                sublabel: "Скроем кольца",
                 icon: "applewatch.slash",
                 accent: DesignSystem.Colors.accentPurple,
                 isPrimary: false,

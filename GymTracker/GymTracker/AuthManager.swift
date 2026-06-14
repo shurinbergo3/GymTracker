@@ -157,8 +157,8 @@ class AuthManager: ObservableObject {
     func logout() {
         do {
             try Auth.auth().signOut()
-            // Reset onboarding so the welcome preview shows again on next launch
-            UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
+            // NB: intentionally do NOT reset "hasSeenOnboarding" here — the tour is a
+            // one-time first-launch experience and must not reappear after logout.
             // Privacy: wipe the previous user's locally-cached data so the next
             // account that signs in on this device cannot see their history.
             // Without this, `checkForFreshInstall()` finds count > 0 and never
@@ -196,6 +196,9 @@ class AuthManager: ObservableObject {
             try modelContext.delete(model: AICoachMessage.self)
             try modelContext.delete(model: AICoachWeeklySummary.self)
             try modelContext.delete(model: AICoachUserProfile.self)
+            // Privacy: custom exercises are per-user too — must be wiped so the
+            // next account on this device can't see the previous user's library.
+            try modelContext.delete(model: CustomExercise.self)
             try modelContext.save()
             #if DEBUG
             print("✅ Local user data cleared")

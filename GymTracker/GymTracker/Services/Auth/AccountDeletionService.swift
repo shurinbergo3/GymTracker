@@ -68,6 +68,12 @@ final class AccountDeletionService {
         try context.delete(model: Program.self)
         try context.delete(model: WorkoutDay.self)
         try context.delete(model: ExerciseTemplate.self)
+        // Keep this list in sync with AuthManager.clearLocalUserData — both must
+        // wipe the COMPLETE schema (AI-coach history + custom exercises included).
+        try context.delete(model: AICoachMessage.self)
+        try context.delete(model: AICoachWeeklySummary.self)
+        try context.delete(model: AICoachUserProfile.self)
+        try context.delete(model: CustomExercise.self)
         try context.save()
     }
     

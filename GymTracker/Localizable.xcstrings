@@ -1605,6 +1605,16 @@
         }
       }
     },
+    "%lld / %lld %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld %3$@"
+          }
+        }
+      }
+    },
     "%lld %@" : {
       "localizations" : {
         "de" : {
@@ -22420,6 +22430,29 @@
         }
       }
     },
+    "Готовые программы или свои. Фиксируем каждый подход и вес, а графики показывают рост силы, объёма и рекордов — неделя за неделей." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertige Programme oder eigene. Wir erfassen jeden Satz und jedes Gewicht, und Diagramme zeigen, wie Kraft, Volumen und Rekorde wachsen – Woche für Woche."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready-made programs or your own. We log every set and weight, and charts show your strength, volume and PRs growing — week after week."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gotowe programy lub własne. Zapisujemy każdą serię i ciężar, a wykresy pokazują wzrost siły, objętości i rekordów — tydzień po tygodniu."
+          }
+        }
+      }
+    },
     "Готовые программы или собственные. Мы фиксируем подходы, веса, повторения и считаем объём — ты только тренируешься." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -28583,6 +28616,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "AI TRENER"
+          }
+        }
+      }
+    },
+    "ИИ-тренер анализирует прогресс, отвечает на вопросы и корректирует план. Выбери тон — поменять можно в настройках." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der KI-Coach analysiert deinen Fortschritt, beantwortet Fragen und passt den Plan an. Wähle einen Ton – ändern kannst du ihn in den Einstellungen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The AI coach analyzes your progress, answers questions and adjusts your plan. Pick a tone — you can change it later in settings."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trener AI analizuje postępy, odpowiada na pytania i koryguje plan. Wybierz ton — możesz go zmienić w ustawieniach."
           }
         }
       }
@@ -41408,6 +41464,29 @@
         }
       }
     },
+    "ПОЕХАЛИ!" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LOS GEHT'S!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LET'S GO!"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RUSZAMY!"
+          }
+        }
+      }
+    },
     "Поиск по истории" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -48219,7 +48298,7 @@
         }
       }
     },
-    "СИНХРОНИЗАЦИЯ С APPLE ЗДОРОВЬЕ" : {
+    "СИНХРОНИЗАЦИЯ С APPLE HEALTH" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -48439,7 +48518,7 @@
         }
       }
     },
-    "Скроем рингы" : {
+    "Скроем кольца" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -63542,6 +63621,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Treningi trafiają wprost do Apple Health. Pierścienie aktywności, tętno, kalorie — wszystko liczone i zapisywane u Ciebie."
+          }
+        }
+      }
+    },
+    "ТРЕНИРОВКИ В ЦИФРАХ" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TRAINING IN ZAHLEN"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WORKOUTS IN NUMBERS"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TRENINGI W LICZBACH"
           }
         }
       }

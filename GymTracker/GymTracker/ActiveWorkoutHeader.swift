@@ -4,14 +4,55 @@
 //
 //  Created by Antigravity
 //
+//  Single dense live HUD: time + set progress, live metrics (HR/kcal/tonnage),
+//  a session-momentum bar, day-streak and combo. Folds in what used to be a
+//  separate WorkoutProgressStrip (streak / status / PR-flash) so the active
+//  screen reads as one compact card with no wasted side space.
+//
 
 import SwiftUI
-import Combine
+import SwiftData
 
 struct ActiveWorkoutHeader: View {
     @EnvironmentObject var workoutManager: WorkoutManager
+    @Query(sort: \WorkoutSession.date, order: .reverse) private var allSessions: [WorkoutSession]
 
-    // MARK: - Derived metrics
+    @State private var prFlashActive = false
+    @State private var prFlashResetWork: DispatchWorkItem?
+    @State private var pulse = false
+    @State private var pulseResetWork: DispatchWorkItem?
+
+    // MARK: - Streak
+
+    private var calendar: Calendar {
+        var cal = Calendar(identifier: .gregorian)
+        cal.locale = LanguageManager.shared.currentLocale
+        cal.firstWeekday = 2
+        return cal
+    }
+
+    private var trainedDays: Set<Date> {
+        let cal = calendar
+        return Set(allSessions.map { cal.startOfDay(for: $0.date) })
+    }
+
+    private var currentStreak: Int {
+        let cal = calendar
+        var current = cal.startOfDay(for: Date())
+        var count = 0
+        if !trainedDays.contains(current) {
+            guard let y = cal.date(byAdding: .day, value: -1, to: current) else { return 0 }
+            current = y
+        }
+        while trainedDays.contains(current) {
+            count += 1
+            guard let prev = cal.date(byAdding: .day, value: -1, to: current) else { break }
+            current = prev
+        }
+        return count
+    }
+
+    // MARK: - Live metrics
 
     private var totalTonnage: Int {
         guard let session = workoutManager.currentSession else { return 0 }
@@ -20,7 +61,20 @@ struct ActiveWorkoutHeader: View {
             .reduce(0) { $0 + Int($1.weight * Double($1.reps)) }
     }
 
+    /// Tonnage shrinks to tonnes once it passes 1000 kg so the number stays short
+    /// and the row never overflows (matches the "т" abbreviation used elsewhere).
+    private var tonnageValue: String {
+        totalTonnage >= 1000 ? String(format: "%.1f", Double(totalTonnage) / 1000.0) : "\(totalTonnage)"
+    }
+    private var tonnageUnit: String {
+        totalTonnage >= 1000 ? "т".localized() : "кг".localized()
+    }
+
     private var liveCalories: Int { workoutManager.currentActiveCalories }
+
+    private var hrValue: String {
+        workoutManager.currentHeartRate > 0 ? "\(workoutManager.currentHeartRate)" : "–"
+    }
 
     private var completedSetsCount: Int {
         workoutManager.currentSession?.sets.filter { $0.isCompleted }.count ?? 0
@@ -33,19 +87,16 @@ struct ActiveWorkoutHeader: View {
             .reduce(0) { $0 + max(1, $1.plannedSets) }
     }
 
-    /// Ring fill — real workout completion (sets done / planned). Replaces the
-    /// old per-minute cycle that conveyed nothing. Falls back to 0 with no plan.
     private var sessionProgress: CGFloat {
         guard totalPlannedSets > 0 else { return 0 }
         return min(1, CGFloat(completedSetsCount) / CGFloat(totalPlannedSets))
     }
 
-    /// Session XP — each completed set is +10 XP. Purely motivational; ticks up
-    /// live with a "+N XP" readout so progress is felt in the moment.
+    /// Session XP — each completed set is +10 XP. Motivational; ticks up live.
     private var sessionXP: Int { completedSetsCount * 10 }
 
-    /// Current combo — trailing run of sets logged within 4 min of each other.
-    /// A longer rest resets it. Rewards keeping the tempo, without punishment.
+    /// Combo — trailing run of sets logged within 4 min of each other. A longer
+    /// rest resets it. Rewards tempo, never punishes.
     private var combo: Int {
         guard let session = workoutManager.currentSession else { return 0 }
         let done = session.sets.filter { $0.isCompleted }.sorted { $0.date < $1.date }
@@ -59,133 +110,132 @@ struct ActiveWorkoutHeader: View {
         return run
     }
 
-    /// Heart-rate zone tint by absolute bpm (recovery → effort → peak). When
-    /// there's no live reading (0) the icon reads muted rather than alarming red.
+    /// Heart-rate zone tint by absolute bpm. No reading (0) → muted, not alarming.
     private var hrZoneColor: Color {
         let hr = workoutManager.currentHeartRate
         switch hr {
-        case ..<1:        return DesignSystem.Colors.secondaryText
-        case 1..<100:     return Color(red: 0.40, green: 0.80, blue: 1.0)   // light effort
-        case 100..<140:   return DesignSystem.Colors.neonGreen              // cardio
-        case 140..<170:   return .orange                                    // hard
-        default:          return Color(red: 1.0, green: 0.30, blue: 0.35)   // peak
+        case ..<1:      return DesignSystem.Colors.secondaryText
+        case 1..<100:   return Color(red: 0.40, green: 0.80, blue: 1.0)
+        case 100..<140: return DesignSystem.Colors.neonGreen
+        case 140..<170: return .orange
+        default:        return Color(red: 1.0, green: 0.30, blue: 0.35)
         }
     }
 
     // MARK: - Body
 
     var body: some View {
-        // 1 Hz tick — drives only the MM:SS readout. The ring tracks set
-        // progress (state-driven), so it animates on completion, not per second.
-        TimelineView(.periodic(from: Date(), by: 1.0)) { context in
-            VStack(spacing: 14) {
-                HStack(spacing: 16) {
-                    progressRing(date: context.date)
-
-                    VStack(spacing: 9) {
-                        statRow(icon: "heart.fill", color: hrZoneColor,
-                                value: "\(workoutManager.currentHeartRate)", unit: "BPM".localized(),
-                                animate: workoutManager.currentHeartRate)
-                        statRow(icon: "flame.fill", color: .orange,
-                                value: "\(liveCalories)", unit: "KCAL".localized(),
-                                animate: liveCalories)
-                        statRow(icon: "scalemass.fill", color: DesignSystem.Colors.neonGreen,
-                                value: "\(totalTonnage)", unit: "KG".localized(),
-                                animate: totalTonnage)
-                    }
-                }
-
-                impulseBar
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 16)
-            .background(heroBackground)
-            .overlay(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(headerStroke, lineWidth: 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.18), radius: 16, x: 0, y: 6)
-            .shadow(color: Color.black.opacity(0.35), radius: 14, x: 0, y: 8)
+        card
+            .overlay(alignment: .top) { prOverlay }
+            .scaleEffect(pulse ? 1.012 : 1.0)
+            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.16), radius: 14, x: 0, y: 6)
+            .shadow(color: Color.black.opacity(0.35), radius: 12, x: 0, y: 8)
             .padding(.horizontal, DesignSystem.Spacing.lg)
+            .animation(.spring(response: 0.32, dampingFraction: 0.55), value: pulse)
+            .onChange(of: workoutManager.setCompletionTick) { _, _ in triggerPulse() }
+            .onChange(of: workoutManager.prFlashTrigger) { _, _ in triggerPRFlash() }
+            .onDisappear {
+                // Cancel any pending reset so it can't fire on a torn-down view
+                // and leave stale pulse/PR-flash state if the header reappears.
+                pulseResetWork?.cancel()
+                prFlashResetWork?.cancel()
+            }
+    }
+
+    private var card: some View {
+        // The 1 Hz tick is scoped to ONLY the MM:SS readout (see `timeReadout`).
+        // Everything here — set-progress, streak, combo, tonnage — is state-driven,
+        // so this VStack recomputes on data change, not every second.
+        VStack(spacing: 13) {
+            topRow
+            momentumRow
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(heroBackground)
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(headerStroke, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    // MARK: - Top row: time + sets | live metrics
+
+    /// Only the elapsed-time label needs the 1 Hz tick — isolating it here keeps
+    /// the rest of the card (streak/combo/tonnage) off the per-second render path.
+    private var timeReadout: some View {
+        TimelineView(.periodic(from: Date(), by: 1.0)) { context in
+            Text(formatTime(context.date))
+                .font(.system(size: 33, weight: .heavy, design: .monospaced))
+                .foregroundColor(DesignSystem.Colors.primaryText)
+                .kerning(-1)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
     }
 
-    // MARK: - Progress ring (centerpiece — time in center, sets as fill)
-
-    @ViewBuilder
-    private func progressRing(date: Date) -> some View {
-        ZStack {
-            Circle()
-                .stroke(Color.white.opacity(0.08), lineWidth: 6)
-                .frame(width: 88, height: 88)
-
-            Circle()
-                .trim(from: 0, to: sessionProgress)
-                .stroke(
-                    LinearGradient(
-                        colors: [DesignSystem.Colors.neonGreen, Color(red: 0.33, green: 0.88, blue: 1.0)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    style: StrokeStyle(lineWidth: 6, lineCap: .round)
-                )
-                .rotationEffect(.degrees(-90))
-                .frame(width: 88, height: 88)
-                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 5)
-                .animation(.easeOut(duration: 0.4), value: sessionProgress)
-
-            VStack(spacing: 1) {
-                Text(formatTime(date))
-                    .font(DesignSystem.Typography.monospaced(.headline, weight: .heavy))
-                    .foregroundColor(DesignSystem.Colors.primaryText)
-                    .kerning(0.5)
-                Text("\(completedSetsCount)/\(totalPlannedSets)")
+    private var topRow: some View {
+        HStack(alignment: .top, spacing: 10) {
+            VStack(alignment: .leading, spacing: 3) {
+                timeReadout
+                Text("\(completedSetsCount) / \(totalPlannedSets) \("подходов".localized())")
                     .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                    .foregroundColor(DesignSystem.Colors.tertiaryText)
+                    .tracking(0.5)
+                    .textCase(.uppercase)
+                    .lineLimit(1)
+            }
+
+            Spacer(minLength: 8)
+
+            HStack(spacing: 16) {
+                metricCol(icon: "heart.fill", color: hrZoneColor,
+                          value: hrValue, unit: "уд/мин".localized(),
+                          animate: workoutManager.currentHeartRate)
+                metricCol(icon: "flame.fill", color: .orange,
+                          value: "\(liveCalories)", unit: "ккал".localized(),
+                          animate: liveCalories)
+                metricCol(icon: "scalemass.fill", color: DesignSystem.Colors.neonGreen,
+                          value: tonnageValue, unit: tonnageUnit,
+                          animate: totalTonnage)
             }
         }
-        .frame(width: 96, height: 96)
     }
 
-    // MARK: - Live stat row
-
     @ViewBuilder
-    private func statRow(icon: String, color: Color, value: String, unit: String, animate: Int) -> some View {
-        HStack(spacing: 9) {
-            Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(color)
-                .frame(width: 20)
-                .shadow(color: color.opacity(0.5), radius: 4)
-
+    private func metricCol(icon: String, color: Color, value: String, unit: String, animate: Int) -> some View {
+        VStack(alignment: .trailing, spacing: 3) {
             Text(value)
-                .font(DesignSystem.Typography.monospaced(.subheadline, weight: .bold))
+                .font(.system(size: 19, weight: .heavy, design: .monospaced))
                 .foregroundColor(DesignSystem.Colors.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .contentTransition(.numericText())
                 .animation(.easeOut(duration: 0.35), value: animate)
 
-            Text(unit)
-                .font(.system(size: 9, weight: .semibold))
-                .foregroundColor(DesignSystem.Colors.secondaryText)
-                .tracking(0.8)
-
-            Spacer(minLength: 0)
+            HStack(spacing: 3) {
+                Image(systemName: icon)
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(color)
+                Text(unit)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.tertiaryText)
+                    .tracking(0.2)
+            }
         }
+        .fixedSize()
     }
 
-    // MARK: - Session impulse (live XP + combo)
+    // MARK: - Momentum row: streak | progress | combo | XP
 
-    private var impulseBar: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "bolt.fill")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(DesignSystem.Colors.neonGreen)
-                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 4)
+    private var momentumRow: some View {
+        HStack(spacing: 8) {
+            if currentStreak > 0 { streakChip }
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.10))
+                    Capsule().fill(Color.white.opacity(0.09))
                     Capsule()
                         .fill(
                             LinearGradient(
@@ -194,12 +244,13 @@ struct ActiveWorkoutHeader: View {
                                 endPoint: .trailing
                             )
                         )
-                        .frame(width: max(6, geo.size.width * sessionProgress))
-                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.6), radius: 5)
+                        .frame(width: geo.size.width * sessionProgress)
+                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 5)
                         .animation(.easeOut(duration: 0.35), value: sessionProgress)
                 }
             }
             .frame(height: 7)
+            .frame(maxWidth: .infinity)
 
             if combo >= 2 {
                 comboChip
@@ -207,7 +258,7 @@ struct ActiveWorkoutHeader: View {
             }
 
             Text("+\(sessionXP) XP")
-                .font(DesignSystem.Typography.monospaced(.caption, weight: .heavy))
+                .font(.system(size: 12, weight: .heavy, design: .monospaced))
                 .foregroundColor(DesignSystem.Colors.neonGreen)
                 .contentTransition(.numericText())
                 .animation(.easeOut(duration: 0.35), value: sessionXP)
@@ -215,9 +266,26 @@ struct ActiveWorkoutHeader: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.7), value: combo)
     }
 
-    private var comboChip: some View {
+    /// Day-streak — flame, left of the bar. Cross-session (distinct from combo).
+    private var streakChip: some View {
         HStack(spacing: 3) {
             Image(systemName: "flame.fill")
+                .font(.system(size: 10, weight: .black))
+            Text("\(currentStreak)")
+                .font(.system(size: 11, weight: .black, design: .rounded))
+        }
+        .foregroundColor(.orange)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(Color.orange.opacity(0.12))
+        .clipShape(Capsule())
+        .overlay(Capsule().stroke(Color.orange.opacity(0.30), lineWidth: 0.5))
+    }
+
+    /// Combo — bolt (NOT flame), right of the bar, so it never reads as the streak.
+    private var comboChip: some View {
+        HStack(spacing: 2) {
+            Image(systemName: "bolt.fill")
                 .font(.system(size: 9, weight: .black))
             Text("×\(combo)")
                 .font(.system(size: 11, weight: .black, design: .rounded))
@@ -229,16 +297,42 @@ struct ActiveWorkoutHeader: View {
             LinearGradient(colors: [.orange, .red], startPoint: .leading, endPoint: .trailing)
         )
         .clipShape(Capsule())
-        .shadow(color: Color.red.opacity(0.5), radius: 6)
+        .shadow(color: Color.red.opacity(0.45), radius: 5)
+    }
+
+    // MARK: - PR flash (folded in from the old strip)
+
+    @ViewBuilder
+    private var prOverlay: some View {
+        if prFlashActive {
+            HStack(spacing: 6) {
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 13, weight: .heavy))
+                    .foregroundColor(.yellow)
+                Text("Новый рекорд!".localized())
+                    .font(DesignSystem.Typography.sectionHeader())
+                    .tracking(1.0)
+                    .textCase(.uppercase)
+                    .foregroundColor(.yellow)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.black.opacity(0.7))
+            .clipShape(Capsule())
+            .overlay(Capsule().stroke(Color.yellow.opacity(0.7), lineWidth: 1))
+            .shadow(color: Color.yellow.opacity(0.45), radius: 10)
+            .offset(y: -18)
+            .transition(.scale(scale: 0.6).combined(with: .opacity))
+        }
     }
 
     // MARK: - Background
 
     private var heroBackground: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(.ultraThinMaterial)
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(Color.black.opacity(0.25))
             RadialGradient(
                 colors: [DesignSystem.Colors.neonGreen.opacity(0.16), .clear],
@@ -246,7 +340,7 @@ struct ActiveWorkoutHeader: View {
                 startRadius: 4,
                 endRadius: 240
             )
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
     }
 
@@ -260,6 +354,28 @@ struct ActiveWorkoutHeader: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+    }
+
+    // MARK: - Animations
+
+    private func triggerPulse() {
+        pulseResetWork?.cancel()
+        pulse = true
+        let work = DispatchWorkItem { pulse = false }
+        pulseResetWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32, execute: work)
+    }
+
+    private func triggerPRFlash() {
+        prFlashResetWork?.cancel()
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+            prFlashActive = true
+        }
+        let work = DispatchWorkItem {
+            withAnimation(.easeOut(duration: 0.4)) { prFlashActive = false }
+        }
+        prFlashResetWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8, execute: work)
     }
 
     // MARK: - Helpers

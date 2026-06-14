@@ -83,7 +83,8 @@ struct WorkoutTrackerApp: App {
             ExerciseTemplate.self,
             AICoachMessage.self,
             AICoachWeeklySummary.self,
-            AICoachUserProfile.self
+            AICoachUserProfile.self,
+            CustomExercise.self
         ])
 
         do {

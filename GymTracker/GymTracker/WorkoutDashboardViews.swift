@@ -237,7 +237,7 @@ struct TodayWorkoutCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 8) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    Circle()
                         .fill(accent.opacity(0.22))
                         .frame(width: 28, height: 28)
                     Image(systemName: icon)
@@ -1218,15 +1218,12 @@ struct ActiveWorkoutView: View {
     /// Combines the live header (timer/HR/calories/tonnage) with the gamification strip
     /// inside a single frosted-glass surface that fades into scrolled content below.
     private var stickyTopBar: some View {
-        VStack(spacing: DesignSystem.Spacing.md) {
-            ActiveWorkoutHeader()
-                .environmentObject(workoutManager)
-
-            WorkoutProgressStrip()
-                .environmentObject(workoutManager)
-        }
-        .padding(.top, DesignSystem.Spacing.sm)
-        .padding(.bottom, DesignSystem.Spacing.md)
+        // Single dense HUD — streak, set-progress and PR-flash now live inside
+        // ActiveWorkoutHeader, so the old WorkoutProgressStrip is no longer stacked here.
+        ActiveWorkoutHeader()
+            .environmentObject(workoutManager)
+            .padding(.top, DesignSystem.Spacing.sm)
+            .padding(.bottom, DesignSystem.Spacing.md)
         .background(
             ZStack {
                 // Frosted glass surface — blurs whatever scrolls underneath

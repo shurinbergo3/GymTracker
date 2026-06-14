@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Активная тренировка v2 — компактный HUD</title>
+<style>
+  :root{
+    --volt:#BFFF00;--gold:#FFD133;--orange:#FF8A3D;--red:#FF5A5A;--cyan:#54E0FF;
+    --t1:#fff;--t2:rgba(255,255,255,.55);--t3:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.07);
+    --font:-apple-system,"SF Pro Rounded",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#050505;font-family:var(--font);color:var(--t1);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:34px 16px 70px;gap:22px}
+  h1{font-size:20px;font-weight:800;text-align:center}
+  .sub{color:var(--t2);font-size:13px;text-align:center;max-width:560px;line-height:1.5}
+  .cols{display:flex;gap:34px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+  .col{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .cl{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--volt)}
+
+  .phone{width:344px;background:#000;border-radius:46px;padding:14px;border:1px solid rgba(255,255,255,.1);
+    box-shadow:0 30px 80px rgba(0,0,0,.7)}
+  .screen{background:#000;border-radius:34px;overflow:hidden;padding:8px 12px 18px}
+  .sbar{display:flex;justify-content:space-between;padding:6px 12px 8px;font-size:12px;color:var(--t2);font-weight:700}
+  .hd{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 12px}
+  .hd h2{font-size:25px;font-weight:900;letter-spacing:-.5px}
+  .hd .right{display:flex;gap:8px;align-items:center}
+  .av{width:34px;height:34px;border-radius:50%;border:2px solid var(--volt);background:#333}
+  .x{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+
+  /* compact HUD */
+  .hud{background:linear-gradient(165deg,#141a0e,#0A0A0A);
+    border:1px solid rgba(191,255,0,.15);border-radius:22px;padding:14px 16px;}
+  .row1{display:flex;align-items:center;gap:12px}
+  .time{display:flex;flex-direction:column;gap:1px}
+  .time .t{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-1.2px;line-height:0.95}
+  .time .s{font-size:10px;font-weight:800;color:var(--t3);letter-spacing:1px}
+  .metrics{margin-left:auto;display:flex;gap:18px}
+  .m{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+  .m .v{font-size:21px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.5px;line-height:1}
+  .m .lb{display:flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.4px}
+  .m .lb .ic{font-size:9px}
+
+  .imp{display:flex;align-items:center;gap:9px;margin-top:13px}
+  .imp .bolt{color:var(--volt);font-size:12px}
+  .bar{flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.09);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--volt),var(--cyan));box-shadow:0 0 10px rgba(191,255,0,.5)}
+  .combo{background:linear-gradient(90deg,var(--orange),var(--red));color:#fff;font-size:10px;font-weight:900;padding:2px 7px;border-radius:20px;box-shadow:0 0 8px rgba(255,90,90,.5)}
+  .xp{font-size:11px;font-weight:900;color:var(--volt);font-variant-numeric:tabular-nums}
+
+  .strip{display:flex;align-items:center;justify-content:space-between;margin-top:8px;
+    padding:9px 16px;border-radius:18px;background:#0c0f0c;border:1px solid var(--line)}
+  .strip .st{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.8px;color:var(--t2)}
+  .streak{display:flex;align-items:center;gap:5px;background:rgba(255,138,61,.12);border:1px solid rgba(255,138,61,.3);
+    color:var(--orange);padding:4px 9px;border-radius:18px;font-size:11px;font-weight:800}
+
+  .note{max-width:430px;background:#0E0E0E;border:1px solid var(--line);border-radius:20px;padding:16px 20px}
+  .note h3{font-size:13px;font-weight:800;color:var(--volt);margin-bottom:10px}
+  .note li{list-style:none;font-size:12.5px;color:var(--t2);line-height:1.5;margin-bottom:8px;padding-left:18px;position:relative}
+  .note li::before{content:"→";position:absolute;left:0;color:var(--volt);font-weight:900}
+  .note b{color:var(--t1)}
+</style>
+</head>
+<body>
+  <h1>Компактный HUD — плотно и аккуратно</h1>
+  <p class="sub">Убрал большое пустое кольцо (оно и делало панель громоздкой). Время крупно слева, метрики аккуратными колонками справа во всю ширину, прогресс — тонкой линией. Слева — старт, справа — в процессе.</p>
+
+  <div class="cols">
+
+    <!-- ZERO -->
+    <div class="col">
+      <div class="cl">Старт</div>
+      <div class="phone"><div class="screen">
+        <div class="sbar"><span>21:37</span><span>📶 🔋</span></div>
+        <div class="hd"><h2>Body Forge</h2><div class="right"><div class="av"></div><div class="x">✕</div></div></div>
+
+        <div class="hud">
+          <div class="row1">
+            <div class="time"><div class="t">00:00</div><div class="s">0/11 ПОДХОДОВ</div></div>
+            <div class="metrics">
+              <div class="m"><div class="v" style="color:var(--t3)">–</div><div class="lb"><span class="ic" style="color:var(--t3)">♥</span>уд/мин</div></div>
+              <div class="m"><div class="v">0</div><div class="lb"><span class="ic" style="color:var(--orange)">🔥</span>ккал</div></div>
+              <div class="m"><div class="v">0</div><div class="lb"><span class="ic" style="color:var(--volt)">🏋️</span>кг</div></div>
+            </div>
+          </div>
+          <div class="imp">
+            <span class="bolt">⚡</span>
+            <div class="bar"><i style="width:0%"></i></div>
+            <span class="xp">+0 XP</span>
+          </div>
+        </div>
+
+        <div class="strip">
+          <div class="st">⚡ <span>ЕЩЁ 11</span></div>
+          <div class="streak">🔥 1 день</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ACTIVE -->
+    <div class="col">
+      <div class="cl">В процессе</div>
+      <div class="phone"><div class="screen">
+        <div class="sbar"><span>21:37</span><span>📶 🔋</span></div>
+        <div class="hd"><h2>Body Forge</h2><div class="right"><div class="av"></div><div class="x">✕</div></div></div>
+
+        <div class="hud">
+          <div class="row1">
+            <div class="time"><div class="t">14:22</div><div class="s">6/11 ПОДХОДОВ</div></div>
+            <div class="metrics">
+              <div class="m"><div class="v" style="color:var(--volt)">128</div><div class="lb"><span class="ic" style="color:var(--volt)">♥</span>уд/мин</div></div>
+              <div class="m"><div class="v">240</div><div class="lb"><span class="ic" style="color:var(--orange)">🔥</span>ккал</div></div>
+              <div class="m"><div class="v">3420</div><div class="lb"><span class="ic" style="color:var(--volt)">🏋️</span>кг</div></div>
+            </div>
+          </div>
+          <div class="imp">
+            <span class="bolt">⚡</span>
+            <div class="bar"><i style="width:55%"></i></div>
+            <span class="combo">🔥×3</span>
+            <span class="xp">+60 XP</span>
+          </div>
+        </div>
+
+        <div class="strip">
+          <div class="st">⚡ <span>ЕЩЁ 5</span></div>
+          <div class="streak">🔥 1 день</div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <h3>Что изменил против прошлой версии</h3>
+    <ul>
+      <li><b>Убрал большое кольцо</b> — именно оно делало панель громоздкой и пустой на старте. Прогресс теперь компактной линией.</li>
+      <li><b>Время крупно слева</b> — сильный акцент; под ним «N/M подходов».</li>
+      <li><b>Метрики колонками справа</b> (значение крупно, подпись мелко) — заполняют ширину, выровнены по правому краю, аккуратно.</li>
+      <li><b>Пульс без данных = «–»</b>, не «0».</li>
+      <li><b>Ниже и плотнее</b> — две короткие строки вместо высокого блока; статус-полоса прижата.</li>
+    </ul>
+  </div>
+</body>
+</html>

@@ -628,18 +628,14 @@ struct ProgressHubView: View {
                 decayPhase(label: "15+ дн".localized(), state: .declining)
             }
 
-            if hasDecay {
-                HStack(spacing: 6) {
-                    Image(systemName: "info.circle.fill")
-                        .font(.system(size: 12, weight: .heavy))
-                        .foregroundStyle(formState.color)
-                    Text(decayInfoText)
-                        .font(.caption)
-                        .foregroundStyle(DesignSystem.Colors.secondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            } else {
-                Text("Свежая мышечная адаптация — лучшее окно для нового PR.".localized())
+            // Reflect the CURRENT form phase. Decay is disabled, so the old
+            // hasDecay/“fresh adaptation” hardcoded line is gone — it used to
+            // show regardless of phase, contradicting the highlighted segment.
+            HStack(spacing: 6) {
+                Image(systemName: formState.icon)
+                    .font(.system(size: 12, weight: .heavy))
+                    .foregroundStyle(formState.color)
+                Text(formState.subtitle)
                     .font(.caption)
                     .foregroundStyle(DesignSystem.Colors.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
