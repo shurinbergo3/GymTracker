@@ -14,6 +14,12 @@ import Charts
 struct ProgressHubView: View {
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \WorkoutSession.date, order: .reverse) private var allSessions: [WorkoutSession]
+    /// Active program — used to derive the "Auto" weekly goal so this hub matches
+    /// the dashboard streak strip exactly.
+    @Query(filter: #Predicate<Program> { $0.isActive }) private var activePrograms: [Program]
+    /// User's weekly target override (0 = follow program). Shared with the
+    /// dashboard via the same AppStorage key.
+    @AppStorage("weeklyWorkoutGoal") private var weeklyGoalOverride: Int = 0
 
     @State private var selectedTab: ProgressTab = .overview
     @State private var selectedPeriod: AnalyticsPeriod = .month
@@ -103,7 +109,17 @@ struct ProgressHubView: View {
         return completedSessions.filter { $0.date >= monday }.count
     }
 
-    private var weeklyGoal: Int { 4 }
+    /// Weekly target. Priority: explicit user setting (1…7) → active program
+    /// cycle length (capped at 6) → 3. Mirrors the dashboard so the goal shown
+    /// here can never disagree with the streak strip.
+    private var weeklyGoal: Int {
+        if weeklyGoalOverride >= 1 { return min(7, weeklyGoalOverride) }
+        if let program = activePrograms.first {
+            let count = program.days.count
+            if count > 0 { return min(6, max(1, count)) }
+        }
+        return 3
+    }
 
     private var recentPRs: [PersonalRecord] {
         PersonalRecordsService.recentPRs(from: completedSessions, limit: 10)
