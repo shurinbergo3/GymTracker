@@ -206,6 +206,68 @@ enum WeeklyWrappedGenerator {
     }
 }
 
+// MARK: - Sports photo backgrounds (bundled royalty-free stock, randomised)
+
+/// 20 cinematic gym/fitness shots live in `Assets.xcassets/SportBackgrounds`
+/// as `sportbg_01 … sportbg_20`. Each recap picks one at random so a user who
+/// shares every week gets fresh-looking cards instead of the same flat backdrop.
+enum WeeklyWrappedBackgrounds {
+    static let count = 20
+
+    static func name(_ index: Int) -> String {
+        String(format: "sportbg_%02d", (index % count) + 1)
+    }
+
+    static func randomIndex() -> Int { Int.random(in: 0..<count) }
+}
+
+/// Cinematic sports-photo backdrop: a bundled gym shot, darkened under a
+/// vertical gradient + brand neon accents so foreground text and glass cards
+/// stay crisp on any photo. Shared by the on-screen recap and the 9:16 share
+/// render so the preview matches exactly what gets posted.
+private struct SportPhotoBackground: View {
+    let imageName: String
+    /// The render path wants a touch more contrast (no live device blur); the
+    /// on-screen path can run a little lighter since the UI scrolls over it.
+    var scrimOpacity: Double = 0.45
+
+    var body: some View {
+        ZStack {
+            Color.black
+
+            Image(imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+
+            // Flat scrim — guarantees a legibility floor across any photo.
+            Color.black.opacity(scrimOpacity)
+
+            // Vertical shaping — anchors the wordmark up top and the CTA/footer
+            // at the bottom while letting the photo breathe through the middle.
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0.74),
+                    Color.black.opacity(0.32),
+                    Color.black.opacity(0.46),
+                    Color.black.opacity(0.84)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            // Brand neon ambient — subtle, matches the rest of the app.
+            RadialGradient(
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.20), .clear],
+                center: .topTrailing, startRadius: 0, endRadius: 540
+            )
+            RadialGradient(
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.12), .clear],
+                center: .bottomLeading, startRadius: 0, endRadius: 500
+            )
+        }
+    }
+}
+
 // MARK: - View (single-slide summary, no scroll, staggered reveal)
 
 /// One-frame "credits roll" summary. Designed to fit a single screen on every
@@ -221,13 +283,23 @@ struct WeeklyWrappedView: View {
 
     @State private var revealed = false
 
+    /// Random sports backdrop, fixed for this presentation so the on-screen
+    /// preview matches the image the user actually shares.
+    @State private var bgIndex = WeeklyWrappedBackgrounds.randomIndex()
+
+    /// Whether Instagram is installed — gates the "Share to Story" button.
+    @State private var instagramAvailable = false
+
     /// Master spring for every reveal — keeps the stagger feeling "on the same beat".
     private static let revealSpring = Animation.spring(response: 0.6, dampingFraction: 0.78)
 
     var body: some View {
         ZStack {
-            WeeklyWrappedBackground()
-                .ignoresSafeArea()
+            SportPhotoBackground(
+                imageName: WeeklyWrappedBackgrounds.name(bgIndex),
+                scrimOpacity: 0.52
+            )
+            .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 topBar
@@ -243,7 +315,7 @@ struct WeeklyWrappedView: View {
                         .padding(.bottom, 16)
                 }
 
-                shareButton
+                shareControls
                     .padding(.horizontal, 20)
                     .padding(.bottom, 14)
                     .reveal(at: 0.95, revealed: revealed, animation: Self.revealSpring)
@@ -251,6 +323,7 @@ struct WeeklyWrappedView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear {
+            instagramAvailable = InstagramStoriesSharer.isAvailable
             // Tiny delay so SwiftUI commits the initial (hidden) layout *before*
             // we flip the flag — otherwise the spring snaps with no animation.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
@@ -643,32 +716,45 @@ struct WeeklyWrappedView: View {
         return Array(rows.prefix(3))
     }
 
-    // MARK: Share button
+    // MARK: Share buttons
 
-    private var shareButton: some View {
-        Button(action: share) {
+    /// "Share to Story" (Instagram) sits on top as the primary CTA when Instagram
+    /// is installed; the generic share sheet is always available below it.
+    private var shareControls: some View {
+        VStack(spacing: 12) {
+            if instagramAvailable {
+                instagramStoriesButton
+            }
+            shareButton(secondary: instagramAvailable)
+        }
+    }
+
+    private var instagramStoriesButton: some View {
+        Button(action: shareToInstagramStories) {
             HStack(spacing: 10) {
-                Image(systemName: "square.and.arrow.up.fill")
+                Image(systemName: "camera.fill")
                     .font(.system(size: 15, weight: .heavy))
-                Text("Поделиться".localized())
+                Text("Поделиться в сторис".localized())
                     .font(.system(.headline, design: .rounded, weight: .heavy))
                     .tracking(0.4)
             }
-            .foregroundStyle(.black)
+            .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(
                 ZStack {
+                    // Instagram brand gradient.
                     LinearGradient(
                         colors: [
-                            DesignSystem.Colors.neonGreen,
-                            Color(red: 0.6, green: 0.9, blue: 0.15)
+                            Color(red: 0.40, green: 0.22, blue: 0.92),
+                            Color(red: 0.83, green: 0.18, blue: 0.55),
+                            Color(red: 0.99, green: 0.60, blue: 0.20)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                     LinearGradient(
-                        colors: [Color.white.opacity(0.32), .clear],
+                        colors: [Color.white.opacity(0.28), .clear],
                         startPoint: .top,
                         endPoint: .center
                     )
@@ -677,10 +763,59 @@ struct WeeklyWrappedView: View {
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.white.opacity(0.35), lineWidth: 0.5)
+                    .stroke(Color.white.opacity(0.30), lineWidth: 0.5)
             )
-            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.55), radius: 24, y: 12)
-            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.30), radius: 6, y: 2)
+            .shadow(color: Color(red: 0.83, green: 0.18, blue: 0.55).opacity(0.5), radius: 22, y: 10)
+        }
+    }
+
+    /// The general share sheet. Rendered as a quieter glass button when the
+    /// Instagram CTA is present so the two don't compete; neon-filled otherwise.
+    private func shareButton(secondary: Bool) -> some View {
+        Button(action: share) {
+            HStack(spacing: 10) {
+                Image(systemName: "square.and.arrow.up.fill")
+                    .font(.system(size: 15, weight: .heavy))
+                Text("Поделиться".localized())
+                    .font(.system(.headline, design: .rounded, weight: .heavy))
+                    .tracking(0.4)
+            }
+            .foregroundStyle(secondary ? .white : .black)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, secondary ? 14 : 16)
+            .background(shareButtonBackground(secondary: secondary))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(Color.white.opacity(secondary ? 0.18 : 0.35), lineWidth: secondary ? 1 : 0.5)
+            )
+            .shadow(
+                color: DesignSystem.Colors.neonGreen.opacity(secondary ? 0 : 0.55),
+                radius: secondary ? 0 : 24, y: secondary ? 0 : 12
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func shareButtonBackground(secondary: Bool) -> some View {
+        if secondary {
+            Color.white.opacity(0.10)
+        } else {
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.neonGreen,
+                        Color(red: 0.6, green: 0.9, blue: 0.15)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                LinearGradient(
+                    colors: [Color.white.opacity(0.32), .clear],
+                    startPoint: .top,
+                    endPoint: .center
+                )
+            }
         }
     }
 
@@ -715,17 +850,35 @@ struct WeeklyWrappedView: View {
         return ("\(pct)%", "arrow.down.right", Color(red: 1.0, green: 0.42, blue: 0.42))
     }
 
-    private func share() {
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-        let card = WeeklyWrappedShareRender(snapshot: snapshot)
+    /// Renders the 9:16 card to a UIImage. Fixed 2× → 2160×3840: crisp on every
+    /// phone, exact Instagram-Stories aspect ratio, and avoids the oversized 3×
+    /// export some devices produced.
+    private func renderShareImage() -> UIImage? {
+        let card = WeeklyWrappedShareRender(snapshot: snapshot, bgIndex: bgIndex)
         let renderer = ImageRenderer(content: card)
-        renderer.scale = UIScreen.main.scale
+        renderer.scale = 2
         renderer.proposedSize = .init(
             width: WeeklyWrappedShareRender.canvasWidth,
             height: WeeklyWrappedShareRender.canvasHeight
         )
-        if let img = renderer.uiImage {
+        return renderer.uiImage
+    }
+
+    private func share() {
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        if let img = renderShareImage() {
             ShareSheetPresenter.present(items: [img])
+        }
+    }
+
+    private func shareToInstagramStories() {
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        guard let img = renderShareImage(),
+              InstagramStoriesSharer.share(backgroundImage: img) else {
+            // Instagram vanished between the availability check and the tap, or
+            // encoding failed — fall back to the system share sheet.
+            share()
+            return
         }
     }
 }
@@ -793,51 +946,6 @@ private extension View {
             animation: animation,
             scaleFrom: scaleFrom
         ))
-    }
-}
-
-// MARK: - Background
-
-/// Brand launch image, heavily darkened so text remains legible,
-/// with subtle neon-green ambient accents matching the rest of the app.
-private struct WeeklyWrappedBackground: View {
-    var body: some View {
-        ZStack {
-            Color.black
-
-            Image("LaunchScreen")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .blur(radius: 6)
-                .opacity(0.38)
-
-            // Vertical dim — readable text on hero/middle, slightly lighter at edges
-            LinearGradient(
-                colors: [
-                    Color.black.opacity(0.55),
-                    Color.black.opacity(0.78),
-                    Color.black.opacity(0.70)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-
-            // Brand neon ambient — top
-            Circle()
-                .fill(DesignSystem.Colors.neonGreen)
-                .frame(width: 380, height: 380)
-                .blur(radius: 140)
-                .offset(x: 120, y: -220)
-                .opacity(0.18)
-
-            // Brand neon ambient — bottom
-            Circle()
-                .fill(DesignSystem.Colors.neonGreen)
-                .frame(width: 280, height: 280)
-                .blur(radius: 130)
-                .offset(x: -110, y: 320)
-                .opacity(0.10)
-        }
     }
 }
 
@@ -1201,6 +1309,10 @@ struct WeeklyWrappedSummaryCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
         )
+        // Critical for the fixed-height share render: without this the left
+        // accent rail's `maxHeight: .infinity` makes each row greedily fill the
+        // canvas, blowing the cards up into huge empty boxes.
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     // MARK: Footer (share render only)
@@ -1253,63 +1365,34 @@ struct WeeklyWrappedSummaryCard: View {
 // larger blockSpacing so the card occupies more vertical space.
 private struct WeeklyWrappedShareRender: View {
     let snapshot: WeeklyWrappedSnapshot
+    let bgIndex: Int
 
     static let canvasWidth: CGFloat = 1080
     static let canvasHeight: CGFloat = 1920
 
     var body: some View {
         ZStack {
-            // Brand launch image, darkened, with neon-green ambient
-            ZStack {
-                Color.black
+            SportPhotoBackground(
+                imageName: WeeklyWrappedBackgrounds.name(bgIndex),
+                scrimOpacity: 0.5
+            )
 
-                Image("LaunchScreen")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .blur(radius: 14)
-                    .opacity(0.36)
-                    .frame(width: Self.canvasWidth, height: Self.canvasHeight)
-                    .clipped()
-
-                LinearGradient(
-                    colors: [
-                        Color.black.opacity(0.55),
-                        Color.black.opacity(0.78),
-                        Color.black.opacity(0.70)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-
-                Circle()
-                    .fill(DesignSystem.Colors.neonGreen)
-                    .frame(width: 900, height: 900)
-                    .blur(radius: 260)
-                    .offset(x: 260, y: -560)
-                    .opacity(0.22)
-
-                Circle()
-                    .fill(DesignSystem.Colors.neonGreen)
-                    .frame(width: 620, height: 620)
-                    .blur(radius: 240)
-                    .offset(x: -240, y: 700)
-                    .opacity(0.13)
-            }
-
-            // Content fills almost edge-to-edge — no top header, the brand
-            // logo lives inside the summary card itself (big, centered).
-            // blockSpacing bumped so the card breathes inside the taller 9:16 frame.
+            // Natural-height card, vertically centred so the 9:16 frame reads as
+            // an intentional, balanced poster instead of a top-heavy crop with a
+            // dead band at the bottom. `fixedSize` keeps the card at its real
+            // height so the centring Spacers can do their job.
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
                 WeeklyWrappedSummaryCard(
                     snapshot: snapshot,
                     includeFooter: true,
-                    blockSpacing: 38
+                    blockSpacing: 34
                 )
+                .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
             }
-            .padding(.horizontal, 64)
-            .padding(.vertical, 80)
+            .padding(.horizontal, 72)
+            .padding(.vertical, 110)
         }
         .frame(width: Self.canvasWidth, height: Self.canvasHeight)
     }

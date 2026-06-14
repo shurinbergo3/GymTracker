@@ -68,12 +68,11 @@ struct WorkoutProgressStrip: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
-            topRow
-            bottomRow
-        }
+        // Set-progress now lives in the hero ring above; this strip carries the
+        // status + streak chips and the PR-flash celebration overlay.
+        bottomRow
         .padding(.horizontal, 18)
-        .padding(.vertical, 14)
+        .padding(.vertical, 12)
         .background(stripBackground)
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
@@ -92,69 +91,6 @@ struct WorkoutProgressStrip: View {
         .onChange(of: workoutManager.prFlashTrigger) { _, _ in
             triggerPRFlash()
         }
-    }
-
-    // MARK: - Top row: segmented progress bar + count
-
-    private var topRow: some View {
-        HStack(spacing: 12) {
-            segmentedBar
-                .frame(maxWidth: .infinity)
-
-            HStack(alignment: .lastTextBaseline, spacing: 4) {
-                Text("\(completedSets)")
-                    .font(DesignSystem.Typography.monospaced(.title3, weight: .heavy))
-                    .foregroundStyle(DesignSystem.Colors.primaryText)
-                Text("/ \(totalPlannedSets)")
-                    .font(DesignSystem.Typography.monospaced(.subheadline, weight: .semibold))
-                    .foregroundStyle(DesignSystem.Colors.secondaryText)
-            }
-            .frame(minWidth: 56, alignment: .trailing)
-        }
-    }
-
-    @ViewBuilder
-    private var segmentedBar: some View {
-        if totalPlannedSets == 0 {
-            RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.white.opacity(0.08)).frame(height: 8)
-        } else if totalPlannedSets <= 16 {
-            HStack(spacing: 3) {
-                ForEach(0..<totalPlannedSets, id: \.self) { idx in
-                    Group {
-                        if idx < completedSets {
-                            RoundedRectangle(cornerRadius: 3, style: .continuous).fill(filledStyle)
-                        } else {
-                            RoundedRectangle(cornerRadius: 3, style: .continuous).fill(Color.white.opacity(0.08))
-                        }
-                    }
-                    .frame(height: 8)
-                    .frame(maxWidth: .infinity)
-                    .shadow(color: idx < completedSets ? DesignSystem.Colors.neonGreen.opacity(0.5) : .clear,
-                            radius: 3)
-                    .animation(.easeOut(duration: 0.25), value: completedSets)
-                }
-            }
-        } else {
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.white.opacity(0.08))
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
-                        .fill(filledStyle)
-                        .frame(width: max(8, geo.size.width * progress))
-                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 4)
-                        .animation(.easeOut(duration: 0.3), value: progress)
-                }
-            }
-            .frame(height: 8)
-        }
-    }
-
-    private var filledStyle: LinearGradient {
-        LinearGradient(
-            colors: [DesignSystem.Colors.neonGreen, Color(red: 0.55, green: 0.95, blue: 0.10)],
-            startPoint: .leading,
-            endPoint: .trailing
-        )
     }
 
     // MARK: - Bottom row: chips

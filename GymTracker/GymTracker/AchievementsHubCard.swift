@@ -386,14 +386,14 @@ struct AchievementsHubCard: View {
         }
         if formState == .declining {
             return MotivationMessage(
-                text: "Теряешь форму — уровень под угрозой".localized(),
+                text: "Давно не тренировался — тело готово, время вернуться 💪".localized(),
                 icon: formState.icon,
                 tint: formState.color
             )
         }
         if formState == .warning {
             return MotivationMessage(
-                text: "Форма снижается — пора в зал".localized(),
+                text: "Пора вернуться в зал — мышцы соскучились".localized(),
                 icon: formState.icon,
                 tint: formState.color
             )

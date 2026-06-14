@@ -42,6 +42,7 @@
 	<array>
 		<string>youtube</string>
 		<string>instagram</string>
+		<string>instagram-stories</string>
 		<string>tg</string>
 	</array>
 </dict>

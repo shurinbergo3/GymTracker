@@ -4,64 +4,6 @@
     "" : {
 
     },
-    "Good Morning" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Good Morning"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Good Morning"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Good Morning"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Good Morning (наклоны со штангой)"
-          }
-        }
-      }
-    },
-    "Велотренажёр" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Heimtrainer"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stationary bike"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rower stacjonarny"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Велотренажёр"
-          }
-        }
-      }
-    },
     " / 14" : {
       "localizations" : {
         "en" : {
@@ -248,6 +190,7 @@
       }
     },
     "/ %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "variations" : {
@@ -2361,6 +2304,9 @@
         }
       }
     },
+    "+%lld XP" : {
+
+    },
     "+1 XP за каждую завершённую тренировку" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2415,6 +2361,9 @@
           }
         }
       }
+    },
+    "×%lld" : {
+
     },
     "~%d мин" : {
       "extractionState" : "manual",
@@ -9421,6 +9370,35 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Цель"
+          }
+        }
+      }
+    },
+    "Good Morning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Good Morning"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Good Morning"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Good Morning"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Good Morning (наклоны со штангой)"
           }
         }
       }
@@ -18486,6 +18464,35 @@
         }
       }
     },
+    "Велотренажёр" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heimtrainer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stationary bike"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rower stacjonarny"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Велотренажёр"
+          }
+        }
+      }
+    },
     "Вердикт" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -19878,6 +19885,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Czas na siłowni"
+          }
+        }
+      }
+    },
+    "Время вернуться" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeit zurückzukommen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time to come back"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas wrócić"
           }
         }
       }
@@ -22710,6 +22740,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Давать выход эмоциям (петь, танцевать, плакать), не запирать их в себе."
+          }
+        }
+      }
+    },
+    "Давно не тренировался — тело готово, время вернуться 💪" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lange her — dein Körper ist bereit, los geht's 💪"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It's been a while — your body's ready, let's go 💪"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dawno cię nie było — ciało gotowe, wracaj 💪"
           }
         }
       }
@@ -33789,6 +33842,29 @@
         }
       }
     },
+    "Мышцы соскучились по нагрузке" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Muskeln vermissen das Training"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your muscles miss the work"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mięśnie tęsknią za wysiłkiem"
+          }
+        }
+      }
+    },
     "на" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -40003,6 +40079,35 @@
         }
       }
     },
+    "Поделиться в сторис" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Story teilen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share to Story"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Udostępnij w relacji"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться в сторис"
+          }
+        }
+      }
+    },
     "Подключить Apple Watch" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -41865,6 +41970,29 @@
         }
       }
     },
+    "Пора вернуться в зал — мышцы соскучились" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeit zurückzukehren — deine Muskeln vermissen es"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time to get back — your muscles miss it"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas wrócić — mięśnie tęsknią"
+          }
+        }
+      }
+    },
     "Пора возвращаться в ритм" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -41919,6 +42047,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пора приступать к следующему подходу"
+          }
+        }
+      }
+    },
+    "Пора размяться" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeit für Bewegung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time to move"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas się rozruszać"
           }
         }
       }
@@ -62287,6 +62438,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ciało zaczyna tracić adaptację. Wracaj na siłownię."
+          }
+        }
+      }
+    },
+    "Тело отдохнуло — готово к работе" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gut erholt — bereit fürs Training"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Well rested — ready to work"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wypoczęty — gotowy do pracy"
           }
         }
       }

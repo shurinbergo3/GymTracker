@@ -22,8 +22,8 @@ enum FormState {
         switch self {
         case .peak:      return "На пике".localized()
         case .stable:    return "Стабильно".localized()
-        case .warning:   return "Снижается".localized()
-        case .declining: return "Теряешь форму".localized()
+        case .warning:   return "Пора размяться".localized()
+        case .declining: return "Время вернуться".localized()
         }
     }
 
@@ -31,8 +31,8 @@ enum FormState {
         switch self {
         case .peak:      return "Свежая мышечная адаптация".localized()
         case .stable:    return "Удерживаешь форму".localized()
-        case .warning:   return "XP начал просаживаться".localized()
-        case .declining: return "Детренинг — пора в зал".localized()
+        case .warning:   return "Мышцы соскучились по нагрузке".localized()
+        case .declining: return "Тело отдохнуло — готово к работе".localized()
         }
     }
 
@@ -41,7 +41,7 @@ enum FormState {
         case .peak:      return DesignSystem.Colors.neonGreen
         case .stable:    return Color(red: 1.0, green: 0.82, blue: 0.20)
         case .warning:   return .orange
-        case .declining: return Color(red: 1.0, green: 0.27, blue: 0.30)
+        case .declining: return Color(red: 1.0, green: 0.60, blue: 0.25) // warm amber — invite, not alarm
         }
     }
 
@@ -49,8 +49,8 @@ enum FormState {
         switch self {
         case .peak:      return "bolt.heart.fill"
         case .stable:    return "heart.fill"
-        case .warning:   return "exclamationmark.triangle.fill"
-        case .declining: return "arrow.down.heart.fill"
+        case .warning:   return "heart.fill"
+        case .declining: return "bolt.heart.fill"
         }
     }
 
@@ -97,19 +97,17 @@ enum GamificationCalculator {
         max(0, totalWorkouts % xpPerLevel)
     }
 
-    /// XP cost of adaptation loss based on detraining curve.
-    /// Applied to TOTAL XP — meaning the level itself can fall (with floor at level 1).
+    /// XP loss from inactivity — intentionally DISABLED.
+    ///
+    /// Decay punished returning users (the "all is lost" effect) and leaned on
+    /// guilt-driven motivation instead of the durable competence/progress drivers
+    /// we want. Levels now only grow — what you earn stays yours. Kept as a no-op
+    /// so existing callers (effectiveTotalXP / currentLevel / visibleDecay /
+    /// hasLostLevels) keep compiling and simply resolve to "no decay", which makes
+    /// every decay chip / "level at risk" message disappear without touching the
+    /// many view call-sites.
     static func decay(daysSinceLastWorkout days: Int?) -> Double {
-        guard let d = days else { return 0 }
-        if d < graceDays { return 0 }
-        switch d {
-        case graceDays..<8:
-            return 0.25 * Double(d - graceDays + 1)         // 3д→0.25, 7д→1.25
-        case 8..<15:
-            return 1.25 + 0.75 * Double(d - 7)              // 8д→2.0, 14д→6.5
-        default:
-            return 6.5 + 1.5 * Double(d - 14)               // 15д→8.0, 21д→17.0
-        }
+        return 0
     }
 
     /// Effective total XP after decay — drives current level. Floor at 0.

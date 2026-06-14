@@ -702,6 +702,51 @@ enum ShareSheetPresenter {
     }
 }
 
+// MARK: - Instagram Stories direct share
+
+/// Hands a full-screen image straight to Instagram Stories via the
+/// `instagram-stories://share` URL scheme + pasteboard, so the card lands
+/// edge-to-edge instead of being scaled into a centered photo the way the
+/// generic share sheet imports it.
+///
+/// Requires `instagram-stories` in `LSApplicationQueriesSchemes` (Info.plist).
+/// `source_application` is meant to be a Facebook App ID; Instagram also accepts
+/// the bundle identifier for plain image hand-offs, which we use as the default.
+@MainActor
+enum InstagramStoriesSharer {
+    /// True when Instagram is installed and able to receive a Stories hand-off.
+    static var isAvailable: Bool {
+        guard let url = URL(string: "instagram-stories://share") else { return false }
+        return UIApplication.shared.canOpenURL(url)
+    }
+
+    /// Posts `image` as the Story background. Returns `false` if Instagram can't
+    /// be reached or the image can't be encoded — caller should then fall back
+    /// to the normal share sheet.
+    @discardableResult
+    static func share(backgroundImage image: UIImage, sourceApplication: String? = nil) -> Bool {
+        let source = sourceApplication ?? Bundle.main.bundleIdentifier ?? "BodyForge"
+        guard let url = URL(string: "instagram-stories://share?source_application=\(source)"),
+              UIApplication.shared.canOpenURL(url),
+              let data = image.jpegData(compressionQuality: 0.9) else {
+            return false
+        }
+
+        let pasteboardItems: [String: Any] = [
+            "com.instagram.sharedSticker.backgroundImage": data
+        ]
+        // Items auto-clear shortly after the hand-off so we don't leave the card
+        // sitting on the system pasteboard.
+        let options: [UIPasteboard.OptionsKey: Any] = [
+            .expirationDate: Date().addingTimeInterval(60 * 5)
+        ]
+        UIPasteboard.general.setItems([pasteboardItems], options: options)
+
+        UIApplication.shared.open(url)
+        return true
+    }
+}
+
 // MARK: - Renderer helper
 
 @MainActor
