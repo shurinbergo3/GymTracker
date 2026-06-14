@@ -598,212 +598,217 @@ struct ProgressHubView: View {
 
     // MARK: - TAB: Обзор
 
+    // Compact "hub v2" layout: PR hook on top (main gym motivator), then the
+    // streak / weekly-goal / next-award lines collapsed into short rows with
+    // inline mini-progress instead of three tall cards. Form readiness is
+    // already shown as the hero strip, so the old segmented timeline card was
+    // dropped to remove the duplicate. See mockups/gamification-hub-v2.html.
     private var overviewTab: some View {
-        VStack(spacing: 14) {
-            decayTimelineCard
-            streakDetailCard
-            weeklyGoalCard
-            if let next = nextBadge {
-                nextBadgeRow(next)
+        VStack(spacing: 12) {
+            if let target = nextTarget {
+                todayTargetCard(target)
             }
+
+            VStack(spacing: 8) {
+                weeklyGoalRow
+                streakRow
+                if let next = nextBadge {
+                    awardRow(next)
+                }
+            }
+
             howItWorksCard
+                .padding(.top, 2)
         }
     }
 
-    private var decayTimelineCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "waveform.path.ecg")
-                    .foregroundStyle(formState.color)
-                Text("Состояние формы".localized())
-                    .font(.system(.headline, design: .rounded, weight: .heavy))
-                    .foregroundStyle(.white)
-                Spacer()
-            }
+    // MARK: - Overview · «Цель сегодня» (PR hook)
 
-            HStack(spacing: 4) {
-                decayPhase(label: "0–2 дн".localized(), state: .peak)
-                decayPhase(label: "3–7 дн".localized(), state: .stable)
-                decayPhase(label: "8–14 дн".localized(), state: .warning)
-                decayPhase(label: "15+ дн".localized(), state: .declining)
-            }
-
-            // Reflect the CURRENT form phase. Decay is disabled, so the old
-            // hasDecay/“fresh adaptation” hardcoded line is gone — it used to
-            // show regardless of phase, contradicting the highlighted segment.
-            HStack(spacing: 6) {
-                Image(systemName: formState.icon)
-                    .font(.system(size: 12, weight: .heavy))
-                    .foregroundStyle(formState.color)
-                Text(formState.subtitle)
-                    .font(.caption)
-                    .foregroundStyle(DesignSystem.Colors.secondaryText)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(formState.color.opacity(0.22), lineWidth: 1)
-        )
-    }
-
-    private func decayPhase(label: String, state: FormState) -> some View {
-        let isCurrent = state == formState
-        return VStack(spacing: 4) {
-            Capsule()
-                .fill(isCurrent ? state.color : Color.white.opacity(0.06))
-                .frame(height: 4)
-                .shadow(color: isCurrent ? state.color.opacity(0.5) : .clear, radius: 4)
-            Text(label)
-                .font(.system(size: 9, weight: isCurrent ? .heavy : .semibold, design: .rounded))
-                .foregroundStyle(isCurrent ? state.color : DesignSystem.Colors.tertiaryText)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
-    private var streakDetailCard: some View {
-        let danger = streakInDanger
-        let tint: Color = danger ? .red : (currentStreak > 0 ? .orange : DesignSystem.Colors.tertiaryText)
-        return HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [tint.opacity(0.95), tint.opacity(0.55)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 54, height: 54)
-                    .shadow(color: tint.opacity(0.5), radius: 10)
-                Image(systemName: "flame.fill")
-                    .font(.system(size: 24, weight: .heavy))
-                    .foregroundStyle(.white)
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text("\(currentStreak) \(streakSuffix(currentStreak))")
-                        .font(.system(.title3, design: .rounded, weight: .heavy))
-                        .foregroundStyle(.white)
-                    if bestStreak > currentStreak {
-                        Text(String(format: "лучшая %d".localized(), bestStreak))
-                            .font(.caption2.bold())
-                            .foregroundStyle(DesignSystem.Colors.tertiaryText)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Capsule().fill(Color.white.opacity(0.05)))
-                    }
-                }
-                Text(streakHint)
-                    .font(.caption)
-                    .foregroundStyle(DesignSystem.Colors.secondaryText)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(tint.opacity(0.30), lineWidth: 1)
-        )
-    }
-
-    private var weeklyGoalCard: some View {
-        let progress = min(1.0, Double(workoutsThisWeek) / Double(weeklyGoal))
-        let done = workoutsThisWeek >= weeklyGoal
-        let tint: Color = done ? DesignSystem.Colors.neonGreen : Color(red: 1.0, green: 0.7, blue: 0.2)
-        return VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: done ? "checkmark.seal.fill" : "target")
-                    .foregroundStyle(tint)
-                Text("Цель недели".localized())
-                    .font(.system(.subheadline, design: .rounded, weight: .heavy))
-                    .foregroundStyle(.white)
-                Spacer()
-                Text("\(workoutsThisWeek)/\(weeklyGoal)")
-                    .font(.system(.subheadline, design: .monospaced, weight: .bold))
-                    .foregroundStyle(tint)
-            }
-
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.07)).frame(height: 8)
-                    Capsule()
-                        .fill(LinearGradient(colors: [tint, tint.opacity(0.7)], startPoint: .leading, endPoint: .trailing))
-                        .frame(width: max(8, geo.size.width * progress), height: 8)
-                        .shadow(color: tint.opacity(0.5), radius: 4)
-                }
-            }
-            .frame(height: 8)
-
-            Text(done
-                 ? "Цель закрыта — респект.".localized()
-                 : String(format: "Ещё %d до цели".localized(), max(0, weeklyGoal - workoutsThisWeek)))
-                .font(.caption)
-                .foregroundStyle(DesignSystem.Colors.secondaryText)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(tint.opacity(0.22), lineWidth: 1)
-        )
-    }
-
-    private func nextBadgeRow(_ next: AchievementBadge) -> some View {
-        let remaining = next.workouts - totalCompleted
+    private func todayTargetCard(_ target: PRTarget) -> some View {
+        let volt = DesignSystem.Colors.neonGreen
+        let weight = formatWeight(target.baseWeight)
         return Button {
             withAnimation(.spring(response: 0.32, dampingFraction: 0.78)) {
-                selectedTab = .awards
+                selectedTab = .records
             }
         } label: {
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill(next.tint.opacity(0.20))
-                        .frame(width: 44, height: 44)
-                    Image(systemName: next.icon)
-                        .font(.system(size: 18, weight: .heavy))
-                        .foregroundStyle(next.tint)
+                        .fill(volt.opacity(0.15))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "target")
+                        .font(.system(size: 17, weight: .heavy))
+                        .foregroundStyle(volt)
                 }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Следующая награда".localized())
-                        .font(.caption)
-                        .foregroundStyle(DesignSystem.Colors.secondaryText)
-                    Text(String(format: "%@ — ещё %d".localized(), next.title.localized(), remaining))
-                        .font(.system(.subheadline, design: .rounded, weight: .heavy))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Следующий рекорд".localized().localizedUppercase)
+                        .font(.system(size: 9, weight: .heavy, design: .rounded))
+                        .tracking(0.8)
+                        .foregroundStyle(volt)
+                    HStack(spacing: 6) {
+                        Text(LocalizedStringKey(target.exerciseName))
+                            .foregroundStyle(.white)
+                        Text("\(weight) × \(target.baseReps)")
+                            .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 10, weight: .heavy))
+                            .foregroundStyle(volt)
+                        Text("× \(target.targetReps)")
+                            .foregroundStyle(volt)
+                    }
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 }
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundStyle(DesignSystem.Colors.tertiaryText)
             }
-            .padding(14)
+            .padding(13)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 LinearGradient(
-                    colors: [next.tint.opacity(0.18), DesignSystem.Colors.cardBackground],
+                    colors: [volt.opacity(0.12), DesignSystem.Colors.cardBackground],
                     startPoint: .leading, endPoint: .trailing
                 )
             )
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(next.tint.opacity(0.30), lineWidth: 1)
+                    .stroke(volt.opacity(0.28), lineWidth: 1)
             )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Overview · compact rows
+
+    private func compactRow<Trailing: View>(
+        icon: String,
+        tint: Color,
+        title: String,
+        subtitle: String,
+        @ViewBuilder trailing: () -> Trailing
+    ) -> some View {
+        HStack(spacing: 11) {
+            ZStack {
+                Circle()
+                    .fill(tint.opacity(0.15))
+                    .frame(width: 34, height: 34)
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .heavy))
+                    .foregroundStyle(tint)
+            }
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+                Text(subtitle)
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 8)
+            trailing()
+        }
+        .padding(.horizontal, 13)
+        .padding(.vertical, 11)
+        .frame(maxWidth: .infinity)
+        .background(DesignSystem.Colors.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+        )
+    }
+
+    private func miniBar(progress: Double, tint: Color) -> some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.white.opacity(0.09))
+                Capsule()
+                    .fill(tint)
+                    .frame(width: max(0, geo.size.width * min(1, max(0, progress))))
+            }
+        }
+        .frame(width: 60, height: 6)
+    }
+
+    private func statusChip(_ text: String, tint: Color) -> some View {
+        Text(text)
+            .font(.system(size: 10, weight: .heavy, design: .rounded))
+            .foregroundStyle(tint)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(tint.opacity(0.14)))
+            .overlay(Capsule().stroke(tint.opacity(0.30), lineWidth: 0.5))
+    }
+
+    private var weeklyGoalRow: some View {
+        let progress = min(1.0, Double(workoutsThisWeek) / Double(weeklyGoal))
+        let done = workoutsThisWeek >= weeklyGoal
+        let tint: Color = done ? DesignSystem.Colors.neonGreen : Color(red: 1.0, green: 0.7, blue: 0.2)
+        let sub = done
+            ? "Цель закрыта — респект.".localized()
+            : String(format: "Ещё %d до цели".localized(), max(0, weeklyGoal - workoutsThisWeek))
+        return compactRow(
+            icon: done ? "checkmark.seal.fill" : "target",
+            tint: tint,
+            title: "Цель недели".localized(),
+            subtitle: sub
+        ) {
+            HStack(spacing: 8) {
+                miniBar(progress: progress, tint: tint)
+                Text("\(workoutsThisWeek)/\(weeklyGoal)")
+                    .font(.system(.subheadline, design: .monospaced, weight: .bold))
+                    .foregroundStyle(tint)
+            }
+        }
+    }
+
+    private var streakRow: some View {
+        let danger = streakInDanger
+        let tint: Color = danger ? .red : (currentStreak > 0 ? .orange : DesignSystem.Colors.tertiaryText)
+        return compactRow(
+            icon: "flame.fill",
+            tint: tint,
+            title: "\(currentStreak) \(streakSuffix(currentStreak))",
+            subtitle: streakHint
+        ) {
+            if danger {
+                statusChip("под угрозой".localized(), tint: .red)
+            } else if bestStreak > currentStreak && bestStreak > 0 {
+                statusChip(String(format: "лучшая %d".localized(), bestStreak),
+                           tint: DesignSystem.Colors.tertiaryText)
+            }
+        }
+    }
+
+    private func awardRow(_ next: AchievementBadge) -> some View {
+        let remaining = next.workouts - totalCompleted
+        let progress = next.workouts > 0 ? Double(totalCompleted) / Double(next.workouts) : 0
+        return Button {
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.78)) {
+                selectedTab = .awards
+            }
+        } label: {
+            compactRow(
+                icon: next.icon,
+                tint: next.tint,
+                title: String(format: "%@ — ещё %d".localized(), next.title.localized(), remaining),
+                subtitle: "Следующая награда".localized()
+            ) {
+                HStack(spacing: 8) {
+                    miniBar(progress: progress, tint: next.tint)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                }
+            }
         }
         .buttonStyle(.plain)
     }
@@ -1029,7 +1034,7 @@ struct ProgressHubView: View {
             }
 
             if let next = nextBadge {
-                nextBadgeRow(next)
+                awardRow(next)
             }
         }
     }
