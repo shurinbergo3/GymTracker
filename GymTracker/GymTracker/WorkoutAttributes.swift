@@ -16,6 +16,10 @@ struct WorkoutAttributes: ActivityAttributes {
         var totalSets: Int?
         // When non-nil — rest timer is running, ends at this date.
         var restEndsAt: Date?
+        // When the current rest started. Together with `restEndsAt` this gives
+        // the full rest window so the widget can draw a progress bar that fills
+        // correctly even if the activity re-renders mid-rest.
+        var restStartedAt: Date?
 
         // ISO 639-1 code (ru/en/pl) so the widget extension picks the same
         // language the user selected in the iPhone app, even though the

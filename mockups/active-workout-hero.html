@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Активная тренировка — новый компактный hero</title>
+<style>
+  :root{
+    --volt:#BFFF00;--gold:#FFD133;--orange:#FF8A3D;--red:#FF5A5A;--cyan:#54E0FF;
+    --t1:#fff;--t2:rgba(255,255,255,.6);--t3:rgba(255,255,255,.4);
+    --line:rgba(255,255,255,.08);
+    --font:-apple-system,"SF Pro Rounded",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#050505;font-family:var(--font);color:var(--t1);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:36px 16px 80px;gap:26px}
+  h1{font-size:21px;font-weight:800;text-align:center}
+  .sub{color:var(--t2);font-size:13px;text-align:center;max-width:580px;line-height:1.5}
+  .cols{display:flex;gap:38px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+  .col{display:flex;flex-direction:column;align-items:center;gap:13px}
+  .cl{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+  .cl.bad{color:var(--red)}.cl.good{color:var(--volt)}
+
+  .phone{width:344px;background:#000;border-radius:46px;padding:14px;border:1px solid rgba(255,255,255,.1);
+    box-shadow:0 30px 80px rgba(0,0,0,.7)}
+  .screen{background:#000;border-radius:34px;overflow:hidden;padding:8px 12px 18px}
+  .sbar{display:flex;justify-content:space-between;padding:6px 12px 10px;font-size:12px;color:var(--t2);font-weight:700}
+
+  /* header line */
+  .hd{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 14px}
+  .hd h2{font-size:26px;font-weight:900;letter-spacing:-.5px}
+  .hd .right{display:flex;gap:8px;align-items:center}
+  .av{width:34px;height:34px;border-radius:50%;border:2px solid var(--volt);background:#333}
+  .x{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px}
+
+  /* ===== OLD ===== */
+  .ocard{background:#0E0E0E;border:1px solid var(--line);border-radius:22px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px}
+  .oring{width:54px;height:54px;border-radius:50%;background:conic-gradient(var(--volt) 0 8%,rgba(255,255,255,.1) 8%);position:relative;display:flex;align-items:center;justify-content:center}
+  .oring::after{content:"";position:absolute;inset:5px;border-radius:50%;background:#0E0E0E}
+  .otime{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;flex:1}
+  .ostats{display:flex;gap:12px}
+  .ost{text-align:center}.ost b{font-size:15px;font-weight:800}.ost span{display:block;font-size:8px;color:var(--t3);font-weight:700}
+  .obar{background:#0E0E0E;border:1px solid var(--line);border-radius:22px;padding:14px 16px}
+  .oseg{display:flex;gap:4px;align-items:center}
+  .oseg .s{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.1)}
+  .oseg .c{font-size:18px;font-weight:900;margin-left:8px;color:var(--t2)}
+  .ofoot{display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--t2);font-weight:700}
+  .ostreak{background:rgba(255,138,61,.12);border:1px solid rgba(255,138,61,.3);color:var(--orange);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:800}
+
+  /* ===== NEW unified hero ===== */
+  .hero{background:radial-gradient(120% 120% at 70% 0%,#16210A 0%,#0A0A0A 55%);
+    border:1px solid rgba(191,255,0,.18);border-radius:30px;padding:18px 18px 16px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-50px;left:-30px;width:180px;height:180px;background:radial-gradient(circle,rgba(191,255,0,.14),transparent 70%);pointer-events:none}
+
+  .hero-main{display:flex;align-items:center;gap:18px}
+  /* big progress ring with time in center */
+  .bigring{width:118px;height:118px;flex-shrink:0;position:relative}
+  .bigring svg{transform:rotate(-90deg)}
+  .rcenter{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+  .rcenter .t{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1}
+  .rcenter .lbl{font-size:9px;color:var(--t3);font-weight:800;letter-spacing:1.5px}
+  .rbadge{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);background:var(--volt);color:#0A0A0A;font-size:11px;font-weight:900;padding:2px 9px;border-radius:20px;white-space:nowrap}
+
+  .hero-side{flex:1;display:flex;flex-direction:column;gap:11px;min-width:0}
+  .stat{display:flex;align-items:center;gap:9px}
+  .stat .ic{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+  .stat .v{font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+  .stat .u{font-size:9px;color:var(--t3);font-weight:800;letter-spacing:.5px}
+  .ic.hr{background:rgba(255,90,90,.15)} .ic.kc{background:rgba(255,138,61,.15)} .ic.kg{background:rgba(191,255,0,.15)}
+  .hrzone{font-size:9px;color:var(--orange);font-weight:800;margin-left:auto;background:rgba(255,138,61,.12);padding:2px 7px;border-radius:10px}
+
+  /* momentum / session XP bar with combo */
+  .mom{margin-top:15px}
+  .mom-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+  .mom-top .l{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--t3)}
+  .mom-top .xp{font-size:12px;font-weight:900;color:var(--volt)}
+  .combo{background:linear-gradient(90deg,var(--orange),var(--red));color:#fff;font-size:11px;font-weight:900;padding:2px 9px;border-radius:20px;margin-left:7px;box-shadow:0 0 12px rgba(255,90,90,.5)}
+  .mbar{height:8px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
+  .mbar i{display:block;height:100%;width:58%;background:linear-gradient(90deg,var(--volt),var(--cyan));border-radius:8px;box-shadow:0 0 14px rgba(191,255,0,.6)}
+  .mfoot{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;font-weight:700;color:var(--t2)}
+  .mfoot .wow{color:var(--volt)}
+
+  /* floating +XP chip illustration */
+  .float{position:absolute;top:30px;right:24px;background:rgba(191,255,0,.16);border:1px solid rgba(191,255,0,.4);color:var(--volt);font-size:12px;font-weight:900;padding:4px 10px;border-radius:20px;animation:rise 2.4s ease-out infinite}
+  @keyframes rise{0%{opacity:0;transform:translateY(8px)}20%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+
+  .note{max-width:420px;background:#0E0E0E;border:1px solid var(--line);border-radius:20px;padding:18px 22px}
+  .note h3{font-size:13px;font-weight:800;color:var(--volt);margin-bottom:12px}
+  .note li{list-style:none;font-size:12.5px;color:var(--t2);line-height:1.55;margin-bottom:9px;padding-left:20px;position:relative}
+  .note li::before{content:"→";position:absolute;left:0;color:var(--volt);font-weight:900}
+  .note b{color:var(--t1)}
+</style>
+</head>
+<body>
+  <h1>Активная тренировка: было → стало</h1>
+  <p class="sub">Сейчас бесполезное кольцо крутится каждую минуту, а прогресс сетов — отдельной полоской. Новый компактный блок объединяет всё: кольцо = реальный прогресс тренировки, время в центре, живые метрики справа, и снизу — «импульс сессии»: XP копится в реальном времени с комбо за серию сетов без долгого отдыха.</p>
+
+  <div class="cols">
+
+    <!-- BEFORE -->
+    <div class="col">
+      <div class="cl bad">Было</div>
+      <div class="phone"><div class="screen">
+        <div class="sbar"><span>19:11</span><span>📶 🔋</span></div>
+        <div class="hd"><h2>Body Forge</h2><div class="right"><div class="av"></div><div class="x">✕</div></div></div>
+        <div class="ocard">
+          <div class="oring"></div>
+          <div class="otime">00:05</div>
+          <div class="ostats">
+            <div class="ost"><b style="color:var(--red)">0</b><span>BPM</span></div>
+            <div class="ost"><b style="color:var(--orange)">0</b><span>KCAL</span></div>
+            <div class="ost"><b style="color:var(--volt)">0</b><span>KG</span></div>
+          </div>
+        </div>
+        <div class="obar">
+          <div class="oseg">
+            <div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div>
+            <div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div>
+            <div class="c">0/11</div>
+          </div>
+          <div class="ofoot"><span>⚡ ещё 11</span><span class="ostreak">🔥 1 Tag</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- AFTER -->
+    <div class="col">
+      <div class="cl good">Стало · компактно + вау</div>
+      <div class="phone"><div class="screen">
+        <div class="sbar"><span>19:11</span><span>📶 🔋</span></div>
+        <div class="hd"><h2>Body Forge</h2><div class="right"><div class="av"></div><div class="x">✕</div></div></div>
+
+        <div class="hero">
+          <div class="float">+15 XP</div>
+          <div class="hero-main">
+            <!-- big ring = session progress, time in center -->
+            <div class="bigring">
+              <svg width="118" height="118" viewBox="0 0 118 118">
+                <circle cx="59" cy="59" r="52" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
+                <circle cx="59" cy="59" r="52" fill="none" stroke="url(#g)" stroke-width="9" stroke-linecap="round"
+                  stroke-dasharray="327" stroke-dashoffset="208"/>
+                <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#BFFF00"/><stop offset="1" stop-color="#54E0FF"/>
+                </linearGradient></defs>
+              </svg>
+              <div class="rcenter"><div class="t">12:38</div><div class="lbl">ВРЕМЯ</div></div>
+              <div class="rbadge">4 / 11 сетов</div>
+            </div>
+            <!-- live stats -->
+            <div class="hero-side">
+              <div class="stat"><div class="ic hr">❤️</div><div><div class="v">128</div><div class="u">BPM</div></div><div class="hrzone">КАРДИО</div></div>
+              <div class="stat"><div class="ic kc">🔥</div><div><div class="v">86</div><div class="u">KCAL</div></div></div>
+              <div class="stat"><div class="ic kg">🏋️</div><div><div class="v">1 240</div><div class="u">KG ПОДНЯТО</div></div></div>
+            </div>
+          </div>
+
+          <!-- momentum / session XP -->
+          <div class="mom">
+            <div class="mom-top">
+              <span class="l">Импульс сессии<span class="combo">🔥 x3</span></span>
+              <span class="xp">+185 XP</span>
+            </div>
+            <div class="mbar"><i></i></div>
+            <div class="mfoot"><span>До 8 уровня — 1 тренировка</span><span class="wow">= вес рояля 🎹</span></div>
+          </div>
+        </div>
+
+      </div></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <h3>Что нового и зачем</h3>
+    <ul>
+      <li><b>Кольцо теперь осмысленное</b> — заполняется по мере выполнения сетов (4/11), а не крутится впустую каждую минуту. Эффект «колец Apple»: видно, как тренировка закрывается.</li>
+      <li><b>Время — в центре кольца</b>, всё в одном компактном блоке вместо двух карточек.</li>
+      <li><b>«Импульс сессии»</b> — XP копится в реальном времени, на каждый сет вылетает «+15 XP» с haptic (дофамин-ребард, +30% вовлечённости по ресёрчу). Прямая связка с уровнями из части 1.</li>
+      <li><b>Комбо 🔥 x3</b> — серия сетов без долгого отдыха даёт множитель. Награда за темп, без наказания.</li>
+      <li><b>Зона пульса</b> цветом (КАРДИО/ЖИР/ПИК) — метрики «живые».</li>
+      <li><b>Вау-эквивалент тоннажа</b> — «1240 кг = вес рояля». Относительные сравнения цепляют.</li>
+    </ul>
+  </div>
+</body>
+</html>

@@ -34,6 +34,39 @@ private extension WorkoutAttributes.ContentState {
     var restLabelLower: String { t(en: "rest", ru: "отдых", pl: "odpoczynek") }
 }
 
+// MARK: - Shared building blocks
+
+/// Brand logo rendered as a small rounded chip. Used in the Dynamic Island,
+/// the compact pill and on the lock screen so the activity always reads as
+/// "this is the gym app".
+@ViewBuilder
+private func brandLogo(size: CGFloat) -> some View {
+    Image("BrandLogo")
+        .resizable()
+        .aspectRatio(contentMode: .fill)
+        .frame(width: size, height: size)
+        .clipShape(RoundedRectangle(cornerRadius: size * 0.28, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .strokeBorder(.white.opacity(0.15), lineWidth: 0.5)
+        )
+}
+
+/// Linear bar that depletes over the full rest window. Self-updating via the
+/// system `timerInterval` progress — no per-second pushes needed. Renders
+/// nothing for states without a known rest window (e.g. legacy encoded states).
+@ViewBuilder
+private func restProgressBar(state: WorkoutAttributes.ContentState) -> some View {
+    if let start = state.restStartedAt, let end = state.restEndsAt, end > start {
+        ProgressView(timerInterval: start...end, countsDown: true) {
+            EmptyView()
+        } currentValueLabel: {
+            EmptyView()
+        }
+        .tint(restAmber)
+    }
+}
+
 struct GymTrackerWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: WorkoutAttributes.self) { context in
@@ -44,56 +77,85 @@ struct GymTrackerWidgetLiveActivity: Widget {
 
         } dynamicIsland: { context in
             DynamicIsland {
-                // MARK: Expanded
+                // MARK: Expanded — branded header + metrics, big timer below.
                 DynamicIslandExpandedRegion(.leading) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Label(
-                            context.state.currentExerciseName ?? context.state.workoutType,
-                            systemImage: context.state.isResting ? "timer" : "dumbbell.fill"
-                        )
-                        .labelStyle(.titleAndIcon)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                    HStack(spacing: 8) {
+                        brandLogo(size: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(context.state.currentExerciseName ?? context.state.workoutType)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
 
-                        if let progress = context.state.setProgressLabel {
-                            Text(progress)
-                                .font(.caption2)
-                                .foregroundStyle(.white.opacity(0.6))
+                            if let progress = context.state.setProgressLabel {
+                                Text(progress)
+                                    .font(.caption2)
+                                    .foregroundStyle(.white.opacity(0.6))
+                                    .lineLimit(1)
+                            } else {
+                                Text(context.state.workoutType)
+                                    .font(.caption2)
+                                    .foregroundStyle(.white.opacity(0.55))
+                                    .lineLimit(1)
+                            }
                         }
-
-                        primaryTimer(state: context.state)
-                            .font(.system(.title, design: .rounded).monospacedDigit())
                     }
-                    .padding(.leading, 8)
+                    .padding(.leading, 4)
                 }
 
                 DynamicIslandExpandedRegion(.trailing) {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Label("\(context.state.calories)", systemImage: "flame.fill")
-                            .foregroundStyle(.orange)
-                            .font(.title3)
-                        Label("\(context.state.heartRate)", systemImage: "heart.fill")
-                            .foregroundStyle(.red)
-                            .font(.title3)
+                    VStack(alignment: .trailing, spacing: 4) {
+                        metricPill(icon: "flame.fill", value: "\(context.state.calories)", tint: .orange)
+                        metricPill(icon: "heart.fill", value: "\(context.state.heartRate)", tint: .red)
                     }
-                    .padding(.trailing, 8)
+                    .padding(.trailing, 4)
                 }
-
-                DynamicIslandExpandedRegion(.center) {}
 
                 DynamicIslandExpandedRegion(.bottom) {
                     if context.state.isResting {
-                        Text(context.state.restLabel)
+                        VStack(spacing: 6) {
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                Image(systemName: "timer")
+                                    .font(.title3)
+                                primaryTimer(state: context.state)
+                                    .font(.system(size: 34, weight: .semibold, design: .rounded).monospacedDigit())
+                                Text(context.state.restLabelLower)
+                                    .font(.caption)
+                                    .foregroundStyle(.white.opacity(0.55))
+                            }
+
+                            restProgressBar(state: context.state)
+
+                            // Total workout time stays visible during rest.
+                            HStack(spacing: 4) {
+                                Image(systemName: "dumbbell.fill")
+                                Text(timerInterval: context.state.startTime...Date.distantFuture, countsDown: false)
+                                    .monospacedDigit()
+                            }
                             .font(.caption2)
-                            .foregroundStyle(restAmber)
+                            .foregroundStyle(.white.opacity(0.45))
+                        }
+                        .padding(.horizontal, 4)
+                        .padding(.top, 2)
+                    } else {
+                        HStack(spacing: 8) {
+                            Image(systemName: "stopwatch")
+                                .font(.title3)
+                                .foregroundStyle(neonGreen)
+                            primaryTimer(state: context.state)
+                                .font(.system(size: 34, weight: .semibold, design: .rounded).monospacedDigit())
+                        }
+                        .padding(.top, 2)
                     }
                 }
 
             } compactLeading: {
-                primaryTimer(state: context.state)
-                    .monospacedDigit()
-                    .frame(maxWidth: 56)
+                HStack(spacing: 4) {
+                    brandLogo(size: 16)
+                    primaryTimer(state: context.state)
+                        .monospacedDigit()
+                        .frame(maxWidth: 44)
+                }
             } compactTrailing: {
                 if context.state.isResting {
                     Image(systemName: "timer")
@@ -130,6 +192,18 @@ struct GymTrackerWidgetLiveActivity: Widget {
                 .foregroundStyle(neonGreen)
         }
     }
+
+    /// Compact metric chip — icon + value, used in the expanded trailing region.
+    private func metricPill(icon: String, value: String, tint: Color) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .foregroundStyle(tint)
+            Text(value)
+                .foregroundStyle(.white)
+                .monospacedDigit()
+        }
+        .font(.callout.weight(.medium))
+    }
 }
 
 // MARK: - Lock screen layout
@@ -138,65 +212,89 @@ private struct LockScreenView: View {
     let state: WorkoutAttributes.ContentState
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                // Top label — workout day / type. Always visible so user
-                // recognises which session is running.
-                Text(state.workoutType)
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.55))
-                    .lineLimit(1)
+        VStack(spacing: 10) {
+            HStack(alignment: .center, spacing: 12) {
+                brandLogo(size: 40)
 
-                // Big primary line — current exercise, or workout name fallback.
-                Text(state.currentExerciseName ?? state.workoutType)
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .lineLimit(2)
+                VStack(alignment: .leading, spacing: 3) {
+                    // Top label — workout day / type. Always visible so user
+                    // recognises which session is running.
+                    Text(state.workoutType)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.55))
+                        .lineLimit(1)
 
-                // Set X of Y when we know it.
-                if let progress = state.setProgressLabel {
-                    Text(progress)
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.6))
+                    // Big primary line — current exercise, or workout name fallback.
+                    Text(state.currentExerciseName ?? state.workoutType)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+
+                    // Set X of Y when we know it.
+                    if let progress = state.setProgressLabel {
+                        Text(progress)
+                            .font(.caption2)
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
                 }
 
-                // Big timer below — rest countdown OR workout total.
-                if let restEndsAt = state.restEndsAt, restEndsAt > Date() {
-                    HStack(spacing: 6) {
-                        Image(systemName: "timer")
-                            .font(.system(size: 16))
-                        Text(timerInterval: Date()...restEndsAt, countsDown: true)
-                            .font(.system(.title2, design: .rounded).monospacedDigit())
-                        Text(state.restLabelLower)
-                            .font(.caption2)
-                            .foregroundStyle(.white.opacity(0.5))
+                Spacer()
+
+                VStack(alignment: .trailing, spacing: 6) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "flame.fill")
+                            .foregroundStyle(.orange)
+                        Text("\(state.calories) kcal")
+                            .font(.subheadline)
+                            .foregroundStyle(.white)
                     }
-                    .foregroundStyle(restAmber)
-                } else {
-                    Text(timerInterval: state.startTime...Date.distantFuture, countsDown: false)
-                        .font(.system(.title2, design: .rounded).monospacedDigit())
-                        .foregroundStyle(neonGreen)
+
+                    HStack(spacing: 4) {
+                        Image(systemName: "heart.fill")
+                            .foregroundStyle(.red)
+                        Text("\(state.heartRate) BPM")
+                            .font(.subheadline)
+                            .foregroundStyle(.white)
+                    }
                 }
             }
 
-            Spacer()
+            // Timer row — rest countdown + progress, or workout count-up.
+            if let restEndsAt = state.restEndsAt, restEndsAt > Date() {
+                VStack(spacing: 5) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "timer")
+                            .font(.system(size: 15))
+                        Text(timerInterval: Date()...restEndsAt, countsDown: true)
+                            .font(.system(.title3, design: .rounded).monospacedDigit())
+                        Text(state.restLabelLower)
+                            .font(.caption2)
+                            .foregroundStyle(.white.opacity(0.5))
 
-            VStack(alignment: .trailing, spacing: 6) {
-                HStack(spacing: 4) {
-                    Image(systemName: "flame.fill")
-                        .foregroundStyle(.orange)
-                    Text("\(state.calories) kcal")
-                        .font(.subheadline)
-                        .foregroundStyle(.white)
-                }
+                        Spacer()
 
-                HStack(spacing: 4) {
-                    Image(systemName: "heart.fill")
-                        .foregroundStyle(.red)
-                    Text("\(state.heartRate) BPM")
-                        .font(.subheadline)
-                        .foregroundStyle(.white)
+                        // Total workout time stays visible during rest.
+                        HStack(spacing: 4) {
+                            Image(systemName: "dumbbell.fill")
+                            Text(timerInterval: state.startTime...Date.distantFuture, countsDown: false)
+                                .monospacedDigit()
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.45))
+                    }
+                    .foregroundStyle(restAmber)
+
+                    restProgressBar(state: state)
                 }
+            } else {
+                HStack(spacing: 6) {
+                    Image(systemName: "stopwatch")
+                        .font(.system(size: 15))
+                    Text(timerInterval: state.startTime...Date.distantFuture, countsDown: false)
+                        .font(.system(.title3, design: .rounded).monospacedDigit())
+                }
+                .foregroundStyle(neonGreen)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding()

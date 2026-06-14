@@ -58,16 +58,23 @@ enum PersonalRecordsService {
                 let name = set.exerciseName.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !name.isEmpty else { continue }
                 let prev = bestAtReps[name]?[set.reps] ?? 0
-                if set.weight > prev {
-                    prs.append(PersonalRecord(
-                        exerciseName: name,
-                        weight: set.weight,
-                        reps: set.reps,
-                        date: session.date,
-                        previousBestWeight: prev
-                    ))
-                    bestAtReps[name, default: [:]][set.reps] = set.weight
-                }
+                guard set.weight > prev else { continue }
+                let isFirstForExercise = (bestAtReps[name] == nil)
+                // Always seed the best so later improvements compare correctly…
+                bestAtReps[name, default: [:]][set.reps] = set.weight
+                // …but a first-ever set at a new rep count has no prior best to
+                // beat (prev == 0). Emit that as a PR only for the exercise's very
+                // first logged set — otherwise a debut session floods the feed with
+                // a separate "first PR" for every distinct rep count. Genuine
+                // improvements (prev > 0) always emit.
+                if prev == 0 && !isFirstForExercise { continue }
+                prs.append(PersonalRecord(
+                    exerciseName: name,
+                    weight: set.weight,
+                    reps: set.reps,
+                    date: set.date,           // the set's own timestamp, not the session's
+                    previousBestWeight: prev
+                ))
             }
         }
 
@@ -100,7 +107,10 @@ enum PersonalRecordsService {
             .sorted { $0.date > $1.date }
 
         for session in recentSessions {
-            let strengthSets = session.sets.filter { $0.weight > 0 && $0.reps > 0 }
+            // Require reps >= 3 for the target base: chasing "+1 rep" off a near-1RM
+            // single/double (e.g. 120×1 → "120×2") is not the achievable target the
+            // API promises. Low-rep maxes are progressed by weight, not reps.
+            let strengthSets = session.sets.filter { $0.weight > 0 && $0.reps >= 3 }
             guard let heaviest = strengthSets.max(by: { lhs, rhs in
                 if lhs.weight != rhs.weight { return lhs.weight < rhs.weight }
                 return lhs.reps < rhs.reps

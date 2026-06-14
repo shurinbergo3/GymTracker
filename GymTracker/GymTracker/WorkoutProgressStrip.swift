@@ -16,6 +16,11 @@ struct WorkoutProgressStrip: View {
 
     @State private var pulse: Bool = false
     @State private var prFlashActive: Bool = false
+    // Pending reset work items — cancelled before re-scheduling so two set
+    // completions (or two PRs) in quick succession don't let an earlier reset
+    // cut the latest animation short.
+    @State private var pulseResetWork: DispatchWorkItem?
+    @State private var prFlashResetWork: DispatchWorkItem?
 
     private var totalPlannedSets: Int {
         guard let day = workoutManager.selectedDay else { return 0 }
@@ -266,21 +271,25 @@ struct WorkoutProgressStrip: View {
     // MARK: - Animations
 
     private func triggerPulse() {
+        pulseResetWork?.cancel()
         pulse = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
-            pulse = false
-        }
+        let work = DispatchWorkItem { pulse = false }
+        pulseResetWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32, execute: work)
     }
 
     private func triggerPRFlash() {
+        prFlashResetWork?.cancel()
         withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
             prFlashActive = true
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+        let work = DispatchWorkItem {
             withAnimation(.easeOut(duration: 0.4)) {
                 prFlashActive = false
             }
         }
+        prFlashResetWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8, execute: work)
     }
 
     // MARK: - Helpers

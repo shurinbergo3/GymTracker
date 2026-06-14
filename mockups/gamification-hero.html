@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Геймификация — новый hero-блок</title>
+<style>
+  :root{
+    --volt:#BFFF00;       /* neon volt green */
+    --gold:#FFD133;       /* stable / form */
+    --bronze:#D98C4D;
+    --silver:#C7C7C7;
+    --pink:#FF66D9;
+    --bg:#000;
+    --card:#0E0E0E;
+    --card2:#161616;
+    --line:rgba(255,255,255,.08);
+    --t1:#fff;
+    --t2:rgba(255,255,255,.6);
+    --t3:rgba(255,255,255,.38);
+    --font:-apple-system,"SF Pro Rounded","SF Pro Display",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:#050505;font-family:var(--font);color:var(--t1);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;
+    padding:40px 16px 80px;gap:28px;
+  }
+  h1.page{font-size:22px;font-weight:800;letter-spacing:-.3px;text-align:center}
+  .page-sub{color:var(--t2);font-size:13px;text-align:center;max-width:560px;line-height:1.5}
+  .cols{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+  .col{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .col-label{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+  .col-label.bad{color:#FF5A5A}
+  .col-label.good{color:var(--volt)}
+
+  /* phone frame */
+  .phone{
+    width:340px;background:var(--bg);border-radius:44px;padding:14px;
+    border:1px solid rgba(255,255,255,.1);
+    box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 2px rgba(255,255,255,.03) inset;
+  }
+  .screen{background:var(--bg);border-radius:32px;overflow:hidden;padding:10px 12px 16px}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:6px 10px 12px;font-size:12px;color:var(--t2);font-weight:700}
+
+  /* ===== NEW HERO ===== */
+  .hero{
+    background:linear-gradient(160deg,#141414 0%,#0A0A0A 100%);
+    border:1px solid var(--line);border-radius:28px;padding:18px 18px 16px;
+    display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden;
+  }
+  .hero::before{content:"";position:absolute;top:-60px;right:-40px;width:160px;height:160px;
+    background:radial-gradient(circle,rgba(191,255,0,.16),transparent 70%);pointer-events:none}
+
+  .hero-top{display:flex;align-items:center;gap:14px}
+  .ring{
+    width:64px;height:64px;border-radius:50%;flex-shrink:0;
+    background:conic-gradient(var(--volt) 0 72%,rgba(255,255,255,.1) 72% 100%);
+    display:flex;align-items:center;justify-content:center;position:relative;
+  }
+  .ring::after{content:"";position:absolute;inset:5px;border-radius:50%;background:#0C0C0C}
+  .ring .lvl{position:relative;z-index:1;text-align:center;line-height:1}
+  .ring .lvl b{font-size:22px;font-weight:900;color:var(--volt)}
+  .ring .lvl span{display:block;font-size:8px;color:var(--t3);font-weight:800;letter-spacing:1px;margin-top:2px}
+
+  .hero-id{flex:1;min-width:0}
+  .title-row{display:flex;align-items:center;gap:8px}
+  .title-row h2{font-size:20px;font-weight:900;letter-spacing:-.4px}
+  .badge-pill{font-size:10px;font-weight:800;color:var(--gold);background:rgba(255,209,51,.12);
+    border:1px solid rgba(255,209,51,.25);padding:3px 8px;border-radius:20px;white-space:nowrap}
+  .xp-line{margin-top:6px;font-size:12px;color:var(--t2);font-weight:600}
+  .xp-line b{color:var(--t1)}
+
+  /* readiness chip (was: form state / decay punishment) */
+  .ready{
+    display:flex;align-items:center;gap:8px;background:rgba(255,209,51,.08);
+    border:1px solid rgba(255,209,51,.18);border-radius:16px;padding:9px 12px;
+  }
+  .ready .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);flex-shrink:0}
+  .ready .txt{font-size:12px;font-weight:600;color:var(--t1)}
+  .ready .txt span{color:var(--t2);font-weight:500}
+
+  /* divider */
+  .hr{height:1px;background:var(--line);margin:2px 0}
+
+  /* two stat tiles: next badge + weekly rhythm */
+  .tiles{display:flex;gap:10px}
+  .tile{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:18px;padding:12px}
+  .tile .cap{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+  .tile .big{display:flex;align-items:baseline;gap:5px}
+  .tile .big .n{font-size:22px;font-weight:900;line-height:1}
+  .tile .big .u{font-size:11px;color:var(--t2);font-weight:700}
+  .tile .meta{font-size:11px;color:var(--t2);margin-top:6px;font-weight:600}
+
+  /* week dots */
+  .week{display:flex;gap:5px;margin-top:9px}
+  .d{width:100%;height:22px;border-radius:7px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--t3)}
+  .d.done{background:var(--volt);color:#0A0A0A}
+  .d.freeze{background:rgba(120,200,255,.18);color:#7CC8FF;border:1px solid rgba(120,200,255,.4)}
+
+  /* next-badge mini progress */
+  .npbar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:9px;overflow:hidden}
+  .npbar i{display:block;height:100%;width:73%;background:linear-gradient(90deg,var(--bronze),var(--silver));border-radius:6px}
+
+  /* PR teaser banner */
+  .pr{
+    margin-top:2px;display:flex;align-items:center;gap:11px;
+    background:linear-gradient(120deg,rgba(191,255,0,.10),rgba(191,255,0,.02));
+    border:1px solid rgba(191,255,0,.22);border-radius:18px;padding:12px 14px;
+  }
+  .pr .ic{width:34px;height:34px;border-radius:11px;background:rgba(191,255,0,.15);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+  .pr .body{flex:1;min-width:0}
+  .pr .body .h{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--volt);margin-bottom:2px}
+  .pr .body .m{font-size:13px;font-weight:700;line-height:1.3}
+  .pr .body .m em{color:var(--volt);font-style:normal}
+
+  /* OLD cluttered version */
+  .old{display:flex;flex-direction:column;gap:8px}
+  .old .blk{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px}
+  .old .blk .tag{font-size:9px;color:var(--t3);font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+  .old .row{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700}
+  .old .bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:8px;overflow:hidden}
+  .old .bar i{display:block;height:100%;border-radius:6px}
+  .penalty{color:#FF5A5A;font-size:11px;font-weight:800}
+  .small{font-size:11px;color:var(--t2);margin-top:4px}
+
+  .legend{max-width:380px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 20px}
+  .legend h3{font-size:13px;font-weight:800;margin-bottom:12px;color:var(--volt);letter-spacing:.3px}
+  .legend li{list-style:none;font-size:12.5px;color:var(--t2);line-height:1.55;margin-bottom:9px;padding-left:20px;position:relative}
+  .legend li::before{content:"→";position:absolute;left:0;color:var(--volt);font-weight:900}
+  .legend li b{color:var(--t1);font-weight:700}
+</style>
+</head>
+<body>
+  <h1 class="page">Геймификация: было → стало</h1>
+  <p class="page-sub">Слева — текущий разброс из 4 шкал и штрафа за пропуск. Справа — единый hero-блок прямо на дашборде: уровень растёт навсегда, «дни без зала» = забота, а не наказание, и наверх вынесены рекорды (главный крючок зала).</p>
+
+  <div class="cols">
+
+    <!-- ============ BEFORE ============ -->
+    <div class="col">
+      <div class="col-label bad">Было · перегруз + штраф</div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="old">
+          <div class="blk">
+            <div class="tag">Уровень / XP</div>
+            <div class="row"><span>Уровень 7 · Атлет</span><span class="penalty">↓ ПИК 8</span></div>
+            <div class="bar"><i style="width:28%;background:#FF5A5A"></i></div>
+            <div class="small">1.4 / 5 XP &nbsp;·&nbsp; <span class="penalty">−1.5 XP/день</span></div>
+          </div>
+          <div class="blk">
+            <div class="tag">Состояние формы</div>
+            <div class="row"><span style="color:#FF8A3D">⚠ XP начал просаживаться</span></div>
+            <div class="small">8 дней без тренировки · детренинг через 7 дней</div>
+          </div>
+          <div class="blk">
+            <div class="tag">Недельный стрик</div>
+            <div class="row"><span>3 недели подряд</span><span>2/4 ❄︎</span></div>
+          </div>
+          <div class="blk">
+            <div class="tag">Награды</div>
+            <div class="small">ещё 12 тренировок → Серебро (скрыто в модалке, 3-я вкладка)</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ============ AFTER ============ -->
+    <div class="col">
+      <div class="col-label good">Стало · один блок, рост без штрафа</div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="hero">
+
+          <div class="hero-top">
+            <div class="ring"><div class="lvl"><b>7</b><span>LVL</span></div></div>
+            <div class="hero-id">
+              <div class="title-row"><h2>Атлет</h2><div class="badge-pill">🏆 рекорд: 8</div></div>
+              <div class="xp-line">До 8 уровня — <b>4 тренировки</b></div>
+            </div>
+          </div>
+
+          <div class="ready">
+            <div class="dot"></div>
+            <div class="txt">Ты отдохнул — мышцы готовы. <span>Лучший день вернуться 💪</span></div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="tiles">
+            <div class="tile">
+              <div class="cap">След. награда</div>
+              <div class="big"><span class="n" style="color:var(--silver)">🥈</span><span class="u">ещё 12</span></div>
+              <div class="meta">Серебро · 15 трен.</div>
+              <div class="npbar"><i></i></div>
+            </div>
+            <div class="tile">
+              <div class="cap">Ритм недели</div>
+              <div class="big"><span class="n">3<span style="color:var(--t3);font-weight:700">/4</span></span></div>
+              <div class="week">
+                <div class="d done">П</div><div class="d done">В</div>
+                <div class="d">С</div><div class="d done">Ч</div>
+                <div class="d freeze">❄</div><div class="d">С</div><div class="d">В</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pr">
+            <div class="ic">🔥</div>
+            <div class="body">
+              <div class="h">Цель сегодня</div>
+              <div class="m">Жим лёжа: в прошлый раз 100×8 → <em>попробуй 102.5 кг</em></div>
+            </div>
+          </div>
+
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <h3>Что изменилось</h3>
+    <ul>
+      <li><b>Убран распад XP и падение уровня.</b> Уровень только растёт — достигнутое твоё навсегда.</li>
+      <li><b>«Дни без зала» → статус готовности.</b> Не «−1.5 XP/день», а забота: «мышцы готовы, время вернуться».</li>
+      <li><b>Один блок на дашборде</b> вместо 4 разбросанных шкал и модалки после тренировки.</li>
+      <li><b>Рекорды вынесены наверх</b> — «цель на сегодня» как главный крючок зала (компетентность по SDT).</li>
+      <li><b>Заморозка стрика видна явно</b> (❄), а не срабатывает молча.</li>
+    </ul>
+  </div>
+
+</body>
+</html>

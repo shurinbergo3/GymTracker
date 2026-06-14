@@ -36,6 +36,7 @@ class LiveActivityManager: ActivityProvider {
             setNumber: nil,
             totalSets: nil,
             restEndsAt: nil,
+            restStartedAt: nil,
             languageCode: LanguageManager.shared.currentLanguageCode
         )
 
@@ -93,6 +94,7 @@ class LiveActivityManager: ActivityProvider {
 
     func startRest(until endDate: Date) {
         guard activity != nil, var state = currentState else { return }
+        state.restStartedAt = Date()
         state.restEndsAt = endDate
         apply(state)
     }
@@ -100,6 +102,7 @@ class LiveActivityManager: ActivityProvider {
     func endRest() {
         guard activity != nil, var state = currentState else { return }
         state.restEndsAt = nil
+        state.restStartedAt = nil
         apply(state)
     }
 

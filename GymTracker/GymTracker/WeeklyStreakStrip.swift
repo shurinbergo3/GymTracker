@@ -159,23 +159,30 @@ struct WeeklyStreakStrip: View {
     /// evaluation.
     private func computeWeekStreak() -> Int {
         var count = goalMet ? 1 : 0
-        var cursor = calendar.date(byAdding: .day, value: -7, to: mondayOf(Date())) ?? Date()
-        var freezeAvailable = StreakFreezeStorage.shared.isAvailableThisMonth()
+        let lastWeekMonday = calendar.date(byAdding: .day, value: -7, to: mondayOf(Date())) ?? Date()
+        var cursor = lastWeekMonday
+        let freezeAvailable = StreakFreezeStorage.shared.isAvailableThisMonth()
         let horizon = calendar.date(byAdding: .weekOfYear, value: -52, to: Date()) ?? Date()
+        var consumeFreeze = false
         while cursor >= horizon {
             let q = qualifyingCount(weekStarting: cursor)
             if q >= weeklyGoal {
                 count += 1
-            } else if freezeAvailable {
+            } else if freezeAvailable && cursor == lastWeekMonday {
+                // Forgive ONLY the single most-recent missed week, once per month.
+                // Older gaps deep in history must not silently drain this month's
+                // freeze — and the current week stays protected until it's actually
+                // missed (the freeze was previously burned just by rendering).
                 count += 1
-                freezeAvailable = false
-                StreakFreezeStorage.shared.consume() // 1/month auto-protect
+                consumeFreeze = true
             } else {
                 break
             }
             cursor = calendar.date(byAdding: .day, value: -7, to: cursor) ?? cursor
             if count > 200 { break } // safety
         }
+        // Persist consumption once, after the walk completes — never mid-loop.
+        if consumeFreeze { StreakFreezeStorage.shared.consume() }
         return count
     }
 

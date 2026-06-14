@@ -25,6 +25,10 @@ struct CountdownView: View {
     @State private var bursts: [BurstParticle] = []
     @State private var didStart: Bool = false
     @State private var finished: Bool = false
+    /// Set when the view goes away mid-countdown so the pending asyncAfter chain
+    /// stops scheduling, stops playing sounds, and never fires onComplete() from
+    /// a dismissed view.
+    @State private var cancelled: Bool = false
 
     private var displayDayName: String {
         dayName ?? "Тренировка".localized()
@@ -64,6 +68,7 @@ struct CountdownView: View {
             particleLayer
         }
         .onAppear { if !didStart { didStart = true; startSequence() } }
+        .onDisappear { cancelled = true }
     }
 
     // MARK: - Background
@@ -319,6 +324,7 @@ struct CountdownView: View {
     }
 
     private func performCountStep(val: Int) {
+        guard !cancelled else { return }
         guard val > 0 else { finish(); return }
 
         withAnimation(.easeInOut(duration: 0.35)) {
@@ -368,6 +374,7 @@ struct CountdownView: View {
     }
 
     private func finish() {
+        guard !cancelled else { return }
         count = 0
         finished = true
         numberScale = 0.4
@@ -390,6 +397,7 @@ struct CountdownView: View {
         AudioServicesPlaySystemSound(1057)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
+            guard !cancelled else { return }
             onComplete()
         }
     }

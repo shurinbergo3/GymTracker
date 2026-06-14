@@ -129,10 +129,19 @@ struct RestTimerView: View {
             } else if newPhase == .active {
                 if isRunning {
                     cancelNotification()
-                    // Recompute purely from the absolute end date — robust to
-                    // any amount of time spent in the background.
-                    syncRemainingFromEndDate()
-                    if isRunning { startTick() }
+                    if let endDate = workoutManager.restEndsAt, endDate.timeIntervalSinceNow <= 0 {
+                        // Rest already elapsed while backgrounded — the scheduled
+                        // local notification already alerted the user at the right
+                        // time. Clean up silently instead of replaying the full
+                        // haptic burst minutes late on return to foreground.
+                        remainingTime = 0
+                        finishRestQuietly()
+                    } else {
+                        // Recompute purely from the absolute end date — robust to
+                        // any amount of time spent in the background.
+                        syncRemainingFromEndDate()
+                        if isRunning { startTick() }
+                    }
                 }
             }
         }
@@ -231,7 +240,18 @@ struct RestTimerView: View {
         isPresented = false
     }
 
+    /// Ends the rest with no haptics — used when the interval expired while the
+    /// app was backgrounded and the user was already alerted by the notification.
+    private func finishRestQuietly() {
+        pauseTimer()
+        isPresented = false
+    }
+
     private func timerCompleted() {
+        // Idempotency guard: `pauseTimer()` flips `isRunning` to false, so a second
+        // near-simultaneous invocation (the 0.5s tick racing the foreground sync)
+        // returns here instead of queuing a duplicate haptic burst + auto-dismiss.
+        guard isRunning else { return }
         pauseTimer()
 
         // Strong haptic-only finish — NO sound (per user rule, audio would
