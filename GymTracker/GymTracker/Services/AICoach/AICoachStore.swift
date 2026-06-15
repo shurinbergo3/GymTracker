@@ -251,10 +251,12 @@ final class AICoachStore: ObservableObject {
             modelContext: modelContext,
             healthManager: healthManager,
             limit: 4,
-            lastProgressionNudgeAt: loadOrCreateProfile()?.lastProgressionNudgeAt
+            lastProgressionNudgeAt: loadOrCreateProfile()?.lastProgressionNudgeAt,
+            lastDeloadAt: loadOrCreateProfile()?.lastDeloadAt
         )
         let contextBlock = AICoachContextBuilder.renderForPrompt(ctx)
         let nudgeFired = !ctx.progressionNudges.isEmpty
+        let deloadFired = !ctx.deloadSuggestions.isEmpty
 
         // Plan summary: which exercises today, planned sets per exercise.
         let plannedBlock = renderPlannedDay(plannedDay)
@@ -281,6 +283,7 @@ final class AICoachStore: ObservableObject {
             )
             insertAssistantMessage(reply, signature: signature, isCycleAnalysis: true)
             if nudgeFired { markProgressionNudgeDelivered() }
+            if deloadFired { markDeloadDelivered() }
             isBriefing = false
             lastError = nil
         } catch {
@@ -347,17 +350,19 @@ final class AICoachStore: ObservableObject {
             modelContext: modelContext,
             healthManager: healthManager,
             limit: 6,
-            lastProgressionNudgeAt: loadOrCreateProfile()?.lastProgressionNudgeAt
+            lastProgressionNudgeAt: loadOrCreateProfile()?.lastProgressionNudgeAt,
+            lastDeloadAt: loadOrCreateProfile()?.lastDeloadAt
         )
 
         let names = plannedExercises.map { $0.name }
         let historyBlock = Self.renderExerciseHistory(for: names, ctx: ctx)
+        let readinessBlock = Self.renderReadinessForTips(ctx.readiness)
         let memory = currentMemoryBlock()
         let style = currentCoachStyle()
 
         let messages: [GroqMessage] = [
             .init(role: .system, content: Self.exerciseTipsSystemPrompt(style: style, memoryBlock: memory)),
-            .init(role: .user, content: Self.exerciseTipsUserPrompt(names: names, historyBlock: historyBlock))
+            .init(role: .user, content: Self.exerciseTipsUserPrompt(names: names, historyBlock: historyBlock, readinessBlock: readinessBlock))
         ]
 
         do {
@@ -482,10 +487,12 @@ final class AICoachStore: ObservableObject {
             modelContext: modelContext,
             healthManager: healthManager,
             limit: 4,
-            lastProgressionNudgeAt: loadOrCreateProfile()?.lastProgressionNudgeAt
+            lastProgressionNudgeAt: loadOrCreateProfile()?.lastProgressionNudgeAt,
+            lastDeloadAt: loadOrCreateProfile()?.lastDeloadAt
         )
         let contextBlock = AICoachContextBuilder.renderForPrompt(ctx)
         let nudgeFired = !ctx.progressionNudges.isEmpty
+        let deloadFired = !ctx.deloadSuggestions.isEmpty
 
         // Refresh weekly digest if needed (best-effort; on failure we just skip it)
         await refreshWeeklySummaryIfNeeded()
@@ -511,6 +518,7 @@ final class AICoachStore: ObservableObject {
             )
             insertAssistantMessage(reply, signature: signature, isCycleAnalysis: true)
             if nudgeFired { markProgressionNudgeDelivered() }
+            if deloadFired { markDeloadDelivered() }
             isAnalyzing = false
             lastError = nil
         } catch {
@@ -721,6 +729,15 @@ final class AICoachStore: ObservableObject {
     private func markProgressionNudgeDelivered() {
         guard let p = loadOrCreateProfile() else { return }
         p.lastProgressionNudgeAt = Date()
+        p.updatedAt = Date()
+        try? modelContext?.save()
+    }
+
+    /// Called after a brief / analysis lands carrying a DELOAD SIGNAL. Starts a
+    /// ~3-week cooldown so we suggest a deload once per block, not every session.
+    private func markDeloadDelivered() {
+        guard let p = loadOrCreateProfile() else { return }
+        p.lastDeloadAt = Date()
         p.updatedAt = Date()
         try? modelContext?.save()
     }
@@ -1023,12 +1040,23 @@ final class AICoachStore: ObservableObject {
            fitter over weeks and months. Whenever recovery allows, move at least one lever forward — load, reps, sets, \
            tempo, range of motion or density. Real, visible results are what keep a person training; earn them honestly.
 
-        HOW YOU COACH:
+        HOW YOU COACH (the load-decision hierarchy — apply in this exact order):
+        1) READINESS GATE FIRST. The data block opens with a READINESS verdict (GREEN/AMBER/RED) and a load directive. \
+           It is computed from real recovery signals and is AUTHORITATIVE. On AMBER hold load; on RED reduce it. You may \
+           NEVER prescribe a load/rep increase that contradicts the READINESS directive — not in the brief, not per-exercise.
+        2) RECOVERY & PAIN. Beyond the gate, weigh pain/illness notes and weekly load. Pain → regress or swap, never push.
+        3) DOUBLE PROGRESSION (only when the gate is GREEN). Progress one lever at a time and in order: first add reps \
+           until the top of the exercise's rep range, THEN add load and reset to the bottom of the range. Don't jump weight \
+           while reps are still mid-range.
+        4) PLANNED DELOAD / PERIODIZATION. You cannot add load every session forever. Accumulate for ~2–3 weeks, then step \
+           progression up deliberately — and after a long unbroken climb, take ONE lighter session to consolidate. If the \
+           data block contains a DELOAD SIGNAL, honor it; frame the back-off as smart periodization, not a setback.
+
+        ALSO:
         • Be the coach who NOTICES. Anchor every piece of advice to this user's real numbers and trend, never generic \
           theory. "Ты добавил 5 кг в жиме за 3 недели — держим импульс" lands; "жим полезен для груди" does not.
         • Build motivation from truth, not flattery. Surface a concrete win from the data, then hand over the next \
           concrete step. Earned progress is the motivation — no empty hype, no compliments the numbers don't support.
-        • Auto-regulate every session: read sleep, HRV, resting HR and pain/illness notes and scale the day up or down.
         • Think in trajectories, not single sessions. Use the multi-week history to judge momentum, plateaus and regression.
 
         TONE: \(style.promptDirective)
@@ -1036,8 +1064,8 @@ final class AICoachStore: ObservableObject {
         Operating rules:
         • Keep replies tight and to the point.
         • Rely ONLY on the data you receive (workouts, comments, sensors, profile, ACTIVE PROGRAM). Do not invent numbers.
-        • Push for progressive overload (load/reps/volume), but always weigh it against recovery, sleep, resting HR, HRV \
-          and any pain/discomfort comments.
+        • Push for progressive overload (load/reps/volume), but ONLY through the load-decision hierarchy above — the \
+          READINESS gate wins over the urge to progress, every time.
         • If a comment mentions pain, injury, or illness — DO NOT push load. Offer alternative exercises, a regression, \
           or a rest day, and recommend seeing a doctor.
         • Never diagnose or prescribe treatment. You are not a doctor.
@@ -1047,12 +1075,13 @@ final class AICoachStore: ObservableObject {
           Only mention it when it's clearly relevant: e.g. the user asks for advice on the plan, or you see a real \
           issue worth flagging (gap like "no vertical pull", a plateau the program doesn't address). \
           When you do mention it, propose a CONCRETE swap, not generic advice.
-        • PROGRESSION NUDGE: if the data block contains a "PROGRESSION NUDGE" section, you MUST weave it into your \
-          reply — pick 1–2 of the listed exercises and motivate the user with the EXACT suggestion shown \
-          (+2.5 kg / +5 kg / +1 rep / +1 set). Tie it to their recent numbers from "LAST 4 WEEKS — TOP LIFTS" or \
-          recent sessions so it feels personal, not generic. Do NOT invent your own number — quote the suggestion verbatim.
-        • 4-WEEK MEMORY: when the data block contains "LAST 4 WEEKS — TOP LIFTS", treat that as your long-term \
-          memory of the user's training. Reference it when you talk about momentum, regression, or progression — \
+        • PROGRESSION NUDGE: this section appears ONLY on a recovered (GREEN) day. When present, you MUST weave it in — \
+          pick 1–2 of the listed exercises and motivate the user with the EXACT suggestion shown \
+          (+2.5 kg / +5 kg / +1 rep / +1 set), respecting double progression (fill reps to the range top, THEN add load). \
+          Tie it to their recent numbers from "LAST 6 WEEKS — TOP LIFTS" so it feels personal. Do NOT invent your own \
+          number — quote the suggestion verbatim. If there is NO such section, do not manufacture a load increase.
+        • 6-WEEK MEMORY: when the data block contains "LAST 6 WEEKS — TOP LIFTS", treat that as your long-term \
+          memory of the user's training. Reference it when you talk about momentum, regression, progression or a deload — \
           but in plain language, not as a literal table dump.
         • PLAIN TEXT ONLY. Absolutely no markdown: no `*`, no `-`, no `#`, no `**bold**`, no backticks. \
           For lists, start each item on a new line with a short label and a colon (e.g. "Тяга верхнего блока: 82.5 × 10/9/8"). \
@@ -1086,9 +1115,21 @@ final class AICoachStore: ObservableObject {
 
         TONE: \(style.promptDirective)
 
+        TODAY'S READINESS IS AUTHORITATIVE. The user prompt opens with a READINESS verdict and load directive computed \
+        from real recovery data. It OVERRIDES the urge to progress and every tip must obey it:
+        • GREEN → you MAY apply gentle double progression (fill reps to the top of the range, then +2.5/+5 kg). Hold if unsure.
+        • AMBER → HOLD at last session's working weight. Do NOT add weight or reps. Cue effort 1–2 reps shy of failure + technique.
+        • RED → REDUCE ~10–15% vs last session. No increases of any kind.
+        Never write a per-exercise tip that contradicts the readiness directive — the pre-workout brief obeys the same rule, \
+        so the two must agree.
+        WHENEVER you hold or reduce load (AMBER/RED), state the REASON in a few words, taken from the readiness signals \
+        (e.g. "держим вес — сон 5.2 ч" / "−2.5 кг, не выспался"). A held/reduced cue must never look arbitrary. \
+        Vary the wording across exercises so it doesn't read like a copy-paste; it's fine to give the reason in full on the \
+        first 1–2 cues and keep the rest shorter.
+
         For every exercise produce ONE tip (max 2 short sentences, ≤ 200 characters) that combines, in priority order:
-        • A concrete target for today derived from the history given — apply GENTLE progressive overload \
-          (e.g. +2.5 kg, +1 rep, or hold) only when there are no pain/injury signals; otherwise hold or regress.
+        • A concrete target for today derived from the history given, scaled to the readiness directive above — with a \
+          brief reason when you hold or reduce (see above).
         • ONE specific technique or focus cue for that movement (e.g. "scapula retracted", "control the eccentric 2 s", \
           "drive through mid-foot").
         • A safety caution ONLY if the user's injuries/notes make it relevant.
@@ -1101,11 +1142,13 @@ final class AICoachStore: ObservableObject {
         """
     }
 
-    private static func exerciseTipsUserPrompt(names: [String], historyBlock: String) -> String {
+    private static func exerciseTipsUserPrompt(names: [String], historyBlock: String, readinessBlock: String) -> String {
         let lang = appLanguageName()
         let list = names.map { "• \($0)" }.joined(separator: "\n")
         return """
         Write today's coaching tip for each of these exercises. Reply in \(lang).
+
+        \(readinessBlock)
 
         OUTPUT FORMAT — this is critical for parsing:
         • Output EXACTLY one line per exercise, nothing else (no intro, no summary).
@@ -1118,6 +1161,16 @@ final class AICoachStore: ObservableObject {
         RECENT HISTORY (weight×reps; "last" = most recent session):
         \(historyBlock)
         """
+    }
+
+    /// Compact readiness header for the tips prompt — same verdict the brief
+    /// and full context see, so per-exercise cues can't contradict the brief.
+    private static func renderReadinessForTips(_ r: AICoachContext.ReadinessAssessment) -> String {
+        var line = "TODAY'S READINESS [\(r.level.rawValue.uppercased())]: \(r.summary). \(r.loadDirective)"
+        if !r.drivers.isEmpty {
+            line += "\n  signals: " + r.drivers.joined(separator: "; ")
+        }
+        return line
     }
 
     /// Parses the delimited tips reply into a normalized [key: tip] map, matching
@@ -1157,13 +1210,14 @@ final class AICoachStore: ObservableObject {
         Analyse my just-finished workout using the last 4 sessions and sensor data below. \
         Reply in \(lang). Use EXACTLY this structure, with these section labels (translate them to \(lang)):
         1) Verdict — 1–2 sentences. Lead with one genuine, data-backed win (a PR, an added kg/rep, a streak, \
-           a trend vs the last 4 weeks) so the user feels their progress — then state the honest bottom line.
+           a trend vs the last 6 weeks) so the user feels their progress — then state the honest bottom line.
         2) What worked well.
         3) What to improve (form, volume, tempo, recovery).
         4) Plan for the NEXT workout (not "today", not "tomorrow" — explicitly the next training session) \
-           with concrete numbers (weight × reps/reps/reps for each exercise). If recovery is fine and there are no \
-           health complaints, move at least one lever forward (weight, reps, or sets) so the user keeps progressing; \
-           if there are complaints or poor recovery, hold or reduce load.
+           with concrete numbers (weight × reps/reps/reps for each exercise). Apply double progression: add reps toward \
+           the top of the rep range first, then add load. If there are no health complaints, move ONE lever forward so the \
+           user keeps progressing; if a DELOAD SIGNAL is present or recovery/complaints say so, plan a lighter consolidation \
+           session instead — and tell them why (smart periodization, not a setback).
         If any comment mentions pain, discomfort or illness — flag it explicitly and suggest alternatives or rest.
         Treat the ACTIVE PROGRAM block (if present) as background context — use it for naming exercises and the next \
         day, but do NOT add a dedicated "program review" section unless you see a clear, concrete issue worth flagging.
@@ -1188,16 +1242,14 @@ final class AICoachStore: ObservableObject {
         Be hyper-personalized: don't just describe state — prescribe a concrete adjustment.
 
         Structure:
-        1) Readiness verdict — 1 line. Synthesize sleep last night, HRV (SDNN, 7d), resting HR and any recent \
-           pain/illness comments into ONE of: "ready", "moderate", "low". Mention the single signal that drove it \
-           (e.g. "сон 5.2 ч" or "HRV 38 ms — ниже твоей нормы").
-        2) Intensity adjustment — 1 line, ALWAYS present, with a concrete %. Examples: \
-           "Снижаем интенсивность на 15% (сон 5.2 ч, не допустим перетрена)", \
-           "Держим план как есть — восстановление в норме", \
-           "Можно добавить +2.5 кг к ключевым (HRV выше нормы, сон 8 ч)". \
-           Use sleep/HRV/RHR thresholds: poor sleep (<6 h) or HRV ≥10% below the user's 7d baseline → reduce 10–20%; \
-           good sleep (≥7.5 h) AND HRV ≥ baseline → optionally +2.5–5% on key lifts.
-        3) Targets for the 3 most important exercises — apply the % from step 2 to history. \
+        1) Readiness verdict — 1 line. The DATA block opens with a READINESS verdict (GREEN/AMBER/RED) and its driving \
+           signal — restate it for the user in plain language, naming the signal (e.g. "сон 5.2 ч против нормы 7.1 ч"). \
+           Do NOT compute your own verdict and do NOT invent an HRV/resting-HR comparison; trust the READINESS block.
+        2) Intensity adjustment — 1 line, ALWAYS present, and it MUST match the READINESS load directive: \
+           RED → reduce ~10–15%; AMBER → hold at last session's weights, no increases; GREEN → hold, or push only if a \
+           PROGRESSION NUDGE is present. Examples: "Снижаем интенсивность на 15% — сон 5.2 ч, бережём ЦНС", \
+           "Держим веса прошлой тренировки — восстановление неполное", "Восстановление в норме — можно добавить по плану".
+        3) Targets for the 3 most important exercises — consistent with step 2. \
            Format each on its own line as: "<Exercise name>: <weight> × <reps> × <sets>". \
            No invented numbers — base on history. If history is empty, suggest a conservative starting point and label it as such.
         4) One technique focus for today (1 line).

@@ -131,7 +131,7 @@ struct AICoachContext {
         let sessionsStuck: Int
     }
 
-    /// Compact 4-week trajectory for one exercise. The model gets a clear
+    /// Compact 6-week trajectory for one exercise. The model gets a clear
     /// long-context picture without us streaming every individual set.
     struct MonthlyExerciseRollup {
         struct WeekStat {
@@ -141,8 +141,8 @@ struct AICoachContext {
             let sessions: Int
         }
         let exerciseName: String
-        let totalSessions: Int           // last 28 days
-        let weeks: [WeekStat]            // up to 4, newest → oldest
+        let totalSessions: Int           // last 42 days
+        let weeks: [WeekStat]            // up to 6, newest → oldest
     }
 
     /// Periodic (every 2–3 weeks) nudge to push progression on an exercise the
@@ -159,6 +159,49 @@ struct AICoachContext {
         /// Pre-computed concrete suggestion the model can quote verbatim
         /// (e.g. "+2.5 kg", "+1 rep", "+1 set"). Cheap, deterministic.
         let suggestion: String
+        /// Target rep range this exercise is working within. Drives the
+        /// double-progression logic: fill reps to `repRangeHigh`, then add load.
+        let repRangeLow: Int
+        let repRangeHigh: Int
+    }
+
+    /// Deterministic, single-source-of-truth readiness verdict for TODAY.
+    /// Computed once in `build` and rendered into EVERY prompt so the
+    /// pre-workout brief, per-exercise tips and progression nudges can never
+    /// contradict each other. Honest about data we actually have: the only
+    /// reliable *daily* signals are last-night sleep (vs the 7-day average)
+    /// and recent pain/illness notes. HRV/resting-HR are 7-day averages here
+    /// (no daily value), so they only ever act as slow, chronic tiebreakers.
+    struct ReadinessAssessment {
+        /// Ordered by severity (green < amber < red) so we can take the worst
+        /// of several signals with `max(...)`.
+        enum Level: String, Comparable {
+            case green, amber, red
+            private var severity: Int {
+                switch self { case .green: return 0; case .amber: return 1; case .red: return 2 }
+            }
+            static func < (lhs: Level, rhs: Level) -> Bool { lhs.severity < rhs.severity }
+        }
+        let level: Level
+        /// One-line plain summary, e.g. "low — sleep 5.2h vs 7.1h avg".
+        let summary: String
+        /// Explicit, imperative instruction for the model: what to do with load
+        /// today. The model must obey this across all surfaces.
+        let loadDirective: String
+        /// The signals that drove the verdict (for transparency in the prompt).
+        let drivers: [String]
+        /// Hard gate: the only state in which deterministic progression nudges
+        /// are allowed to suggest adding load.
+        var allowsLoadIncrease: Bool { level == .green }
+    }
+
+    /// Fires when an exercise's top load has climbed several weeks straight
+    /// with no back-off — the cue to schedule ONE lighter session to
+    /// consolidate before resuming progression (periodization / planned deload).
+    struct DeloadSuggestion {
+        let exerciseName: String
+        let consecutiveRisingWeeks: Int
+        let topWeightKg: Double
     }
 
     let profile: ProfileSummary?
@@ -172,6 +215,8 @@ struct AICoachContext {
     let plateaus: [PlateauHint]
     let monthlyRollup: [MonthlyExerciseRollup]
     let progressionNudges: [ProgressionNudge]
+    let deloadSuggestions: [DeloadSuggestion]
+    let readiness: ReadinessAssessment
     let userLocaleIdentifier: String
 }
 
@@ -189,7 +234,8 @@ enum AICoachContextBuilder {
     static func build(modelContext: ModelContext,
                       healthManager: HealthManager,
                       limit: Int = 10,
-                      lastProgressionNudgeAt: Date? = nil) async -> AICoachContext {
+                      lastProgressionNudgeAt: Date? = nil,
+                      lastDeloadAt: Date? = nil) async -> AICoachContext {
 
         // --- Recent workouts ---------------------------------------------
         var workoutDescriptor = FetchDescriptor<WorkoutSession>(
@@ -248,10 +294,11 @@ enum AICoachContextBuilder {
         let stats = aggregateStats(from: allCompleted)
         let plateaus = detectPlateaus(from: allCompleted)
         let monthlyRollup = buildMonthlyRollup(from: allCompleted)
-        let progressionNudges = detectProgressionNudges(
-            from: allCompleted,
-            lastNudgeAt: lastProgressionNudgeAt,
-            plateauedExercises: Set(plateaus.map { $0.exerciseName })
+        // Progression nudges are recovery-gated, so they're computed *after*
+        // readiness below. Deload only needs the multi-week rollup.
+        let deloadSuggestions = detectDeloadSuggestions(
+            from: monthlyRollup,
+            lastDeloadAt: lastDeloadAt
         )
 
         // --- Sensors -----------------------------------------------------
@@ -361,6 +408,25 @@ enum AICoachContextBuilder {
             restingEnergyTodayKcal: restingEnergyToday
         )
 
+        // --- Readiness (single source of truth) --------------------------
+        // Scan the most recent sessions for fresh pain/illness signals so a
+        // bad note caps readiness regardless of sleep.
+        let recentPain = workouts.prefix(2).contains { w in
+            w.exercises.contains { ex in
+                ex.sets.contains { ($0.comment.map(containsPainSignal) ?? false) }
+            } || (w.notes.map(containsPainSignal) ?? false)
+        }
+        let readiness = assessReadiness(health: health, recentPain: recentPain)
+
+        // Progression nudges are gated on readiness: on a compromised day we
+        // emit none, so no "+kg" line can ever contradict a "hold/reduce" brief.
+        let progressionNudges = detectProgressionNudges(
+            from: allCompleted,
+            lastNudgeAt: lastProgressionNudgeAt,
+            plateauedExercises: Set(plateaus.map { $0.exerciseName }),
+            allowsLoadIncrease: readiness.allowsLoadIncrease
+        )
+
         return AICoachContext(
             profile: profile,
             workouts: workouts,
@@ -373,7 +439,90 @@ enum AICoachContextBuilder {
             plateaus: plateaus,
             monthlyRollup: monthlyRollup,
             progressionNudges: progressionNudges,
+            deloadSuggestions: deloadSuggestions,
+            readiness: readiness,
             userLocaleIdentifier: LanguageManager.shared.currentLocale.identifier
+        )
+    }
+
+    // MARK: - Readiness scoring (deterministic, single source of truth)
+
+    /// Turns the recovery signals we actually have into ONE verdict + an
+    /// imperative load directive. Deliberately conservative and honest:
+    /// last-night sleep is the only trustworthy *daily* signal, so it drives
+    /// the level; recent pain forces a back-off; HRV/resting-HR (7-day
+    /// averages here) only act as mild chronic tiebreakers, never as a fake
+    /// "today" reading. Missing data → green with a "limited data" note so
+    /// users without a wearable aren't permanently throttled.
+    static func assessReadiness(health: AICoachContext.HealthSummary,
+                                recentPain: Bool) -> AICoachContext.ReadinessAssessment {
+        var drivers: [String] = []
+        var level: AICoachContext.ReadinessAssessment.Level = .green
+
+        let sleep = health.lastNightSleepHours
+        let avg = health.weeklySleepAvgHours
+
+        // --- Sleep: the primary daily driver -----------------------------
+        // Absolute thresholds plus a deficit-vs-personal-baseline check, so a
+        // user whose normal is 7.5h gets flagged on a 6h night even though 6h
+        // is "fine" in isolation.
+        if let s = sleep {
+            let avgTxt = avg.map { String(format: " (avg %.1fh)", $0) } ?? ""
+            drivers.append(String(format: "sleep %.1fh%@", s, avgTxt))
+            let deficitVsAvg = avg.map { $0 - s } ?? 0
+            if s < 5.0 || deficitVsAvg >= 2.0 {
+                level = .red
+            } else if s < 6.5 || deficitVsAvg >= 1.5 {
+                level = max(level, .amber)
+            }
+            // s >= 6.5 with no meaningful deficit → stays green.
+        } else {
+            drivers.append("no sleep data")
+        }
+
+        // --- Pain / illness: hard back-off -------------------------------
+        if recentPain {
+            drivers.append("recent pain/illness note")
+            level = max(level, .amber)
+        }
+
+        // --- Chronic tiebreakers (slow-moving 7-day averages) ------------
+        // Only nudge an otherwise-green day to amber on a clearly low reading;
+        // never flip to red on these alone (we have no daily value).
+        if level == .green, let hrv = health.hrvSDNNms, hrv > 0, hrv < 25 {
+            drivers.append(String(format: "HRV %.0fms (7d, low)", hrv))
+            level = .amber
+        }
+
+        // --- Compose verdict ---------------------------------------------
+        let summaryCore: String = {
+            if let s = sleep {
+                if let a = avg { return String(format: "sleep %.1fh vs %.1fh avg", s, a) }
+                return String(format: "sleep %.1fh", s)
+            }
+            return "limited recovery data"
+        }()
+
+        let level0 = level   // capture for the switch
+        let label: String
+        let directive: String
+        switch level0 {
+        case .green:
+            label = "ready"
+            directive = "Recovery looks fine. Planned progressive overload is OK today — if a PROGRESSION NUDGE is present, apply it; otherwise hold and train at solid effort."
+        case .amber:
+            label = "moderate"
+            directive = "Recovery is compromised. HOLD load at last session's working weights — do NOT add weight or reps today. Stay 1–2 reps shy of failure and sharpen technique and tempo."
+        case .red:
+            label = "low"
+            directive = "Recovery is poor. REDUCE working load ~10–15% vs last session and trim volume if needed. No load increases of any kind. If pain is noted, offer an alternative movement or rest."
+        }
+
+        return .init(
+            level: level0,
+            summary: "\(label) — \(summaryCore)",
+            loadDirective: directive,
+            drivers: drivers
         )
     }
 
@@ -629,21 +778,22 @@ enum AICoachContextBuilder {
         return Array(hints.prefix(3))
     }
 
-    // MARK: - Monthly rollup (4-week compressed memory)
+    // MARK: - Monthly rollup (6-week compressed memory)
 
-    /// Walks the last 28 days of sessions and emits up to 6 of the user's most
+    /// Walks the last 42 days of sessions and emits up to 6 of the user's most
     /// frequently trained exercises with a per-week trajectory of their best
-    /// completed set (weight × reps). Designed to give the model a 4-week
-    /// "where am I going" picture for ~250 tokens, not 2000.
+    /// completed set (weight × reps). Six weeks (not four) so a sustained
+    /// load climb is visible to the deload detector. Still ~300 tokens, not 2000.
     private static func buildMonthlyRollup(from completed: [WorkoutSession]) -> [AICoachContext.MonthlyExerciseRollup] {
         let cal = Calendar.current
         let now = Date()
-        let cutoff = now.addingTimeInterval(-28 * 24 * 3600)
+        let weeksBack = 6
+        let cutoff = now.addingTimeInterval(-Double(weeksBack) * 7 * 24 * 3600)
         let recent = completed.filter { $0.date >= cutoff }
         guard !recent.isEmpty else { return [] }
 
-        // For each exercise: list of (weekIndex 0..3, weight, reps) for every
-        // completed weighted set. weekIndex 0 = current 7-day window, 3 = oldest.
+        // For each exercise: list of (weekIndex 0..5, weight, reps) for every
+        // completed weighted set. weekIndex 0 = current 7-day window, 5 = oldest.
         struct Hit { let weekIndex: Int; let weight: Double; let reps: Int }
         var byExercise: [String: [Hit]] = [:]
         var sessionsByExerciseWeek: [String: [Int: Set<Date>]] = [:]   // dedup by start-of-day
@@ -651,7 +801,7 @@ enum AICoachContextBuilder {
         for session in recent {
             let dayStart = cal.startOfDay(for: session.date)
             let daysAgo = cal.dateComponents([.day], from: cal.startOfDay(for: session.date), to: cal.startOfDay(for: now)).day ?? 0
-            let weekIndex = max(0, min(3, daysAgo / 7))
+            let weekIndex = max(0, min(weeksBack - 1, daysAgo / 7))
 
             for set in session.sets where set.isCompleted && set.weight > 0 && set.reps > 0 {
                 byExercise[set.exerciseName, default: []].append(.init(
@@ -661,19 +811,19 @@ enum AICoachContextBuilder {
             }
         }
 
-        // Rank by total session count across the 4 weeks.
+        // Rank by total session count across the window.
         let ranked = byExercise.map { (name, hits) -> (String, [Hit], Int) in
             let totalSessions = (sessionsByExerciseWeek[name] ?? [:]).values.reduce(0) { $0 + $1.count }
             return (name, hits, totalSessions)
         }
-        .filter { $0.2 >= 2 }                         // at least 2 sessions in last 4 weeks
+        .filter { $0.2 >= 2 }                         // at least 2 sessions in the window
         .sorted { $0.2 > $1.2 }
         .prefix(6)
 
         return ranked.map { name, hits, totalSessions in
             // Best (weight × reps) per week index.
             var bestPerWeek: [Int: AICoachContext.MonthlyExerciseRollup.WeekStat] = [:]
-            for w in 0...3 {
+            for w in 0..<weeksBack {
                 let weekHits = hits.filter { $0.weekIndex == w }
                 guard !weekHits.isEmpty else { continue }
                 let best = weekHits.max { ($0.weight * Double($0.reps)) < ($1.weight * Double($1.reps)) }!
@@ -685,8 +835,8 @@ enum AICoachContextBuilder {
                     sessions: sessionCount
                 )
             }
-            // Newest → oldest, so the model reads "now ← 1w ago ← 2w ago ← 3w ago".
-            let weeks = (0...3).compactMap { bestPerWeek[$0] }
+            // Newest → oldest, so the model reads "now ← 1w ago ← 2w ago …".
+            let weeks = (0..<weeksBack).compactMap { bestPerWeek[$0] }
             return AICoachContext.MonthlyExerciseRollup(
                 exerciseName: name,
                 totalSessions: totalSessions,
@@ -707,8 +857,14 @@ enum AICoachContextBuilder {
     private static func detectProgressionNudges(
         from completed: [WorkoutSession],
         lastNudgeAt: Date?,
-        plateauedExercises: Set<String>
+        plateauedExercises: Set<String>,
+        allowsLoadIncrease: Bool
     ) -> [AICoachContext.ProgressionNudge] {
+
+        // Readiness gate: never suggest adding load on a compromised day.
+        // Suppressing the nudge entirely means the prompt contains no "+kg"
+        // line to contradict a "hold/reduce" readiness directive.
+        guard allowsLoadIncrease else { return [] }
 
         let now = Date()
         // Cadence gate: 14 days since last nudge (or never).
@@ -760,24 +916,25 @@ enum AICoachContextBuilder {
             let kind: AICoachContext.ProgressionNudge.Kind
             let suggestion: String
 
-            // Heuristic ladder:
-            // • If they hit ≥ 8 reps already on top set → push weight (+2.5 kg, +5 kg if heavy compound).
-            // • If reps < 6 → bias toward reps (+1 rep next session).
-            // • Else if they typically do < 4 sets → suggest +1 set.
-            // • Default → +2.5 kg.
+            // Double progression. Each lift works inside a rep range:
+            // compounds in a lower, strength-leaning band, accessories higher.
+            // • Top set still below the range top → add a rep (fill the range).
+            // • Range filled (reps ≥ top) → add load and reset toward the bottom.
+            // • A lift carried at the range top but on too few sets → add a set
+            //   (a volume lever) before piling on more weight.
             let isHeavyCompound = isLikelyCompound(name: name)
-            if best.reps >= 8 {
+            let rangeLow = isHeavyCompound ? 5 : 8
+            let rangeHigh = isHeavyCompound ? 8 : 12
+
+            if best.reps >= rangeHigh {
                 kind = .weight
                 suggestion = isHeavyCompound ? "+5 kg" : "+2.5 kg"
-            } else if best.reps < 6 {
-                kind = .reps
-                suggestion = "+1 rep"
-            } else if typicalSets > 0 && typicalSets < 4 {
+            } else if best.reps >= rangeLow && typicalSets > 0 && typicalSets < 3 {
                 kind = .sets
                 suggestion = "+1 set"
             } else {
-                kind = .weight
-                suggestion = "+2.5 kg"
+                kind = .reps
+                suggestion = "+1 rep"
             }
 
             return AICoachContext.ProgressionNudge(
@@ -786,9 +943,58 @@ enum AICoachContextBuilder {
                 currentTopReps: best.reps,
                 typicalSetsPerSession: typicalSets,
                 kind: kind,
-                suggestion: suggestion
+                suggestion: suggestion,
+                repRangeLow: rangeLow,
+                repRangeHigh: rangeHigh
             )
         }
+    }
+
+    // MARK: - Deload / periodization detection
+
+    /// Flags lifts whose top load has climbed for several consecutive weeks
+    /// with no back-off — the signal to take ONE lighter session before
+    /// resuming. Reads the multi-week rollup (already computed) so it needs no
+    /// extra fetch. Honors a ~3-week cooldown via `lastDeloadAt` so we don't
+    /// nag every session.
+    private static func detectDeloadSuggestions(
+        from rollup: [AICoachContext.MonthlyExerciseRollup],
+        lastDeloadAt: Date?
+    ) -> [AICoachContext.DeloadSuggestion] {
+        if let last = lastDeloadAt,
+           Date().timeIntervalSince(last) < 21 * 24 * 3600 {
+            return []
+        }
+
+        var out: [AICoachContext.DeloadSuggestion] = []
+        for r in rollup {
+            // Rollup weeks are newest → oldest; order chronologically so we can
+            // count an unbroken rising streak ending at the current week.
+            let chron = r.weeks.sorted { $0.weekStartsDaysAgo > $1.weekStartsDaysAgo }
+            guard chron.count >= 4 else { continue }
+
+            // Walk newest→oldest, counting an unbroken run of load increases.
+            // Require the two weeks to be CALENDAR-adjacent (7 days apart):
+            // the rollup drops weeks with no training, so without this an
+            // increase spanning an off week would be miscounted as "unbroken".
+            var rising = 1
+            var i = chron.count - 1
+            while i >= 1,
+                  chron[i].topWeightKg > chron[i - 1].topWeightKg,
+                  chron[i - 1].weekStartsDaysAgo - chron[i].weekStartsDaysAgo == 7 {
+                rising += 1
+                i -= 1
+            }
+            // 4 weeks in the streak = 3 straight week-over-week load increases.
+            if rising >= 4, let newest = chron.last {
+                out.append(.init(
+                    exerciseName: r.exerciseName,
+                    consecutiveRisingWeeks: rising,
+                    topWeightKg: newest.topWeightKg
+                ))
+            }
+        }
+        return Array(out.prefix(2))
     }
 
     /// Cheap keyword check — keeps the suggestion sane for big lifts where
@@ -812,6 +1018,15 @@ enum AICoachContextBuilder {
         df.dateFormat = "yyyy-MM-dd HH:mm"
         let dfDay = DateFormatter()
         dfDay.dateFormat = "yyyy-MM-dd"
+
+        // Readiness — FIRST and authoritative. Every load decision below must
+        // respect this verdict; it is identical across all prompts.
+        let rdy = ctx.readiness
+        var readinessLine = "READINESS [\(rdy.level.rawValue.uppercased())]: \(rdy.summary). \(rdy.loadDirective)"
+        if !rdy.drivers.isEmpty {
+            readinessLine += "\n  signals: " + rdy.drivers.joined(separator: "; ")
+        }
+        out.append(readinessLine)
 
         // Profile
         if let p = ctx.profile {
@@ -871,35 +1086,39 @@ enum AICoachContextBuilder {
             out.append("PLATEAU SIGNALS — propose a concrete deload, tempo change, range tweak or accessory swap for these:\n" + lines.joined(separator: "\n"))
         }
 
-        // 4-week compressed memory: per top-exercise trajectory across the
-        // last 28 days. Lets the model spot momentum without us streaming
-        // every set from every session.
+        // 6-week compressed memory: per top-exercise trajectory across the
+        // last 42 days. Lets the model spot momentum (and deload-worthy climbs)
+        // without us streaming every set from every session.
         if !ctx.monthlyRollup.isEmpty {
             var lines: [String] = []
             for r in ctx.monthlyRollup {
                 let weeksTxt = r.weeks.map { w -> String in
-                    let label: String
-                    switch w.weekStartsDaysAgo {
-                    case 0: label = "now"
-                    case 7: label = "1w"
-                    case 14: label = "2w"
-                    default: label = "3w"
-                    }
+                    let label = w.weekStartsDaysAgo == 0 ? "now" : "\(w.weekStartsDaysAgo / 7)w"
                     return "\(label) \(formatWeight(w.topWeightKg))×\(w.topReps) (\(w.sessions)s)"
                 }.joined(separator: " ← ")
-                lines.append("• \(r.exerciseName) [\(r.totalSessions) sess/4w]: \(weeksTxt)")
+                lines.append("• \(r.exerciseName) [\(r.totalSessions) sess/6w]: \(weeksTxt)")
             }
-            out.append("LAST 4 WEEKS — TOP LIFTS (newest ← oldest, weight×reps, s=sessions/week):\n" + lines.joined(separator: "\n"))
+            out.append("LAST 6 WEEKS — TOP LIFTS (newest ← oldest, weight×reps, s=sessions/week):\n" + lines.joined(separator: "\n"))
         }
 
-        // Progression nudge: fires every 2–3 weeks. Lets the model close the
-        // reply with a concrete, motivating call to push load/reps/sets on
-        // exercises that have been trained consistently.
+        // Deload signal: a lift that has climbed for weeks with no back-off.
+        // Periodization — consolidate before pushing further.
+        if !ctx.deloadSuggestions.isEmpty {
+            let lines = ctx.deloadSuggestions.map { d -> String in
+                "• \(d.exerciseName): load rose \(d.consecutiveRisingWeeks) weeks straight, now \(formatWeight(d.topWeightKg))kg"
+            }
+            out.append("DELOAD SIGNAL — these lifts have climbed several weeks unbroken. Recommend ONE lighter session (~10% less load OR one fewer set) to consolidate, THEN resume progression. Frame it as smart periodization, not a setback:\n" + lines.joined(separator: "\n"))
+        }
+
+        // Progression nudge: fires every 2–3 weeks (and only on a recovered
+        // day — see readiness gate). Double progression: fill reps to the top
+        // of the range, then add load. Lets the model close with a concrete,
+        // motivating call grounded in the exact suggestion.
         if !ctx.progressionNudges.isEmpty {
             let lines = ctx.progressionNudges.map { n -> String in
-                "• \(n.exerciseName): now \(formatWeight(n.currentTopWeightKg))kg × \(n.currentTopReps), typical \(n.typicalSetsPerSession) sets → try \(n.suggestion) (\(n.kind.rawValue))"
+                "• \(n.exerciseName): now \(formatWeight(n.currentTopWeightKg))kg × \(n.currentTopReps), typical \(n.typicalSetsPerSession) sets, target \(n.repRangeLow)–\(n.repRangeHigh) reps → try \(n.suggestion) (\(n.kind.rawValue))"
             }
-            out.append("PROGRESSION NUDGE — it's been ≥2 weeks; pick 1–2 of these and motivate the user to push next session. Quote the suggestion verbatim:\n" + lines.joined(separator: "\n"))
+            out.append("PROGRESSION NUDGE — recovery allows a push and it's been ≥2 weeks; pick 1–2 of these and motivate the user. Quote the suggestion verbatim (double progression: fill reps to the range top, THEN add load):\n" + lines.joined(separator: "\n"))
         }
 
         // Sensors

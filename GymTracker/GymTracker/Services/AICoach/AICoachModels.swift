@@ -191,6 +191,10 @@ final class AICoachUserProfile {
     /// 14–21 day cadence in `AICoachContextBuilder.detectProgressionNudges`.
     /// Optional so adding the field doesn't trigger a SwiftData migration.
     var lastProgressionNudgeAt: Date?
+    /// When the coach last surfaced a DELOAD SIGNAL. Starts a ~3-week cooldown
+    /// in `AICoachContextBuilder.detectDeloadSuggestions` so we don't nag every
+    /// session. Optional → no SwiftData migration (same pattern as above).
+    var lastDeloadAt: Date?
     var updatedAt: Date
     var isSynced: Bool?
 
