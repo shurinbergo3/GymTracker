@@ -96,7 +96,10 @@
    Watch — rest haptic on wrist
 ▸  Syncs to Apple Health
 ▸  Detects PRs automatically
-▸  Chats with an AI coach
+▸  Coaches with a readiness-gated
+   AI — never contradicts itself
+▸  Rewards showing up — no
+   punishment for time off
 ▸  Tracks body composition
    over time
 ```
@@ -142,8 +145,9 @@ flowchart LR
     C -.sync.-> F[(☁ Firestore)]
     S <-.queue.-> F
 
-    A -.context.-> AI{{🤖 AI Coach<br/>OpenAI via proxy}}
+    A -.context.-> AI{{🤖 AI Coach<br/>readiness-gated}}
     C -.context.-> AI
+    H -.sleep + HR.-> AI
     AI -.signed token.-> P[/🔐 Vercel<br/>Proxy/]
     P -.gpt-5-mini.-> O[(🧠 OpenAI)]
 ```
@@ -249,13 +253,14 @@ Per-exercise 1RM trends rendered with Swift Charts. Body measurements, weight lo
 
 #### AI Coach
 
-Conversational coach powered by **OpenAI `gpt-5-mini`**, reached through a Firebase-signed Vercel proxy — the API key never ships in the IPA. Context auto-built from your last sessions and metrics.
+Conversational coach powered by **OpenAI `gpt-5-mini`**, reached through a Firebase-signed Vercel proxy — the API key never ships in the IPA. A deterministic **readiness gate** (green/amber/red) is computed once from sleep + biometrics and injected into *every* prompt, so the brief, per-exercise tips, and recap can never contradict each other.
 
 ```
 ›  OpenAI gpt-5-mini backend
+›  Readiness gate (green/amber/red)
+›  Double-progression nudges w/ reps
+›  6-week trajectory + deload signal
 ›  Key-less app — signed proxy
-›  Auto-built workout context
-›  History synced to Firestore
 ```
 
 </td>
@@ -283,13 +288,13 @@ TDEE calculator with macro split. Supplement schedules, sleep guide, hormones re
 
 #### Gamification
 
-Personal Records detected automatically. Achievement hub with detailed breakdown — get rewarded for actually showing up.
+A single non-punishing loop — **no XP decay, no level drops** for time off. Levels only grow. The active-workout hero ring tracks set-progress with a live session-impulse bar and combo streak.
 
 ```
-›  PR auto-detection
-›  AchievementsHubCard
-›  Detailed achievement view
-›  Real-time PR celebrations
+›  Non-punishing — level only grows
+›  Active-workout hero + combo 🔥
+›  PR auto-detection + celebrations
+›  Configurable weekly goal + streak
 ```
 
 </td>
@@ -358,7 +363,7 @@ Sign in with Apple, Google, or Email — with password reset. Local-first storag
 <tr>
 <th align="left" colspan="2"><sub>AI</sub></th>
 </tr>
-<tr><td><img src="https://img.shields.io/badge/OpenAI-gpt--5--mini-10a37f?style=flat-square&logo=openai&logoColor=white&labelColor=0a0a0a"/></td><td>LLM inference for the in-app coach &nbsp;·&nbsp; <code>GroqClient</code> · <code>AICoachContextBuilder</code></td></tr>
+<tr><td><img src="https://img.shields.io/badge/OpenAI-gpt--5--mini-10a37f?style=flat-square&logo=openai&logoColor=white&labelColor=0a0a0a"/></td><td>LLM inference for the in-app coach &nbsp;·&nbsp; deterministic readiness gate built in <code>AICoachContextBuilder.assessReadiness</code> &nbsp;·&nbsp; <code>GroqClient</code></td></tr>
 <tr><td><img src="https://img.shields.io/badge/Vercel-Proxy-000000?style=flat-square&logo=vercel&logoColor=white&labelColor=0a0a0a"/></td><td>Firebase-signed proxy in front of OpenAI — model &amp; key live server-side &nbsp;·&nbsp; <code>/api/ai-coach</code></td></tr>
 </table>
 
@@ -555,7 +560,7 @@ The file is git-ignored and required for auth and sync to function.
 
 #### <kbd>&nbsp;03&nbsp;</kbd> &nbsp; Wire up the AI coach *(optional)*
 
-The app never holds an OpenAI key — it calls a small **Vercel proxy** (`/api/ai-coach`) that authenticates each request with a Firebase ID token and forwards to OpenAI (`gpt-5-mini`). The model and reasoning effort are chosen server-side, so swapping models needs **no app update**.
+The app never holds an OpenAI key — it calls a small **Vercel proxy** (`/api/ai-coach`) that authenticates each request with a Firebase ID token and forwards to OpenAI (`gpt-5-mini`). The model and reasoning effort are chosen server-side, so swapping models needs **no app update**. The prompts themselves — including the deterministic readiness directive that gates progression — live in the app, so prompt changes do ship with a release.
 
 ```bash
 vercel deploy --prod        # from the proxy folder
