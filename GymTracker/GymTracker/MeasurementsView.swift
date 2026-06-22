@@ -24,6 +24,7 @@ struct MeasurementsView: View {
     
     @State private var showingSettings = false
     @State private var showingProgressHub = false
+    @ObservedObject private var tour = TourManager.shared
 
     private var workoutsThisWeekCount: Int {
         var cal = Calendar(identifier: .gregorian)
@@ -45,6 +46,7 @@ struct MeasurementsView: View {
                 DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
+                ScrollViewReader { scrollProxy in
                 ScrollView {
                     VStack(spacing: DesignSystem.Spacing.lg) {
                         // 1. Уровень / геймификация — всегда первый блок, независимо от наличия часов.
@@ -78,12 +80,14 @@ struct MeasurementsView: View {
 
                         // 4. Apple Health — единый блок: активность + восстановление (сон, пульс, энергия)
                         HealthStatsCard(lastWorkoutSession: completedSessions.first)
+                            .id("tour_health")
+                            .tourAnchor(.appleHealth)
                             .padding(.horizontal, DesignSystem.Spacing.lg)
 
                         // Weight Tracker
                         WeightTrackerCard()
                             .padding(.horizontal, DesignSystem.Spacing.lg)
-                        
+
                         // Замеры тела
                         NavigationLink(destination: BodyMeasurementsView()) {
                             BodyMeasurementsRowCard()
@@ -91,6 +95,10 @@ struct MeasurementsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.horizontal, DesignSystem.Spacing.lg)
                     }
+                }
+                .onChange(of: tour.index) { _, _ in scrollForTour(scrollProxy) }
+                .onChange(of: selectedTab) { _, _ in scrollForTour(scrollProxy) }
+                .onAppear { scrollForTour(scrollProxy) }
                 }
             }
             .navigationTitle(Text("Статистика".localized()))
@@ -112,6 +120,17 @@ struct MeasurementsView: View {
         }
     }
     
+    /// During the app tour, bring the Apple Health card (and the stress row at
+    /// its top) into view so the spotlight always lands on an on-screen element.
+    private func scrollForTour(_ proxy: ScrollViewProxy) {
+        guard tour.isActive, selectedTab == 3, tour.current?.scrollToHealth == true else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+            withAnimation(.easeInOut(duration: 0.4)) {
+                proxy.scrollTo("tour_health", anchor: .center)
+            }
+        }
+    }
+
     // Helper helper
     // Helper helper
     private func formattedDate(_ date: Date) -> String {

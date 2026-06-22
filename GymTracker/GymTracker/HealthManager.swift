@@ -69,6 +69,7 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
             HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!,
             HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!,
             HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!,
+            HKObjectType.quantityType(forIdentifier: .respiratoryRate)!,
             HKObjectType.quantityType(forIdentifier: .height)!,
             HKObjectType.quantityType(forIdentifier: .bodyMass)!
         ]
@@ -550,6 +551,66 @@ class HealthManager: NSObject, ObservableObject, HealthProvider {
                 store.execute(query)
             }
         }.value
+    }
+
+    // MARK: - Stress: per-day recovery series
+
+    /// Per-day average HRV (SDNN, ms) over the last `days` days. Only days that
+    /// actually carry a sample are returned — Apple Watch records HRV
+    /// opportunistically, so the series is naturally sparse. Oldest → newest.
+    func fetchDailyHRV(days: Int = 30) async -> [DailyHealthValue] {
+        guard let type = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN) else { return [] }
+        return await fetchDailyAverageStatistics(type: type, unit: .secondUnit(with: .milli), days: days)
+    }
+
+    /// Per-day average resting heart rate (bpm) over the last `days` days.
+    func fetchDailyRestingHR(days: Int = 30) async -> [DailyHealthValue] {
+        guard let type = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else { return [] }
+        return await fetchDailyAverageStatistics(type: type, unit: HKUnit.count().unitDivided(by: .minute()), days: days)
+    }
+
+    /// Per-day average respiratory rate (breaths/min) over the last `days` days.
+    /// Secondary stress signal — present only on newer Apple Watches and when
+    /// the user granted access. An empty series is fine: the stress engine just
+    /// re-weights the remaining metrics.
+    func fetchDailyRespiratoryRate(days: Int = 30) async -> [DailyHealthValue] {
+        guard let type = HKQuantityType.quantityType(forIdentifier: .respiratoryRate) else { return [] }
+        return await fetchDailyAverageStatistics(type: type, unit: HKUnit.count().unitDivided(by: .minute()), days: days)
+    }
+
+    /// Per-day discrete average for a quantity type. Unlike the cumulative-sum
+    /// helper, days with no samples are omitted — a zero average would be a lie
+    /// for metrics like HRV or heart rate. Chronological, today inclusive.
+    private func fetchDailyAverageStatistics(type: HKQuantityType, unit: HKUnit, days: Int) async -> [DailyHealthValue] {
+        let store = self.healthStore
+        let calendar = Calendar.current
+        let now = Date()
+        let startOfToday = calendar.startOfDay(for: now)
+        guard let startDate = calendar.date(byAdding: .day, value: -(days - 1), to: startOfToday) else { return [] }
+
+        let interval = DateComponents(day: 1)
+        let anchorDate = startOfToday
+
+        return await withCheckedContinuation { continuation in
+            let query = HKStatisticsCollectionQuery(
+                quantityType: type,
+                quantitySamplePredicate: HKQuery.predicateForSamples(withStart: startDate, end: now, options: .strictStartDate),
+                options: .discreteAverage,
+                anchorDate: anchorDate,
+                intervalComponents: interval
+            )
+            query.initialResultsHandler = { _, results, _ in
+                var output: [DailyHealthValue] = []
+                results?.enumerateStatistics(from: startDate, to: now) { stat, _ in
+                    if let avg = stat.averageQuantity() {
+                        output.append(DailyHealthValue(date: stat.startDate, value: avg.doubleValue(for: unit)))
+                    }
+                }
+                output.sort { $0.date < $1.date }
+                continuation.resume(returning: output)
+            }
+            store.execute(query)
+        }
     }
 
     // MARK: - Body metrics (height / weight) — for BMI

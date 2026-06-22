@@ -61,6 +61,12 @@ struct AICoachContext {
         // Activity load
         let last7DaysExerciseMinutes: Int?
         let restingEnergyTodayKcal: Int?
+        // Stress (personalised daily index vs the user's own 30-day baseline)
+        let stressScore: Int?            // 0–100 today, higher = more strain
+        let stressBand: String?          // calm | balanced | elevated | high
+        let stress30dAvg: Int?
+        let stressTrend: String?         // rising | falling | steady
+        let stressDrivers: [String]?     // e.g. ["HRV below norm", "sleep below norm"]
     }
 
     /// Workouts the user logged outside Body Forge — Apple Watch fitness,
@@ -168,10 +174,10 @@ struct AICoachContext {
     /// Deterministic, single-source-of-truth readiness verdict for TODAY.
     /// Computed once in `build` and rendered into EVERY prompt so the
     /// pre-workout brief, per-exercise tips and progression nudges can never
-    /// contradict each other. Honest about data we actually have: the only
-    /// reliable *daily* signals are last-night sleep (vs the 7-day average)
-    /// and recent pain/illness notes. HRV/resting-HR are 7-day averages here
-    /// (no daily value), so they only ever act as slow, chronic tiebreakers.
+    /// contradict each other. Honest about data we actually have: last-night
+    /// sleep and recent pain/illness notes are reliable daily signals, and the
+    /// personalised stress index (HRV/RHR/sleep vs the user's 30-day baseline)
+    /// adds a daily recovery read when there's enough wearable history.
     struct ReadinessAssessment {
         /// Ordered by severity (green < amber < red) so we can take the worst
         /// of several signals with `max(...)`.
@@ -313,6 +319,7 @@ enum AICoachContextBuilder {
         var weeklyExerciseMin: Int? = nil
         var restingEnergyToday: Int? = nil
         var externalActivities: [AICoachContext.ExternalActivitySummary] = []
+        var stressReport: StressReport = .empty
 
         // BMI — derive from in-app profile first (user-entered), HK fallback.
         if let p = profile, p.heightCm > 0 && p.weightKg > 0 {
@@ -338,6 +345,11 @@ enum AICoachContextBuilder {
             let extEnd = Date()
             let extStart = Calendar.current.date(byAdding: .day, value: -14, to: extEnd) ?? extEnd
             async let externalRaw = healthManager.fetchExternalWorkouts(from: extStart, to: extEnd)
+
+            // Personalised stress index (HRV/RHR/sleep vs 30-day baseline) —
+            // the same engine that powers the Statistics screen, so the coach
+            // and the UI always agree.
+            async let stressVal = StressService.shared.loadReport(days: 30)
 
             let rhrD = await rhrVal
             if rhrD > 0 { rhr = Int(rhrD) }
@@ -393,6 +405,23 @@ enum AICoachContextBuilder {
                     sourceName: w.sourceName
                 )
             }
+
+            stressReport = await stressVal
+        }
+
+        // Distil the stress report into prompt-ready primitives.
+        var stressScore: Int? = nil
+        var stressBand: String? = nil
+        var stress30dAvg: Int? = nil
+        var stressTrend: String? = nil
+        var stressDrivers: [String]? = nil
+        if stressReport.hasData, let h = stressReport.headline {
+            stressScore = h.score
+            stressBand = h.band.promptTag
+            stress30dAvg = stressReport.monthAverage
+            stressTrend = stressReport.trend.promptTag
+            let raising = h.significantDrivers.filter { $0.raisesStress }.prefix(3).map { $0.promptPhrase }
+            if !raising.isEmpty { stressDrivers = Array(raising) }
         }
 
         let health = AICoachContext.HealthSummary(
@@ -405,7 +434,12 @@ enum AICoachContextBuilder {
             vo2MaxMlKgMin: vo2,
             bmi: bmi,
             last7DaysExerciseMinutes: weeklyExerciseMin,
-            restingEnergyTodayKcal: restingEnergyToday
+            restingEnergyTodayKcal: restingEnergyToday,
+            stressScore: stressScore,
+            stressBand: stressBand,
+            stress30dAvg: stress30dAvg,
+            stressTrend: stressTrend,
+            stressDrivers: stressDrivers
         )
 
         // --- Readiness (single source of truth) --------------------------
@@ -449,11 +483,13 @@ enum AICoachContextBuilder {
 
     /// Turns the recovery signals we actually have into ONE verdict + an
     /// imperative load directive. Deliberately conservative and honest:
-    /// last-night sleep is the only trustworthy *daily* signal, so it drives
-    /// the level; recent pain forces a back-off; HRV/resting-HR (7-day
-    /// averages here) only act as mild chronic tiebreakers, never as a fake
-    /// "today" reading. Missing data → green with a "limited data" note so
-    /// users without a wearable aren't permanently throttled.
+    /// last-night sleep is a trustworthy *daily* signal and acts as a floor;
+    /// recent pain forces a back-off; the personalised stress index (HRV +
+    /// resting-HR + sleep vs the user's own 30-day baseline — the same engine
+    /// the Statistics screen shows) can push the verdict UP when it's clearly
+    /// elevated. When there isn't enough wearable data for a stress score we
+    /// fall back to a slow HRV tiebreaker. Worst-of-all signals wins; missing
+    /// data → green so users without a wearable aren't permanently throttled.
     static func assessReadiness(health: AICoachContext.HealthSummary,
                                 recentPain: Bool) -> AICoachContext.ReadinessAssessment {
         var drivers: [String] = []
@@ -486,21 +522,42 @@ enum AICoachContextBuilder {
             level = max(level, .amber)
         }
 
-        // --- Chronic tiebreakers (slow-moving 7-day averages) ------------
-        // Only nudge an otherwise-green day to amber on a clearly low reading;
-        // never flip to red on these alone (we have no daily value).
-        if level == .green, let hrv = health.hrvSDNNms, hrv > 0, hrv < 25 {
+        // --- Stress index (personalised, vs 30-day baseline) -------------
+        // The SAME engine that drives the Statistics screen, so the brief and
+        // the visible stress number can never disagree. Cutoffs are
+        // deliberately conservative — a merely above-average day (≈50) must not
+        // throttle training; only a clearly elevated/high reading raises the
+        // verdict. Stress can push severity UP (catching strain that a decent
+        // night's sleep would hide) but never relaxes the sleep/pain floor.
+        if let stress = health.stressScore {
+            let band = health.stressBand ?? "—"
+            if stress >= 80 {
+                drivers.append("stress \(stress)/100 (\(band), high)")
+                level = max(level, .red)
+            } else if stress >= 65 {
+                drivers.append("stress \(stress)/100 (\(band), elevated)")
+                level = max(level, .amber)
+            } else {
+                drivers.append("stress \(stress)/100 (\(band))")
+            }
+        } else if level == .green, let hrv = health.hrvSDNNms, hrv > 0, hrv < 25 {
+            // Fallback for users without enough wearable data for a stress
+            // score: the old slow HRV tiebreaker, nudging green → amber only.
             drivers.append(String(format: "HRV %.0fms (7d, low)", hrv))
             level = .amber
         }
 
         // --- Compose verdict ---------------------------------------------
         let summaryCore: String = {
+            var parts: [String] = []
             if let s = sleep {
-                if let a = avg { return String(format: "sleep %.1fh vs %.1fh avg", s, a) }
-                return String(format: "sleep %.1fh", s)
+                if let a = avg { parts.append(String(format: "sleep %.1fh vs %.1fh avg", s, a)) }
+                else { parts.append(String(format: "sleep %.1fh", s)) }
             }
-            return "limited recovery data"
+            if let stress = health.stressScore, stress >= 65 {
+                parts.append("stress \(stress)/100")
+            }
+            return parts.isEmpty ? "limited recovery data" : parts.joined(separator: ", ")
         }()
 
         let level0 = level   // capture for the switch
@@ -1027,6 +1084,20 @@ enum AICoachContextBuilder {
             readinessLine += "\n  signals: " + rdy.drivers.joined(separator: "; ")
         }
         out.append(readinessLine)
+
+        // Stress index — personalised daily recovery read (today vs the user's
+        // own 30-day baseline). Same number the user sees in Statistics.
+        if let sc = ctx.health.stressScore {
+            var stressLine = "STRESS: \(sc)/100"
+            if let b = ctx.health.stressBand { stressLine += " (\(b))" }
+            stressLine += " vs 30d norm"
+            if let a = ctx.health.stress30dAvg { stressLine += "; 30d avg \(a)" }
+            if let t = ctx.health.stressTrend { stressLine += "; trend \(t)" }
+            if let d = ctx.health.stressDrivers, !d.isEmpty {
+                stressLine += "; drivers: " + d.joined(separator: ", ")
+            }
+            out.append(stressLine)
+        }
 
         // Profile
         if let p = ctx.profile {

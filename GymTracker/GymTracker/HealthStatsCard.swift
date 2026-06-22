@@ -102,6 +102,9 @@ private final class HealthStatsViewModel: ObservableObject {
     @Published var dailyResting: [DailyHealthValue] = []
     @Published var hrvMs: Double = 0                  // SDNN, last 7 days
 
+    // Stress (personalised daily index over the last 30 days)
+    @Published var stressReport: StressReport?
+
     @Published var isLoading: Bool = false
     @Published var isAuthorized: Bool = false
 
@@ -128,6 +131,7 @@ private final class HealthStatsViewModel: ObservableObject {
         async let hkHeight = HealthManager.shared.fetchLatestHeightCm()
         async let hkWeight = HealthManager.shared.fetchLatestBodyMassKg()
         async let sleepData = SleepService.shared.fetchSleepData()
+        async let stress = StressService.shared.loadReport(days: 30)
 
         let stepsValues = await steps7
         let exerciseValues = await exercise7
@@ -141,6 +145,7 @@ private final class HealthStatsViewModel: ObservableObject {
         let hkHeightCm = await hkHeight
         let hkWeightKg = await hkWeight
         let sleep = await sleepData
+        self.stressReport = await stress
 
         let cal = Calendar.current
         let todayKey = cal.startOfDay(for: Date())
@@ -208,6 +213,8 @@ struct HealthStatsCard: View {
     @Query private var profiles: [UserProfile]
     @StateObject private var vm = HealthStatsViewModel()
     @State private var selectedStat: HealthStatKind?
+    @State private var showStress = false
+    @AppStorage("isAppleWatchEnabled") private var isAppleWatchEnabled = true
 
     private let columns: [GridItem] = [
         GridItem(.flexible(), spacing: 10),
@@ -221,6 +228,17 @@ struct HealthStatsCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             header
+
+            // Stress — personalised daily index (the headline recovery signal).
+            // Hidden entirely for users without an Apple Watch: the score is
+            // built from HRV/RHR the watch alone records, so without it the row
+            // would be perpetually empty.
+            if isAppleWatchEnabled {
+                StressBanner(report: vm.stressReport, isAuthorized: vm.isAuthorized) {
+                    showStress = true
+                }
+                .tourAnchor(.stressRow)
+            }
 
             // Section 1: Activity
             sectionHeader("Активность".localized())
@@ -285,6 +303,9 @@ struct HealthStatsCard: View {
         }
         .sheet(item: $selectedStat) { stat in
             HealthStatDetailView(stat: stat, vm: vm)
+        }
+        .sheet(isPresented: $showStress) {
+            StressDetailView(report: vm.stressReport, isAuthorized: vm.isAuthorized)
         }
     }
 
@@ -745,6 +766,397 @@ private struct HealthStatDetailView: View {
         let h = Int(duration) / 3600
         let m = (Int(duration) % 3600) / 60
         return "\(h)\("ч".localized()) \(m)\("м".localized())"
+    }
+}
+
+// MARK: - Stress Banner ("красивая строчка")
+
+private struct StressBanner: View {
+    let report: StressReport?
+    let isAuthorized: Bool
+    let onTap: () -> Void
+
+    private var headline: DailyStressScore? { report?.headline }
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(accent.opacity(0.18))
+                            .frame(width: 38, height: 38)
+                        Image(systemName: "waveform.path.ecg")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(accent)
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Уровень стресса".localized().uppercased())
+                            .font(DesignSystem.Typography.sectionHeader())
+                            .tracking(1.2)
+                            .foregroundStyle(DesignSystem.Colors.secondaryText)
+
+                        if let h = headline {
+                            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                Text("\(h.score)")
+                                    .font(DesignSystem.Typography.monospaced(.title, weight: .heavy))
+                                    .foregroundStyle(DesignSystem.Colors.primaryText)
+                                Text("/100")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                                Text(h.band.title)
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundStyle(accent)
+                            }
+                        } else {
+                            Text(placeholderText)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                        }
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                }
+
+                if let h = headline {
+                    StressTrack(score: h.score)
+                        .frame(height: 8)
+                }
+            }
+            .padding(14)
+            .background(
+                LinearGradient(
+                    colors: [accent.opacity(0.16), Color.white.opacity(0.02)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(accent.opacity(0.3), lineWidth: 0.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+
+    private var accent: Color {
+        headline?.band.color ?? DesignSystem.Colors.secondaryText
+    }
+
+    private var placeholderText: String {
+        isAuthorized
+            ? "собираем данные".localized()
+            : "нужен доступ к Apple Health".localized()
+    }
+}
+
+/// Gradient track (calm → high) with a thumb at the current score.
+private struct StressTrack: View {
+    let score: Int
+
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let x = max(6, min(w - 6, w * CGFloat(score) / 100.0))
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                StressBand.calm.color,
+                                StressBand.balanced.color,
+                                StressBand.elevated.color,
+                                StressBand.high.color
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .opacity(0.85)
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 12, height: 12)
+                    .overlay(Circle().stroke(Color.black.opacity(0.25), lineWidth: 1))
+                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                    .position(x: x, y: geo.size.height / 2)
+            }
+        }
+    }
+}
+
+// MARK: - Stress Detail Sheet (monthly)
+
+private struct StressDetailView: View {
+    let report: StressReport?
+    let isAuthorized: Bool
+    @Environment(\.dismiss) private var dismiss
+
+    private var headline: DailyStressScore? { report?.headline }
+    private var accent: Color { headline?.band.color ?? DesignSystem.Colors.secondaryText }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    heroBlock
+                    if let report, report.hasData {
+                        chartBlock(report)
+                        summaryBlock(report)
+                        if let h = headline, !h.significantDrivers.isEmpty {
+                            driversBlock(h)
+                        }
+                    } else {
+                        emptyBlock
+                    }
+                    explanationBlock
+                }
+                .padding(.horizontal, DesignSystem.Spacing.lg)
+                .padding(.bottom, 40)
+            }
+            .background(DesignSystem.Colors.background.ignoresSafeArea())
+            .navigationTitle("Уровень стресса".localized())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("done_button".localized()) { dismiss() }
+                        .foregroundStyle(DesignSystem.Colors.neonGreen)
+                }
+            }
+        }
+        .presentationDetents([.large])
+    }
+
+    // MARK: Hero
+    private var heroBlock: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle().fill(accent.opacity(0.18)).frame(width: 46, height: 46)
+                    Image(systemName: "waveform.path.ecg")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(accent)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Сегодня".localized().uppercased())
+                        .font(DesignSystem.Typography.sectionHeader())
+                        .tracking(1.2)
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                    HStack(alignment: .lastTextBaseline, spacing: 6) {
+                        Text(headline.map { "\($0.score)" } ?? "—")
+                            .font(DesignSystem.Typography.monospaced(.largeTitle, weight: .heavy))
+                            .foregroundStyle(DesignSystem.Colors.primaryText)
+                        Text("/ 100")
+                            .font(DesignSystem.Typography.monospaced(.headline, weight: .bold))
+                            .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                        if let h = headline {
+                            Text(h.band.title)
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundStyle(accent)
+                        }
+                    }
+                }
+            }
+            Text("оценка относительно вашей нормы за 30 дней".localized())
+                .font(.callout)
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            LinearGradient(
+                colors: [accent.opacity(0.18), Color.white.opacity(0.02)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
+                .stroke(accent.opacity(0.3), lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
+    }
+
+    // MARK: Chart
+    private func chartBlock(_ report: StressReport) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Последние 30 дней".localized().uppercased())
+                .font(DesignSystem.Typography.sectionHeader())
+                .tracking(1.2)
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+
+            Chart {
+                ForEach(report.daily) { day in
+                    BarMark(
+                        x: .value("Day", day.date, unit: .day),
+                        y: .value("Stress", day.score)
+                    )
+                    .foregroundStyle(day.band.color.gradient)
+                    .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                }
+                if let avg = report.monthAverage {
+                    RuleMark(y: .value("Avg", avg))
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        .annotation(position: .top, alignment: .trailing) {
+                            Text("\("ср".localized()) \(avg)")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        }
+                }
+            }
+            .chartYScale(domain: 0...100)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day, count: 7)) { _ in
+                    AxisGridLine().foregroundStyle(Color.white.opacity(0.06))
+                    AxisValueLabel(format: .dateTime.day().month(.abbreviated))
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) { _ in
+                    AxisGridLine().foregroundStyle(Color.white.opacity(0.06))
+                    AxisValueLabel().foregroundStyle(DesignSystem.Colors.secondaryText)
+                }
+            }
+            .frame(height: 200)
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .background(DesignSystem.Colors.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
+    }
+
+    // MARK: Summary (avg + trend)
+    private func summaryBlock(_ report: StressReport) -> some View {
+        HStack(spacing: 12) {
+            statCell(
+                title: "Среднее за месяц".localized(),
+                value: report.monthAverage.map { "\($0)" } ?? "—",
+                tint: report.monthAverage.map { StressBand.forScore($0).color } ?? DesignSystem.Colors.secondaryText
+            )
+            statCell(
+                title: "Тренд".localized(),
+                value: trendInfo(report.trend).label,
+                tint: trendInfo(report.trend).color,
+                icon: trendInfo(report.trend).icon
+            )
+        }
+    }
+
+    private func statCell(title: String, value: String, tint: Color, icon: String? = nil) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title.uppercased())
+                .font(DesignSystem.Typography.sectionHeader())
+                .tracking(1.0)
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+                .lineLimit(1)
+            HStack(spacing: 5) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(tint)
+                }
+                Text(value)
+                    .font(DesignSystem.Typography.monospaced(.title3, weight: .bold))
+                    .foregroundStyle(tint)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(Color.white.opacity(0.04))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    // MARK: Drivers
+    private func driversBlock(_ day: DailyStressScore) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Что влияет".localized().uppercased())
+                .font(DesignSystem.Typography.sectionHeader())
+                .tracking(1.2)
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+
+            ForEach(day.significantDrivers) { driver in
+                HStack(spacing: 10) {
+                    Image(systemName: driver.raisesStress ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(driver.raisesStress
+                            ? StressBand.high.color
+                            : StressBand.calm.color)
+                    Text(driver.metricName)
+                        .font(.callout)
+                        .foregroundStyle(DesignSystem.Colors.primaryText)
+                    Spacer()
+                    Text(driver.relationText)
+                        .font(DesignSystem.Typography.monospaced(.footnote, weight: .semibold))
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                }
+                .padding(.vertical, 4)
+                Divider().background(Color.white.opacity(0.06))
+            }
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .background(DesignSystem.Colors.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
+    }
+
+    // MARK: Empty
+    private var emptyBlock: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(systemName: isAuthorized ? "applewatch" : "lock.fill")
+                .font(.system(size: 26, weight: .bold))
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+            Text(isAuthorized
+                 ? "Пока недостаточно данных".localized()
+                 : "Нет доступа к Apple Health".localized())
+                .font(.headline)
+                .foregroundStyle(DesignSystem.Colors.primaryText)
+            Text(isAuthorized
+                 ? "Стресс считается по ВРС, пульсу покоя и сну с Apple Watch. Носите часы, в том числе ночью - оценка появится за несколько дней.".localized()
+                 : "Разрешите доступ к Apple Health, чтобы оценивать уровень стресса по данным Apple Watch.".localized())
+                .font(.callout)
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(DesignSystem.Spacing.lg)
+        .background(DesignSystem.Colors.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
+    }
+
+    // MARK: Explanation
+    private var explanationBlock: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Как это считается".localized().uppercased())
+                .font(DesignSystem.Typography.sectionHeader())
+                .tracking(1.2)
+                .foregroundStyle(DesignSystem.Colors.secondaryText)
+            Text("Балл сравнивает вариабельность пульса (ВРС), пульс покоя, сон и дыхание с вашей собственной нормой за 30 дней. Чем ниже ВРС и хуже сон относительно нормы - тем выше стресс. Это оценка восстановления, а не медицинский показатель.".localized())
+                .font(.footnote)
+                .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(DesignSystem.Spacing.lg)
+        .background(DesignSystem.Colors.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
+    }
+
+    private func trendInfo(_ trend: StressReport.Trend) -> (label: String, icon: String, color: Color) {
+        switch trend {
+        case .rising:  return ("Растёт".localized(), "arrow.up.right", StressBand.high.color)
+        case .falling: return ("Снижается".localized(), "arrow.down.right", StressBand.calm.color)
+        case .steady:  return ("Стабильно".localized(), "arrow.right", DesignSystem.Colors.secondaryText)
+        case .unknown: return ("—", "minus", DesignSystem.Colors.secondaryText)
+        }
     }
 }
 

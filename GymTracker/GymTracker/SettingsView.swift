@@ -36,6 +36,7 @@ struct SettingsView: View {
     @State private var showingSignOutConfirmation = false
     @State private var showingOnboardingPreview = false
     @State private var isLanguageExpanded: Bool = false
+    @State private var isWatchInfoExpanded: Bool = false
 
     private let supportTelegramURL = URL(string: "https://t.me/sumotry")!
     private let supportEmailURL = URL(string: "mailto:sumotry@gmail.com?subject=GymTracker%20Support")!
@@ -230,9 +231,69 @@ struct SettingsView: View {
                         guard newValue else { return }
                         Task { _ = await HealthManager.shared.requestAuthorization() }
                     }
+
+                    SettingsInnerDivider()
+
+                    watchInfoRow
                 }
             }
         }
+    }
+
+    private var watchInfoRow: some View {
+        VStack(spacing: 0) {
+            Button {
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
+                    isWatchInfoExpanded.toggle()
+                }
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            } label: {
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(DesignSystem.Colors.accentPurple.opacity(0.18))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "info.circle.fill")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(DesignSystem.Colors.accentPurple)
+                    }
+
+                    Text("Что даёт Apple Watch".localized())
+                        .font(DesignSystem.Typography.body().weight(.medium))
+                        .foregroundStyle(DesignSystem.Colors.primaryText)
+
+                    Spacer(minLength: 0)
+
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(DesignSystem.Colors.tertiaryText)
+                        .rotationEffect(.degrees(isWatchInfoExpanded ? 180 : 0))
+                }
+                .padding(.horizontal, DesignSystem.Spacing.md)
+                .padding(.vertical, 12)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if isWatchInfoExpanded {
+                VStack(alignment: .leading, spacing: 14) {
+                    Text("С часами BODY FORGE читает сигналы восстановления и показывает то, чего без них нет:".localized())
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundStyle(DesignSystem.Colors.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    WatchBenefitsList()
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, DesignSystem.Spacing.md)
+                .padding(.bottom, 14)
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .move(edge: .top)),
+                    removal: .opacity.combined(with: .move(edge: .top))
+                ))
+            }
+        }
+        .clipped()
     }
 
     private var languageSection: some View {
@@ -601,6 +662,7 @@ struct SettingsView: View {
     private var appInfoSection: some View {
         SettingsSection(title: "about_section".localized()) {
             SettingsCard {
+                VStack(spacing: 0) {
                 Button {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     showingOnboardingPreview = true
@@ -642,8 +704,34 @@ struct SettingsView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+
+                    SettingsInnerDivider()
+
+                    tourReplayRow
+                }
             }
         }
+    }
+
+    private var tourReplayRow: some View {
+        Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            dismiss()
+            let hasWatch = isAppleWatchEnabled
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+                TourManager.shared.start(TourSteps.make(hasWatch: hasWatch))
+            }
+        } label: {
+            SettingsRowContent(
+                icon: "sparkles",
+                iconTint: DesignSystem.Colors.accentPurple,
+                iconBackground: DesignSystem.Colors.accentPurple.opacity(0.18),
+                title: "Обзор приложения".localized(),
+                subtitle: "Пройти тур по разделам заново".localized(),
+                accessory: .chevron
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     private var deleteAccountButton: some View {

@@ -3,6 +3,8 @@
 //  GymTracker
 //
 //  First-launch onboarding: welcome, features, Apple Health sync, CTA.
+//  Cinematic, photo-led welcome flow — each slide rides a darkened gym shot
+//  with a slow Ken Burns drift, editorial bottom-anchored type and brand neon.
 //
 
 import SwiftUI
@@ -25,6 +27,7 @@ struct OnboardingView: View {
         OnboardingPage(
             kind: .hero,
             iconSystem: nil,
+            photos: ["sportbg_03", "sportbg_20", "sportbg_04"],
             title: "ТВОЯ ЛИЧНАЯ КУЗНИЦА ТЕЛА",
             subtitle: "BODY FORGE превращает каждую тренировку в данные. Программы, прогресс, ИИ-тренер — в одном месте.",
             tint: DesignSystem.Colors.neonGreen
@@ -32,6 +35,7 @@ struct OnboardingView: View {
         OnboardingPage(
             kind: .feature,
             iconSystem: "chart.line.uptrend.xyaxis",
+            photos: ["sportbg_14", "sportbg_16", "sportbg_11"],
             title: "ТРЕНИРОВКИ В ЦИФРАХ",
             subtitle: "Готовые программы или свои. Фиксируем каждый подход и вес, а графики показывают рост силы, объёма и рекордов — неделя за неделей.",
             tint: DesignSystem.Colors.neonGreen
@@ -39,6 +43,7 @@ struct OnboardingView: View {
         OnboardingPage(
             kind: .coachStyle,
             iconSystem: "brain.head.profile",
+            photos: ["sportbg_19", "sportbg_01"],
             title: "ВЫБЕРИ СТИЛЬ КОУЧА",
             subtitle: "ИИ-тренер анализирует прогресс, отвечает на вопросы и корректирует план. Выбери тон — поменять можно в настройках.",
             tint: Color(red: 0.6, green: 0.4, blue: 1.0)
@@ -46,6 +51,7 @@ struct OnboardingView: View {
         OnboardingPage(
             kind: .health,
             iconSystem: "heart.fill",
+            photos: ["sportbg_09", "sportbg_05"],
             title: "СИНХРОНИЗАЦИЯ С APPLE HEALTH",
             subtitle: "Тренировки автоматически попадают в Apple Health. Кольца активности, пульс, калории — всё считается и хранится у тебя.",
             tint: Color(red: 1.0, green: 0.27, blue: 0.4)
@@ -53,6 +59,7 @@ struct OnboardingView: View {
         OnboardingPage(
             kind: .watchQuestion,
             iconSystem: "applewatch",
+            photos: ["sportbg_15"],
             title: "ЕСТЬ APPLE WATCH?",
             subtitle: "Если есть — покажем кольца активности и пульс. Если нет — скроем эти блоки, чтобы интерфейс был чище.",
             tint: DesignSystem.Colors.neonGreen
@@ -60,16 +67,25 @@ struct OnboardingView: View {
         OnboardingPage(
             kind: .cta,
             iconSystem: nil,
+            photos: ["sportbg_20", "sportbg_03", "sportbg_19"],
             title: "ПОЕХАЛИ!",
             subtitle: "Создай аккаунт за 30 секунд — и начнём ковать форму уже сегодня.",
             tint: DesignSystem.Colors.neonGreen
         )
     ]
 
+    private var current: OnboardingPage { pages[currentPage] }
+    private var isInteractive: Bool {
+        current.kind == .coachStyle || current.kind == .watchQuestion
+    }
+
     var body: some View {
         ZStack {
-            AtmosphericBackground()
-            OnboardingAurora()
+            OnboardingPhotoBackdrop(
+                photos: current.photos,
+                tint: current.tint,
+                heavy: isInteractive
+            )
 
             VStack(spacing: 0) {
                 // Top bar — Skip + step indicator
@@ -80,14 +96,14 @@ struct OnboardingView: View {
                         Button(action: skip) {
                             Text("Пропустить".localized())
                                 .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                .foregroundColor(.white.opacity(0.7))
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
                                 .background(
-                                    Capsule().fill(Color.white.opacity(0.06))
+                                    Capsule().fill(Color.black.opacity(0.28))
                                 )
                                 .overlay(
-                                    Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                    Capsule().stroke(Color.white.opacity(0.12), lineWidth: 1)
                                 )
                         }
                     }
@@ -100,6 +116,8 @@ struct OnboardingView: View {
                     ForEach(pages.indices, id: \.self) { index in
                         OnboardingPageView(
                             page: pages[index],
+                            index: index,
+                            total: pages.count,
                             isActive: index == currentPage,
                             selectedCoachStyleRaw: $pickedCoachStyleRaw
                         )
@@ -111,7 +129,7 @@ struct OnboardingView: View {
 
                 // Bottom CTA
                 VStack(spacing: 14) {
-                    if pages[currentPage].kind == .watchQuestion {
+                    if current.kind == .watchQuestion {
                         WatchChoiceRow(
                             onYes: {
                                 isAppleWatchEnabled = true
@@ -139,7 +157,7 @@ struct OnboardingView: View {
                         Button(action: back) {
                             Text("Назад".localized())
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                .foregroundColor(DesignSystem.Colors.tertiaryText)
+                                .foregroundColor(.white.opacity(0.55))
                                 .frame(minWidth: 44, minHeight: 44)
                                 .contentShape(Rectangle())
                         }
@@ -198,6 +216,9 @@ private struct OnboardingPage: Identifiable {
     enum Kind { case hero, feature, health, watchQuestion, coachStyle, cta }
     let kind: Kind
     let iconSystem: String?
+    /// One or more cinematic gym shots. Slides with >1 photo slowly crossfade
+    /// between them; single-photo slides (the interactive steps) stay calm.
+    let photos: [String]
     let title: String
     let subtitle: String
     let tint: Color
@@ -207,65 +228,163 @@ private struct OnboardingPage: Identifiable {
 
 private struct OnboardingPageView: View {
     let page: OnboardingPage
+    let index: Int
+    let total: Int
     let isActive: Bool
     @Binding var selectedCoachStyleRaw: String
 
     var body: some View {
-        VStack(spacing: 28) {
-            Spacer(minLength: 0)
-
-            visual
-                .reveal(active: isActive, order: 0, scales: true)
-
-            VStack(spacing: 18) {
-                Text(page.title.localized())
-                    .font(.system(.title, design: .rounded, weight: .heavy))
-                    .tracking(1.5)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-                    .reveal(active: isActive, order: 1)
-
-                Text(page.subtitle.localized())
-                    .font(.system(.callout, design: .rounded))
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(5)
-                    .padding(.horizontal, 8)
-                    .reveal(active: isActive, order: 2)
-            }
-
-            if page.kind == .coachStyle {
-                CoachStylePicker(selectedRaw: $selectedCoachStyleRaw)
-                    .padding(.top, 4)
-                    .reveal(active: isActive, order: 3)
-            }
-
-            Spacer(minLength: 0)
+        switch page.kind {
+        case .coachStyle:    coachStyleLayout
+        case .watchQuestion: watchQuestionLayout
+        default:             narrativeLayout
         }
     }
 
-    @ViewBuilder
-    private var visual: some View {
-        switch page.kind {
-        case .hero:
-            BrandLogoView(size: 140, showWordmark: true, animated: true)
+    // Editorial, photo-led layout: brand mark for the bookend slides, then a
+    // bottom-anchored headline that reads over the cinematic background.
+    private var narrativeLayout: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Spacer(minLength: 0)
 
-        case .feature:
-            FeatureIcon(system: page.iconSystem ?? "star.fill", tint: page.tint)
+            if page.kind == .hero || page.kind == .cta {
+                HStack {
+                    Spacer()
+                    BrandLogoView(
+                        size: page.kind == .hero ? 96 : 80,
+                        showWordmark: false,
+                        animated: true
+                    )
+                    Spacer()
+                }
+                .reveal(active: isActive, order: 0, scales: true)
 
-        case .health:
-            HealthSyncVisual(tint: page.tint)
+                Spacer(minLength: 0)
+            }
 
-        case .watchQuestion:
-            WatchQuestionVisual()
+            VStack(alignment: .leading, spacing: 16) {
+                kicker
+                    .reveal(active: isActive, order: 1)
 
-        case .coachStyle:
-            FeatureIcon(system: page.iconSystem ?? "person.wave.2.fill", tint: page.tint)
+                Text(page.title.localized())
+                    .font(.system(size: 33, weight: .heavy, design: .rounded))
+                    .tracking(0.5)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(2)
+                    .shadow(color: .black.opacity(0.5), radius: 12, x: 0, y: 4)
+                    .reveal(active: isActive, order: 2)
 
-        case .cta:
-            BrandLogoView(size: 110, showWordmark: false, animated: true)
+                Text(page.subtitle.localized())
+                    .font(.system(.callout, design: .rounded))
+                    .foregroundColor(.white.opacity(0.82))
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(5)
+                    .shadow(color: .black.opacity(0.45), radius: 8, x: 0, y: 2)
+                    .reveal(active: isActive, order: 3)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 6)
         }
+    }
+
+    // Coach style: dense (4 options), so it scrolls under a left-aligned header.
+    private var coachStyleLayout: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 22) {
+                titleBlock
+                    .reveal(active: isActive, order: 0)
+
+                CoachStylePicker(selectedRaw: $selectedCoachStyleRaw)
+                    .reveal(active: isActive, order: 1)
+            }
+            .padding(.top, 18)
+            .padding(.bottom, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    // Watch question: header + the activity-ring visual + what a watch unlocks.
+    private var watchQuestionLayout: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 20) {
+                titleBlock
+                    .reveal(active: isActive, order: 0)
+
+                HStack {
+                    Spacer()
+                    WatchQuestionVisual()
+                        .scaleEffect(0.66)
+                        .frame(height: 188)
+                    Spacer()
+                }
+                .reveal(active: isActive, order: 1, scales: true)
+
+                watchBenefitsCard
+                    .reveal(active: isActive, order: 2)
+            }
+            .padding(.top, 14)
+            .padding(.bottom, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    // Editorial kicker: "01 — 06" step counter with a tinted rule.
+    private var kicker: some View {
+        HStack(spacing: 10) {
+            Text(String(format: "%02d", index + 1))
+                .font(.system(size: 15, weight: .heavy, design: .rounded))
+                .foregroundColor(page.tint)
+            Rectangle()
+                .fill(page.tint.opacity(0.6))
+                .frame(width: 26, height: 1.5)
+            Text(String(format: "%02d", total))
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundColor(.white.opacity(0.45))
+        }
+    }
+
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            kicker
+
+            Text(page.title.localized())
+                .font(.system(size: 28, weight: .heavy, design: .rounded))
+                .tracking(0.5)
+                .foregroundColor(.white)
+                .multilineTextAlignment(.leading)
+                .lineSpacing(2)
+                .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 3)
+
+            Text(page.subtitle.localized())
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundColor(.white.opacity(0.8))
+                .multilineTextAlignment(.leading)
+                .lineSpacing(4)
+                .shadow(color: .black.opacity(0.45), radius: 8, x: 0, y: 2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var watchBenefitsCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("С Apple Watch вы получите:".localized())
+                .font(.system(.footnote, design: .rounded, weight: .semibold))
+                .tracking(0.5)
+                .foregroundStyle(.white.opacity(0.55))
+
+            WatchBenefitsList(spacing: 11)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color.black.opacity(0.35))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+        )
     }
 }
 
@@ -292,7 +411,6 @@ private struct CoachStylePicker: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 4)
     }
 }
 
@@ -306,7 +424,7 @@ private struct StyleRow: View {
                 .font(.system(size: 28))
                 .frame(width: 44, height: 44)
                 .background(
-                    Circle().fill(Color.white.opacity(isSelected ? 0.10 : 0.04))
+                    Circle().fill(Color.white.opacity(isSelected ? 0.12 : 0.06))
                 )
 
             VStack(alignment: .leading, spacing: 2) {
@@ -315,7 +433,7 @@ private struct StyleRow: View {
                     .foregroundStyle(.white)
                 Text(style.subtitleKey)
                     .font(.system(.footnote, design: .rounded))
-                    .foregroundStyle(DesignSystem.Colors.secondaryText)
+                    .foregroundStyle(.white.opacity(0.65))
                     .lineLimit(2)
             }
 
@@ -323,21 +441,21 @@ private struct StyleRow: View {
 
             Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                 .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(isSelected ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.25))
+                .foregroundStyle(isSelected ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.3))
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(isSelected
-                      ? DesignSystem.Colors.neonGreen.opacity(0.10)
-                      : Color.white.opacity(0.04))
+                      ? DesignSystem.Colors.neonGreen.opacity(0.14)
+                      : Color.black.opacity(0.32))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(isSelected
                         ? DesignSystem.Colors.neonGreen.opacity(0.55)
-                        : Color.white.opacity(0.08),
+                        : Color.white.opacity(0.1),
                         lineWidth: 1)
         )
     }
@@ -588,7 +706,7 @@ private struct WatchChoiceButton: View {
                 Text(sublabel.localized().uppercased())
                     .font(.system(size: 10, weight: .semibold, design: .rounded))
                     .tracking(1.2)
-                    .foregroundColor(DesignSystem.Colors.tertiaryText)
+                    .foregroundColor(.white.opacity(0.5))
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
@@ -639,148 +757,102 @@ private struct WatchChoiceButton: View {
     }
 }
 
-// MARK: - Feature icon (stylized)
+// MARK: - Cinematic photo backdrop
 
-private struct FeatureIcon: View {
-    let system: String
+/// Full-bleed gym shot behind the whole flow. Each slide owns a photo; the
+/// backdrop crossfades between them and runs a slow Ken Burns drift so the
+/// background feels alive without distracting. A layered scrim (flat floor +
+/// vertical shaping + brand neon) keeps text and glass cards legible over any
+/// frame, and the interactive steps get an extra dim so their controls read.
+private struct OnboardingPhotoBackdrop: View {
+    let photos: [String]
     let tint: Color
+    let heavy: Bool
 
-    @State private var rotate: Bool = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var index = 0
+    private let cycle = Timer.publish(every: 5.5, on: .main, in: .common).autoconnect()
+
+    private var current: String {
+        photos.isEmpty ? "" : photos[index % photos.count]
+    }
 
     var body: some View {
         ZStack {
-            // Аура
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [tint.opacity(0.45), .clear],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: 180
-                    )
-                )
-                .frame(width: 320, height: 320)
-                .blur(radius: 28)
+            Color.black
 
-            // Внешнее декоративное кольцо
-            Circle()
-                .trim(from: 0, to: 0.78)
-                .stroke(tint.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, dash: [4, 6]))
-                .frame(width: 220, height: 220)
-                .rotationEffect(.degrees(rotate ? 360 : 0))
-                .animation(.linear(duration: 28).repeatForever(autoreverses: false), value: rotate)
+            // Crossfading photo — keyed by name so a swap fades in/out. Slides
+            // with several photos drift through them on the timer below.
+            ZStack {
+                ForEach([current], id: \.self) { name in
+                    KenBurnsImage(name: name)
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 1.1), value: current)
 
-            // Капсула-плашка
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [Color(white: 0.10), Color(white: 0.04)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 160, height: 160)
-                .overlay(
-                    Circle().stroke(tint.opacity(0.5), lineWidth: 1.2)
-                )
-                .shadow(color: tint.opacity(0.4), radius: 24)
+            // Flat legibility floor.
+            Color.black.opacity(0.3)
 
-            Image(systemName: system)
-                .font(.system(size: 64, weight: .bold))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [tint, tint.opacity(0.7)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .shadow(color: tint.opacity(0.6), radius: 12)
+            // Vertical shaping — lets the photo breathe up top, anchors copy below.
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0.55),
+                    Color.black.opacity(0.12),
+                    Color.black.opacity(0.46),
+                    Color.black.opacity(0.92)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            // Brand neon ambient, tinted per slide.
+            RadialGradient(
+                colors: [tint.opacity(0.22), .clear],
+                center: .topTrailing, startRadius: 0, endRadius: 520
+            )
+            .animation(.easeInOut(duration: 0.6), value: tint)
+
+            RadialGradient(
+                colors: [DesignSystem.Colors.neonGreen.opacity(0.10), .clear],
+                center: .bottomLeading, startRadius: 0, endRadius: 480
+            )
+
+            // Extra dim under the interactive steps (picker / watch question).
+            Color.black
+                .opacity(heavy ? 0.4 : 0.0)
+                .animation(.easeInOut(duration: 0.4), value: heavy)
         }
-        .frame(height: 280)
-        .onAppear { rotate = !reduceMotion }
+        .ignoresSafeArea()
+        .onChange(of: photos) { _, _ in index = 0 }
+        .onReceive(cycle) { _ in
+            guard !reduceMotion, photos.count > 1 else { return }
+            index += 1
+        }
     }
 }
 
-// MARK: - Apple Health visual
-
-private struct HealthSyncVisual: View {
-    let tint: Color
-    @State private var pulse: Bool = false
+/// A single photo that slowly zooms in once it appears — cinematic "Ken Burns"
+/// motion. Honors Reduce Motion by holding a fixed frame.
+private struct KenBurnsImage: View {
+    let name: String
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var zoomed = false
 
     var body: some View {
-        ZStack {
-            // Аура
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [tint.opacity(0.4), .clear],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: 200
-                    )
-                )
-                .frame(width: 360, height: 360)
-                .blur(radius: 28)
-
-            // Левый бейдж — наш логотип
-            ZStack {
-                Circle()
-                    .fill(Color(white: 0.08))
-                    .frame(width: 110, height: 110)
-                    .overlay(Circle().stroke(DesignSystem.Colors.neonGreen.opacity(0.5), lineWidth: 1.2))
-                Image("BrandLogo")
-                    .resizable()
-                    .interpolation(.high)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 78, height: 78)
-                    .clipShape(Circle())
-            }
-            .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 16)
-            .offset(x: -68)
-
-            // Правый бейдж — Apple Health
-            ZStack {
-                Circle()
-                    .fill(Color(white: 0.08))
-                    .frame(width: 110, height: 110)
-                    .overlay(Circle().stroke(tint.opacity(0.6), lineWidth: 1.2))
-                Image(systemName: "heart.fill")
-                    .font(.system(size: 48, weight: .bold))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [
-                                Color(red: 1.0, green: 0.27, blue: 0.4),
-                                Color(red: 1.0, green: 0.45, blue: 0.55)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-            }
-            .shadow(color: tint.opacity(0.5), radius: 16)
-            .offset(x: 68)
-
-            // Связь — пульсирующие точки
-            HStack(spacing: 6) {
-                ForEach(0..<5) { i in
-                    Circle()
-                        .fill(DesignSystem.Colors.neonGreen)
-                        .frame(width: 6, height: 6)
-                        .opacity(pulse ? 1.0 : 0.25)
-                        .animation(
-                            .easeInOut(duration: 0.8)
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(i) * 0.1),
-                            value: pulse
-                        )
+        GeometryReader { geo in
+            Image(name)
+                .resizable()
+                .interpolation(.high)
+                .aspectRatio(contentMode: .fill)
+                .frame(width: geo.size.width, height: geo.size.height)
+                .scaleEffect(reduceMotion ? 1.04 : (zoomed ? 1.16 : 1.03), anchor: .center)
+                .clipped()
+                .onAppear {
+                    guard !reduceMotion else { return }
+                    withAnimation(.easeInOut(duration: 18)) { zoomed = true }
                 }
-            }
-            .frame(width: 60)
         }
-        .frame(height: 280)
-        .onAppear { pulse = !reduceMotion }
     }
 }
 
@@ -835,42 +907,6 @@ private extension View {
     }
 }
 
-// MARK: - Living aurora backdrop
-
-/// Slow-drifting, heavily-blurred neon blobs layered over the static atmospheric
-/// background to give the onboarding depth and a sense of life. Purely decorative —
-/// disabled under Reduce Motion and transparent to touch.
-private struct OnboardingAurora: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var drift = false
-
-    var body: some View {
-        ZStack {
-            blob(DesignSystem.Colors.neonGreen.opacity(0.22), size: 380)
-                .offset(x: drift ? -90 : -40, y: drift ? -200 : -140)
-            blob(DesignSystem.Colors.accentPurple.opacity(0.20), size: 320)
-                .offset(x: drift ? 120 : 60, y: drift ? 230 : 300)
-            blob(DesignSystem.Colors.secondaryAccent.opacity(0.13), size: 280)
-                .offset(x: drift ? -130 : -70, y: drift ? 280 : 340)
-        }
-        .blur(radius: 70)
-        .ignoresSafeArea()
-        .allowsHitTesting(false)
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 16).repeatForever(autoreverses: true)) {
-                drift = true
-            }
-        }
-    }
-
-    private func blob(_ color: Color, size: CGFloat) -> some View {
-        Circle()
-            .fill(color)
-            .frame(width: size, height: size)
-    }
-}
-
 // MARK: - Step Indicator
 
 private struct StepIndicator: View {
@@ -881,7 +917,7 @@ private struct StepIndicator: View {
         HStack(spacing: 6) {
             ForEach(0..<total, id: \.self) { idx in
                 Capsule()
-                    .fill(idx == current ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.15))
+                    .fill(idx == current ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.25))
                     .frame(width: idx == current ? 22 : 6, height: 6)
                     .shadow(color: idx == current ? DesignSystem.Colors.neonGreen.opacity(0.6) : .clear,
                             radius: 5)
