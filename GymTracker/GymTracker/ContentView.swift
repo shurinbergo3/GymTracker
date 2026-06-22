@@ -12,7 +12,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var selectedTab: Int = 0
-    @AppStorage("hasSeenTour") private var hasSeenTour = false
+    @AppStorage("seenTourVersion") private var seenTourVersion = 0
     @AppStorage("isAppleWatchEnabled") private var isAppleWatchEnabled = true
     @ObservedObject private var tour = TourManager.shared
 
@@ -63,11 +63,11 @@ struct ContentView: View {
         .onChange(of: tour.index) { _, _ in syncTourTab() }
         .onChange(of: tour.isActive) { _, active in if active { syncTourTab() } }
         .onAppear {
-            tour.onFinish = { hasSeenTour = true }
-            guard !hasSeenTour else { return }
+            tour.onFinish = { seenTourVersion = TourManager.version }
+            guard seenTourVersion < TourManager.version else { return }
             // Let the UI settle (and the splash dismiss) before starting.
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
-                guard !hasSeenTour, !tour.isActive else { return }
+                guard seenTourVersion < TourManager.version, !tour.isActive else { return }
                 tour.start(TourSteps.make(hasWatch: isAppleWatchEnabled))
             }
         }

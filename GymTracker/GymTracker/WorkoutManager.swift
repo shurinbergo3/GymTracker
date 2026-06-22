@@ -55,10 +55,15 @@ class WorkoutManager: ObservableObject {
     /// otherwise the watch hides the Complete Set button.
     @Published var canCompleteCurrentSetFromWatch: Bool = false
 
+    /// True if any set in the current session beat the all-time best — used to
+    /// gate the App Store review prompt toward genuine emotional peaks.
+    private(set) var sessionHadPR = false
+
     func notifySetCompleted(isPR: Bool) {
         setCompletionTick &+= 1
         if isPR {
             prFlashTrigger &+= 1
+            sessionHadPR = true
         }
     }
 
@@ -844,6 +849,10 @@ class WorkoutManager: ObservableObject {
 
         // 8. Transition UI to summary
         self.workoutState = .summary
+
+        // 9. Ask for an App Store review at this emotional peak (self-throttled).
+        ReviewRequestManager.shared.registerWorkoutCompleted(hadPR: sessionHadPR)
+        sessionHadPR = false
     }
     
     func requestHealthAccess() {

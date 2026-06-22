@@ -25,6 +25,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         if FirebaseApp.app() == nil {
             FirebaseApp.configure()
         }
+        // Register the morning-readiness BG task while we're still inside launch —
+        // BGTaskScheduler requires registration before didFinishLaunching returns.
+        MorningReadinessNudgeService.registerBackgroundTask()
+        MorningReadinessNudgeService.scheduleNext()
         return true
     }
 }
@@ -201,6 +205,7 @@ struct WorkoutTrackerApp: App {
                         )
                         await AICoachNotificationService.rescheduleWeeklyWrappedPush()
                     }
+                    MorningReadinessNudgeService.scheduleNext()
                 }
             }
             .onChange(of: authManager.isLoggedIn) { _, isLoggedIn in
@@ -212,6 +217,9 @@ struct WorkoutTrackerApp: App {
                 if newPhase == .active {
                     InactivityNotificationService.rescheduleOnAppOpen()
                     rescheduleDecayWarningsFromLatestSession()
+                } else if newPhase == .background {
+                    // Queue the next morning-readiness background check.
+                    MorningReadinessNudgeService.scheduleNext()
                 }
             }
         }

@@ -85,6 +85,11 @@ final class TourManager: ObservableObject {
     static let shared = TourManager()
     private init() {}
 
+    /// Bump this to re-show the tour to EVERYONE after a release. Users store
+    /// the last version they completed; anyone whose stored value is lower sees
+    /// the tour again. New installs default to 0, so a value ≥ 1 shows it.
+    static let version = 1
+
     @Published private(set) var isActive = false
     @Published private(set) var index = 0
     private(set) var steps: [TourStep] = []

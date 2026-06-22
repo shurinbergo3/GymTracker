@@ -590,8 +590,10 @@ struct SettingsView: View {
                                 )
                                 await AICoachNotificationService.rescheduleWeeklyWrappedPush()
                             }
+                            MorningReadinessNudgeService.scheduleNext()
                         } else {
                             AICoachNotificationService.cancelAll()
+                            MorningReadinessNudgeService.cancel()
                         }
                     }
                     SettingsInnerDivider()
@@ -708,9 +710,30 @@ struct SettingsView: View {
                     SettingsInnerDivider()
 
                     tourReplayRow
+
+                    SettingsInnerDivider()
+
+                    reviewRow
                 }
             }
         }
+    }
+
+    private var reviewRow: some View {
+        Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            ReviewRequestManager.shared.openWriteReviewPage()
+        } label: {
+            SettingsRowContent(
+                icon: "star.fill",
+                iconTint: Color(red: 1.0, green: 0.78, blue: 0.0),
+                iconBackground: Color(red: 1.0, green: 0.78, blue: 0.0).opacity(0.18),
+                title: "rate_app_title".localized(),
+                subtitle: "rate_app_subtitle".localized(),
+                accessory: .chevron
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     private var tourReplayRow: some View {
