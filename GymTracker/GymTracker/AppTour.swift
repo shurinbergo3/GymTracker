@@ -26,7 +26,6 @@ enum TourAnchorID: Hashable {
 enum TourSpot: Equatable {
     case center                 // no spotlight — a centered card
     case anchor(TourAnchorID)   // a real view, located via anchorPreference
-    case tabBar                 // computed bottom strip (system tab bar)
 }
 
 struct TourStep: Identifiable {
@@ -46,9 +45,9 @@ enum TourSteps {
             TourStep(tab: nil, scrollToHealth: false, spot: .center,
                      title: "Добро пожаловать!",
                      text: "Коротко покажу, где что находится. Это займёт 20 секунд."),
-            TourStep(tab: nil, scrollToHealth: false, spot: .tabBar,
+            TourStep(tab: nil, scrollToHealth: false, spot: .center,
                      title: "Разделы приложения",
-                     text: "Внизу четыре вкладки: Тренировка, Программа, Справочник и Статистика."),
+                     text: "Внизу четыре вкладки: Тренировка, Программа, Справочник и Статистика. Листай их слева направо."),
             TourStep(tab: 0, scrollToHealth: false, spot: .center,
                      title: "Тренировка",
                      text: "Активная тренировка: подходы, веса, таймер отдыха и пульс в реальном времени."),
@@ -184,14 +183,14 @@ struct TourOverlay: View {
             return nil
         case .anchor(let id):
             guard let a = anchors[id] else { return nil }   // graceful: centered
-            return proxy[a].insetBy(dx: -10, dy: -10)
-        case .tabBar:
-            let h: CGFloat = 50
-            let bottomGap: CGFloat = 34   // home indicator area
-            return CGRect(x: 8,
-                          y: proxy.size.height - bottomGap - h,
-                          width: proxy.size.width - 16,
-                          height: h)
+            // Clamp to the visible area so a tall card never produces a ring
+            // that runs off-screen.
+            let raw = proxy[a].insetBy(dx: -10, dy: -10)
+            let topLimit = proxy.safeAreaInsets.top + 8
+            let bottomLimit = proxy.size.height - 8
+            let top = max(raw.minY, topLimit)
+            let bottom = min(raw.maxY, bottomLimit)
+            return CGRect(x: raw.minX, y: top, width: raw.width, height: max(0, bottom - top))
         }
     }
 
@@ -295,14 +294,26 @@ struct TourOverlay: View {
         }
         .padding(18)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color(white: 0.11))
+            ZStack {
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .fill(DesignSystem.Colors.neonGreen.opacity(0.05))
+            }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.white.opacity(0.10), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.5), Color.white.opacity(0.08), Color.white.opacity(0.22)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
         )
-        .shadow(color: .black.opacity(0.5), radius: 24, x: 0, y: 12)
+        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .shadow(color: .black.opacity(0.45), radius: 22, x: 0, y: 12)
         .frame(maxWidth: 380)
     }
 

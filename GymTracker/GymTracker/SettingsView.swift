@@ -897,7 +897,7 @@ private struct SettingsToggleRow: View {
                 }
             }
         }
-        .tint(DesignSystem.Colors.neonGreen)
+        .toggleStyle(BrandToggleStyle())
         .padding(.horizontal, DesignSystem.Spacing.md)
         .padding(.vertical, 10)
     }

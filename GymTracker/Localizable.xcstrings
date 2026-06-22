@@ -1,1014 +1,48 @@
 {
   "sourceLanguage" : "ru",
   "strings" : {
-    "Добро пожаловать!" : {
+    "Внизу четыре вкладки: Тренировка, Программа, Справочник и Статистика. Листай их слева направо." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Willkommen!"
+            "value" : "Unten vier Tabs: Training, Programm, Nachschlagewerk und Statistik. Wische sie von links nach rechts durch."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Welcome!"
+            "value" : "Four tabs at the bottom: Workout, Program, Reference and Stats. Swipe through them left to right."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Witaj!"
+            "value" : "Na dole cztery zakładki: Trening, Program, Poradnik i Statystyki. Przesuwaj je od lewej do prawej."
           }
         }
       }
     },
-    "Коротко покажу, где что находится. Это займёт 20 секунд." : {
+    "Эти показатели анализирует и ИИ-тренер - и подстраивает под них рекомендации." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ich zeige dir kurz, wo was ist. Dauert 20 Sekunden."
+            "value" : "Auch der KI-Coach wertet diese Werte aus - und passt seine Empfehlungen daran an."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A quick look at where everything lives. Takes 20 seconds."
+            "value" : "The AI coach analyses these too - and tailors its advice to them."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Szybko pokażę, gdzie co jest. Zajmie to 20 sekund."
-          }
-        }
-      }
-    },
-    "Разделы приложения" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App-Bereiche"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App sections"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sekcje aplikacji"
-          }
-        }
-      }
-    },
-    "Внизу четыре вкладки: Тренировка, Программа, Справочник и Статистика." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unten vier Tabs: Training, Programm, Nachschlagewerk und Statistik."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Four tabs at the bottom: Workout, Program, Reference and Stats."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Na dole cztery zakładki: Trening, Program, Poradnik i Statystyki."
-          }
-        }
-      }
-    },
-    "Активная тренировка: подходы, веса, таймер отдыха и пульс в реальном времени." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dein aktives Training: Sätze, Gewichte, Pausentimer und Puls in Echtzeit."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your live workout: sets, weights, rest timer and heart rate in real time."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktywny trening: serie, ciężary, timer odpoczynku i tętno na żywo."
-          }
-        }
-      }
-    },
-    "Готовые планы или свой. Активная программа подсказывает, что тренировать сегодня." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fertige Pläne oder dein eigener. Das aktive Programm sagt dir, was du heute trainierst."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ready-made plans or your own. The active program tells you what to train today."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gotowe plany lub własny. Aktywny program podpowiada, co trenować dziś."
-          }
-        }
-      }
-    },
-    "База упражнений с техникой и видео, плюс гайды по тренировкам, сну и питанию." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Übungsdatenbank mit Technik und Videos sowie Guides zu Training, Schlaf und Ernährung."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "An exercise library with technique and videos, plus guides on training, sleep and nutrition."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Baza ćwiczeń z techniką i wideo oraz poradniki o treningu, śnie i odżywianiu."
-          }
-        }
-      }
-    },
-    "Новое: ежедневная оценка стресса по ВРС, пульсу покоя и сну с Apple Watch. Нажми на строку - там подробности за месяц." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neu: ein täglicher Stresswert aus HRV, Ruhepuls und Schlaf der Apple Watch. Tippe auf die Zeile für die Monatsdetails."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New: a daily stress score from HRV, resting heart rate and sleep via Apple Watch. Tap the row for the monthly detail."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nowość: dzienna ocena stresu na podstawie HRV, tętna spoczynkowego i snu z Apple Watch. Dotknij wiersza, aby zobaczyć szczegóły z miesiąca."
-          }
-        }
-      }
-    },
-    "Все данные в одном месте: шаги, сон, пульс покоя, ВРС и калории." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Daten an einem Ort: Schritte, Schlaf, Ruhepuls, HRV und Kalorien."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All your data in one place: steps, sleep, resting heart rate, HRV and calories."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wszystkie dane w jednym miejscu: kroki, sen, tętno spoczynkowe, HRV i kalorie."
-          }
-        }
-      }
-    },
-    "Профиль и настройки" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil und Einstellungen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profile and settings"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil i ustawienia"
-          }
-        }
-      }
-    },
-    "Аватар сверху справа - там язык, подключение Apple Watch, стиль ИИ-коуча и управление данными." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das Avatar oben rechts: Sprache, Apple Watch, KI-Coach-Stil und Datenverwaltung."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The avatar at the top right: language, Apple Watch, AI coach style and data management."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Awatar w prawym górnym rogu: język, Apple Watch, styl trenera AI i zarządzanie danymi."
-          }
-        }
-      }
-    },
-    "Это всё. Обзор можно пройти заново в настройках. Поехали ковать форму!" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das war's. Du kannst die Tour in den Einstellungen wiederholen. Auf geht's!"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "That's it. You can replay this tour from Settings. Let's forge!"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To wszystko. Tę wycieczkę można powtórzyć w ustawieniach. Do dzieła!"
-          }
-        }
-      }
-    },
-    "Далее" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weiter"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dalej"
-          }
-        }
-      }
-    },
-    "Обзор приложения" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App-Tour"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App tour"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przewodnik po aplikacji"
-          }
-        }
-      }
-    },
-    "Пройти тур по разделам заново" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tour durch die Bereiche wiederholen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Replay the tour of the sections"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Powtórz przewodnik po sekcjach"
-          }
-        }
-      }
-    },
-    "Что даёт Apple Watch" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Was Apple Watch bringt"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What Apple Watch unlocks"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Co daje Apple Watch"
-          }
-        }
-      }
-    },
-    "С часами BODY FORGE читает сигналы восстановления и показывает то, чего без них нет:" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit einer Uhr liest BODY FORGE Erholungssignale und zeigt, was ohne sie fehlt:"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "With a watch, BODY FORGE reads recovery signals and shows what isn't available without one:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Z zegarkiem BODY FORGE odczytuje sygnały regeneracji i pokazuje to, czego bez niego nie ma:"
-          }
-        }
-      }
-    },
-    "С Apple Watch вы получите:" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit Apple Watch erhältst du:"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "With Apple Watch you get:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Z Apple Watch otrzymujesz:"
-          }
-        }
-      }
-    },
-    "Вариабельность пульса" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Herzfrequenzvariabilität"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Heart rate variability"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zmienność rytmu serca"
-          }
-        }
-      }
-    },
-    "Дыхание во сне" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Atmung im Schlaf"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Breathing during sleep"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oddech podczas snu"
-          }
-        }
-      }
-    },
-    "Кольца активности и калории" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktivitätsringe und Kalorien"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activity rings and calories"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pierścienie aktywności i kalorie"
-          }
-        }
-      }
-    },
-    "Уровень стресса" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stresslevel"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stress level"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poziom stresu"
-          }
-        }
-      }
-    },
-    "Спокойствие" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ruhe"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Calm"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spokój"
-          }
-        }
-      }
-    },
-    "Баланс" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgeglichen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Balanced"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Równowaga"
-          }
-        }
-      }
-    },
-    "Повышенный" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erhöht"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elevated"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podwyższony"
-          }
-        }
-      }
-    },
-    "Высокий" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hoch"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "High"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wysoki"
-          }
-        }
-      }
-    },
-    "Дыхание" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Atmung"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Breathing"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oddech"
-          }
-        }
-      }
-    },
-    "ниже нормы" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "unter Norm"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "below norm"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "poniżej normy"
-          }
-        }
-      }
-    },
-    "выше нормы" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "über Norm"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "above norm"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "powyżej normy"
-          }
-        }
-      }
-    },
-    "собираем данные" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daten werden erfasst"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "collecting data"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "zbieranie danych"
-          }
-        }
-      }
-    },
-    "нужен доступ к Apple Health" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple-Health-Zugriff erforderlich"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple Health access required"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "wymagany dostęp do Apple Health"
-          }
-        }
-      }
-    },
-    "оценка относительно вашей нормы за 30 дней" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bewertet anhand deiner 30-Tage-Norm"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rated against your own 30-day norm"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ocena względem Twojej 30-dniowej normy"
-          }
-        }
-      }
-    },
-    "Последние 30 дней" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Letzte 30 Tage"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last 30 days"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ostatnie 30 dni"
-          }
-        }
-      }
-    },
-    "ср" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ø"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "avg"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "śr"
-          }
-        }
-      }
-    },
-    "Среднее за месяц" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Monatsdurchschnitt"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Monthly average"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Średnia miesięczna"
-          }
-        }
-      }
-    },
-    "Тренд" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trend"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trend"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trend"
-          }
-        }
-      }
-    },
-    "Растёт" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Steigend"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rising"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rośnie"
-          }
-        }
-      }
-    },
-    "Что влияет" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einflussfaktoren"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What's driving it"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Co wpływa"
-          }
-        }
-      }
-    },
-    "Пока недостаточно данных" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Noch nicht genug Daten"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not enough data yet"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Na razie za mało danych"
-          }
-        }
-      }
-    },
-    "Нет доступа к Apple Health" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kein Apple-Health-Zugriff"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Apple Health access"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak dostępu do Apple Health"
-          }
-        }
-      }
-    },
-    "Стресс считается по ВРС, пульсу покоя и сну с Apple Watch. Носите часы, в том числе ночью - оценка появится за несколько дней." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Stress wird aus HRV, Ruhepuls und Schlaf der Apple Watch berechnet. Trage sie regelmäßig, auch nachts - nach einigen Tagen erscheint ein Wert."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stress is calculated from HRV, resting heart rate and sleep recorded by Apple Watch. Wear it regularly, including at night, and a score will appear within a few days."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stres liczony jest na podstawie HRV, tętna spoczynkowego i snu z Apple Watch. Noś zegarek regularnie, także w nocy - ocena pojawi się po kilku dniach."
-          }
-        }
-      }
-    },
-    "Разрешите доступ к Apple Health, чтобы оценивать уровень стресса по данным Apple Watch." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erlaube den Zugriff auf Apple Health, um dein Stresslevel aus Apple-Watch-Daten zu ermitteln."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Allow Apple Health access to estimate your stress level from Apple Watch data."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zezwól na dostęp do Apple Health, aby oceniać poziom stresu na podstawie danych Apple Watch."
-          }
-        }
-      }
-    },
-    "Как это считается" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wie wird das berechnet"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How it's calculated"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jak to obliczamy"
-          }
-        }
-      }
-    },
-    "Балл сравнивает вариабельность пульса (ВРС), пульс покоя, сон и дыхание с вашей собственной нормой за 30 дней. Чем ниже ВРС и хуже сон относительно нормы - тем выше стресс. Это оценка восстановления, а не медицинский показатель." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Wert vergleicht Herzfrequenzvariabilität (HRV), Ruhepuls, Schlaf und Atmung mit deiner eigenen 30-Tage-Norm. Je niedriger die HRV und je schlechter der Schlaf im Vergleich zur Norm, desto höher der Stress. Es ist eine Erholungsschätzung, kein medizinischer Wert."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The score compares heart rate variability (HRV), resting heart rate, sleep and breathing with your own 30-day norm. The lower the HRV and the worse the sleep versus that norm, the higher the stress. It's a recovery estimate, not a medical metric."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wynik porównuje zmienność rytmu serca (HRV), tętno spoczynkowe, sen i oddech z Twoją własną normą z 30 dni. Im niższe HRV i gorszy sen względem normy, tym wyższy stres. To ocena regeneracji, a nie wskaźnik medyczny."
+            "value" : "Te wskaźniki analizuje też trener AI - i dopasowuje do nich porady."
           }
         }
       }
@@ -1041,6 +75,9 @@
           }
         }
       }
+    },
+    "—" : {
+
     },
     "·" : {
 
@@ -1260,6 +297,9 @@
         }
       }
     },
+    "/ 100" : {
+
+    },
     "/%lld" : {
       "localizations" : {
         "de" : {
@@ -1311,6 +351,9 @@
           }
         }
       }
+    },
+    "/100" : {
+
     },
     "%.1f км" : {
       "extractionState" : "manual",
@@ -6716,6 +5759,9 @@
           }
         }
       }
+    },
+    "Avg" : {
+
     },
     "avg_sleep_stat" : {
       "extractionState" : "manual",
@@ -14579,6 +13625,9 @@
         }
       }
     },
+    "Stress" : {
+
+    },
     "StrongLifts 5x5" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -16182,6 +15231,29 @@
         }
       }
     },
+    "Аватар сверху справа - там язык, подключение Apple Watch, стиль ИИ-коуча и управление данными." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Avatar oben rechts: Sprache, Apple Watch, KI-Coach-Stil und Datenverwaltung."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The avatar at the top right: language, Apple Watch, AI coach style and data management."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Awatar w prawym górnym rogu: język, Apple Watch, styl trenera AI i zarządzanie danymi."
+          }
+        }
+      }
+    },
     "Авраамово дерево (Vitex Agnus-Castus). Основное применение в спорте — мягкое снижение пролактина. Если у вас пролактин на верхней границе, это может мешать выработке дофамина и тестостерона. Витекс решает эту проблему." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -16607,6 +15679,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "АКТИВНАЯ ПРОГРАММА"
+          }
+        }
+      }
+    },
+    "Активная тренировка: подходы, веса, таймер отдыха и пульс в реальном времени." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein aktives Training: Sätze, Gewichte, Pausentimer und Puls in Echtzeit."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your live workout: sets, weights, rest timer and heart rate in real time."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktywny trening: serie, ciężary, timer odpoczynku i tętno na żywo."
           }
         }
       }
@@ -17508,6 +16603,29 @@
         }
       }
     },
+    "База упражнений с техникой и видео, плюс гайды по тренировкам, сну и питанию." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übungsdatenbank mit Technik und Videos sowie Guides zu Training, Schlaf und Ernährung."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An exercise library with technique and videos, plus guides on training, sleep and nutrition."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baza ćwiczeń z techniką i wideo oraz poradniki o treningu, śnie i odżywianiu."
+          }
+        }
+      }
+    },
     "Байезианские сгибания" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -17566,6 +16684,29 @@
         }
       }
     },
+    "Баланс" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgeglichen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balanced"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Równowaga"
+          }
+        }
+      }
+    },
     "Баланс эстрогенов" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -17591,6 +16732,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Баланс эстрогенов"
+          }
+        }
+      }
+    },
+    "Балл сравнивает вариабельность пульса (ВРС), пульс покоя, сон и дыхание с вашей собственной нормой за 30 дней. Чем ниже ВРС и хуже сон относительно нормы - тем выше стресс. Это оценка восстановления, а не медицинский показатель." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Wert vergleicht Herzfrequenzvariabilität (HRV), Ruhepuls, Schlaf und Atmung mit deiner eigenen 30-Tage-Norm. Je niedriger die HRV und je schlechter der Schlaf im Vergleich zur Norm, desto höher der Stress. Es ist eine Erholungsschätzung, kein medizinischer Wert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The score compares heart rate variability (HRV), resting heart rate, sleep and breathing with your own 30-day norm. The lower the HRV and the worse the sleep versus that norm, the higher the stress. It's a recovery estimate, not a medical metric."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik porównuje zmienność rytmu serca (HRV), tętno spoczynkowe, sen i oddech z Twoją własną normą z 30 dni. Im niższe HRV i gorszy sen względem normy, tym wyższy stres. To ocena regeneracji, a nie wskaźnik medyczny."
           }
         }
       }
@@ -19273,6 +18437,29 @@
         }
       }
     },
+    "Вариабельность пульса" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herzfrequenzvariabilität"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heart rate variability"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmienność rytmu serca"
+          }
+        }
+      }
+    },
     "вариабельность пульса (SDNN), среднее за 7 дней — выше = лучше восстановление" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -20258,6 +19445,29 @@
         }
       }
     },
+    "Внизу четыре вкладки: Тренировка, Программа, Справочник и Статистика." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unten vier Tabs: Training, Programm, Nachschlagewerk und Statistik."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Four tabs at the bottom: Workout, Program, Reference and Stats."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na dole cztery zakładki: Trening, Program, Poradnik i Statystyki."
+          }
+        }
+      }
+    },
     "ВНИМАНИЕ: Это действие удалит ВСЕ тренировки в облаке и заменит их вашими текущими локальными тренировками.\n\nИспользуйте это, если вы почистили историю на телефоне и хотите, чтобы в облаке стало так же." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -21163,6 +20373,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wszystkie Twoje sesje"
+          }
+        }
+      }
+    },
+    "Все данные в одном месте: шаги, сон, пульс покоя, ВРС и калории." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Daten an einem Ort: Schritte, Schlaf, Ruhepuls, HRV und Kalorien."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All your data in one place: steps, sleep, resting heart rate, HRV and calories."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszystkie dane w jednym miejscu: kroki, sen, tętno spoczynkowe, HRV i kalorie."
           }
         }
       }
@@ -22261,6 +21494,29 @@
         }
       }
     },
+    "Высокий" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoch"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysoki"
+          }
+        }
+      }
+    },
     "Высокий уровень" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -22344,6 +21600,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Выход силой на две руки"
+          }
+        }
+      }
+    },
+    "выше нормы" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "über Norm"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "above norm"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "powyżej normy"
           }
         }
       }
@@ -23455,6 +22734,29 @@
         }
       }
     },
+    "Готовые планы или свой. Активная программа подсказывает, что тренировать сегодня." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertige Pläne oder dein eigener. Das aktive Programm sagt dir, was du heute trainierst."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready-made plans or your own. The active program tells you what to train today."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gotowe plany lub własny. Aktywny program podpowiada, co trenować dziś."
+          }
+        }
+      }
+    },
     "Готовые программы или свои. Фиксируем каждый подход и вес, а графики показывают рост силы, объёма и рекордов — неделя за неделей." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -23844,6 +23146,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Podsumowanie ostatniego tygodnia"
+          }
+        }
+      }
+    },
+    "Далее" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weiter"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dalej"
           }
         }
       }
@@ -25862,6 +25187,29 @@
         }
       }
     },
+    "Добро пожаловать!" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome!"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Witaj!"
+          }
+        }
+      }
+    },
     "Дождись брифинга, потом спрашивай…" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -26048,6 +25396,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Przyjazny"
+          }
+        }
+      }
+    },
+    "Дыхание" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atmung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breathing"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oddech"
+          }
+        }
+      }
+    },
+    "Дыхание во сне" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atmung im Schlaf"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breathing during sleep"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oddech podczas snu"
           }
         }
       }
@@ -30618,6 +30012,29 @@
         }
       }
     },
+    "Как это считается" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie wird das berechnet"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How it's calculated"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak to obliczamy"
+          }
+        }
+      }
+    },
     "Какой вес ставить в следующий раз?" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -31231,6 +30648,29 @@
         }
       }
     },
+    "Кольца активности и калории" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktivitätsringe und Kalorien"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activity rings and calories"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pierścienie aktywności i kalorie"
+          }
+        }
+      }
+    },
     "Кольца активности на главном и в тренировке" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -31586,6 +31026,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Король добавок"
+          }
+        }
+      }
+    },
+    "Коротко покажу, где что находится. Это займёт 20 секунд." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich zeige dir kurz, wo was ist. Dauert 20 Sekunden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A quick look at where everything lives. Takes 20 seconds."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szybko pokażę, gdzie co jest. Zajmie to 20 sekund."
           }
         }
       }
@@ -36612,6 +36075,29 @@
         }
       }
     },
+    "Нет доступа к Apple Health" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Apple-Health-Zugriff"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Apple Health access"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak dostępu do Apple Health"
+          }
+        }
+      }
+    },
     "Нет завершенных тренировок" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -36909,6 +36395,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ani jednego treningu"
+          }
+        }
+      }
+    },
+    "ниже нормы" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unter Norm"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "below norm"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "poniżej normy"
           }
         }
       }
@@ -37255,6 +36764,29 @@
         }
       }
     },
+    "Новое: ежедневная оценка стресса по ВРС, пульсу покоя и сну с Apple Watch. Нажми на строку - там подробности за месяц." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neu: ein täglicher Stresswert aus HRV, Ruhepuls und Schlaf der Apple Watch. Tippe auf die Zeile für die Monatsdetails."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New: a daily stress score from HRV, resting heart rate and sleep via Apple Watch. Tap the row for the monthly detail."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowość: dzienna ocena stresu na podstawie HRV, tętna spoczynkowego i snu z Apple Watch. Dotknij wiersza, aby zobaczyć szczegóły z miesiąca."
+          }
+        }
+      }
+    },
     "Новые рекорды" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -37556,6 +37088,29 @@
         }
       }
     },
+    "нужен доступ к Apple Health" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple-Health-Zugriff erforderlich"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Health access required"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wymagany dostęp do Apple Health"
+          }
+        }
+      }
+    },
     "О приложении" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -37610,6 +37165,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Обзор"
+          }
+        }
+      }
+    },
+    "Обзор приложения" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Tour"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App tour"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przewodnik po aplikacji"
           }
         }
       }
@@ -39650,6 +39228,29 @@
         }
       }
     },
+    "оценка относительно вашей нормы за 30 дней" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bewertet anhand deiner 30-Tage-Norm"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rated against your own 30-day norm"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ocena względem Twojej 30-dniowej normy"
+          }
+        }
+      }
+    },
     "Очистить" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -41018,6 +40619,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Повышение уровня тестостерона"
+          }
+        }
+      }
+    },
+    "Повышенный" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erhöht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevated"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podwyższony"
           }
         }
       }
@@ -42564,6 +42188,29 @@
         }
       }
     },
+    "Пока недостаточно данных" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch nicht genug Daten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not enough data yet"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na razie za mało danych"
+          }
+        }
+      }
+    },
     "Пока нет рекордов" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -43278,6 +42925,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ostatnie 7 dni"
+          }
+        }
+      }
+    },
+    "Последние 30 дней" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte 30 Tage"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last 30 days"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnie 30 dni"
           }
         }
       }
@@ -44665,6 +44335,29 @@
         }
       }
     },
+    "Пройти тур по разделам заново" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tour durch die Bereiche wiederholen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replay the tour of the sections"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powtórz przewodnik po sekcjach"
+          }
+        }
+      }
+    },
     "Пролактин" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -44910,6 +44603,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Профиль восстановлен"
+          }
+        }
+      }
+    },
+    "Профиль и настройки" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil und Einstellungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile and settings"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil i ustawienia"
           }
         }
       }
@@ -45908,6 +45624,29 @@
         }
       }
     },
+    "Разделы приложения" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Bereiche"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App sections"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekcje aplikacji"
+          }
+        }
+      }
+    },
     "Раздражительность, ожидание проблем («ничего не делаю, пока не клюнет»), тревожный сон или сонливость, падение потребностей до уровня выживания." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -45991,6 +45730,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Разминка ходьбой (5 мин)"
+          }
+        }
+      }
+    },
+    "Разрешите доступ к Apple Health, чтобы оценивать уровень стресса по данным Apple Watch." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube den Zugriff auf Apple Health, um dein Stresslevel aus Apple-Watch-Daten zu ermitteln."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Apple Health access to estimate your stress level from Apple Watch data."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zezwól na dostęp do Apple Health, aby oceniać poziom stresu na podstawie danych Apple Watch."
           }
         }
       }
@@ -46188,6 +45950,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Рассчитать свою норму"
+          }
+        }
+      }
+    },
+    "Растёт" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steigend"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rising"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rośnie"
           }
         }
       }
@@ -47443,6 +47228,29 @@
         }
       }
     },
+    "С Apple Watch вы получите:" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit Apple Watch erhältst du:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With Apple Watch you get:"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Z Apple Watch otrzymujesz:"
+          }
+        }
+      }
+    },
     "С возвращением" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -47520,6 +47328,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "С разминкой"
+          }
+        }
+      }
+    },
+    "С часами BODY FORGE читает сигналы восстановления и показывает то, чего без них нет:" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit einer Uhr liest BODY FORGE Erholungssignale und zeigt, was ohne sie fehlt:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With a watch, BODY FORGE reads recovery signals and shows what isn't available without one:"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Z zegarkiem BODY FORGE odczytuje sygnały regeneracji i pokazuje to, czego bez niego nie ma:"
           }
         }
       }
@@ -50439,6 +50270,29 @@
         }
       }
     },
+    "собираем данные" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daten werden erfasst"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "collecting data"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "zbieranie danych"
+          }
+        }
+      }
+    },
     "Создает план тренировок, идеально подходящий под ваши цели." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -51221,6 +51075,29 @@
         }
       }
     },
+    "Спокойствие" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruhe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calm"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spokój"
+          }
+        }
+      }
+    },
     "Справочник" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -51379,6 +51256,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Спросить коуча"
+          }
+        }
+      }
+    },
+    "ср" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ø"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "avg"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "śr"
           }
         }
       }
@@ -51558,6 +51458,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Średnia z 30 dni"
+          }
+        }
+      }
+    },
+    "Среднее за месяц" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatsdurchschnitt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly average"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnia miesięczna"
           }
         }
       }
@@ -62967,6 +62890,29 @@
         }
       }
     },
+    "Стресс считается по ВРС, пульсу покоя и сну с Apple Watch. Носите часы, в том числе ночью - оценка появится за несколько дней." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Stress wird aus HRV, Ruhepuls und Schlaf der Apple Watch berechnet. Trage sie regelmäßig, auch nachts - nach einigen Tagen erscheint ein Wert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stress is calculated from HRV, resting heart rate and sleep recorded by Apple Watch. Wear it regularly, including at night, and a score will appear within a few days."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stres liczony jest na podstawie HRV, tętna spoczynkowego i snu z Apple Watch. Noś zegarek regularnie, także w nocy - ocena pojawi się po kilku dniach."
+          }
+        }
+      }
+    },
     "Строительный материал. 1.6 - 2.2 г на кг веса тела." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -64438,6 +64384,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "трен."
+          }
+        }
+      }
+    },
+    "Тренд" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend"
           }
         }
       }
@@ -67560,6 +67529,29 @@
         }
       }
     },
+    "Уровень стресса" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stresslevel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stress level"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poziom stresu"
+          }
+        }
+      }
+    },
     "Уровень упал" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -69232,6 +69224,52 @@
         }
       }
     },
+    "Что влияет" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einflussfaktoren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What's driving it"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co wpływa"
+          }
+        }
+      }
+    },
+    "Что даёт Apple Watch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Was Apple Watch bringt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What Apple Watch unlocks"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co daje Apple Watch"
+          }
+        }
+      }
+    },
     "Что мне улучшить в технике?" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -70083,6 +70121,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Эти вещества являются структурными компонентами хрящевой ткани. Они не обезболивают мгновенно (как НПВС), но питают хрящ и замедляют его разрушение. Эффективны в связке с МСМ (серой)."
+          }
+        }
+      }
+    },
+    "Это всё. Обзор можно пройти заново в настройках. Поехали ковать форму!" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das war's. Du kannst die Tour in den Einstellungen wiederholen. Auf geht's!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That's it. You can replay this tour from Settings. Let's forge!"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To wszystko. Tę wycieczkę można powtórzyć w ustawieniach. Do dzieła!"
           }
         }
       }

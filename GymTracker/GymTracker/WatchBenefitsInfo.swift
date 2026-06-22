@@ -55,6 +55,24 @@ struct WatchBenefitsList: View {
                     Spacer(minLength: 0)
                 }
             }
+
+            // These signals also feed the AI coach, not just the charts.
+            HStack(alignment: .top, spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(DesignSystem.Colors.accentPurple.opacity(0.16))
+                        .frame(width: 30, height: 30)
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(DesignSystem.Colors.accentPurple)
+                }
+                Text("Эти показатели анализирует и ИИ-тренер - и подстраивает под них рекомендации.".localized())
+                    .font(.system(.footnote, design: .rounded))
+                    .foregroundStyle(DesignSystem.Colors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+            }
+            .padding(.top, 2)
         }
     }
 }

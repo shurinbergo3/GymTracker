@@ -81,7 +81,6 @@ struct MeasurementsView: View {
                         // 4. Apple Health — единый блок: активность + восстановление (сон, пульс, энергия)
                         HealthStatsCard(lastWorkoutSession: completedSessions.first)
                             .id("tour_health")
-                            .tourAnchor(.appleHealth)
                             .padding(.horizontal, DesignSystem.Spacing.lg)
 
                         // Weight Tracker
@@ -126,7 +125,9 @@ struct MeasurementsView: View {
         guard tour.isActive, selectedTab == 3, tour.current?.scrollToHealth == true else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
             withAnimation(.easeInOut(duration: 0.4)) {
-                proxy.scrollTo("tour_health", anchor: .center)
+                // Align the card near the top so its header + stress row are
+                // visible (the card is taller than the viewport).
+                proxy.scrollTo("tour_health", anchor: .top)
             }
         }
     }

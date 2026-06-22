@@ -22,7 +22,7 @@ struct DayEditorView: View {
                 // Rest Timer Toggle
                 Toggle("Таймер отдыха".localized(), isOn: $day.restTimerEnabled)
                     .font(DesignSystem.Typography.body())
-                    .tint(DesignSystem.Colors.neonGreen)
+                    .toggleStyle(BrandToggleStyle())
                 
                 // Rest Time Picker (only if enabled)
                 if day.restTimerEnabled {

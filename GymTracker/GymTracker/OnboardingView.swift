@@ -267,11 +267,12 @@ private struct OnboardingPageView: View {
                     .reveal(active: isActive, order: 1)
 
                 Text(page.title.localized())
-                    .font(.system(size: 33, weight: .heavy, design: .rounded))
+                    .font(.system(size: 31, weight: .heavy, design: .rounded))
                     .tracking(0.5)
                     .foregroundColor(.white)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
                     .shadow(color: .black.opacity(0.5), radius: 12, x: 0, y: 4)
                     .reveal(active: isActive, order: 2)
 
@@ -280,6 +281,7 @@ private struct OnboardingPageView: View {
                     .foregroundColor(.white.opacity(0.82))
                     .multilineTextAlignment(.leading)
                     .lineSpacing(5)
+                    .fixedSize(horizontal: false, vertical: true)
                     .shadow(color: .black.opacity(0.45), radius: 8, x: 0, y: 2)
                     .reveal(active: isActive, order: 3)
             }
@@ -354,6 +356,7 @@ private struct OnboardingPageView: View {
                 .foregroundColor(.white)
                 .multilineTextAlignment(.leading)
                 .lineSpacing(2)
+                .fixedSize(horizontal: false, vertical: true)
                 .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 3)
 
             Text(page.subtitle.localized())
@@ -361,6 +364,7 @@ private struct OnboardingPageView: View {
                 .foregroundColor(.white.opacity(0.8))
                 .multilineTextAlignment(.leading)
                 .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
                 .shadow(color: .black.opacity(0.45), radius: 8, x: 0, y: 2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

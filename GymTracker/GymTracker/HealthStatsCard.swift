@@ -228,6 +228,7 @@ struct HealthStatsCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             header
+                .tourAnchor(.appleHealth)
 
             // Stress — personalised daily index (the headline recovery signal).
             // Hidden entirely for users without an Apple Watch: the score is
