@@ -22,14 +22,14 @@ enum TourAnchorID: Hashable {
     case stressRow
     case appleHealth
     case aiCoach
-    case tabBarAll          // the whole custom bottom bar
-    case tab(Int)           // a single tab button (0...3)
 }
 
 /// What a step highlights.
 enum TourSpot: Equatable {
     case center                 // no spotlight — a centered card
     case anchor(TourAnchorID)   // a real view, located via anchorPreference
+    case tabBar                 // the whole custom bottom bar (computed)
+    case tabItem(Int)           // a single tab button 0...3 (computed)
     case topTrailing            // the profile avatar in the nav bar (top-right)
 }
 
@@ -50,22 +50,22 @@ enum TourSteps {
             TourStep(tab: nil, scrollToHealth: false, spot: .center,
                      title: "Добро пожаловать!",
                      text: "Коротко покажу, где что находится. Это займёт 20 секунд."),
-            TourStep(tab: 0, scrollToHealth: false, spot: .anchor(.tabBarAll),
+            TourStep(tab: 0, scrollToHealth: false, spot: .tabBar,
                      title: "Разделы приложения",
                      text: "Внизу четыре вкладки: Тренировка, Программа, Справочник и Статистика. Листай их слева направо."),
-            TourStep(tab: 0, scrollToHealth: false, spot: .anchor(.tab(0)),
+            TourStep(tab: 0, scrollToHealth: false, spot: .tabItem(0),
                      title: "Тренировка",
                      text: "Активная тренировка: подходы, веса, таймер отдыха и пульс в реальном времени."),
             TourStep(tab: 0, scrollToHealth: false, spot: .anchor(.aiCoach),
                      title: "ИИ-тренер",
                      text: "Разбирает каждую тренировку, отвечает на вопросы и подсказывает, что менять. Нажми на карточку, чтобы открыть диалог."),
-            TourStep(tab: 1, scrollToHealth: false, spot: .anchor(.tab(1)),
+            TourStep(tab: 1, scrollToHealth: false, spot: .tabItem(1),
                      title: "Программа",
                      text: "Готовые планы или свой. Активная программа подсказывает, что тренировать сегодня."),
-            TourStep(tab: 2, scrollToHealth: false, spot: .anchor(.tab(2)),
+            TourStep(tab: 2, scrollToHealth: false, spot: .tabItem(2),
                      title: "Справочник",
                      text: "База упражнений с техникой и видео, плюс гайды по тренировкам, сну и питанию."),
-            TourStep(tab: 3, scrollToHealth: false, spot: .anchor(.tab(3)),
+            TourStep(tab: 3, scrollToHealth: false, spot: .tabItem(3),
                      title: "Статистика",
                      text: "Прогресс, замеры тела, графики и данные здоровья.")
         ]
@@ -190,7 +190,9 @@ struct TourOverlay: View {
 
     private var step: TourStep? { tour.current }
 
+    private static let tabCount = 4
     private static let tabBarContentHeight: CGFloat = 49
+    private static let tabBarTopPadding: CGFloat = 6
 
     /// Real device safe-area insets read from the key window. The overlay's
     /// GeometryReader ignores the safe area (so `proxy.size` is the true full
@@ -217,23 +219,28 @@ struct TourOverlay: View {
             return nil
         case .anchor(let id):
             guard let a = anchors[id] else { return nil }   // graceful: centered
-            let raw = proxy[a]
-            switch id {
-            case .tabBarAll:
-                // The whole bar — exact bounds, no clamp (it lives below the
-                // content's bottom limit).
-                return raw
-            case .tab:
-                // Hug the real tab button — pixel-accurate, no content clamp.
-                return raw.insetBy(dx: -2, dy: -2)
-            default:
-                // Content-area card: pad a little, then clamp to the visible
-                // area so a tall card never produces a ring that runs off-screen.
-                let r = raw.insetBy(dx: -10, dy: -10)
-                let top = max(r.minY, insets.top + 8)
-                let bottom = min(r.maxY, tabBarTop - 8)
-                return CGRect(x: r.minX, y: top, width: r.width, height: max(0, bottom - top))
-            }
+            // Content-area card: pad a little, then clamp to the visible area so
+            // a tall card never produces a ring that runs off-screen.
+            let r = proxy[a].insetBy(dx: -10, dy: -10)
+            let top = max(r.minY, insets.top + 8)
+            let bottom = min(r.maxY, tabBarTop - 8)
+            return CGRect(x: r.minX, y: top, width: r.width, height: max(0, bottom - top))
+        case .tabBar:
+            // We render the bar ourselves, so its geometry is known exactly: the
+            // content band sits on the safe-area bottom edge, full width.
+            let top = proxy.size.height - insets.bottom - Self.tabBarContentHeight - Self.tabBarTopPadding
+            return CGRect(x: 8, y: top, width: proxy.size.width - 16,
+                          height: proxy.size.height - top)
+        case .tabItem(let i):
+            // Our bar is an HStack of 4 equal slots; each item's centre is
+            // width·(i+0.5)/4, vertically centred in the 49pt content band.
+            let slot = proxy.size.width / CGFloat(Self.tabCount)
+            let centerX = slot * (CGFloat(i) + 0.5)
+            let centerY = proxy.size.height - insets.bottom - Self.tabBarContentHeight / 2
+            let w = min(slot - 14, 92)
+            let h: CGFloat = 52
+            let x = min(max(6, centerX - w / 2), proxy.size.width - w - 6)
+            return CGRect(x: x, y: centerY - h / 2, width: w, height: h)
         case .topTrailing:
             // The profile avatar sits in the nav bar trailing slot, top-right.
             let size: CGFloat = 54
@@ -247,8 +254,8 @@ struct TourOverlay: View {
         guard let spot = step?.spot else { return 16 }
         switch spot {
         case .topTrailing: return 27
-        case .anchor(.tabBarAll): return 22
-        case .anchor: return 18
+        case .tabBar: return 22
+        case .anchor, .tabItem: return 18
         case .center: return 16
         }
     }

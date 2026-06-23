@@ -114,7 +114,6 @@ private struct TourTabBar: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .tourAnchor(.tab(item.tag))
                 .accessibilityIdentifier(item.id)
             }
         }
@@ -131,7 +130,6 @@ private struct TourTabBar: View {
                 .fill(Color.white.opacity(0.08))
                 .frame(height: 0.5)
         }
-        .tourAnchor(.tabBarAll)
     }
 }
 
