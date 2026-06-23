@@ -103,7 +103,12 @@ enum MorningReadinessNudgeService {
         let hour = Calendar.current.component(.hour, from: now)
         guard hour >= morningStartHour, hour < morningEndHour else { return false }
 
-        // Recovery has to look genuinely great.
+        // Recovery has to look genuinely great. On a cold background relaunch the
+        // in-memory auth flag is false even though the system grant persists —
+        // re-establish it (no UI can appear in the background) before reading.
+        if !HealthManager.shared.isAuthorized {
+            _ = await HealthManager.shared.requestAuthorization()
+        }
         guard HealthManager.shared.isAuthorized else { return false }
         let report = await StressService.shared.loadReport(days: 30)
         guard report.hasData, let headline = report.headline else { return false }

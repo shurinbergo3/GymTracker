@@ -824,6 +824,7 @@ struct DashboardView: View {
                     lastSession: recentHistory.first,
                     previousSession: previousSession
                 )
+                .tourAnchor(.aiCoach)
                 .padding(.horizontal, DesignSystem.Spacing.lg)
 
                 // Кольца активности — отдельной секцией. Показываются всегда,

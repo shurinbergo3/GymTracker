@@ -43978,6 +43978,35 @@
         }
       }
     },
+    "Прогресс, замеры тела, графики и данные здоровья.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortschritt, Körpermaße, Diagramme und Gesundheitsdaten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress, body measurements, charts and health data."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postępy, pomiary ciała, wykresy i dane zdrowotne."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогресс, замеры тела, графики и данные здоровья."
+          }
+        }
+      }
+    },
     "Прогресс и награды": {
       "extractionState": "manual",
       "localizations": {
@@ -70539,6 +70568,110 @@
           "stringUnit": {
             "state": "translated",
             "value": "Im App Store bewerten"
+          }
+        }
+      }
+    },
+    "Отличное утро для зала": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein toller Morgen fürs Training"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A great morning to train"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Świetny poranek na trening"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отличное утро для зала"
+          }
+        }
+      }
+    },
+    "Ты отлично восстановился: сон в норме, сил полно. Сегодня - идеальный день размяться.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du bist top erholt: guter Schlaf, viel Energie. Heute ist ein perfekter Tag fürs Training."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're fully recovered: solid sleep, plenty of energy. Today's a perfect day to move."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Świetnie się zregenerowałeś: sen w normie, sił pod dostatkiem. Dziś idealny dzień na trening."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ты отлично восстановился: сон в норме, сил полно. Сегодня - идеальный день размяться."
+          }
+        }
+      }
+    },
+    "ИИ-тренер": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Coach"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI coach"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trener AI"
+          }
+        }
+      }
+    },
+    "Разбирает каждую тренировку, отвечает на вопросы и подсказывает, что менять. Нажми на карточку, чтобы открыть диалог.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wertet jedes Training aus, beantwortet Fragen und schlägt vor, was du ändern solltest. Tippe auf die Karte, um den Chat zu öffnen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reviews every workout, answers your questions and suggests what to change. Tap the card to open the chat."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analizuje każdy trening, odpowiada na pytania i podpowiada, co zmienić. Dotknij karty, aby otworzyć czat."
           }
         }
       }

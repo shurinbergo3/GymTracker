@@ -58,6 +58,7 @@ struct ContentView: View {
             GeometryReader { proxy in
                 TourOverlay(tour: tour, anchors: anchors, proxy: proxy)
             }
+            .ignoresSafeArea()
             .allowsHitTesting(tour.isActive)
         }
         .onChange(of: tour.index) { _, _ in syncTourTab() }
