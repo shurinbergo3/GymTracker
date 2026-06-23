@@ -865,28 +865,21 @@ class WorkoutManager: ObservableObject {
         // Final save just in case
         try? modelContext.save()
 
-        // Re-schedule decay warnings off the just-finished session.
+        // Re-schedule comeback reminders off the just-finished session.
         let descriptor = FetchDescriptor<WorkoutSession>(
             predicate: #Predicate { $0.isCompleted == true },
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
         let completed = (try? modelContext.fetch(descriptor)) ?? []
         if let latest = completed.first {
-            let peak = GamificationCalculator.peakLevel(totalWorkouts: completed.count)
-            InactivityNotificationService.rescheduleDecayWarnings(
-                lastWorkoutDate: latest.date,
-                peakLevel: peak
-            )
+            InactivityNotificationService.rescheduleComebackReminders(lastWorkoutDate: latest.date)
         }
 
-        // AI-coach pushes: smart reminder + recovery alert + streak celebration.
+        // AI-coach pushes: smart reminder + streak celebration. (Recovery is
+        // handled by MorningReadinessNudgeService's morning check.)
         let ctx = modelContext
-        let healthMgr = healthProvider as? HealthManager
         Task { @MainActor in
             await AICoachNotificationService.rescheduleSmartReminder(modelContext: ctx)
-            if let h = healthMgr {
-                await AICoachNotificationService.rescheduleRecoveryAlertIfNeeded(healthManager: h)
-            }
             let days = AICoachNotificationService.currentStreakDays(modelContext: ctx)
             await AICoachNotificationService.celebrateStreakIfMilestone(streakDays: days)
         }

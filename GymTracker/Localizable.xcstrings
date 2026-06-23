@@ -70675,6 +70675,138 @@
           }
         }
       }
+    },
+    "Давно не виделись": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lange nicht gesehen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long time no see"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dawno cię nie było"
+          }
+        }
+      }
+    },
+    "Несколько дней без зала. Лёгкая тренировка - и ты снова в ритме.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein paar Tage ohne Training. Eine lockere Einheit und du bist zurück im Rhythmus."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A few days off the gym. One easy session and you're back in rhythm."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kilka dni bez treningu. Jeden lekki trening i wracasz do rytmu."
+          }
+        }
+      }
+    },
+    "Пора вернуться": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeit zurückzukommen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time to come back"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Czas wrócić"
+          }
+        }
+      }
+    },
+    "Больше недели без тренировок. Начни с малого - тело быстро вспомнит форму.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über eine Woche ohne Training. Fang klein an - dein Körper erinnert sich schnell."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Over a week without training. Start small - your body remembers fast."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponad tydzień bez treningu. Zacznij od małego - ciało szybko sobie przypomni."
+          }
+        }
+      }
+    },
+    "Сегодня - полегче": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heute ruhig angehen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take it easy today"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dziś na spokojnie"
+          }
+        }
+      }
+    },
+    "Восстановление просело: дай телу передышку. Лёгкая сессия или отдых - и завтра вернёшься сильнее.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erholung gesunken - gönn deinem Körper eine Pause. Leicht trainieren oder ruhen, morgen kommst du stärker zurück."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery dipped - give your body a break. Go light or rest, and come back stronger tomorrow."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regeneracja spadła - daj ciału odpocząć. Lekki trening lub przerwa, a jutro wrócisz silniejszy."
+          }
+        }
+      }
     }
   },
   "version": "1.1"

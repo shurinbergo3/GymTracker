@@ -15,11 +15,20 @@ enum InactivityNotificationService {
     private static let identifier = "inactivity_reminder_v1"
     private static let inactivityDays = 7
 
-    // Decay warnings — fire relative to last workout date, aligned with gamification phases.
-    private static let decayWarningIDs = [
-        "decay_warning_form_v1",   // day 3 — "форма начинает падать"
-        "decay_warning_xp_v1",     // day 8 — "XP теряется быстрее, уровень под угрозой"
-        "decay_warning_level_v1"   // day 14 — "уровень падает, спаси свой пик"
+    // Gentle comeback reminders — fire relative to last workout date. Two soft
+    // nudges, no XP/level guilt-tripping (the old escalating "decay" scheme).
+    private static let comebackIDs = [
+        "comeback_reminder_1_v1",  // day 4 — "давно не виделись"
+        "comeback_reminder_2_v1"   // day 11 — "пора вернуться"
+    ]
+
+    // Legacy IDs from the removed escalating decay-warning scheme. We still
+    // cancel them on every reschedule so anything queued by an older build
+    // gets cleared instead of firing.
+    private static let legacyDecayIDs = [
+        "decay_warning_form_v1",
+        "decay_warning_xp_v1",
+        "decay_warning_level_v1"
     ]
 
     /// Request notification permission silently. Safe to call repeatedly.
@@ -77,14 +86,15 @@ enum InactivityNotificationService {
             .removePendingNotificationRequests(withIdentifiers: [identifier])
     }
 
-    // MARK: - Decay warnings
+    // MARK: - Comeback reminders
 
-    /// Schedules 3 decay-warning notifications relative to the last workout date.
+    /// Schedules two gentle comeback reminders relative to the last workout date.
     /// Call this on workout completion AND on app foreground to keep timings fresh.
-    /// `peakLevel` is used to personalise the third (level-loss) warning.
-    static func rescheduleDecayWarnings(lastWorkoutDate: Date?, peakLevel: Int) {
+    /// Supportive tone, no level/XP punishment — re-scheduling clears anything
+    /// already pending so the user never gets a stale pile-up.
+    static func rescheduleComebackReminders(lastWorkoutDate: Date?) {
         let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: decayWarningIDs)
+        center.removePendingNotificationRequests(withIdentifiers: comebackIDs + legacyDecayIDs)
 
         guard let last = lastWorkoutDate else { return }
 
@@ -97,28 +107,18 @@ enum InactivityNotificationService {
             let day: TimeInterval = 24 * 60 * 60
 
             schedule(
-                id: decayWarningIDs[0],
-                fireAt: last.addingTimeInterval(day * 3),
-                title: "Форма начинает падать".localized(),
-                body: "Третий день без зала. XP пошёл вниз — одна тренировка вернёт пик.".localized(),
+                id: comebackIDs[0],
+                fireAt: last.addingTimeInterval(day * 4),
+                title: "Давно не виделись".localized(),
+                body: "Несколько дней без зала. Лёгкая тренировка - и ты снова в ритме.".localized(),
                 now: now
             )
 
             schedule(
-                id: decayWarningIDs[1],
-                fireAt: last.addingTimeInterval(day * 8),
-                title: "Уровень под угрозой".localized(),
-                body: "Неделя без тренировок. Скоро потеряешь уровень — приходи в зал.".localized(),
-                now: now
-            )
-
-            schedule(
-                id: decayWarningIDs[2],
-                fireAt: last.addingTimeInterval(day * 14),
-                title: "Уровень упал".localized(),
-                body: peakLevel > 1
-                    ? String(format: "Сохраним «ПИК %lld» как трофей. Возвращайся — и заберёшь уровень обратно.".localized(), peakLevel)
-                    : "Тело начинает терять адаптацию. Возвращайся в зал.".localized(),
+                id: comebackIDs[1],
+                fireAt: last.addingTimeInterval(day * 11),
+                title: "Пора вернуться".localized(),
+                body: "Больше недели без тренировок. Начни с малого - тело быстро вспомнит форму.".localized(),
                 now: now
             )
         }

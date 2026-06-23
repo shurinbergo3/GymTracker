@@ -4,14 +4,18 @@
 //
 //  AI-coach driven local notifications.
 //
-//  Three classes of pushes live here:
+//  Pushes that live here:
 //  • Smart workout reminders — based on the user's typical training time, fire
 //    a "ready when you are" nudge ~30 min before. Predicted from the last 14
 //    days of WorkoutSession data; if there's no pattern yet we stay silent.
-//  • Recovery alerts — when HealthKit signals poor recovery (low HRV vs
-//    baseline, short sleep), suggest a lighter day or rest tomorrow morning.
 //  • Streak-milestone celebrations — fired right after a workout that lands
 //    on a 5/10/20/50/100-day streak number.
+//  • Weekly wrapped — the Sunday-evening recap reminder.
+//
+//  Recovery alerts (the "go light today" morning push) live in
+//  MorningReadinessNudgeService instead: they belong with the green morning
+//  nudge so the two share the readiness gate, the morning window, and one
+//  frequency cap rather than firing a guessed "tomorrow 9 AM" alert from here.
 //
 //  Everything respects the master switch `aiCoach.pushEnabled` (Settings →
 //  AI Coach → "Push-уведомления от ИИ"). When the user disables it, all
@@ -34,7 +38,6 @@ enum AICoachNotificationService {
     // MARK: - IDs (stable so re-scheduling is idempotent)
 
     private static let smartReminderID = "ai.coach.smartReminder.v1"
-    private static let recoveryAlertID = "ai.coach.recoveryAlert.v1"
     private static let weeklyWrappedID = "ai.coach.weeklyWrapped.v1"
     /// Every streak-milestone notification gets a unique ID per milestone so
     /// we don't overwrite a still-pending one and so the user sees each.
@@ -106,32 +109,6 @@ enum AICoachNotificationService {
         try? await center.add(request)
     }
 
-    /// If recovery looks poor (short sleep last night OR HRV below 0.85× baseline),
-    /// queue a friendly "go light today" push for tomorrow ~9 AM. Idempotent.
-    static func rescheduleRecoveryAlertIfNeeded(healthManager: HealthManager) async {
-        let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: [recoveryAlertID])
-
-        guard await canPostAsync() else { return }
-        guard let signal = await fetchPoorRecoverySignal(healthManager: healthManager) else { return }
-
-        let cal = Calendar.current
-        var comps = cal.dateComponents([.year, .month, .day], from: Date().addingTimeInterval(8 * 3600))
-        comps.hour = 9
-        comps.minute = 0
-        guard let fire = cal.date(from: comps), fire > Date().addingTimeInterval(60) else { return }
-
-        let content = UNMutableNotificationContent()
-        content.title = "Сегодня — на лёгком".localized()
-        content.body = signal
-        content.sound = .default
-        content.categoryIdentifier = "ai_coach_recovery"
-
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: fire.timeIntervalSinceNow, repeats: false)
-        let request = UNNotificationRequest(identifier: recoveryAlertID, content: content, trigger: trigger)
-        try? await center.add(request)
-    }
-
     /// Fire a delayed celebratory push if the just-completed workout pushed the
     /// user onto a milestone streak number. Pushes 30 s out so the in-app
     /// summary screen is seen first, then the notification reinforces it.
@@ -200,32 +177,6 @@ enum AICoachNotificationService {
                 return (fireAt, dayName)
             }
         }
-        return nil
-    }
-
-    /// Returns a localized recovery hint if the user's last night looks bad.
-    /// Reads sleep + HRV via HealthManager. Returns nil if signals are normal
-    /// or unavailable (we don't push when uncertain).
-    private static func fetchPoorRecoverySignal(healthManager: HealthManager) async -> String? {
-        // We deliberately don't add new HealthKit reads here — instead we look
-        // for documented helpers on HealthManager. If they don't exist, this
-        // path stays silent. Wire them in incrementally.
-        // Default heuristic: derive purely from `restingHeartRate` jumps.
-        if let rhr = await fetchRestingHRDelta(healthManager: healthManager), rhr.elevatedBpm >= 5 {
-            return String(format: "Пульс покоя выше нормы на %d уд/мин — поспи лишний час и убавь интенсивность.".localized(),
-                          rhr.elevatedBpm)
-        }
-        return nil
-    }
-
-    private struct RHRSignal { let elevatedBpm: Int }
-
-    /// Best-effort: compares last RHR to a 14-day baseline, returns elevation.
-    private static func fetchRestingHRDelta(healthManager: HealthManager) async -> RHRSignal? {
-        // The current HealthManager doesn't yet surface RHR baseline as a
-        // single helper — return nil for now and revisit when we extend it.
-        // We keep the entry point so the alert wiring is already in place.
-        _ = healthManager
         return nil
     }
 

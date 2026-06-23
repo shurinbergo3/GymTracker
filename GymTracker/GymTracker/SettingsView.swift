@@ -585,9 +585,6 @@ struct SettingsView: View {
                             let ctx = modelContext
                             Task { @MainActor in
                                 await AICoachNotificationService.rescheduleSmartReminder(modelContext: ctx)
-                                await AICoachNotificationService.rescheduleRecoveryAlertIfNeeded(
-                                    healthManager: HealthManager.shared
-                                )
                                 await AICoachNotificationService.rescheduleWeeklyWrappedPush()
                             }
                             MorningReadinessNudgeService.scheduleNext()

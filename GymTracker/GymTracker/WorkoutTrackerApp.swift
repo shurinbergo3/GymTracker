@@ -200,9 +200,6 @@ struct WorkoutTrackerApp: App {
                     let ctx = sharedModelContainer.mainContext
                     Task { @MainActor in
                         await AICoachNotificationService.rescheduleSmartReminder(modelContext: ctx)
-                        await AICoachNotificationService.rescheduleRecoveryAlertIfNeeded(
-                            healthManager: HealthManager.shared
-                        )
                         await AICoachNotificationService.rescheduleWeeklyWrappedPush()
                     }
                     MorningReadinessNudgeService.scheduleNext()
@@ -216,7 +213,7 @@ struct WorkoutTrackerApp: App {
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     InactivityNotificationService.rescheduleOnAppOpen()
-                    rescheduleDecayWarningsFromLatestSession()
+                    rescheduleComebackRemindersFromLatestSession()
                 } else if newPhase == .background {
                     // Queue the next morning-readiness background check.
                     MorningReadinessNudgeService.scheduleNext()
@@ -225,9 +222,9 @@ struct WorkoutTrackerApp: App {
         }
     }
     
-    /// Reads the most-recent completed session and re-schedules decay warnings.
+    /// Reads the most-recent completed session and re-schedules comeback reminders.
     /// Called on app foreground so notifications stay aligned with real workout history.
-    private func rescheduleDecayWarningsFromLatestSession() {
+    private func rescheduleComebackRemindersFromLatestSession() {
         let context = sharedModelContainer.mainContext
         var descriptor = FetchDescriptor<WorkoutSession>(
             predicate: #Predicate { $0.isCompleted == true },
@@ -235,21 +232,8 @@ struct WorkoutTrackerApp: App {
         )
         descriptor.fetchLimit = 1
 
-        guard let latest = try? context.fetch(descriptor).first else {
-            InactivityNotificationService.rescheduleDecayWarnings(lastWorkoutDate: nil, peakLevel: 1)
-            return
-        }
-
-        let countDescriptor = FetchDescriptor<WorkoutSession>(
-            predicate: #Predicate { $0.isCompleted == true }
-        )
-        let total = (try? context.fetchCount(countDescriptor)) ?? 0
-        let peak = GamificationCalculator.peakLevel(totalWorkouts: total)
-
-        InactivityNotificationService.rescheduleDecayWarnings(
-            lastWorkoutDate: latest.date,
-            peakLevel: peak
-        )
+        let latest = try? context.fetch(descriptor).first
+        InactivityNotificationService.rescheduleComebackReminders(lastWorkoutDate: latest?.date)
     }
 
     // checkAuthStatus() удалён — splash теперь снимается через `.task` с фиксированным
