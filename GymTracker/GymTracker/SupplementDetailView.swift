@@ -20,22 +20,44 @@ struct SupplementDetailView: View {
                 VStack(spacing: 0) {
                     // Header Image Area
                     ZStack {
+                        // Тематическое фото подложкой. Грузится по сети,
+                        // без интернета остаётся чистый градиент.
+                        AsyncImage(
+                            url: supplement.headerImageURL,
+                            transaction: Transaction(animation: .easeIn(duration: 0.45))
+                        ) { phase in
+                            if let image = phase.image {
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .saturation(0.55)
+                            } else {
+                                Color.clear
+                            }
+                        }
+                        .frame(height: 250)
+                        .clipped()
+                        .opacity(0.5)
+
+                        // Бренд-градиент поверх фото: зелёный налёт сверху → чёрный снизу
                         LinearGradient(
                             colors: [
-                                DesignSystem.Colors.accent.opacity(0.3),
+                                DesignSystem.Colors.accent.opacity(0.28),
+                                DesignSystem.Colors.background.opacity(0.6),
                                 DesignSystem.Colors.background
                             ],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                         .frame(height: 250)
-                        
+
                         Image(systemName: supplement.icon)
                             .font(.system(size: 80))
                             .foregroundColor(DesignSystem.Colors.accent)
                             .shadow(color: DesignSystem.Colors.accent.opacity(0.5), radius: 20, x: 0, y: 0)
                     }
                     .frame(height: 200)
+                    .clipped()
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
                         // Title Section

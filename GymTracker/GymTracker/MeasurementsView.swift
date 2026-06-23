@@ -93,6 +93,10 @@ struct MeasurementsView: View {
                         }
                         .buttonStyle(PlainButtonStyle())
                         .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                        // Bottom breathing room so the last card clears the tab bar
+                        // (otherwise it stays pinned under it and can't scroll fully into view).
+                        Spacer().frame(height: 100)
                     }
                 }
                 .onChange(of: tour.index) { _, _ in scrollForTour(scrollProxy) }

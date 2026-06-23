@@ -181,7 +181,8 @@ struct AICoachWidget: View {
             Text(insight.text)
                 .font(DesignSystem.Typography.body())
                 .foregroundStyle(DesignSystem.Colors.primaryText)
-                .lineLimit(5)
+                .lineLimit(3)
+                .truncationMode(.tail)
                 .fixedSize(horizontal: false, vertical: true)
         } else {
             Text("Открой чат, чтобы получить разбор.".localized())

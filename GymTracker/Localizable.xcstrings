@@ -70807,6 +70807,28 @@
           }
         }
       }
+    },
+    "под угрозой": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gefährdet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "at risk"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zagrożona"
+          }
+        }
+      }
     }
   },
   "version": "1.1"

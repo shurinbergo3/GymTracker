@@ -118,17 +118,29 @@ private struct TourTabBar: View {
             }
         }
         .padding(.top, 6)
-        .background(
-            ZStack {
-                Rectangle().fill(.ultraThinMaterial)
-                Rectangle().fill(DesignSystem.Colors.background.opacity(0.55))
-            }
-            .ignoresSafeArea(edges: .bottom)
-        )
+        .background(barBackground)
         .overlay(alignment: .top) {
             Rectangle()
                 .fill(Color.white.opacity(0.08))
                 .frame(height: 0.5)
+        }
+    }
+
+    /// On iOS 26 the bar rides on real Liquid Glass; older systems fall back to a
+    /// plain translucent material. The previous build stacked an opaque dark layer
+    /// over the material, which flattened the bar into solid black and killed the
+    /// glass entirely.
+    @ViewBuilder
+    private var barBackground: some View {
+        if #available(iOS 26.0, *) {
+            Rectangle()
+                .fill(Color.clear)
+                .glassEffect(.regular, in: Rectangle())
+                .ignoresSafeArea(edges: .bottom)
+        } else {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea(edges: .bottom)
         }
     }
 }

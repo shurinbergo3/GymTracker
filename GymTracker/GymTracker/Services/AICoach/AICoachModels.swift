@@ -119,22 +119,24 @@ enum AICoachStyle: String, CaseIterable, Identifiable, Codable {
 
     var id: String { rawValue }
 
-    /// Short user-facing label (Russian source — String Catalog will localise).
-    var titleKey: LocalizedStringKey {
+    /// Short user-facing label. Resolved through `.localized()` so it follows the
+    /// in-app language picker (a raw `LocalizedStringKey` would only track the
+    /// system locale and leave these stuck on Russian).
+    var title: String {
         switch self {
-        case .strict:    return "Жёсткий"
-        case .friendly:  return "Дружелюбный"
-        case .technical: return "Технарь"
-        case .motivator: return "Мотиватор"
+        case .strict:    return "Жёсткий".localized()
+        case .friendly:  return "Дружелюбный".localized()
+        case .technical: return "Технарь".localized()
+        case .motivator: return "Мотиватор".localized()
         }
     }
 
-    var subtitleKey: LocalizedStringKey {
+    var subtitle: String {
         switch self {
-        case .strict:    return "Без сантиментов. Ты не на отдыхе."
-        case .friendly:  return "Поддержка и спокойный тон."
-        case .technical: return "Цифры, биомеханика, RPE."
-        case .motivator: return "Эмоции и энергия. Поджигает."
+        case .strict:    return "Без сантиментов. Ты не на отдыхе.".localized()
+        case .friendly:  return "Поддержка и спокойный тон.".localized()
+        case .technical: return "Цифры, биомеханика, RPE.".localized()
+        case .motivator: return "Эмоции и энергия. Поджигает.".localized()
         }
     }
 

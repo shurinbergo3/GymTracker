@@ -207,6 +207,9 @@ struct AICoachChatSheet: View {
             Spacer(minLength: 0)
         }
         .padding(DesignSystem.Spacing.md)
+        // Clip only the background gradient to rounded corners — clipping the whole
+        // banner would chop the avatar's breathing glow and leave the icon looking
+        // half-drawn at the left edge.
         .background(
             ZStack {
                 LinearGradient(
@@ -219,6 +222,7 @@ struct AICoachChatSheet: View {
                     center: .bottomTrailing, startRadius: 4, endRadius: 220
                 )
             }
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
         )
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
@@ -231,7 +235,6 @@ struct AICoachChatSheet: View {
                     lineWidth: 0.75
                 )
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
     }
 
     private var emptyHint: some View {

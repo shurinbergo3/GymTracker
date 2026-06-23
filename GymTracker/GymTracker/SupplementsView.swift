@@ -21,6 +21,31 @@ struct Supplement: Identifiable {
     let warning: String?
 }
 
+extension Supplement {
+    // Тематическое фото для шапки. Грузится по сети; без интернета остаётся просто градиент.
+    var headerImageURL: URL? {
+        let photoID: String
+        switch name {
+        case "Креатин Моногидрат":        photoID = "photo-1517836357463-d25dfeac3438" // становая, энергия
+        case "Магний":                    photoID = "photo-1559757175-5700dde675bc"     // мозг + нейрон
+        case "Витамин D3 + K2":           photoID = "photo-1518495973542-4542c06a5843" // дерево в лучах солнца
+        case "Тонгат Али":                photoID = "photo-1581009146145-b5ef050c2e1e" // сила / тестостерон
+        case "Цинк":                      photoID = "photo-1628595351029-c2bf17511435" // ДНК-спираль
+        case "Бор":                       photoID = "photo-1532187863486-abf9dbad1b69" // лаборатория
+        case "DIM / Индол":               photoID = "photo-1610970881699-44a5587cabec" // зелёные овощи
+        case "Vitex (Витекс)":            photoID = "photo-1635776062127-d379bfcba9f8" // спокойный градиент
+        case "GABA (ГАМК)":               photoID = "photo-1635776062127-d379bfcba9f8" // релакс
+        case "Инозитол":                  photoID = "photo-1628595351029-c2bf17511435" // клеточный сигналинг
+        case "Глютамин":                  photoID = "photo-1576086213369-97a306d36557" // клетки / иммунитет
+        case "Цитруллин (& Аргинин)":     photoID = "photo-1530026405186-ed1f139313f8" // сердце / памп
+        case "Хондроитин и Глюкозамин":   photoID = "photo-1583454110551-21f2fa2afe61" // суставы под нагрузкой
+        case "Whey Protein":              photoID = "photo-1610970881699-44a5587cabec" // шейк
+        default:                          photoID = "photo-1532187863486-abf9dbad1b69"
+        }
+        return URL(string: "https://images.unsplash.com/\(photoID)?w=900&q=70&auto=format&fit=crop")
+    }
+}
+
 struct SupplementsView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var languageManager = LanguageManager.shared

@@ -626,7 +626,7 @@ struct SettingsView: View {
                     UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                 } label: {
                     Label {
-                        Text(style.titleKey)
+                        Text(style.title)
                     } icon: {
                         if style == current {
                             Image(systemName: "checkmark")
@@ -642,20 +642,11 @@ struct SettingsView: View {
                 iconTint: DesignSystem.Colors.neonGreen,
                 iconBackground: DesignSystem.Colors.neonGreen.opacity(0.18),
                 title: "Стиль коуча".localized(),
-                subtitle: localizedTitle(for: current),
+                subtitle: current.title,
                 accessory: .text(current.emoji)
             )
         }
         .buttonStyle(.plain)
-    }
-
-    private func localizedTitle(for style: AICoachStyle) -> String {
-        switch style {
-        case .strict:    return "Жёсткий".localized()
-        case .friendly:  return "Дружелюбный".localized()
-        case .technical: return "Технарь".localized()
-        case .motivator: return "Мотиватор".localized()
-        }
     }
 
     private var appInfoSection: some View {

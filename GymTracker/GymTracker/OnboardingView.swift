@@ -432,10 +432,10 @@ private struct StyleRow: View {
                 )
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(style.titleKey)
+                Text(style.title)
                     .font(.system(.headline, design: .rounded, weight: .semibold))
                     .foregroundStyle(.white)
-                Text(style.subtitleKey)
+                Text(style.subtitle)
                     .font(.system(.footnote, design: .rounded))
                     .foregroundStyle(.white.opacity(0.65))
                     .lineLimit(2)
