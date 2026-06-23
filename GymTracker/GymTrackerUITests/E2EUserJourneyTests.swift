@@ -76,8 +76,7 @@ final class E2EUserJourneyTests: XCTestCase {
         XCTAssertTrue(app.wait(for: .notRunning, timeout: 5))
         app.launch()
 
-        let tabBarAfterRelaunch = app.descendants(matching: .any)
-            .matching(identifier: ID.tabBar).firstMatch
+        let tabBarAfterRelaunch = app.tabBars.firstMatch
         XCTAssertTrue(
             tabBarAfterRelaunch.waitForExistence(timeout: 15),
             "Login state must persist across relaunches"
@@ -87,19 +86,27 @@ final class E2EUserJourneyTests: XCTestCase {
 
     // MARK: - Steps
 
+    /// The native tab bar buttons are addressed by index (their accessibility
+    /// label is localized, so matching by position is language-independent).
+    /// Tab order: 0 Workout · 1 Program · 2 Reference · 3 Stats.
+    @MainActor
+    private func tabButton(_ index: Int) -> XCUIElement {
+        app.tabBars.firstMatch.buttons.element(boundBy: index)
+    }
+
     @MainActor
     private func walkAllTabs() throws {
-        let order: [(id: String, screenshot: String)] = [
-            (ID.tabProgram,   "tab_program"),
-            (ID.tabReference, "tab_reference"),
-            (ID.tabStats,     "tab_stats"),
-            (ID.tabWorkout,   "tab_workout"),
+        let order: [(index: Int, screenshot: String)] = [
+            (1, "tab_program"),
+            (2, "tab_reference"),
+            (3, "tab_stats"),
+            (0, "tab_workout"),
         ]
 
         for step in order {
-            let tab = app.buttons.matching(identifier: step.id).firstMatch
+            let tab = tabButton(step.index)
             guard tab.waitForExistence(timeout: 5) else {
-                XCTFail("Tab \(step.id) did not appear")
+                XCTFail("Tab \(step.index) did not appear")
                 continue
             }
             tab.tap()
@@ -108,7 +115,7 @@ final class E2EUserJourneyTests: XCTestCase {
             let firstScroll = app.scrollViews.firstMatch
             XCTAssertTrue(
                 firstScroll.waitForExistence(timeout: 5),
-                "Tab \(step.id) did not render scrollable content"
+                "Tab \(step.index) did not render scrollable content"
             )
             attachScreenshot(name: step.screenshot)
         }
@@ -116,7 +123,7 @@ final class E2EUserJourneyTests: XCTestCase {
 
     @MainActor
     private func startWorkoutFlow() throws {
-        let workoutTab = app.buttons.matching(identifier: ID.tabWorkout).firstMatch
+        let workoutTab = tabButton(0)
         if workoutTab.exists { workoutTab.tap() }
 
         let startButton = app.buttons.matching(identifier: ID.startWorkout).firstMatch

@@ -70,14 +70,12 @@ struct AICoachChatSheet: View {
                     }
                 }
             }
-            .navigationTitle("AI Coach".localized())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "sparkles")
-                            .foregroundStyle(DesignSystem.Colors.neonGreen)
-                        Text("Персональный коуч".localized())
+                    HStack(spacing: 8) {
+                        AICoachAvatar(size: 26)
+                        Text("AI Coach".localized())
                             .font(DesignSystem.Typography.headline())
                             .foregroundStyle(DesignSystem.Colors.primaryText)
                     }

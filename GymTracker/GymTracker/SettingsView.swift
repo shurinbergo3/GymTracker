@@ -47,13 +47,6 @@ struct SettingsView: View {
         Auth.auth().currentUser?.email
     }
 
-    private var userInitial: String {
-        if let email = userEmail, let first = email.first {
-            return String(first).uppercased()
-        }
-        return "•"
-    }
-
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
@@ -144,25 +137,7 @@ struct SettingsView: View {
     private var accountHeroCard: some View {
         SettingsCard {
             HStack(spacing: DesignSystem.Spacing.md) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    DesignSystem.Colors.neonGreen,
-                                    Color(red: 0.4, green: 0.85, blue: 0.2)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 56, height: 56)
-                        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.45), radius: 14, x: 0, y: 4)
-
-                    Text(userInitial)
-                        .font(.system(.title2, design: .rounded, weight: .heavy))
-                        .foregroundStyle(.black)
-                }
+                AvatarView(size: 56, isEditable: true)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(userEmail ?? "guest_user".localized())
