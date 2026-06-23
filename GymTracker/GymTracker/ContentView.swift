@@ -17,40 +17,28 @@ struct ContentView: View {
     @ObservedObject private var tour = TourManager.shared
 
     var body: some View {
+        // Native TabView drives content paging + per-tab state; its own bar is
+        // hidden and replaced by a custom bar so the tour can anchor each button
+        // exactly (the system UITabBar exposes no per-item frame).
         TabView(selection: $selectedTab) {
-            // Tab 1: Тренировка
             WorkoutView(modelContext: modelContext, selectedTab: $selectedTab)
-                .tabItem {
-                    Label("Тренировка".localized(), systemImage: "figure.strengthtraining.traditional")
-                }
                 .tag(0)
-                .accessibilityIdentifier("tab_workout")
+                .toolbar(.hidden, for: .tabBar)
 
-            // Tab 2: Программа
             ProgramView()
-                .tabItem {
-                    Label("Программа".localized(), systemImage: "list.bullet.clipboard.fill")
-                }
                 .tag(1)
-                .accessibilityIdentifier("tab_program")
+                .toolbar(.hidden, for: .tabBar)
 
-            // Tab 3: Справочник
             ReferenceView()
-                .tabItem {
-                    Label("Справочник".localized(), systemImage: "book.fill")
-                }
                 .tag(2)
-                .accessibilityIdentifier("tab_reference")
+                .toolbar(.hidden, for: .tabBar)
 
-            // Tab 4: Параметры
             MeasurementsView(selectedTab: $selectedTab)
-                .tabItem {
-                    Label("Статистика".localized(), systemImage: "chart.line.uptrend.xyaxis")
-                }
                 .tag(3)
-                .accessibilityIdentifier("tab_stats")
-
-
+                .toolbar(.hidden, for: .tabBar)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TourTabBar(selectedTab: $selectedTab)
         }
         .tint(DesignSystem.Colors.accent)
         .accessibilityIdentifier("main_tab_bar")
@@ -78,6 +66,72 @@ struct ContentView: View {
     private func syncTourTab() {
         guard tour.isActive, let tab = tour.current?.tab, tab != selectedTab else { return }
         withAnimation(.easeInOut(duration: 0.3)) { selectedTab = tab }
+    }
+}
+
+// MARK: - Custom bottom bar
+
+/// Replaces the system tab bar so each button is a real, anchorable view —
+/// lets the coach-mark tour spotlight a single tab pixel-accurately.
+private struct TourTabBar: View {
+    @Binding var selectedTab: Int
+
+    private struct Item {
+        let icon: String
+        let label: String
+        let tag: Int
+        let id: String
+    }
+
+    private let items: [Item] = [
+        Item(icon: "figure.strengthtraining.traditional", label: "Тренировка", tag: 0, id: "tab_workout"),
+        Item(icon: "list.bullet.clipboard.fill", label: "Программа", tag: 1, id: "tab_program"),
+        Item(icon: "book.fill", label: "Справочник", tag: 2, id: "tab_reference"),
+        Item(icon: "chart.line.uptrend.xyaxis", label: "Статистика", tag: 3, id: "tab_stats")
+    ]
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(items, id: \.tag) { item in
+                let isActive = selectedTab == item.tag
+                Button {
+                    if selectedTab != item.tag {
+                        UISelectionFeedbackGenerator().selectionChanged()
+                        withAnimation(.easeInOut(duration: 0.2)) { selectedTab = item.tag }
+                    }
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: item.icon)
+                            .font(.system(size: 22, weight: .semibold))
+                        Text(item.label.localized())
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+                    .foregroundStyle(isActive ? DesignSystem.Colors.accent : DesignSystem.Colors.tertiaryText)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 49)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .tourAnchor(.tab(item.tag))
+                .accessibilityIdentifier(item.id)
+            }
+        }
+        .padding(.top, 6)
+        .background(
+            ZStack {
+                Rectangle().fill(.ultraThinMaterial)
+                Rectangle().fill(DesignSystem.Colors.background.opacity(0.55))
+            }
+            .ignoresSafeArea(edges: .bottom)
+        )
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.white.opacity(0.08))
+                .frame(height: 0.5)
+        }
+        .tourAnchor(.tabBarAll)
     }
 }
 

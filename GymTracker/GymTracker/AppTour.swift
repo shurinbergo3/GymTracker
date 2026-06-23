@@ -22,14 +22,14 @@ enum TourAnchorID: Hashable {
     case stressRow
     case appleHealth
     case aiCoach
+    case tabBarAll          // the whole custom bottom bar
+    case tab(Int)           // a single tab button (0...3)
 }
 
 /// What a step highlights.
 enum TourSpot: Equatable {
     case center                 // no spotlight — a centered card
     case anchor(TourAnchorID)   // a real view, located via anchorPreference
-    case tabBar                 // the whole bottom tab bar
-    case tabItem(Int)           // a single tab button (0...3)
     case topTrailing            // the profile avatar in the nav bar (top-right)
 }
 
@@ -50,22 +50,22 @@ enum TourSteps {
             TourStep(tab: nil, scrollToHealth: false, spot: .center,
                      title: "Добро пожаловать!",
                      text: "Коротко покажу, где что находится. Это займёт 20 секунд."),
-            TourStep(tab: 0, scrollToHealth: false, spot: .tabBar,
+            TourStep(tab: 0, scrollToHealth: false, spot: .anchor(.tabBarAll),
                      title: "Разделы приложения",
                      text: "Внизу четыре вкладки: Тренировка, Программа, Справочник и Статистика. Листай их слева направо."),
-            TourStep(tab: 0, scrollToHealth: false, spot: .tabItem(0),
+            TourStep(tab: 0, scrollToHealth: false, spot: .anchor(.tab(0)),
                      title: "Тренировка",
                      text: "Активная тренировка: подходы, веса, таймер отдыха и пульс в реальном времени."),
             TourStep(tab: 0, scrollToHealth: false, spot: .anchor(.aiCoach),
                      title: "ИИ-тренер",
                      text: "Разбирает каждую тренировку, отвечает на вопросы и подсказывает, что менять. Нажми на карточку, чтобы открыть диалог."),
-            TourStep(tab: 1, scrollToHealth: false, spot: .tabItem(1),
+            TourStep(tab: 1, scrollToHealth: false, spot: .anchor(.tab(1)),
                      title: "Программа",
                      text: "Готовые планы или свой. Активная программа подсказывает, что тренировать сегодня."),
-            TourStep(tab: 2, scrollToHealth: false, spot: .tabItem(2),
+            TourStep(tab: 2, scrollToHealth: false, spot: .anchor(.tab(2)),
                      title: "Справочник",
                      text: "База упражнений с техникой и видео, плюс гайды по тренировкам, сну и питанию."),
-            TourStep(tab: 3, scrollToHealth: false, spot: .tabItem(3),
+            TourStep(tab: 3, scrollToHealth: false, spot: .anchor(.tab(3)),
                      title: "Статистика",
                      text: "Прогресс, замеры тела, графики и данные здоровья.")
         ]
@@ -190,7 +190,6 @@ struct TourOverlay: View {
 
     private var step: TourStep? { tour.current }
 
-    private static let tabCount = 4
     private static let tabBarContentHeight: CGFloat = 49
 
     /// Real device safe-area insets read from the key window. The overlay's
@@ -204,8 +203,7 @@ struct TourOverlay: View {
             .first { $0.isKeyWindow }?.safeAreaInsets ?? .zero
     }
 
-    /// Vertical bounds of the system tab bar (content area, above the home
-    /// indicator) within the overlay's full-screen coordinate space.
+    /// Bottom edge of the visible content area (top of the custom tab bar).
     private var tabBarTop: CGFloat {
         proxy.size.height - insets.bottom - Self.tabBarContentHeight
     }
@@ -219,27 +217,23 @@ struct TourOverlay: View {
             return nil
         case .anchor(let id):
             guard let a = anchors[id] else { return nil }   // graceful: centered
-            // Clamp to the visible area so a tall card never produces a ring
-            // that runs off-screen.
-            let raw = proxy[a].insetBy(dx: -10, dy: -10)
-            let topLimit = insets.top + 8
-            let bottomLimit = tabBarTop - 8
-            let top = max(raw.minY, topLimit)
-            let bottom = min(raw.maxY, bottomLimit)
-            return CGRect(x: raw.minX, y: top, width: raw.width, height: max(0, bottom - top))
-        case .tabBar:
-            // The whole bar down to the bottom edge (including the home indicator).
-            let top = tabBarTop - 4
-            return CGRect(x: 6, y: top,
-                          width: proxy.size.width - 12,
-                          height: proxy.size.height - top)
-        case .tabItem(let i):
-            let tabWidth = proxy.size.width / CGFloat(Self.tabCount)
-            let centerX = tabWidth * (CGFloat(i) + 0.5)
-            let centerY = tabBarTop + Self.tabBarContentHeight / 2
-            let w = min(tabWidth - 8, 78)
-            let h: CGFloat = 54
-            return CGRect(x: centerX - w / 2, y: centerY - h / 2, width: w, height: h)
+            let raw = proxy[a]
+            switch id {
+            case .tabBarAll:
+                // The whole bar — exact bounds, no clamp (it lives below the
+                // content's bottom limit).
+                return raw
+            case .tab:
+                // Hug the real tab button — pixel-accurate, no content clamp.
+                return raw.insetBy(dx: -2, dy: -2)
+            default:
+                // Content-area card: pad a little, then clamp to the visible
+                // area so a tall card never produces a ring that runs off-screen.
+                let r = raw.insetBy(dx: -10, dy: -10)
+                let top = max(r.minY, insets.top + 8)
+                let bottom = min(r.maxY, tabBarTop - 8)
+                return CGRect(x: r.minX, y: top, width: r.width, height: max(0, bottom - top))
+            }
         case .topTrailing:
             // The profile avatar sits in the nav bar trailing slot, top-right.
             let size: CGFloat = 54
@@ -253,9 +247,9 @@ struct TourOverlay: View {
         guard let spot = step?.spot else { return 16 }
         switch spot {
         case .topTrailing: return 27
-        case .tabBar:      return 22
-        case .anchor, .tabItem: return 18
-        case .center:      return 16
+        case .anchor(.tabBarAll): return 22
+        case .anchor: return 18
+        case .center: return 16
         }
     }
 
