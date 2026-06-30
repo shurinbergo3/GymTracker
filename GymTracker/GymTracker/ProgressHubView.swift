@@ -528,11 +528,11 @@ struct ProgressHubView: View {
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(Color.white.opacity(0.04))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(tint.opacity(0.20), lineWidth: 0.8)
         )
     }
@@ -562,7 +562,7 @@ struct ProgressHubView: View {
                     .background(
                         ZStack {
                             if selectedTab == tab {
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
                                     .fill(tab.tint)
                                     .matchedGeometryEffect(id: "tabBG", in: tabIndicator)
                                     .shadow(color: tab.tint.opacity(0.45), radius: 8, x: 0, y: 4)
@@ -922,7 +922,7 @@ struct ProgressHubView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(Color.white.opacity(0.04))
         )
     }
@@ -1063,7 +1063,7 @@ struct ProgressHubView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                         .background(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .fill(selectedPeriod == period ? DesignSystem.Colors.neonGreen : Color.white.opacity(0.05))
                         )
                 }
@@ -1211,7 +1211,7 @@ struct ProgressHubView: View {
         .padding(.vertical, 6)
         .padding(.horizontal, 8)
         .background(Color.white.opacity(0.03))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private var volumeChartCard: some View {
@@ -1234,7 +1234,7 @@ struct ProgressHubView: View {
                     .foregroundStyle(DesignSystem.Colors.secondaryText)
                     .frame(maxWidth: .infinity, minHeight: 120)
                     .background(Color.white.opacity(0.03))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             } else {
                 Chart {
                     ForEach(Array(chartData.enumerated()), id: \.offset) { index, data in

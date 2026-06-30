@@ -140,9 +140,9 @@ struct AIFeatureRow: View {
                 .foregroundColor(DesignSystem.Colors.neonGreen)
                 .frame(width: 50, height: 50)
                 .background(DesignSystem.Colors.cardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .stroke(DesignSystem.Colors.neonGreen.opacity(0.3), lineWidth: 1)
                 )
             

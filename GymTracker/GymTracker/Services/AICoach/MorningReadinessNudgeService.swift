@@ -31,7 +31,7 @@ import FirebaseAuth
 enum MorningReadinessNudgeService {
 
     /// Must match the entry in Info.plist → BGTaskSchedulerPermittedIdentifiers.
-    static let taskIdentifier = "ai.coach.morningNudge"
+    nonisolated(unsafe) static let taskIdentifier = "ai.coach.morningNudge"
     private static let firedNotificationID = "ai.coach.morningNudge.fired"
     private static let recoveryFiredID = "ai.coach.morningRecovery.fired"
 

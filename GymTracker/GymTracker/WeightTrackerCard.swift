@@ -269,10 +269,10 @@ struct WeightTrackerCard: View {
     private func metricHeader(icon: String, label: String, tint: Color) -> some View {
         HStack(spacing: 9) {
             ZStack {
-                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(tint.opacity(0.18))
                     .frame(width: 30, height: 30)
-                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .strokeBorder(tint.opacity(0.30), lineWidth: 0.5)
                     .frame(width: 30, height: 30)
                 Image(systemName: icon)

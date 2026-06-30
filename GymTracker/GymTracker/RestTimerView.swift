@@ -103,9 +103,9 @@ struct RestTimerView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(Color(red: 0.12, green: 0.12, blue: 0.12))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .stroke(DesignSystem.Colors.neonGreen.opacity(0.3), lineWidth: 1)
         )
         .padding(.horizontal, DesignSystem.Spacing.lg)

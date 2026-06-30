@@ -93,7 +93,19 @@ struct TodayWorkoutCard: View {
                                 .font(DesignSystem.Typography.sectionHeader())
                                 .foregroundStyle(DesignSystem.Colors.neonGreen)
                                 .tracking(1.6)
+                                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.85), radius: 7, x: 0, y: 0)
+                                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.45), radius: 14, x: 0, y: 0)
                         }
+                        .padding(.vertical, 2)
+                        .background(
+                            // Чистое рассеянное свечение, без контейнера и краёв
+                            Ellipse()
+                                .fill(DesignSystem.Colors.neonGreen.opacity(0.22))
+                                .blur(radius: 18)
+                                .padding(.horizontal, -10)
+                                .padding(.vertical, -2)
+                                .allowsHitTesting(false)
+                        )
 
                         if let day = workoutManager.selectedDay {
                             Text(day.name.localized())
@@ -689,7 +701,7 @@ struct SleepStatBox: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(DesignSystem.Colors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
@@ -1282,6 +1294,8 @@ struct ActiveWorkoutView: View {
             .safeAreaInset(edge: .top, spacing: 0) {
                 stickyTopBar
             }
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .onTapGesture {
                 hideKeyboard()
             }
@@ -2485,10 +2499,10 @@ struct LastWorkoutBento: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(tint.opacity(0.10))
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(tint.opacity(0.22), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     // MARK: - Background

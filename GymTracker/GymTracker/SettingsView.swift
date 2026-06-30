@@ -225,7 +225,7 @@ struct SettingsView: View {
             } label: {
                 HStack(spacing: DesignSystem.Spacing.md) {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .fill(DesignSystem.Colors.accentPurple.opacity(0.18))
                             .frame(width: 36, height: 36)
                         Image(systemName: "info.circle.fill")
@@ -336,7 +336,7 @@ struct SettingsView: View {
         } label: {
             HStack(spacing: DesignSystem.Spacing.md) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .fill(
                             LinearGradient(
                                 colors: [
@@ -349,7 +349,7 @@ struct SettingsView: View {
                         )
                         .frame(width: 36, height: 36)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .stroke(DesignSystem.Colors.accent.opacity(0.35), lineWidth: 0.5)
                         )
 
@@ -638,9 +638,9 @@ struct SettingsView: View {
                             .interpolation(.high)
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 40, height: 40)
-                            .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
                                     .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
                             )
 
@@ -863,7 +863,7 @@ private struct SettingsToggleRow: View {
         Toggle(isOn: $isOn) {
             HStack(spacing: DesignSystem.Spacing.md) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .fill(iconColor.opacity(0.18))
                         .frame(width: 36, height: 36)
                     Image(systemName: icon)
@@ -909,7 +909,7 @@ private struct SettingsRowContent: View {
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.md) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(iconBackground)
                     .frame(width: 36, height: 36)
                 Image(systemName: icon)

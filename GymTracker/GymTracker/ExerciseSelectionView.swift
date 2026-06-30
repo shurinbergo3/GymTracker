@@ -208,7 +208,7 @@ struct SelectionRow: View {
             // Add button (neon "+")
             Button(action: onAdd) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(
                             LinearGradient(
                                 colors: [

@@ -35,6 +35,7 @@ struct ExerciseCard: View {
     @State private var showingWorkoutTypeChange = false
     @State private var currentWorkoutType: WorkoutType? = nil
     @State private var isHistoryExpanded: Bool = true // Expanded by default
+    @State private var isAnimationExpanded: Bool = false // Demo animation toggle
     @State private var showAIRecommendation: Bool = false // Collapsible AI tip box
     @State private var didInitAIRecommendation: Bool = false
     @State private var isWeighted: Bool = false
@@ -105,6 +106,10 @@ struct ExerciseCard: View {
         }
     }
     
+    private var demoGifAsset: String? {
+        ExerciseLibrary.getExercise(for: exercise.name)?.gifAsset
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Rest Timer (shown after set completion)
@@ -169,6 +174,14 @@ struct ExerciseCard: View {
                         }
                     }
                     
+                    if ExerciseAnimations.enabled, demoGifAsset != nil {
+                        Button(action: { withAnimation { isAnimationExpanded.toggle() } }) {
+                            Image(systemName: "figure.run") // Demo animation
+                                .font(.system(size: 18))
+                                .foregroundColor(isAnimationExpanded ? DesignSystem.Colors.neonGreen : .gray)
+                        }
+                    }
+
                     Button(action: { showingTechnique = true }) {
                         Image(systemName: "info.circle") // Info/Technique
                             .font(.system(size: 18))
@@ -216,7 +229,18 @@ struct ExerciseCard: View {
                 }
             }
             .padding(16)
-            
+
+            // MARK: - Demo animation (inline, expandable)
+            if isAnimationExpanded, let gif = demoGifAsset {
+                AnimatedExerciseImage(assetName: gif)
+                    .frame(height: 220)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+            }
+
             // MARK: - History Block
             if isHistoryExpanded {
                 VStack(alignment: .leading, spacing: 8) {
@@ -381,7 +405,7 @@ struct ExerciseCard: View {
                                             .frame(width: 60)
                                             .multilineTextAlignment(.center)
                                             .background(Color.white.opacity(0.1))
-                                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                                             .foregroundColor(.white)
                                         
                                         Button(action: { isWeighted = false; weight = "" }) {
@@ -454,9 +478,9 @@ struct ExerciseCard: View {
                         }
                         .padding(8)
                         .background(Color.white.opacity(0.05))
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
-                    
+
                     // NOTE & SAVE FOOTER
                     HStack {
                         Button("Заметка".localized()) {

@@ -217,9 +217,9 @@ struct AICoachHistoryView: View {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(tint.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(tint.opacity(0.20), lineWidth: 0.5)
         )
     }
@@ -347,7 +347,7 @@ private struct DaySection: View {
         .padding(.vertical, 6)
         .padding(.horizontal, 8)
         .background(Color.white.opacity(0.03))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func formatDay(_ d: Date) -> String {

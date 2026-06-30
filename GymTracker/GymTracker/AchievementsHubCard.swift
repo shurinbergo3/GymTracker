@@ -209,13 +209,13 @@ struct AchievementsHubCard: View {
 
                 ZStack(alignment: .leading) {
                     // Track
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
                         .fill(Color.white.opacity(0.08))
                         .frame(height: 10)
 
                     // Ghost only meaningful when decay is within the same level.
                     if hasDecayWarning && !hasLostLevel {
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
                             .fill(
                                 LinearGradient(
                                     colors: [
@@ -228,13 +228,13 @@ struct AchievementsHubCard: View {
                             )
                             .frame(width: max(0, earnedWidth), height: 10)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
                                     .stroke(formState.color.opacity(0.3), style: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
                             )
                     }
 
                     // Effective (kept) XP
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
                         .fill(
                             LinearGradient(
                                 colors: [
@@ -361,9 +361,9 @@ struct AchievementsHubCard: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(message.tint.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(message.tint.opacity(0.20), lineWidth: 0.5)
         )
     }

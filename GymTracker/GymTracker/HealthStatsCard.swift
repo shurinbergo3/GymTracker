@@ -371,7 +371,7 @@ struct HealthStatsCard: View {
                         .foregroundStyle(kind.accent)
                         .frame(width: 26, height: 26)
                         .background(kind.accent.opacity(0.15))
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.system(size: 9, weight: .bold))
@@ -399,10 +399,10 @@ struct HealthStatsCard: View {
             .padding(10)
             .background(Color.white.opacity(0.04))
             .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(kind.accent.opacity(0.18), lineWidth: 0.5)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -485,7 +485,7 @@ private struct HealthStatDetailView: View {
                     .foregroundStyle(stat.accent)
                     .frame(width: 44, height: 44)
                     .background(stat.accent.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(stat.title.uppercased())
@@ -543,7 +543,7 @@ private struct HealthStatDetailView: View {
                             y: .value("Value", item.value)
                         )
                         .foregroundStyle(stat.accent.gradient)
-                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .annotation(position: .top, alignment: .center, spacing: 4) {
                             if item.value > 0 {
                                 Text(formatBarLabel(item.value))
@@ -1074,7 +1074,7 @@ private struct StressDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
         .background(Color.white.opacity(0.04))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     // MARK: Drivers

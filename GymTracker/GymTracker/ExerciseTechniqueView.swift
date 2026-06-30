@@ -146,6 +146,7 @@ struct ExerciseTechniqueDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         headerCard
+                        demoGallery
                         techniqueSections
                         Spacer(minLength: 12)
                         youtubeButton
@@ -197,6 +198,31 @@ struct ExerciseTechniqueDetailView: View {
             }
         }
         .padding(.horizontal, 16)
+    }
+
+    // MARK: Demo animation
+
+    @ViewBuilder
+    private var demoGallery: some View {
+        if ExerciseAnimations.enabled, let gif = exercise?.gifAsset {
+            VStack(alignment: .leading, spacing: 10) {
+                if let equipment = exercise?.equipment {
+                    HStack(spacing: 8) {
+                        TagPill(icon: equipment.icon, text: equipment.title, accent: DesignSystem.Colors.accent)
+                        if let first = exercise?.secondaryMuscles.first {
+                            TagPill(icon: "scope", text: first.rawValue, accent: .gray)
+                        }
+                        Spacer()
+                    }
+                }
+                AnimatedExerciseImage(assetName: gif)
+                    .frame(height: 300)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            }
+            .padding(.horizontal, 16)
+        }
     }
 
     // MARK: Technique sections

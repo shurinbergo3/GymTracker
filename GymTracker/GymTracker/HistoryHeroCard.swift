@@ -255,10 +255,10 @@ struct HistoryHeroCard: View {
         .padding(.vertical, 8)
         .background(tint.opacity(0.08))
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(tint.opacity(0.20), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     // MARK: - Background
