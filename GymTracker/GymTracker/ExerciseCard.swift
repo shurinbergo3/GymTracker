@@ -35,7 +35,7 @@ struct ExerciseCard: View {
     @State private var showingWorkoutTypeChange = false
     @State private var currentWorkoutType: WorkoutType? = nil
     @State private var isHistoryExpanded: Bool = true // Expanded by default
-    @State private var isAnimationExpanded: Bool = false // Demo animation toggle
+    @AppStorage("exerciseDemoExpanded") private var isAnimationExpanded: Bool = true // Demo animation: open by default, remembers if user collapses it
     @State private var showAIRecommendation: Bool = false // Collapsible AI tip box
     @State private var didInitAIRecommendation: Bool = false
     @State private var isWeighted: Bool = false
@@ -236,7 +236,25 @@ struct ExerciseCard: View {
                     .frame(height: 220)
                     .frame(maxWidth: .infinity)
                     .background(Color.white)
+                    .overlay(
+                        // Растушёвка: белый сверху/снизу плавно растворяется в тёмном фоне карточки
+                        LinearGradient(
+                            stops: [
+                                .init(color: DesignSystem.Colors.cardBackground, location: 0.0),
+                                .init(color: .clear, location: 0.14),
+                                .init(color: .clear, location: 0.86),
+                                .init(color: DesignSystem.Colors.cardBackground, location: 1.0)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .allowsHitTesting(false)
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .strokeBorder(DesignSystem.Colors.neonGreen.opacity(0.35), lineWidth: 1)
+                    )
                     .padding(.horizontal, 16)
                     .padding(.bottom, 12)
             }

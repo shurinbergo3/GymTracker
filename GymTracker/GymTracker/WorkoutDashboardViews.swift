@@ -42,34 +42,40 @@ struct TodayWorkoutCard: View {
     // MARK: - Idle State (Start Workout)
     private var idleContent: some View {
         ZStack(alignment: .topTrailing) {
-            // Atmospheric background mesh — layered radial glows for depth
-            RadialGradient(
-                colors: [DesignSystem.Colors.neonGreen.opacity(0.22), .clear],
-                center: .topTrailing,
-                startRadius: 4,
-                endRadius: 240
-            )
-            .allowsHitTesting(false)
+            // Atmospheric background mesh — layered radial glows for depth.
+            // Слой растягивается за паддинг BentoCard (padding(-20)) до самого края
+            // карточки и обрезается тем же скруглением, что и карточка. Так свечение
+            // мягко уходит в скруглённый угол, без квадратной кромки внутреннего прямоугольника.
+            ZStack {
+                RadialGradient(
+                    colors: [DesignSystem.Colors.neonGreen.opacity(0.22), .clear],
+                    center: .topTrailing,
+                    startRadius: 4,
+                    endRadius: 320
+                )
 
-            RadialGradient(
-                colors: [DesignSystem.Colors.accentPurple.opacity(0.14), .clear],
-                center: .bottomLeading,
-                startRadius: 4,
-                endRadius: 220
-            )
-            .allowsHitTesting(false)
+                RadialGradient(
+                    colors: [DesignSystem.Colors.accentPurple.opacity(0.14), .clear],
+                    center: .bottomLeading,
+                    startRadius: 4,
+                    endRadius: 300
+                )
 
-            // Faint diagonal stripe for texture
-            LinearGradient(
-                colors: [
-                    Color.white.opacity(0.02),
-                    .clear,
-                    Color.white.opacity(0.015),
-                    .clear
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+                // Faint diagonal stripe for texture
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(0.02),
+                        .clear,
+                        Color.white.opacity(0.015),
+                        .clear
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+            .padding(-20)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
+            .blur(radius: 8)
             .allowsHitTesting(false)
 
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
