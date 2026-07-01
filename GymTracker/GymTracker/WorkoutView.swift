@@ -49,25 +49,38 @@ struct WorkoutView: View {
                         selectedTab = 1 // Switch to Program tab
                     }
                 } else {
-                    // State-based content
-                    switch workoutManager.workoutState {
-                    case .idle:
-                        DashboardView() // settings handled by parent toolbar now
-                            .environmentObject(workoutManager)
-                    case .briefing:
-                        PreWorkoutBriefView()
-                            .environmentObject(workoutManager)
-                    case .countdown:
-                        CountdownView(dayName: workoutManager.selectedDay?.name) {
-                            workoutManager.beginActiveSession()
+                    // State-based content. Cross-fade between phases so the
+                    // countdown → active handoff reads as one smooth transition
+                    // instead of a hard cut. The countdown fades itself down to
+                    // this dark background before handing off, so even if the
+                    // first workout render briefly stalls the main thread, the
+                    // bridging frame is dark rather than a bright frozen flash.
+                    Group {
+                        switch workoutManager.workoutState {
+                        case .idle:
+                            DashboardView() // settings handled by parent toolbar now
+                                .environmentObject(workoutManager)
+                                .transition(.opacity)
+                        case .briefing:
+                            PreWorkoutBriefView()
+                                .environmentObject(workoutManager)
+                                .transition(.opacity)
+                        case .countdown:
+                            CountdownView(dayName: workoutManager.selectedDay?.name) {
+                                workoutManager.beginActiveSession()
+                            }
+                            .transition(.opacity)
+                        case .active:
+                            ActiveWorkoutView()
+                                .environmentObject(workoutManager)
+                                .transition(.opacity)
+                        case .summary:
+                            SummaryOverlay()
+                                .environmentObject(workoutManager)
+                                .transition(.opacity)
                         }
-                    case .active:
-                        ActiveWorkoutView()
-                            .environmentObject(workoutManager)
-                    case .summary:
-                        SummaryOverlay()
-                            .environmentObject(workoutManager)
                     }
+                    .animation(.easeInOut(duration: 0.4), value: workoutManager.workoutState)
                 }
             }
             .navigationTitle(Text("app_title".localized()))

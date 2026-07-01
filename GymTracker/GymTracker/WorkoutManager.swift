@@ -13,7 +13,7 @@ import HealthKit
 
 // MARK: - Workout State
 
-enum WorkoutState {
+enum WorkoutState: Equatable {
     case idle       // Dashboard - ready to start
     case briefing   // Pre-workout AI brief — shows targets and lets the user ask up to 5 Qs
     case countdown  // 3-2-1 Countdown

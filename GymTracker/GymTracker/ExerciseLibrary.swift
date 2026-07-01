@@ -3310,14 +3310,29 @@ struct ExerciseLibrary {
 
     // MARK: - Helper Methods
 
+    /// O(1) index for the exact-name tiers of `getExercise(for:)`. Without it,
+    /// every lookup scanned all ~700 exercises linearly — and history matching
+    /// calls this once per foreign set, so lazily-realized cards used to stutter
+    /// while scrolling as each ran thousands of full-library scans on the main
+    /// thread. Built once; keys are lowercased names (case-folding is enough for
+    /// these ASCII/Cyrillic names, matching the old caseInsensitiveCompare).
+    nonisolated static let exercisesByLoweredName: [String: LibraryExercise] = {
+        var idx: [String: LibraryExercise] = [:]
+        idx.reserveCapacity(allExercises.count)
+        for ex in allExercises where idx[ex.name.lowercased()] == nil {
+            idx[ex.name.lowercased()] = ex
+        }
+        return idx
+    }()
+
     nonisolated static func getExercise(for name: String) -> LibraryExercise? {
         // 1. Exact match
-        if let exact = allExercises.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
+        if let exact = exercisesByLoweredName[name.lowercased()] {
             return exact
         }
         // 2. Strip parenthetical suffix and try exact again
         let cleanName = name.components(separatedBy: "(").first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? name
-        if let cleanMatch = allExercises.first(where: { $0.name.caseInsensitiveCompare(cleanName) == .orderedSame }) {
+        if let cleanMatch = exercisesByLoweredName[cleanName.lowercased()] {
             return cleanMatch
         }
         // 2b. Extract content INSIDE parens and try exact match against that.
@@ -3329,7 +3344,7 @@ struct ExerciseLibrary {
             let inner = String(name[name.index(after: openIdx)..<closeIdx])
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             if !inner.isEmpty,
-               let innerMatch = allExercises.first(where: { $0.name.caseInsensitiveCompare(inner) == .orderedSame }) {
+               let innerMatch = exercisesByLoweredName[inner.lowercased()] {
                 return innerMatch
             }
         }

@@ -97,7 +97,7 @@ struct CalorieCalculatorView: View {
                     // Gender Picker
                     Picker("Пол".localized(), selection: $gender) {
                         ForEach(Gender.allCases) { gender in
-                            Text(gender.rawValue).tag(gender)
+                            Text(gender.rawValue.localized()).tag(gender)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -134,14 +134,14 @@ struct CalorieCalculatorView: View {
                             ForEach(ActivityLevel.allCases) { level in
                                 Button(action: { activityLevel = level }) {
                                     HStack {
-                                        Text(level.title)
+                                        Text(level.title.localized())
                                         if activityLevel == level { Image(systemName: "checkmark") }
                                     }
                                 }
                             }
                         } label: {
                             HStack {
-                                Text(activityLevel.title)
+                                Text(activityLevel.title.localized())
                                     .foregroundColor(DesignSystem.Colors.primaryText)
                                 Spacer()
                                 Image(systemName: "chevron.up.chevron.down")
@@ -162,7 +162,7 @@ struct CalorieCalculatorView: View {
                         
                         Picker("Цель".localized(), selection: $goal) {
                             ForEach(Goal.allCases) { goal in
-                                Text(goal.title).tag(goal)
+                                Text(goal.title.localized()).tag(goal)
                             }
                         }
                         .pickerStyle(.segmented)

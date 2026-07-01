@@ -25,6 +25,10 @@ struct CountdownView: View {
     @State private var bursts: [BurstParticle] = []
     @State private var didStart: Bool = false
     @State private var finished: Bool = false
+    /// Fades the whole HUD down to the dark app background at the very end,
+    /// just before handing off to the workout. Keeps the bridging frame dark
+    /// (not a bright frozen flash) if the first workout render stalls a beat.
+    @State private var outroDim: Double = 0
     /// Set when the view goes away mid-countdown so the pending asyncAfter chain
     /// stops scheduling, stops playing sounds, and never fires onComplete() from
     /// a dismissed view.
@@ -66,6 +70,13 @@ struct CountdownView: View {
             hudOverlay
             flashLayer
             particleLayer
+
+            // Outro dim — closes the countdown on the app's dark background so
+            // the handoff into the workout never flashes bright.
+            DesignSystem.Colors.background
+                .ignoresSafeArea()
+                .opacity(outroDim)
+                .allowsHitTesting(false)
         }
         .onAppear { if !didStart { didStart = true; startSequence() } }
         .onDisappear { cancelled = true }
@@ -408,10 +419,10 @@ struct CountdownView: View {
             numberOpacity = 1.0
         }
 
-        // Big flash
+        // Launch flash
         withAnimation(.easeOut(duration: 0.1)) { flashOpacity = 0.5 }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
-            withAnimation(.easeIn(duration: 0.4)) { flashOpacity = 0 }
+            withAnimation(.easeIn(duration: 0.3)) { flashOpacity = 0 }
         }
 
         spawnBurst(intensity: 28)
@@ -419,7 +430,16 @@ struct CountdownView: View {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         AudioServicesPlaySystemSound(1057)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        // Hold the "Поехали!" beat while the flash clears, then fade the whole
+        // HUD down to the dark background BEFORE handing off. onComplete fires
+        // only once the screen is already dark, so building the workout view
+        // (which can briefly block the main thread) can't freeze a bright frame
+        // mid-flash — the bridge frame matches the workout background.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            guard !cancelled else { return }
+            withAnimation(.easeInOut(duration: 0.3)) { outroDim = 1 }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.82) {
             guard !cancelled else { return }
             onComplete()
         }
