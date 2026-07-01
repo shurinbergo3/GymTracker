@@ -3325,7 +3325,32 @@ struct ExerciseLibrary {
         return idx
     }()
 
+    // Резолвинг канонического упражнения по имени — операция дорогая (подстрочный
+    // и токенный перебор по всему каталогу, когда точного совпадения нет). Имена
+    // сетов сильно повторяются, поэтому кешируем результат по сырому имени: без
+    // этого reloadHistory при ленивом скролле активной тренировки прогоняет перебор
+    // на каждый чужой сет и роняет кадры.
+    private static let getExerciseCacheLock = NSLock()
+    private static var getExerciseCache: [String: LibraryExercise?] = [:]
+
     nonisolated static func getExercise(for name: String) -> LibraryExercise? {
+        getExerciseCacheLock.lock()
+        if let hit = getExerciseCache.index(forKey: name) {
+            let cached = getExerciseCache[hit].value
+            getExerciseCacheLock.unlock()
+            return cached
+        }
+        getExerciseCacheLock.unlock()
+
+        let result = resolveExercise(for: name)
+
+        getExerciseCacheLock.lock()
+        getExerciseCache[name] = result
+        getExerciseCacheLock.unlock()
+        return result
+    }
+
+    private nonisolated static func resolveExercise(for name: String) -> LibraryExercise? {
         // 1. Exact match
         if let exact = exercisesByLoweredName[name.lowercased()] {
             return exact
