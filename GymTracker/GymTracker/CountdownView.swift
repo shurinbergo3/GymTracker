@@ -213,39 +213,8 @@ struct CountdownView: View {
     private var hudOverlay: some View {
         VStack {
             // Top tag
-            HStack(spacing: 10) {
-                Circle()
-                    .fill(DesignSystem.Colors.neonGreen)
-                    .frame(width: 8, height: 8)
-                    .shadow(color: DesignSystem.Colors.neonGreen, radius: 6)
-                    .opacity(0.5 + Double(pulse) * 0.5)
-
-                Text("READY".localized())
-                    .font(.system(.caption, design: .monospaced).weight(.bold))
-                    .tracking(4)
-                    .foregroundStyle(DesignSystem.Colors.neonGreen)
-
-                Rectangle()
-                    .fill(DesignSystem.Colors.neonGreen.opacity(0.4))
-                    .frame(width: 30, height: 1)
-
-                Text(displayDayName.uppercased())
-                    .font(.system(.caption, design: .monospaced).weight(.semibold))
-                    .tracking(2)
-                    .foregroundStyle(.white.opacity(0.8))
-                    .lineLimit(1)
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 10)
-            .background(
-                Capsule()
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        Capsule()
-                            .stroke(DesignSystem.Colors.neonGreen.opacity(0.3), lineWidth: 1)
-                    )
-            )
-            .padding(.top, 30)
+            readyTag
+                .padding(.top, 30)
 
             Spacer()
 
@@ -285,6 +254,76 @@ struct CountdownView: View {
             }
             .padding(.bottom, 70)
         }
+    }
+
+    /// Верхняя плашка статуса. Стеклянная капсула с рефракцией по краю,
+    /// живой индикатор-кольцо слева и вертикальный хайрлайн-разделитель.
+    private var readyTag: some View {
+        HStack(spacing: 11) {
+            // Живой индикатор: ядро + расходящееся кольцо (дышит вместе с pulse)
+            ZStack {
+                Circle()
+                    .stroke(DesignSystem.Colors.neonGreen.opacity(0.55), lineWidth: 1.5)
+                    .frame(width: 13, height: 13)
+                    .scaleEffect(1 + pulse * 0.55)
+                    .opacity(1 - Double(pulse) * 0.75)
+
+                Circle()
+                    .fill(DesignSystem.Colors.neonGreen)
+                    .frame(width: 6.5, height: 6.5)
+            }
+
+            Text("READY".localized())
+                .font(.system(size: 13, weight: .heavy, design: .monospaced))
+                .tracking(3)
+                .foregroundStyle(DesignSystem.Colors.neonGreen)
+
+            // Тонкий вертикальный разделитель вместо горизонтальной чёрточки
+            Capsule()
+                .fill(Color.white.opacity(0.16))
+                .frame(width: 1, height: 15)
+
+            Text(displayDayName.uppercased())
+                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .tracking(1.5)
+                .foregroundStyle(.white.opacity(0.62))
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 11)
+        .background {
+            Capsule()
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    // Рефракция края: светлая кромка сверху, лёгкий неон, гаснет книзу
+                    Capsule()
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.28),
+                                    DesignSystem.Colors.neonGreen.opacity(0.22),
+                                    Color.white.opacity(0.04)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 1
+                        )
+                }
+                .overlay {
+                    // Внутренний верхний блик — ощущение физического стекла
+                    Capsule()
+                        .stroke(Color.white.opacity(0.5), lineWidth: 0.5)
+                        .blur(radius: 1)
+                        .padding(0.5)
+                        .mask(
+                            LinearGradient(colors: [.white, .clear],
+                                           startPoint: .top, endPoint: .center)
+                        )
+                }
+        }
+        .shadow(color: .black.opacity(0.32), radius: 12, y: 6)
+        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.12), radius: 22)
     }
 
     private var flashLayer: some View {

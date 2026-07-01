@@ -39,8 +39,8 @@ struct SettingsView: View {
     @State private var isWatchInfoExpanded: Bool = false
 
     private let supportTelegramURL = URL(string: "https://t.me/sumotry")!
-    private let supportEmailURL = URL(string: "mailto:sumotry@gmail.com?subject=GymTracker%20Support")!
-    private let supportEmail = "sumotry@gmail.com"
+    private let supportEmailURL = URL(string: "mailto:alex@buildbyalex.com?subject=GymTracker%20Support")!
+    private let supportEmail = "alex@buildbyalex.com"
     private let supportTelegram = "@sumotry"
 
     private var userEmail: String? {

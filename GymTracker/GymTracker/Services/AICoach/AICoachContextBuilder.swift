@@ -1120,7 +1120,7 @@ enum AICoachContextBuilder {
 
         // Body measurements
         if !ctx.measurements.isEmpty {
-            let bits = ctx.measurements.map { "\($0.typeName) \(String(format: "%.1f", $0.valueCm))cm" }
+            let bits = ctx.measurements.map { "\($0.typeName.localized()) \(String(format: "%.1f", $0.valueCm))cm" }
             out.append("MEASUREMENTS (latest): " + bits.joined(separator: "; ") + ".")
         }
 
@@ -1152,7 +1152,7 @@ enum AICoachContextBuilder {
         // Plateau hints — drive deload / variation suggestions.
         if !ctx.plateaus.isEmpty {
             let lines = ctx.plateaus.map { p -> String in
-                "• \(p.exerciseName): stuck \(p.weeksStuck)w (\(p.sessionsStuck) sessions); top \(String(format: "%.1f", p.topWeightKg))kg × \(p.topReps)"
+                "• \(p.exerciseName.localized()): stuck \(p.weeksStuck)w (\(p.sessionsStuck) sessions); top \(String(format: "%.1f", p.topWeightKg))kg × \(p.topReps)"
             }
             out.append("PLATEAU SIGNALS — propose a concrete deload, tempo change, range tweak or accessory swap for these:\n" + lines.joined(separator: "\n"))
         }
@@ -1167,7 +1167,7 @@ enum AICoachContextBuilder {
                     let label = w.weekStartsDaysAgo == 0 ? "now" : "\(w.weekStartsDaysAgo / 7)w"
                     return "\(label) \(formatWeight(w.topWeightKg))×\(w.topReps) (\(w.sessions)s)"
                 }.joined(separator: " ← ")
-                lines.append("• \(r.exerciseName) [\(r.totalSessions) sess/6w]: \(weeksTxt)")
+                lines.append("• \(r.exerciseName.localized()) [\(r.totalSessions) sess/6w]: \(weeksTxt)")
             }
             out.append("LAST 6 WEEKS — TOP LIFTS (newest ← oldest, weight×reps, s=sessions/week):\n" + lines.joined(separator: "\n"))
         }
@@ -1176,7 +1176,7 @@ enum AICoachContextBuilder {
         // Periodization — consolidate before pushing further.
         if !ctx.deloadSuggestions.isEmpty {
             let lines = ctx.deloadSuggestions.map { d -> String in
-                "• \(d.exerciseName): load rose \(d.consecutiveRisingWeeks) weeks straight, now \(formatWeight(d.topWeightKg))kg"
+                "• \(d.exerciseName.localized()): load rose \(d.consecutiveRisingWeeks) weeks straight, now \(formatWeight(d.topWeightKg))kg"
             }
             out.append("DELOAD SIGNAL — these lifts have climbed several weeks unbroken. Recommend ONE lighter session (~10% less load OR one fewer set) to consolidate, THEN resume progression. Frame it as smart periodization, not a setback:\n" + lines.joined(separator: "\n"))
         }
@@ -1187,7 +1187,7 @@ enum AICoachContextBuilder {
         // motivating call grounded in the exact suggestion.
         if !ctx.progressionNudges.isEmpty {
             let lines = ctx.progressionNudges.map { n -> String in
-                "• \(n.exerciseName): now \(formatWeight(n.currentTopWeightKg))kg × \(n.currentTopReps), typical \(n.typicalSetsPerSession) sets, target \(n.repRangeLow)–\(n.repRangeHigh) reps → try \(n.suggestion) (\(n.kind.rawValue))"
+                "• \(n.exerciseName.localized()): now \(formatWeight(n.currentTopWeightKg))kg × \(n.currentTopReps), typical \(n.typicalSetsPerSession) sets, target \(n.repRangeLow)–\(n.repRangeHigh) reps → try \(n.suggestion) (\(n.kind.rawValue))"
             }
             out.append("PROGRESSION NUDGE — recovery allows a push and it's been ≥2 weeks; pick 1–2 of these and motivate the user. Quote the suggestion verbatim (double progression: fill reps to the range top, THEN add load):\n" + lines.joined(separator: "\n"))
         }
@@ -1248,9 +1248,9 @@ enum AICoachContextBuilder {
                 let typeTag = day.workoutType
                 let exTexts = day.exercises.map { e -> String in
                     if e.workoutType != typeTag {
-                        return "\(e.name) ×\(e.plannedSets) [\(e.workoutType)]"
+                        return "\(e.name.localized()) ×\(e.plannedSets) [\(e.workoutType)]"
                     } else {
-                        return "\(e.name) ×\(e.plannedSets)"
+                        return "\(e.name.localized()) ×\(e.plannedSets)"
                     }
                 }.joined(separator: ", ")
                 out.append("  · Day \(day.orderIndex + 1) \"\(day.name)\" [\(typeTag), rest \(day.defaultRestSec)s]: \(exTexts.isEmpty ? "—" : exTexts)")
@@ -1298,7 +1298,7 @@ enum AICoachContextBuilder {
                 if let c = s.comment { base += " «\(c)»" }
                 return base
             }
-            out.append("  • \(ex.name): " + setStrs.joined(separator: ", "))
+            out.append("  • \(ex.name.localized()): " + setStrs.joined(separator: ", "))
         }
         if let n = w.notes {
             out.append("  note: «\(n)»")
@@ -1322,10 +1322,10 @@ enum AICoachContextBuilder {
             // Pull only pain-signal comments; everything else is dropped to save tokens.
             let painSignals = ex.sets.compactMap { $0.comment }.filter { containsPainSignal($0) }
             if painSignals.isEmpty {
-                out.append("  \(ex.name): \(body)")
+                out.append("  \(ex.name.localized()): \(body)")
             } else {
                 let cmt = painSignals.joined(separator: " | ")
-                out.append("  \(ex.name): \(body) ⚠«\(cmt)»")
+                out.append("  \(ex.name.localized()): \(body) ⚠«\(cmt)»")
             }
         }
         if let n = w.notes, containsPainSignal(n) {

@@ -20,6 +20,13 @@ private final class GifCache {
     static let shared = GifCache()
     private let cache = NSCache<NSString, UIImage>()
 
+    /// Уже декодированный кадр из кэша, без обращения к диску и декодирования.
+    /// Возвращаем синхронно — для попадания в кэш это мгновенно, без мигания плейсхолдера.
+    func cached(for assetName: String) -> UIImage? {
+        cache.object(forKey: assetName as NSString)
+    }
+
+    /// Декодирование GIF. Тяжёлая операция (раскладка всех кадров) — вызывать вне main thread.
     func animatedImage(for assetName: String) -> UIImage? {
         if let cached = cache.object(forKey: assetName as NSString) { return cached }
         guard let data = NSDataAsset(name: assetName)?.data,
@@ -76,9 +83,31 @@ struct AnimatedExerciseImage: View {
     let assetName: String
     var contentMode: UIView.ContentMode = .scaleAspectFit
 
+    @State private var image: UIImage?
+
     var body: some View {
-        if ExerciseAnimations.enabled, let image = GifCache.shared.animatedImage(for: assetName) {
-            GifImageView(image: image, contentMode: contentMode)
+        Group {
+            if let image {
+                GifImageView(image: image, contentMode: contentMode)
+            } else {
+                // Пустой плейсхолдер держит вёрстку, пока GIF декодируется в фоне.
+                Color.clear
+            }
+        }
+        .task(id: assetName) {
+            guard ExerciseAnimations.enabled else { return }
+            // Попадание в кэш — мгновенно, без прыжка на другой поток и без мигания.
+            if let cached = GifCache.shared.cached(for: assetName) {
+                image = cached
+                return
+            }
+            // Первое декодирование уводим с main thread, чтобы не морозить UI
+            // при одновременном открытии всех карточек в начале тренировки.
+            let name = assetName
+            let decoded = await Task.detached(priority: .userInitiated) {
+                GifCache.shared.animatedImage(for: name)
+            }.value
+            if !Task.isCancelled { image = decoded }
         }
     }
 }
