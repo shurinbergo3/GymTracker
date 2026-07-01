@@ -982,7 +982,10 @@ final class AICoachStore: ObservableObject {
         let cal = Calendar.current
         let day = cal.startOfDay(for: Date()).timeIntervalSince1970
         let prog = programName ?? "no_program"
-        return "prebrief|\(prog)|\(dayName)|\(day)"
+        // Language is part of the signature so switching the app language
+        // invalidates cached briefs/tips and regenerates them in the new one.
+        let lang = LanguageManager.shared.currentLanguageCode
+        return "prebrief|\(prog)|\(dayName)|\(day)|\(lang)"
     }
 
     /// Render the planned exercises for the upcoming session. Compact format
