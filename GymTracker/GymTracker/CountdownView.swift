@@ -256,74 +256,58 @@ struct CountdownView: View {
         }
     }
 
-    /// Верхняя плашка статуса. Стеклянная капсула с рефракцией по краю,
-    /// живой индикатор-кольцо слева и вертикальный хайрлайн-разделитель.
+    /// Верхняя плашка статуса — Liquid Glass (iOS 26, тёмный вариант).
+    /// Материал даёт translucency+saturation, спекуляр-хайлайт по верхней кромке
+    /// имитирует преломление света, парящая тень отрывает плашку от фона.
+    /// Акцент один — статус-точка; текст нейтральный, шрифт системный (SF), без неон-свечения.
     private var readyTag: some View {
-        HStack(spacing: 11) {
-            // Живой индикатор: ядро + расходящееся кольцо (дышит вместе с pulse)
-            ZStack {
-                Circle()
-                    .stroke(DesignSystem.Colors.neonGreen.opacity(0.55), lineWidth: 1.5)
-                    .frame(width: 13, height: 13)
-                    .scaleEffect(1 + pulse * 0.55)
-                    .opacity(1 - Double(pulse) * 0.75)
-
-                Circle()
-                    .fill(DesignSystem.Colors.neonGreen)
-                    .frame(width: 6.5, height: 6.5)
-            }
+        HStack(spacing: 9) {
+            // Единственный акцент — живая статус-точка (мягко дышит, без кольца-«радара»)
+            Circle()
+                .fill(DesignSystem.Colors.neonGreen)
+                .frame(width: 7, height: 7)
+                .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.5), radius: 3)
+                .opacity(0.65 + Double(pulse) * 0.35)
 
             Text("READY".localized())
-                .font(.system(size: 13, weight: .heavy, design: .monospaced))
-                .tracking(3)
-                .foregroundStyle(DesignSystem.Colors.neonGreen)
-
-            // Тонкий вертикальный разделитель вместо горизонтальной чёрточки
-            Capsule()
-                .fill(Color.white.opacity(0.16))
-                .frame(width: 1, height: 15)
+                .font(.system(size: 13, weight: .semibold))
+                .tracking(1.3)
+                .foregroundStyle(.white)
 
             Text(displayDayName.uppercased())
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                .tracking(1.5)
-                .foregroundStyle(.white.opacity(0.62))
+                .font(.system(size: 13, weight: .medium))
+                .tracking(0.5)
+                .foregroundStyle(.white.opacity(0.5))
                 .lineLimit(1)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 17)
         .padding(.vertical, 11)
         .background {
-            Capsule()
-                .fill(.ultraThinMaterial)
-                .overlay {
-                    // Рефракция края: светлая кромка сверху, лёгкий неон, гаснет книзу
-                    Capsule()
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.28),
-                                    DesignSystem.Colors.neonGreen.opacity(0.22),
-                                    Color.white.opacity(0.04)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ),
-                            lineWidth: 1
-                        )
-                }
-                .overlay {
-                    // Внутренний верхний блик — ощущение физического стекла
-                    Capsule()
-                        .stroke(Color.white.opacity(0.5), lineWidth: 0.5)
-                        .blur(radius: 1)
-                        .padding(0.5)
-                        .mask(
-                            LinearGradient(colors: [.white, .clear],
-                                           startPoint: .top, endPoint: .center)
-                        )
-                }
+            // 1) Базовый материал — полупрозрачный, насыщенный (не «пустое» стекло)
+            Capsule().fill(.ultraThinMaterial)
+            // 2) Лёгкий тёмный тон, чтобы акценты читались поверх яркого фона
+            Capsule().fill(Color.white.opacity(0.04))
         }
-        .shadow(color: .black.opacity(0.32), radius: 12, y: 6)
-        .shadow(color: DesignSystem.Colors.neonGreen.opacity(0.12), radius: 22)
+        .overlay {
+            // 3) Спекуляр: яркая кромка сверху → гаснет → тёмная линия снизу
+            Capsule()
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.30),
+                            Color.white.opacity(0.06),
+                            Color.black.opacity(0.22)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 0.8
+                )
+        }
+        .clipShape(Capsule())
+        // 4) Тени: контактная + широкая мягкая = ощущение парящего стекла
+        .shadow(color: .black.opacity(0.28), radius: 1, y: 1)
+        .shadow(color: .black.opacity(0.35), radius: 20, y: 11)
     }
 
     private var flashLayer: some View {
@@ -435,7 +419,7 @@ struct CountdownView: View {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         AudioServicesPlaySystemSound(1057)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             guard !cancelled else { return }
             onComplete()
         }

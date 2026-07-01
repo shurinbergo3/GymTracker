@@ -2176,10 +2176,13 @@ struct ActiveWorkoutContent: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxl) {
+        // Lazy — карточки вне экрана не строятся при старте тренировки. Иначе все 6-8
+        // тяжёлых ExerciseCard (+ их onAppear с перебором всей истории) собираются
+        // разом на главном потоке в момент перехода из отсчёта → заметный фриз.
+        LazyVStack(alignment: .leading, spacing: DesignSystem.Spacing.xxl) {
             let exercises = workoutDay.exercises.sorted { $0.orderIndex < $1.orderIndex }
             let activeId = activeExerciseId
-            
+
             ForEach(exercises, id: \.id) { exercise in
                 ExerciseCard(
                     exercise: exercise,
